@@ -77,15 +77,6 @@ export function Home() {
               ))}
             </div>
           </div>
-
-          <div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Trainer ID</h2>
-              <div className="p-4 bg-black/30 rounded-lg font-mono text-sm text-slate-400 break-all border border-white/5">
-                {save.id}
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>
