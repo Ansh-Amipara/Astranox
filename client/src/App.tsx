@@ -1,11 +1,24 @@
-
+import { Routes, Route } from 'react-router-dom';
+import { AuthGuard } from './components/AuthGuard';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { Home } from './pages/Home';
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-blue-400">Astranox UI</h1>
-    </div>
-  )
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route 
+        path="/" 
+        element={
+          <AuthGuard>
+            <Home />
+          </AuthGuard>
+        } 
+      />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

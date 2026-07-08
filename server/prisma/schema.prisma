@@ -6,3 +6,62 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id               String   @id @default(uuid()) @db.Uuid
+  username         String   @unique
+  email            String   @unique
+  passwordHash     String
+  role             Role     @default(USER)
+  refreshTokenHash String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Type {
+  id              Int       @id
+  name            String    @unique
+  damageRelations Json
+
+  moves           Move[]
+  speciesType1    Species[] @relation("SpeciesType1")
+  speciesType2    Species[] @relation("SpeciesType2")
+}
+
+model Move {
+  id           Int      @id
+  name         String   @unique
+  typeId       Int
+  type         Type     @relation(fields: [typeId], references: [id])
+  power        Int?
+  accuracy     Int?
+  pp           Int
+  priority     Int
+  damageClass  String
+
+  ailment      String?
+  statChanges  Json?
+}
+
+model Species {
+  id          Int      @id
+  name        String   @unique
+  spriteUrl   String
+  
+  hp          Int
+  attack      Int
+  defense     Int
+  spAtk       Int
+  spDef       Int
+  speed       Int
+
+  type1Id     Int
+  type1       Type     @relation("SpeciesType1", fields: [type1Id], references: [id])
+  type2Id     Int?
+  type2       Type?    @relation("SpeciesType2", fields: [type2Id], references: [id])
+}
