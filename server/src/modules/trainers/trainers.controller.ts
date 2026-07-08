@@ -37,4 +37,38 @@ export class TrainersController {
       next(err);
     }
   };
+
+  getBox = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+      
+      const boxNumber = parseInt(req.params.boxNumber, 10);
+      if (isNaN(boxNumber) || boxNumber < 0 || boxNumber > 31) {
+        throw new ValidationError('Invalid box number');
+      }
+
+      const box = await this.service.getBox(userId, boxNumber);
+      res.json({ success: true, data: box });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  swapSlots = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+      
+      const { from, to } = req.body;
+      if (!from || !to) {
+        throw new ValidationError('from and to slots are required');
+      }
+
+      await this.service.swapSlots(userId, from, to);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

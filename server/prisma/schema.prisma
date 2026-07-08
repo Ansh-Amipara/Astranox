@@ -49,6 +49,11 @@ model OwnedPokemon {
   nickname        String?
   level           Int      @default(5)
   
+  // Location Tracking
+  isParty         Boolean  @default(false)
+  boxNumber       Int?     // 0 to 31. Null if in party.
+  position        Int      @default(0) // 0 to 5 if party, 0 to 29 if box.
+  
   // Basic IVs for now (will be expanded in Phase 5)
   ivHp            Int      @default(0)
   ivAttack        Int      @default(0)

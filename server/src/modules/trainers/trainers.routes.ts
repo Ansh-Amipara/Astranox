@@ -9,3 +9,5 @@ trainersRoutes.use(requireAuth);
 
 trainersRoutes.get('/me', controller.getMe);
 trainersRoutes.post('/starter', controller.pickStarter);
+trainersRoutes.get('/box/:boxNumber', controller.getBox);
+trainersRoutes.post('/swap', controller.swapSlots);

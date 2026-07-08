@@ -8,6 +8,8 @@ export class TrainersRepository {
       where: { userId },
       include: {
         party: {
+          where: { isParty: true },
+          orderBy: { position: 'asc' },
           include: { species: true }
         }
       }
@@ -19,6 +21,8 @@ export class TrainersRepository {
       data: { userId },
       include: {
         party: {
+          where: { isParty: true },
+          orderBy: { position: 'asc' },
           include: { species: true }
         }
       }
@@ -27,13 +31,14 @@ export class TrainersRepository {
 
   async setStarter(trainerId: string, speciesId: number): Promise<TrainerSave> {
     return prisma.$transaction(async (tx) => {
-      // Create the level 5 starter Pokemon
       const starter = await tx.ownedPokemon.create({
         data: {
           trainerId,
           speciesId,
           level: 5,
-          // Random IVs 0-31
+          isParty: true,
+          position: 0,
+          boxNumber: null,
           ivHp: Math.floor(Math.random() * 32),
           ivAttack: Math.floor(Math.random() * 32),
           ivDefense: Math.floor(Math.random() * 32),
@@ -43,18 +48,63 @@ export class TrainersRepository {
         }
       });
 
-      // Update trainer save
       const save = await tx.trainerSave.update({
         where: { id: trainerId },
         data: { starterChosenAt: new Date() },
         include: {
           party: {
+            where: { isParty: true },
+            orderBy: { position: 'asc' },
             include: { species: true }
           }
         }
       });
 
       return save;
+    });
+  }
+
+  async getBox(trainerId: string, boxNumber: number) {
+    return prisma.ownedPokemon.findMany({
+      where: {
+        trainerId,
+        isParty: false,
+        boxNumber,
+      },
+      orderBy: { position: 'asc' },
+      include: { species: true }
+    });
+  }
+
+  async swapSlots(
+    trainerId: string,
+    from: { isParty: boolean; boxNumber: number | null; position: number },
+    to: { isParty: boolean; boxNumber: number | null; position: number }
+  ) {
+    return prisma.$transaction(async (tx) => {
+      // Find both pokemon
+      const fromPokemon = await tx.ownedPokemon.findFirst({
+        where: { trainerId, isParty: from.isParty, boxNumber: from.boxNumber, position: from.position }
+      });
+      const toPokemon = await tx.ownedPokemon.findFirst({
+        where: { trainerId, isParty: to.isParty, boxNumber: to.boxNumber, position: to.position }
+      });
+
+      if (fromPokemon) {
+        await tx.ownedPokemon.update({
+          where: { id: fromPokemon.id },
+          data: { isParty: to.isParty, boxNumber: to.boxNumber, position: to.position }
+        });
+      }
+
+      if (toPokemon) {
+        await tx.ownedPokemon.update({
+          where: { id: toPokemon.id },
+          data: { isParty: from.isParty, boxNumber: from.boxNumber, position: from.position }
+        });
+      }
+
+      return true;
     });
   }
 }

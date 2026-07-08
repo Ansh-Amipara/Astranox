@@ -35,4 +35,18 @@ export class TrainersService {
 
     return await this.repo.setStarter(save.id, speciesId);
   }
+
+  async getBox(userId: string, boxNumber: number) {
+    const save = await this.getMySave(userId);
+    return this.repo.getBox(save.id, boxNumber);
+  }
+
+  async swapSlots(
+    userId: string, 
+    from: { isParty: boolean; boxNumber: number | null; position: number },
+    to: { isParty: boolean; boxNumber: number | null; position: number }
+  ) {
+    const save = await this.getMySave(userId);
+    return this.repo.swapSlots(save.id, from, to);
+  }
 }
