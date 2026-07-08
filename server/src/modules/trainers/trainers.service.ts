@@ -16,10 +16,19 @@ export class TrainersService {
     
     // Automatically initialize save file for new users
     if (!save) {
-      save = await this.repo.createTrainerSave(userId);
+      try {
+        save = await this.repo.createTrainerSave(userId);
+      } catch (err: any) {
+        // If two simultaneous requests try to create a save, catch the unique constraint error
+        if (err.code === 'P2002') {
+          save = await this.repo.findByUserId(userId);
+        } else {
+          throw err;
+        }
+      }
     }
     
-    return save;
+    return save!;
   }
 
   async pickStarter(userId: string, speciesId: number) {
