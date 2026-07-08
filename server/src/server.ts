@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { ASTRANOX_VERSION } from '@astranox/shared';
 
 import { authRoutes } from './modules/auth/auth.routes';
+import { trainersRoutes } from './modules/trainers/trainers.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import cookieParser from 'cookie-parser';
 
@@ -16,11 +17,15 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+// Serve sprites publicly so the frontend can display them!
+app.use(express.static('public'));
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', version: ASTRANOX_VERSION });
 });
 
 app.use('/auth', authRoutes);
+app.use('/trainers', trainersRoutes);
 
 app.use(errorHandler);
 

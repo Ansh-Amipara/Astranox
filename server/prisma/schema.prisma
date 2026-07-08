@@ -21,6 +21,43 @@ model User {
   refreshTokenHash String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  
+  trainerSave      TrainerSave?
+}
+
+model TrainerSave {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @unique @db.Uuid
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  starterChosenAt DateTime?
+  money           Int      @default(3000)
+  
+  party           OwnedPokemon[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model OwnedPokemon {
+  id              String   @id @default(uuid()) @db.Uuid
+  trainerId       String   @db.Uuid
+  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  
+  speciesId       Int
+  species         Species  @relation(fields: [speciesId], references: [id])
+  
+  nickname        String?
+  level           Int      @default(5)
+  
+  // Basic IVs for now (will be expanded in Phase 5)
+  ivHp            Int      @default(0)
+  ivAttack        Int      @default(0)
+  ivDefense       Int      @default(0)
+  ivSpAtk         Int      @default(0)
+  ivSpDef         Int      @default(0)
+  ivSpeed         Int      @default(0)
+
+  createdAt       DateTime @default(now())
 }
 
 model Type {
@@ -64,4 +101,6 @@ model Species {
   type1       Type     @relation("SpeciesType1", fields: [type1Id], references: [id])
   type2Id     Int?
   type2       Type?    @relation("SpeciesType2", fields: [type2Id], references: [id])
+
+  owned       OwnedPokemon[]
 }
