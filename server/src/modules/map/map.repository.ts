@@ -25,7 +25,12 @@ export class MapRepository {
       include: {
         encounters: {
           include: {
-            species: true
+            species: {
+              include: {
+                type1: true,
+                type2: true
+              }
+            }
           }
         }
       }

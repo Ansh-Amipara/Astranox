@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 type Species = {
   id: number;
@@ -29,8 +29,7 @@ type Habitat = {
 };
 
 export function MapPage() {
-  const [activeEncounter, setActiveEncounter] = useState<any | null>(null);
-  const [exploreMessage, setExploreMessage] = useState<string>('');
+  const navigate = useNavigate();
 
   const { data: habitats, isLoading } = useQuery({
     queryKey: ['habitats'],
@@ -42,17 +41,11 @@ export function MapPage() {
 
   const exploreMutation = useMutation({
     mutationFn: async (zoneId: number) => {
-      const { data } = await api.post('/map/explore', { zoneId });
+      const { data } = await api.post('/battles/engage', { zoneId });
       return data.data;
     },
-    onSuccess: (data) => {
-      if (data.encounter) {
-        setActiveEncounter(data.encounter);
-        setExploreMessage(`A wild ${data.encounter.species.name} appeared!`);
-      } else {
-        setActiveEncounter(null);
-        setExploreMessage('You explored the area but found nothing.');
-      }
+    onSuccess: () => {
+      navigate('/battle');
     },
   });
 
@@ -67,11 +60,6 @@ export function MapPage() {
           World Map
         </h1>
 
-        {exploreMessage && !activeEncounter && (
-          <div className="mb-6 p-4 bg-slate-800 border border-slate-700 rounded-lg text-slate-300">
-            {exploreMessage}
-          </div>
-        )}
 
         <div className="space-y-12">
           {habitats?.map((habitat) => (
@@ -117,46 +105,7 @@ export function MapPage() {
         </div>
       </div>
 
-      {/* Wild Encounter Modal */}
-      {activeEncounter && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl transform transition-all">
-            <h2 className="text-2xl font-bold text-red-400 mb-2">Wild Pokémon Appeared!</h2>
-            <p className="text-slate-300 mb-6">{exploreMessage}</p>
-            
-            <div className="bg-slate-800/50 rounded-xl p-6 mb-8 border border-slate-700 inline-block">
-              <img 
-                src={`http://localhost:3000/sprites/${activeEncounter.species.id}.png`} 
-                alt={activeEncounter.species.name}
-                className="w-32 h-32 object-contain mx-auto drop-shadow-xl"
-                style={{ imageRendering: 'pixelated' }}
-              />
-              <div className="mt-4">
-                <h3 className="text-xl font-bold text-white capitalize">{activeEncounter.species.name}</h3>
-                <span className="text-sm font-bold text-blue-400">Lv. {activeEncounter.level}</span>
-              </div>
-            </div>
 
-            <div className="flex gap-4 justify-center">
-              <button 
-                className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition-colors"
-                onClick={() => {
-                  setActiveEncounter(null);
-                  setExploreMessage('');
-                }}
-              >
-                Run Away
-              </button>
-              <button 
-                className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-colors cursor-not-allowed opacity-50"
-                title="Battle Engine coming in Phase 8!"
-              >
-                Engage (Coming Soon)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -144,6 +144,61 @@
           }
         }
       ]
+    },
+    {
+      "name": "Battles",
+      "item": [
+        {
+          "name": "Engage Wild",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zoneId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/battles/engage",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles", "engage"]
+            }
+          }
+        },
+        {
+          "name": "Get Active Battle",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "url": {
+              "raw": "{{baseUrl}}/battles/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles", "active"]
+            }
+          }
+        },
+        {
+          "name": "Submit Turn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"move:Tackle\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/battles/turn",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles", "turn"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [

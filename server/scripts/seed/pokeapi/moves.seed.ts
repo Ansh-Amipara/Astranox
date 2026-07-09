@@ -1,3 +1,4 @@
+// Trigger IDE reload
 import { PrismaClient } from '@prisma/client';
 import { runInBatches } from './utils';
 
@@ -11,8 +12,8 @@ export async function seedMoves() {
   let totalSeeded = 0;
   
   while (url) {
-    const res = await fetch(url);
-    const data = await res.json();
+    const res: any = await fetch(url);
+    const data: any = await res.json();
     
     await runInBatches(data.results, 20, async (result: any) => {
       const moveRes = await fetch(result.url);
@@ -27,10 +28,11 @@ export async function seedMoves() {
           typeId: typeId,
           power: moveData.power,
           accuracy: moveData.accuracy,
-          pp: moveData.pp || 0,
           priority: moveData.priority,
           damageClass: moveData.damage_class?.name || 'status',
           ailment: moveData.meta?.ailment?.name,
+          ailmentChance: moveData.meta?.ailment_chance,
+          flinchChance: moveData.meta?.flinch_chance,
           statChanges: moveData.stat_changes,
         },
         create: {
@@ -39,10 +41,11 @@ export async function seedMoves() {
           typeId: typeId,
           power: moveData.power,
           accuracy: moveData.accuracy,
-          pp: moveData.pp || 0,
           priority: moveData.priority,
           damageClass: moveData.damage_class?.name || 'status',
           ailment: moveData.meta?.ailment?.name,
+          ailmentChance: moveData.meta?.ailment_chance,
+          flinchChance: moveData.meta?.flinch_chance,
           statChanges: moveData.stat_changes,
         },
       });

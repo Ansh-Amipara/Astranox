@@ -8,4 +8,3 @@ const controller = new MapController();
 mapRoutes.use(requireAuth);
 
 mapRoutes.get('/zones', controller.getZones);
-mapRoutes.post('/explore', controller.explore);

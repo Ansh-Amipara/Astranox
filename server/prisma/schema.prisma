@@ -34,6 +34,7 @@ model TrainerSave {
   money           Int      @default(3000)
   
   party           OwnedPokemon[]
+  battles         BattleSession[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -82,12 +83,13 @@ model Move {
   type         Type     @relation(fields: [typeId], references: [id])
   power        Int?
   accuracy     Int?
-  pp           Int
   priority     Int
   damageClass  String
 
-  ailment      String?
-  statChanges  Json?
+  ailment        String?
+  ailmentChance  Int?
+  flinchChance   Int?
+  statChanges    Json?
 }
 
 model Species {
@@ -135,4 +137,29 @@ model ZoneEncounter {
   speciesId   Int
   species     Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
   encounterRate Float
+}
+
+enum BattleStatus {
+  ACTIVE
+  WON
+  LOST
+  FLED
+}
+
+model BattleSession {
+  id                    String       @id @default(uuid()) @db.Uuid
+  trainerId             String       @db.Uuid
+  trainer               TrainerSave  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  
+  status                BattleStatus @default(ACTIVE)
+  turnNumber            Int          @default(1)
+
+  playerActivePokemonId String       @db.Uuid
+  wildPokemonData       Json
+  playerPokemonData     Json
+
+  log                   Json?        // Array of TurnEvent
+
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
 }

@@ -3,7 +3,7 @@ import { PrismaClient, TrainerSave, OwnedPokemon } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class TrainersRepository {
-  async findByUserId(userId: string): Promise<TrainerSave | null> {
+  async findByUserId(userId: string): Promise<any> {
     return prisma.trainerSave.findUnique({
       where: { userId },
       include: {

@@ -6,6 +6,7 @@ import { ASTRANOX_VERSION } from '@astranox/shared';
 import { authRoutes } from './modules/auth/auth.routes';
 import { trainersRoutes } from './modules/trainers/trainers.routes';
 import { mapRoutes } from './modules/map/map.routes';
+import { battlesRoutes } from './modules/battles/battles.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import cookieParser from 'cookie-parser';
 
@@ -28,6 +29,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/trainers', trainersRoutes);
 app.use('/map', mapRoutes);
+app.use('/battles', battlesRoutes);
 
 app.use(errorHandler);
 

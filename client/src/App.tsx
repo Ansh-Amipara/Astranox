@@ -7,6 +7,7 @@ import { Navbar } from './components/Navbar';
 import { PokemonManagement } from './pages/PokemonManagement';
 import { TeamPage } from './pages/TeamPage';
 import { MapPage } from './pages/MapPage';
+import { BattleScreen } from './pages/BattleScreen';
 
 function App() {
   const location = useLocation();
@@ -48,6 +49,14 @@ function App() {
             element={
               <AuthGuard>
                 <MapPage />
+              </AuthGuard>
+            } 
+          />
+          <Route 
+            path="/battle" 
+            element={
+              <AuthGuard>
+                <BattleScreen />
               </AuthGuard>
             } 
           />
