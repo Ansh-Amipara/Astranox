@@ -108,4 +108,31 @@ model Species {
   type2       Type?    @relation("SpeciesType2", fields: [type2Id], references: [id])
 
   owned       OwnedPokemon[]
+  encounters  ZoneEncounter[]
+}
+
+model Habitat {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  zones Zone[]
+}
+
+model Zone {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  habitatId   Int
+  habitat     Habitat @relation(fields: [habitatId], references: [id], onDelete: Cascade)
+  minLevel    Int
+  maxLevel    Int
+  
+  encounters  ZoneEncounter[]
+}
+
+model ZoneEncounter {
+  id          Int     @id @default(autoincrement())
+  zoneId      Int
+  zone        Zone    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  speciesId   Int
+  species     Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  encounterRate Float
 }
