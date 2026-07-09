@@ -2,6 +2,7 @@ export type StatusAilment = 'burn' | 'poison' | 'paralysis' | 'sleep' | 'freeze'
 
 export interface ActivePokemon {
   id: string; // unique instance id
+  speciesId: number;
   speciesName: string;
   level: number;
   types: string[]; // ["fire", "flying"]

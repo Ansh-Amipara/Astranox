@@ -23,8 +23,8 @@ export function BattleScreen() {
       const { data } = await api.post('/battles/turn', { action });
       return data.data;
     },
-    onSuccess: (newData) => {
-      queryClient.setQueryData(['activeBattle'], newData);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activeBattle'] });
       setMenu('main');
     }
   });
@@ -34,13 +34,13 @@ export function BattleScreen() {
     setTimeout(() => setToastMsg(null), 3000);
   };
 
-  if (isLoading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading Battle...</div>;
+  if (isLoading) return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
   
   if (error || !battleRes) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white gap-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
         <p>No active battle found.</p>
-        <button onClick={() => navigate('/map')} className="px-4 py-2 bg-blue-600 rounded">Return to Map</button>
+        <button onClick={() => navigate('/map')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors">Return to Map</button>
       </div>
     );
   }
@@ -51,53 +51,57 @@ export function BattleScreen() {
   const isFinished = status !== 'ACTIVE';
   
   // Last events logic to show what happened
-  const allEvents = battleRes.events || [];
-  const lastTurnEvents = allEvents.filter((e: any) => e.turn === battleRes.turnCount);
+  const log = battleRes.log || [];
+  const lastTurnLog = log.find((l: any) => l.turn === battleRes.turnNumber - 1);
+  const rawEvents = lastTurnLog ? lastTurnLog.events : [];
+  
+  const getEventMessage = (ev: any) => {
+    const name = ev.pokemonId === player.id ? player.speciesName : wild.speciesName;
+    switch (ev.type) {
+      case 'move': return `${name} used ${ev.moveName}!`;
+      case 'damage': return ev.effectiveness > 1 ? "It's super effective!" : ev.effectiveness < 1 ? "It's not very effective..." : null;
+      case 'miss': return `${name}'s attack missed!`;
+      case 'faint': return `${name} fainted!`;
+      case 'status_inflicted': return `${name} got ${ev.status}!`;
+      case 'status_effect': return ev.message || null;
+      case 'status_cleared': return `${name} recovered!`;
+      case 'fled': return "Got away safely!";
+      default: return null;
+    }
+  };
+
+  const lastTurnEvents = rawEvents.map(getEventMessage).filter(Boolean);
 
   return (
-    <div className="relative min-h-[calc(100vh-64px)] bg-[url('https://images.unsplash.com/photo-1518002171953-a080ee817e1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center overflow-hidden flex flex-col">
-      {/* Overlay to darken background slightly */}
-      <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
-
+    <div className="relative min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 transition-colors duration-200 flex flex-col overflow-hidden">
+      {/* Dynamic Background Image based on Zone */}
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518002171953-a080ee817e1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-60 dark:opacity-30 pointer-events-none z-0"></div>
+      
+      {/* Toast */}
       {toastMsg && (
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-6 py-3 rounded-lg border border-slate-700 z-50 shadow-xl">
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white px-6 py-3 rounded-lg border border-slate-200 dark:border-slate-700 z-[100] shadow-xl">
           {toastMsg}
         </div>
       )}
 
-      {/* Arena Area */}
-      <div className="flex-1 relative z-10 p-4 md:p-8 flex flex-col">
-        {/* Top: Wild Pokemon */}
-        <div className="flex justify-end mb-12">
-          <div className="flex items-end gap-4">
-            <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-xl p-4 w-72 shadow-2xl relative">
-              <div className="flex justify-between items-end border-b border-slate-600 pb-2 mb-2">
-                <h2 className="text-xl font-bold text-white capitalize">{wild.nickname}</h2>
-                <span className="text-sm font-bold text-slate-300">Lv {wild.level}</span>
-              </div>
-              
-              <div className="w-full bg-slate-700 rounded-full h-3 mb-1 overflow-hidden border border-slate-900">
-                <div 
-                  className={`h-full transition-all duration-500 ${wild.currentHP / wild.stats.hp > 0.5 ? 'bg-green-500' : wild.currentHP / wild.stats.hp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                  style={{ width: `${Math.max(0, (wild.currentHP / wild.stats.hp) * 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-end gap-2 items-center">
-                {wild.statusCondition && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-purple-500 text-white">{wild.statusCondition}</span>
-                )}
-              </div>
+      {/* Main Arena */}
+      <div className="relative z-10 flex-1 flex flex-col justify-between p-8">
+        
+        {/* Top Half: Wild Pokemon */}
+        <div className="flex justify-end w-full max-w-5xl mx-auto mt-12">
+          {/* Wild Info Card */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl w-80 mb-4">
+            <div className="flex justify-between items-end mb-2">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize tracking-wide">{wild.speciesName}</h2>
+              <span className="text-sm font-bold text-slate-500 dark:text-slate-300">Lv {wild.level}</span>
             </div>
             
-            <div className="w-40 h-40 flex items-end justify-center relative pb-4">
-              {/* Shadow */}
-              <div className="absolute bottom-0 w-24 h-6 bg-black/40 rounded-[100%] blur-sm"></div>
-              <img 
-                src={`http://localhost:3000/sprites/${wild.id}.png`} 
-                alt={wild.nickname} 
-                className={`relative z-10 w-32 h-32 object-contain transition-all duration-500 ${wild.currentHP <= 0 ? 'opacity-0 translate-y-10' : 'animate-bounce-slow'}`}
-                style={{ imageRendering: 'pixelated' }}
-              />
+            {/* HP Bar */}
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4 border-2 border-slate-300 dark:border-slate-900 overflow-hidden relative">
+                <div 
+                  className={`h-full transition-all duration-500 ${wild.currentHP / wild.maxHp > 0.5 ? 'bg-green-500' : wild.currentHP / wild.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                  style={{ width: `${Math.max(0, (wild.currentHP / wild.maxHp) * 100)}%` }}
+                ></div>
             </div>
           </div>
         </div>
@@ -105,144 +109,135 @@ export function BattleScreen() {
         {/* Spacer to push player to bottom */}
         <div className="flex-1"></div>
 
-        {/* Bottom: Player Pokemon */}
-        <div className="flex justify-start">
-          <div className="flex items-end gap-8">
-            <div className="w-48 h-48 flex items-end justify-center relative pb-4">
-              {/* Shadow */}
-              <div className="absolute bottom-0 w-32 h-8 bg-black/40 rounded-[100%] blur-sm"></div>
-              <img 
-                src={`http://localhost:3000/sprites/${player.id}.png`} 
-                alt={player.nickname} 
-                className={`relative z-10 w-40 h-40 object-contain transition-all duration-500 ${player.currentHP <= 0 ? 'opacity-0 translate-y-10' : ''}`}
-                style={{ imageRendering: 'pixelated', transform: 'scaleX(-1)' }} // Flipped to face enemy
-              />
+        {/* Bottom Half: Player Pokemon */}
+        <div className="flex justify-start w-full max-w-5xl mx-auto mb-12">
+          <div className="relative inline-block mt-24">
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/30 dark:bg-black/50 blur-xl rounded-full"></div>
+            <img 
+              src={`http://localhost:3000/sprites/back/${player.speciesId}.png`}
+              className="relative w-64 h-64 object-contain"
+              style={{ imageRendering: 'pixelated' }}
+            />
+          </div>
+          
+          {/* Player Info Card */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl w-80 ml-12 self-end">
+            <div className="flex justify-between items-end mb-2">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize tracking-wide">{player.nickname || player.speciesName}</h2>
+              <span className="text-sm font-bold text-slate-500 dark:text-slate-300">Lv {player.level}</span>
             </div>
-
-            <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-xl p-4 w-72 shadow-2xl relative mb-12">
-              <div className="flex justify-between items-end border-b border-slate-600 pb-2 mb-2">
-                <h2 className="text-xl font-bold text-white capitalize">{player.nickname}</h2>
-                <span className="text-sm font-bold text-slate-300">Lv {player.level}</span>
-              </div>
-              
-              <div className="w-full bg-slate-700 rounded-full h-3 mb-1 overflow-hidden border border-slate-900">
+            
+            {/* HP Bar */}
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4 border-2 border-slate-300 dark:border-slate-900 overflow-hidden relative">
                 <div 
-                  className={`h-full transition-all duration-500 ${player.currentHP / player.stats.hp > 0.5 ? 'bg-green-500' : player.currentHP / player.stats.hp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                  style={{ width: `${Math.max(0, (player.currentHP / player.stats.hp) * 100)}%` }}
+                  className={`h-full transition-all duration-500 ${player.currentHP / player.maxHp > 0.5 ? 'bg-green-500' : player.currentHP / player.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                  style={{ width: `${Math.max(0, (player.currentHP / player.maxHp) * 100)}%` }}
                 ></div>
-              </div>
-              <div className="flex justify-between items-center mt-1">
-                <div className="flex gap-2">
-                  {player.statusCondition && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-purple-500 text-white">{player.statusCondition}</span>
-                  )}
-                </div>
-                <span className="text-xs font-bold text-white">{Math.max(0, player.currentHP)} / {player.stats.hp}</span>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom UI Console */}
-      <div className="h-48 bg-slate-950 border-t-4 border-slate-800 flex relative z-20">
-        {/* Battle Log Box */}
-        <div className="flex-1 p-4 overflow-y-auto border-r-4 border-slate-800">
-          {isFinished ? (
-            <div className="h-full flex flex-col justify-center gap-4">
-              <p className="text-xl text-white font-bold leading-relaxed">
-                {status === 'WON' ? `You defeated the wild ${wild.nickname}!` : 
-                 status === 'FLED' ? 'Got away safely!' : 'You blacked out!'}
-              </p>
-              <button 
-                onClick={() => navigate('/map')} 
-                className="self-start px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"
-              >
-                Leave Battle
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col justify-end min-h-full">
-              {lastTurnEvents.length > 0 ? (
-                lastTurnEvents.map((ev: any, i: number) => (
-                  <p key={i} className="text-lg text-white mb-2 leading-relaxed">
-                    {ev.message}
-                  </p>
-                ))
-              ) : (
-                <p className="text-xl text-white leading-relaxed">
-                  What will <span className="capitalize text-blue-400">{player.nickname}</span> do?
+      <div className="bg-slate-100 dark:bg-slate-950 border-t border-slate-300 dark:border-slate-800 p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20 transition-colors duration-200">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 h-48">
+          
+          {/* Battle Log Box */}
+          <div className="bg-white dark:bg-black/40 rounded-xl border border-slate-300 dark:border-slate-800 p-4 font-mono overflow-y-auto shadow-inner transition-colors duration-200">
+            {isFinished ? (
+              <div className="flex flex-col items-center justify-center h-full space-y-4">
+                <p className="text-xl text-slate-900 dark:text-white font-bold capitalize">Battle Finished!</p>
+                <p className="text-slate-800 dark:text-slate-200">
+                  {status === 'WON' ? `You defeated the wild ${wild.speciesName}!` : 
+                   status === 'FLED' ? 'Got away safely!' : 'You blacked out!'}
                 </p>
-              )}
-            </div>
-          )}
-        </div>
+                <button 
+                  onClick={() => navigate('/map')} 
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors"
+                >
+                  Leave Battle
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col justify-end min-h-full">
+                {lastTurnEvents.length > 0 ? (
+                  lastTurnEvents.map((msg: string, i: number) => (
+                    <p key={i} className="text-lg text-slate-800 dark:text-white mb-2 leading-relaxed capitalize">
+                      {msg}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-lg text-slate-800 dark:text-white animate-pulse">
+                    What will <span className="font-bold capitalize text-blue-600 dark:text-blue-400">{player.nickname || player.speciesName}</span> do?
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Action Menu Box */}
-        <div className="w-[400px] p-2 bg-slate-900">
-          {!isFinished && (
-            <div className="h-full">
-              {menu === 'main' ? (
-                <div className="grid grid-cols-2 gap-2 h-full">
-                  <button 
-                    disabled={turnMutation.isPending}
-                    onClick={() => setMenu('fight')}
-                    className="bg-red-600/90 hover:bg-red-500 text-white font-bold text-xl rounded border-2 border-red-800 transition-colors"
-                  >
-                    FIGHT
-                  </button>
-                  <button 
-                    disabled={turnMutation.isPending}
-                    onClick={() => showToast("Catching pokemon is a future feature!")}
-                    className="bg-blue-600/90 hover:bg-blue-500 text-white font-bold text-xl rounded border-2 border-blue-800 transition-colors"
-                  >
-                    BAG
-                  </button>
-                  <button 
-                    disabled={turnMutation.isPending}
-                    onClick={() => showToast("Switching pokemon is a future feature!")}
-                    className="bg-green-600/90 hover:bg-green-500 text-white font-bold text-xl rounded border-2 border-green-800 transition-colors"
-                  >
-                    POKEMON
-                  </button>
-                  <button 
-                    disabled={turnMutation.isPending}
-                    onClick={() => turnMutation.mutate('run')}
-                    className="bg-yellow-600/90 hover:bg-yellow-500 text-white font-bold text-xl rounded border-2 border-yellow-800 transition-colors"
-                  >
-                    RUN
-                  </button>
-                </div>
-              ) : (
-                <div className="h-full flex flex-col">
-                  <div className="grid grid-cols-2 gap-2 flex-1">
-                    {player.moves.map((m: any, i: number) => (
-                      <button 
-                        key={i}
-                        disabled={turnMutation.isPending}
-                        onClick={() => turnMutation.mutate(`move:${m.name}`)}
-                        className="bg-slate-700 hover:bg-slate-600 text-white font-bold rounded border border-slate-600 flex flex-col items-center justify-center transition-colors"
-                      >
-                        <span className="capitalize">{m.name.replace('-', ' ')}</span>
-                      </button>
-                    ))}
-                    {/* Fill empty slots if less than 4 moves */}
-                    {Array.from({ length: Math.max(0, 4 - player.moves.length) }).map((_, i) => (
-                      <button key={`empty-${i}`} disabled className="bg-slate-800 text-slate-600 font-bold rounded border border-slate-700">
-                        -
-                      </button>
-                    ))}
+          {/* Action Menu Box */}
+          <div className="bg-slate-200 dark:bg-slate-900 rounded-xl p-4 flex flex-col transition-colors duration-200">
+            {!isFinished && (
+              <div className="h-full">
+                {menu === 'main' && (
+                  <div className="grid grid-cols-2 gap-4 h-full">
+                    <button 
+                      onClick={() => setMenu('fight')}
+                      className="bg-gradient-to-br from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-red-500/50 transition-all hover:-translate-y-1"
+                    >
+                      FIGHT
+                    </button>
+                    <button 
+                      onClick={() => showToast('Bag is a future feature!')}
+                      className="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 font-black text-2xl rounded-lg border-2 border-slate-400 dark:border-slate-700 cursor-not-allowed transition-colors"
+                    >
+                      BAG
+                    </button>
+                    <button 
+                      onClick={() => showToast('Switching Pokémon is a future feature!')}
+                      className="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 font-black text-2xl rounded-lg border-2 border-slate-400 dark:border-slate-700 cursor-not-allowed transition-colors"
+                    >
+                      POKéMON
+                    </button>
+                    <button 
+                      onClick={() => turnMutation.mutate('FLED')}
+                      disabled={turnMutation.isPending}
+                      className="bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-blue-500/50 transition-all hover:-translate-y-1 disabled:opacity-50"
+                    >
+                      RUN
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => setMenu('main')}
-                    className="mt-2 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded border border-slate-600"
-                  >
-                    CANCEL
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+
+                {menu === 'fight' && (
+                  <div className="flex flex-col h-full gap-2">
+                    <button 
+                      onClick={() => setMenu('main')}
+                      className="self-start text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white font-bold mb-2 flex items-center transition-colors"
+                    >
+                      ← Back
+                    </button>
+                    <div className="grid grid-cols-2 gap-2 flex-1">
+                      {(player.moves || [{ name: 'tackle' }]).map((move: any, i: number) => (
+                        <button
+                          key={i}
+                          onClick={() => turnMutation.mutate(move.name)}
+                          disabled={turnMutation.isPending}
+                          className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-bold text-xl rounded-lg border-2 border-slate-300 dark:border-slate-600 capitalize shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                        >
+                          {move.name}
+                        </button>
+                      ))}
+                      {/* Fill empty move slots */}
+                      {Array.from({ length: Math.max(0, 4 - (player.moves?.length || 1)) }).map((_, i) => (
+                        <div key={`empty-${i}`} className="bg-slate-300 dark:bg-slate-800 border-2 border-slate-400 dark:border-slate-700 rounded-lg"></div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

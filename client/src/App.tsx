@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useThemeStore } from './store/theme.store';
 import { AuthGuard } from './components/AuthGuard';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -8,13 +10,24 @@ import { PokemonManagement } from './pages/PokemonManagement';
 import { TeamPage } from './pages/TeamPage';
 import { MapPage } from './pages/MapPage';
 import { BattleScreen } from './pages/BattleScreen';
+import { Pokemart } from './pages/Pokemart';
+import { Bag } from './pages/Bag';
 
 function App() {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const { theme } = useThemeStore();
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-200">
       {!isAuthPage && <Navbar />}
       <main className="flex-1 flex flex-col">
         <Routes>
@@ -57,6 +70,22 @@ function App() {
             element={
               <AuthGuard>
                 <BattleScreen />
+              </AuthGuard>
+            } 
+          />
+          <Route 
+            path="/shop" 
+            element={
+              <AuthGuard>
+                <Pokemart />
+              </AuthGuard>
+            } 
+          />
+          <Route 
+            path="/bag" 
+            element={
+              <AuthGuard>
+                <Bag />
               </AuthGuard>
             } 
           />

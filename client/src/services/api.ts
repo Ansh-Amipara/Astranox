@@ -38,3 +38,14 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const shopApi = {
+  getItems: async () => {
+    const { data } = await api.get('/shop/items');
+    return data.data;
+  },
+  buyItem: async (itemId: string, quantity: number) => {
+    const { data } = await api.post('/shop/buy', { itemId, quantity });
+    return data;
+  }
+};

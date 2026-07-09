@@ -56,7 +56,7 @@ export function PokemonManagement() {
   };
 
   if (isSaveLoading) {
-    return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading Trainer Data...</div>;
+    return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Trainer Data...</div>;
   }
 
   // Create lookup maps for easy rendering
@@ -78,8 +78,8 @@ export function PokemonManagement() {
           ${isParty ? 'h-24 p-4' : 'h-16 w-16 p-2 mx-auto'} 
           ${
             isSelected
-              ? 'border-blue-400 bg-blue-900/40 shadow-[0_0_15px_rgba(96,165,250,0.5)] scale-105 z-10'
-              : 'border-slate-800 bg-slate-900/80 hover:border-slate-600 hover:bg-slate-800'
+              ? 'border-blue-400 bg-blue-100 dark:bg-blue-900/40 shadow-md dark:shadow-[0_0_15px_rgba(96,165,250,0.5)] scale-105 z-10'
+              : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800'
           }
         `}
       >
@@ -94,10 +94,10 @@ export function PokemonManagement() {
             {isParty && (
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start">
-                  <h3 className="font-bold text-white capitalize truncate">{pkm.nickname || pkm.species.name}</h3>
-                  <span className="text-xs font-bold text-blue-400 bg-blue-900/30 px-2 py-0.5 rounded">Lv. {pkm.level}</span>
+                  <h3 className="font-bold text-slate-900 dark:text-white capitalize truncate">{pkm.nickname || pkm.species.name}</h3>
+                  <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Lv. {pkm.level}</span>
                 </div>
-                <div className="flex gap-2 mt-1 text-xs text-slate-400">
+                <div className="flex gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400">
                   <span>HP: {pkm.ivHp}</span>
                   <span>ATK: {pkm.ivAttack}</span>
                 </div>
@@ -105,7 +105,7 @@ export function PokemonManagement() {
             )}
           </div>
         ) : (
-          <div className="text-slate-700 font-medium text-xs uppercase tracking-wider">Empty</div>
+          <div className="text-slate-400 dark:text-slate-700 font-medium text-xs uppercase tracking-wider">Empty</div>
         )}
         
         {/* Selection overlay border for pending swaps */}
@@ -117,17 +117,17 @@ export function PokemonManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex-1">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex-1 transition-colors duration-200">
       <main className="p-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Team Management</h1>
-            <p className="text-slate-400 mt-2">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Team Management</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-2">
               {selectedSlot ? 'Select another slot to swap.' : 'Select a Pokémon to move it.'}
             </p>
           </div>
           {swapMutation.isPending && (
-            <div className="flex items-center gap-2 text-blue-400 bg-blue-900/20 px-4 py-2 rounded-full border border-blue-900/50">
+            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20 px-4 py-2 rounded-full border border-blue-200 dark:border-blue-900/50">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
@@ -141,8 +141,8 @@ export function PokemonManagement() {
           
           {/* Party Section */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h2 className="text-xl font-semibold text-white">Active Party</h2>
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Active Party</h2>
               <span className="text-xs font-bold text-slate-500">{save?.party?.length || 0} / 6</span>
             </div>
             <div className="flex flex-col gap-3">
@@ -152,14 +152,14 @@ export function PokemonManagement() {
 
           {/* PC Box Section */}
           <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h2 className="text-xl font-semibold text-white">PC Storage System</h2>
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">PC Storage System</h2>
               
-              <div className="flex items-center gap-4 bg-slate-900 border border-slate-800 rounded-lg p-1">
+              <div className="flex items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-1">
                 <button 
                   disabled={currentBox === 0}
                   onClick={() => setCurrentBox(c => c - 1)}
-                  className="px-3 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-30 transition-colors"
+                  className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 transition-colors"
                 >
                   ◀
                 </button>
@@ -167,14 +167,14 @@ export function PokemonManagement() {
                 <button 
                   disabled={currentBox === 31}
                   onClick={() => setCurrentBox(c => c + 1)}
-                  className="px-3 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-30 transition-colors"
+                  className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 transition-colors"
                 >
                   ▶
                 </button>
               </div>
             </div>
 
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 min-h-[400px]">
+            <div className="bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 min-h-[400px]">
               {isBoxLoading ? (
                 <div className="h-full flex items-center justify-center text-slate-500">Accessing Box Data...</div>
               ) : (
@@ -184,7 +184,7 @@ export function PokemonManagement() {
               )}
             </div>
             
-            <div className="rounded-xl border border-blue-900/30 bg-blue-900/10 p-4 text-sm text-blue-400/80">
+            <div className="rounded-xl border border-blue-200 dark:border-blue-900/30 bg-blue-50 dark:bg-blue-900/10 p-4 text-sm text-blue-700 dark:text-blue-400/80">
               <span className="font-bold">Tip:</span> Click any Pokémon in your Party or Box to select it, then click an empty slot or another Pokémon to swap their positions.
             </div>
           </div>

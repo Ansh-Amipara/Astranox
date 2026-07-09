@@ -10,7 +10,10 @@ export class TrainersRepository {
         party: {
           where: { isParty: true },
           orderBy: { position: 'asc' },
-          include: { species: true }
+          include: { species: { include: { type1: true, type2: true } } }
+        },
+        inventory: {
+          include: { item: true }
         }
       }
     });
@@ -23,7 +26,10 @@ export class TrainersRepository {
         party: {
           where: { isParty: true },
           orderBy: { position: 'asc' },
-          include: { species: true }
+          include: { species: { include: { type1: true, type2: true } } }
+        },
+        inventory: {
+          include: { item: true }
         }
       }
     });
@@ -55,7 +61,10 @@ export class TrainersRepository {
           party: {
             where: { isParty: true },
             orderBy: { position: 'asc' },
-            include: { species: true }
+            include: { species: { include: { type1: true, type2: true } } }
+          },
+          inventory: {
+            include: { item: true }
           }
         }
       });
@@ -72,7 +81,7 @@ export class TrainersRepository {
         boxNumber,
       },
       orderBy: { position: 'asc' },
-      include: { species: true }
+      include: { species: { include: { type1: true, type2: true } } }
     });
   }
 

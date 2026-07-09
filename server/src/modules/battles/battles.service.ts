@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
 function toActivePokemon(inst: any): ActivePokemon {
   return {
     id: inst.id,
+    speciesId: inst.species.id,
     speciesName: inst.name,
     level: inst.level,
     types: inst.types,
@@ -58,7 +59,13 @@ export class BattlesService {
     return multiplier;
   }
 
-  async engageWild(trainerId: string, zoneId: number) {
+  async engageWild(userId: string, zoneId: number) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) {
+      throw new NotFoundError('Trainer profile not found.');
+    }
+    const trainerId = trainerSave.id;
+
     // 1. Check if user already in battle
     const active = await this.repository.getActiveBattleByTrainer(trainerId);
     if (active) {
@@ -126,8 +133,7 @@ export class BattlesService {
     const wildActive = toActivePokemon(wildInstance);
 
     // 3. Get player lead Pokemon
-    const trainerSave = await this.trainersRepo.findByUserId(trainerId);
-    if (!trainerSave || trainerSave.party.length === 0) {
+    if (trainerSave.party.length === 0) {
       throw new ValidationError('You have no Pokemon to battle with!');
     }
     const lead = trainerSave.party[0]; // Already ordered by position
@@ -151,14 +157,18 @@ export class BattlesService {
     };
   }
 
-  async getActiveSession(trainerId: string) {
-    const session = await this.repository.getActiveBattleByTrainer(trainerId);
+  async getActiveSession(userId: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
+    const session = await this.repository.getActiveBattleByTrainer(trainerSave.id);
     if (!session) throw new NotFoundError('No active battle session found.');
     return session;
   }
 
-  async submitTurn(trainerId: string, action: string) {
-    const session = await this.repository.getActiveBattleByTrainer(trainerId);
+  async submitTurn(userId: string, action: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
+    const session = await this.repository.getActiveBattleByTrainer(trainerSave.id);
     if (!session) throw new NotFoundError('No active battle session found.');
     
     if (action === 'run') {

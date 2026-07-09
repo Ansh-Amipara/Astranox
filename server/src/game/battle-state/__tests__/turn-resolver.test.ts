@@ -5,6 +5,7 @@ import { ActivePokemon, BattleAction } from '../types';
 describe('Turn Resolver Engine', () => {
   const createMockPokemon = (id: string, level: number, speed: number, types: string[]): ActivePokemon => ({
     id,
+    speciesId: 1,
     speciesName: 'MockMon',
     level,
     types,

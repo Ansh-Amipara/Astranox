@@ -34,6 +34,7 @@ model TrainerSave {
   money           Int      @default(3000)
   
   party           OwnedPokemon[]
+  inventory       InventoryItem[]
   battles         BattleSession[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -74,6 +75,29 @@ model Type {
   moves           Move[]
   speciesType1    Species[] @relation("SpeciesType1")
   speciesType2    Species[] @relation("SpeciesType2")
+}
+
+model Item {
+  id          String   @id
+  name        String   @unique
+  cost        Int
+  description String
+  spriteUrl   String?
+  
+  inventory   InventoryItem[]
+}
+
+model InventoryItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  trainerId String   @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  
+  quantity  Int      @default(0)
+
+  @@unique([trainerId, itemId])
 }
 
 model Move {
