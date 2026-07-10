@@ -16,11 +16,15 @@ describe('Turn Resolver Engine', () => {
     spAtk: 50,
     spDef: 50,
     speed,
+    catchRate: 255,
+    baseExp: 100,
+    currentXp: 0,
     status: null,
     stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
   });
 
   const createMockAction = (pokemonId: string, priority: number = 0, power: number = 40): BattleAction => ({
+    type: 'move',
     pokemonId,
     typeEffectivenessMultiplier: 1,
     move: {
@@ -98,7 +102,7 @@ describe('Turn Resolver Engine', () => {
     const p1 = createMockPokemon('p1', 5, 20, ['normal']);
     const p2 = createMockPokemon('p2', 5, 10, ['normal']);
     
-    const p1Action = createMockAction('p1');
+    const p1Action = createMockAction('p1') as any;
     p1Action.move.ailment = 'burn';
     p1Action.move.ailmentChance = 100;
 

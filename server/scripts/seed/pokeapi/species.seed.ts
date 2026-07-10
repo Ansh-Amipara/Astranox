@@ -58,6 +58,20 @@ export async function seedSpecies() {
       const type1Id = parseInt(data.types.find((t: any) => t.slot === 1).type.url.split('/').filter(Boolean).pop()!);
       const type2Info = data.types.find((t: any) => t.slot === 2);
       const type2Id = type2Info ? parseInt(type2Info.type.url.split('/').filter(Boolean).pop()!) : null;
+      
+      const baseExperience = data.base_experience || 0;
+
+      // Fetch species data for catch rate
+      let catchRate = 255;
+      try {
+        const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
+        if (speciesRes.ok) {
+          const speciesData = await speciesRes.json();
+          catchRate = speciesData.capture_rate || 255;
+        }
+      } catch (err) {
+        console.error(`Failed to fetch species data for ${id}, defaulting catchRate to 255`, err);
+      }
 
       // Download sprite locally
       const remoteSpriteUrl = data.sprites?.front_default;
@@ -69,6 +83,8 @@ export async function seedSpecies() {
           name: data.name,
           spriteUrl: localSpriteUrl,
           hp, attack, defense, spAtk, spDef, speed,
+          catchRate,
+          baseExp: baseExperience,
           type1Id, type2Id,
         },
         create: {
@@ -76,6 +92,8 @@ export async function seedSpecies() {
           name: data.name,
           spriteUrl: localSpriteUrl,
           hp, attack, defense, spAtk, spDef, speed,
+          catchRate,
+          baseExp: baseExperience,
           type1Id, type2Id,
         },
       });

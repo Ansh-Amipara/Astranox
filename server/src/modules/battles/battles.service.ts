@@ -7,6 +7,7 @@ import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { ActivePokemon, BattleAction, TurnEvent } from '../../game/battle-state/types';
 import { resolveTurn } from '../../game/battle-state/turn-resolver';
 import { createPokemonInstance } from '../../game/instance/PokemonInstance';
+import { getBallBonus } from '../../game/battle/catch-math';
 import crypto from 'crypto';
 import { PrismaClient, BattleStatus } from '@prisma/client';
 
@@ -26,6 +27,9 @@ function toActivePokemon(inst: any): ActivePokemon {
     spAtk: inst.stats.spAtk,
     spDef: inst.stats.spDef,
     speed: inst.stats.speed,
+    catchRate: inst.species.catchRate || 255,
+    baseExp: inst.species.baseExp || 100,
+    currentXp: inst.currentXp || 0,
     status: null,
     stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
   };
@@ -141,11 +145,14 @@ export class BattlesService {
     const playerActive = toActivePokemon(playerInstance);
 
     // 4. Create BattleSession
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
     const session = await this.repository.createBattleSession({
       trainerId,
       playerActivePokemonId: playerActive.id,
       wildPokemonData: wildActive,
-      playerPokemonData: playerActive
+      playerPokemonData: playerActive,
+      playerPartyData
     });
 
     return {
@@ -182,41 +189,112 @@ export class BattlesService {
       return { status: BattleStatus.FLED, events: [{ type: 'fled' }] };
     }
 
-    if (!action.startsWith('move:')) {
-      throw new ValidationError('Invalid action');
-    }
-
-    const moveName = action.split(':')[1];
-    
-    // Fetch move from DB
-    const playerMoveData = await prisma.move.findUnique({
-      where: { name: moveName.toLowerCase() },
-      include: { type: true }
-    });
-
-    if (!playerMoveData) {
-      throw new ValidationError(`Move ${moveName} not found.`);
-    }
-
-    // Prepare Player Action
+    let playerAction: BattleAction;
     const wildPokemon = session.wildPokemonData as any;
-    const playerPokemon = session.playerPokemonData as any;
+    let playerPokemon = session.playerPokemonData as any;
+    let playerPartyData = (session.playerPartyData as any[]) || [];
 
-    const playerAction: BattleAction = {
-      pokemonId: session.playerActivePokemonId,
-      typeEffectivenessMultiplier: this.calculateTypeMultiplier(playerMoveData.type, wildPokemon.types),
-      move: {
-        name: playerMoveData.name,
-        power: playerMoveData.power,
-        accuracy: playerMoveData.accuracy,
-        type: playerMoveData.type.name,
-        priority: playerMoveData.priority,
-        damageClass: playerMoveData.damageClass as any,
-        ailment: playerMoveData.ailment,
-        ailmentChance: playerMoveData.ailmentChance,
-        flinchChance: playerMoveData.flinchChance
+    if (session.status === BattleStatus.WAITING_SWITCH) {
+      if (!action.startsWith('switch:')) {
+        throw new ValidationError('You must switch in a new Pokemon.');
       }
-    };
+      const targetId = action.split(':')[1];
+      const targetData = playerPartyData.find(p => p.id === targetId);
+      if (!targetData || targetData.currentHp <= 0) {
+        throw new ValidationError('Invalid switch target.');
+      }
+      
+      // We don't save the old one since it already saved its fainted state at the end of last turn.
+      playerPokemon = targetData;
+      session.playerActivePokemonId = targetId;
+      session.playerPokemonData = targetData;
+
+      // Update session and return early, no turn resolution for wild pokemon
+      await this.repository.updateBattleSession(session.id, {
+        status: BattleStatus.ACTIVE,
+        playerActivePokemonId: targetId,
+        playerPokemonData: targetData,
+        log: [...(session.log as any || []), { turn: session.turnNumber, events: [{ type: 'switch', pokemonId: targetId, targetPokemonId: targetId, name: targetData.speciesName, isPlayer: true }] }]
+      });
+
+      return {
+        status: BattleStatus.ACTIVE,
+        turnNumber: session.turnNumber,
+        events: [],
+        p1State: targetData,
+        p2State: wildPokemon
+      };
+    }
+
+    if (action.startsWith('switch:')) {
+      const targetId = action.split(':')[1];
+      const targetData = playerPartyData.find(p => p.id === targetId);
+      if (!targetData || targetData.currentHp <= 0) {
+        throw new ValidationError('Invalid switch target.');
+      }
+
+      // We are about to execute a turn. Update old pokemon in party data
+      const oldIndex = playerPartyData.findIndex(p => p.id === playerPokemon.id);
+      if (oldIndex !== -1) playerPartyData[oldIndex] = playerPokemon;
+
+      playerPokemon = targetData;
+      session.playerActivePokemonId = targetId;
+
+      playerAction = {
+        type: 'switch',
+        pokemonId: targetId,
+        targetPokemonId: targetId
+      };
+    } else if (action.startsWith('item:')) {
+      const itemName = action.split(':')[1];
+      const inventoryItem = trainerSave.inventory.find((i: any) => i.item.name === itemName);
+      
+      if (!inventoryItem || inventoryItem.quantity <= 0) {
+        throw new ValidationError(`You don't have any ${itemName} left.`);
+      }
+
+      // Decrement inventory (we'll just use Prisma directly here for simplicity, though a repo method is better)
+      await prisma.inventoryItem.update({
+        where: { id: inventoryItem.id },
+        data: { quantity: inventoryItem.quantity - 1 }
+      });
+
+      playerAction = {
+        type: 'item',
+        pokemonId: session.playerActivePokemonId,
+        itemId: itemName,
+        ballBonus: getBallBonus(itemName)
+      };
+    } else {
+      const moveName = action.split(':')[1];
+      
+      // Fetch move from DB
+      const playerMoveData = await prisma.move.findUnique({
+        where: { name: moveName.toLowerCase() },
+        include: { type: true }
+      });
+
+      if (!playerMoveData) {
+        throw new ValidationError(`Move ${moveName} not found.`);
+      }
+
+      playerAction = {
+        type: 'move',
+        pokemonId: session.playerActivePokemonId,
+        typeEffectivenessMultiplier: this.calculateTypeMultiplier(playerMoveData.type, wildPokemon.types),
+        move: {
+          name: playerMoveData.name,
+          power: playerMoveData.power,
+          accuracy: playerMoveData.accuracy,
+          type: playerMoveData.type.name,
+          priority: playerMoveData.priority,
+          damageClass: playerMoveData.damageClass as any,
+          ailment: playerMoveData.ailment,
+          ailmentChance: playerMoveData.ailmentChance,
+          flinchChance: playerMoveData.flinchChance
+        }
+      };
+    }
 
     // Wild AI logic: Just pick Tackle for now until we store moves.
     const wildMoveData = await prisma.move.findUnique({
@@ -225,6 +303,7 @@ export class BattlesService {
     });
 
     const wildAction: BattleAction = {
+      type: 'move',
       pokemonId: wildPokemon.id,
       typeEffectivenessMultiplier: this.calculateTypeMultiplier(wildMoveData!.type, playerPokemon.types),
       move: {
@@ -239,24 +318,100 @@ export class BattlesService {
 
     // Resolve Turn
     const result = resolveTurn(
-      session.playerPokemonData as any,
+      playerPokemon,
       playerAction,
       session.wildPokemonData as any,
       wildAction
     );
 
-    // Update Session
-    const newStatus = 
-      result.p1State.currentHp <= 0 ? BattleStatus.LOST :
-      result.p2State.currentHp <= 0 ? BattleStatus.WON :
-      BattleStatus.ACTIVE;
+    // Sync p1 state back to party data
+    const p1Index = playerPartyData.findIndex(p => p.id === result.p1State.id);
+    if (p1Index !== -1) playerPartyData[p1Index] = result.p1State;
+
+    // Check if caught
+    const catchEvent = result.events.find(e => e.type === 'catch_attempt') as any;
+    const isCaught = catchEvent && catchEvent.success;
+
+    // Update Session Status
+    let newStatus: BattleStatus = BattleStatus.ACTIVE;
+    if (isCaught) {
+      newStatus = BattleStatus.CAUGHT;
+    } else if (result.p1State.currentHp <= 0) {
+      const hasHealthy = playerPartyData.some(p => p.currentHp > 0);
+      newStatus = hasHealthy ? BattleStatus.WAITING_SWITCH : BattleStatus.LOST;
+    } else if (result.p2State.currentHp <= 0) {
+      newStatus = BattleStatus.WON;
+    }
+
+    if (isCaught) {
+      const partyCount = trainerSave.party.length;
+      const isParty = partyCount < 6;
+      let boxNumber: number | null = null;
+      let position = partyCount;
+
+      if (!isParty) {
+        // Send to Box 1 for now if party is full
+        boxNumber = 1;
+        const boxMons = await prisma.ownedPokemon.findMany({
+          where: { trainerId: trainerSave.id, isParty: false, boxNumber: 1 }
+        });
+        position = boxMons.length;
+      }
+
+      await prisma.ownedPokemon.create({
+        data: {
+          trainerId: trainerSave.id,
+          speciesId: wildPokemon.speciesId,
+          level: wildPokemon.level,
+          isParty,
+          boxNumber,
+          position,
+          ivHp: Math.floor(Math.random() * 32),
+          ivAttack: Math.floor(Math.random() * 32),
+          ivDefense: Math.floor(Math.random() * 32),
+          ivSpAtk: Math.floor(Math.random() * 32),
+          ivSpDef: Math.floor(Math.random() * 32),
+          ivSpeed: Math.floor(Math.random() * 32),
+        }
+      });
+    } else if (newStatus === BattleStatus.WON) {
+      const { getExpYield, getLevelFromXp } = require('../../game/battle/level-math');
+      const xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
+      
+      result.p1State.currentXp += xpYield;
+      result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: xpYield });
+
+      const oldLevel = result.p1State.level;
+      const newLevel = getLevelFromXp(result.p1State.currentXp);
+
+      if (newLevel > oldLevel) {
+        result.p1State.level = newLevel;
+        // Recalculate stats? The DB will naturally re-hydrate it on next map OwnedPokemonToInstance.
+        // We only need to tell the user they levelled up right now.
+        // But we should update the DB currentXp and level.
+        result.events.push({ type: 'level_up', pokemonId: result.p1State.id, level: newLevel });
+      }
+
+      // Actually, all pokemon in party should just be saved to DB here to persist XP and Level.
+      for (const p of playerPartyData) {
+        await prisma.ownedPokemon.update({
+          where: { id: p.id },
+          data: {
+            currentXp: p.currentXp,
+            level: p.level
+          }
+        });
+      }
+    }
 
     const updatedLog = [...(session.log as any || []), { turn: session.turnNumber, events: result.events }];
 
     await this.repository.updateBattleSession(session.id, {
       status: newStatus,
       turnNumber: session.turnNumber + 1,
+      playerActivePokemonId: session.playerActivePokemonId,
       playerPokemonData: result.p1State as any,
+      playerPartyData: playerPartyData as any,
       wildPokemonData: result.p2State as any,
       log: updatedLog,
     });

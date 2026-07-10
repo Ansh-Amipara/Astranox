@@ -64,6 +64,9 @@ model OwnedPokemon {
   ivSpDef         Int      @default(0)
   ivSpeed         Int      @default(0)
 
+  // Experience System (Phase 15)
+  currentXp       Int      @default(0)
+
   createdAt       DateTime @default(now())
 }
 
@@ -127,6 +130,9 @@ model Species {
   spAtk       Int
   spDef       Int
   speed       Int
+  
+  catchRate   Int      @default(255)
+  baseExp     Int      @default(100)
 
   type1Id     Int
   type1       Type     @relation("SpeciesType1", fields: [type1Id], references: [id])
@@ -165,9 +171,11 @@ model ZoneEncounter {
 
 enum BattleStatus {
   ACTIVE
+  WAITING_SWITCH
   WON
   LOST
   FLED
+  CAUGHT
 }
 
 model BattleSession {
@@ -181,6 +189,7 @@ model BattleSession {
   playerActivePokemonId String       @db.Uuid
   wildPokemonData       Json
   playerPokemonData     Json
+  playerPartyData       Json?        // Array of all 6 party members' active states mid-battle
 
   log                   Json?        // Array of TurnEvent
 

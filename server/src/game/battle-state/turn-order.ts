@@ -11,9 +11,18 @@ export function determineFirstStriker(
   p2Action: BattleAction,
   rngOverride?: number
 ): 'p1' | 'p2' {
-  // 1. Priority bracket
-  if (p1Action.move.priority > p2Action.move.priority) return 'p1';
-  if (p2Action.move.priority > p1Action.move.priority) return 'p2';
+  // 0. Switch Priority (+7) and Item Priority (+6)
+  const getActionPriority = (a: BattleAction) => {
+    if (a.type === 'switch') return 7;
+    if (a.type === 'item') return 6;
+    return a.move.priority;
+  };
+
+  const p1Priority = getActionPriority(p1Action);
+  const p2Priority = getActionPriority(p2Action);
+
+  if (p1Priority > p2Priority) return 'p1';
+  if (p2Priority > p1Priority) return 'p2';
 
   // 2. Speed tie-breaker
   const p1Speed = getEffectiveSpeed(p1);

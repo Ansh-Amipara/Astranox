@@ -16,6 +16,10 @@ export interface ActivePokemon {
   spDef: number;
   speed: number;
   
+  catchRate: number; // For wild Pokemon catch math
+  baseExp: number;
+  currentXp: number;
+  
   // Volatile State
   status: StatusAilment;
   sleepTurns?: number; // How many turns of sleep remaining
@@ -32,32 +36,49 @@ export interface ActivePokemon {
   };
 }
 
-export interface BattleAction {
-  pokemonId: string;
-  move: {
-    name: string;
-    power: number | null;
-    accuracy: number | null;
-    type: string;
-    priority: number;
-    damageClass: 'physical' | 'special' | 'status';
-    ailment?: string | null;
-    ailmentChance?: number | null;
-    flinchChance?: number | null;
-    statChanges?: any | null; // Placeholder for now
-  };
-  typeEffectivenessMultiplier: number; // Injected by caller
-}
+export type BattleAction = 
+  | {
+      type: 'move';
+      pokemonId: string;
+      move: {
+        name: string;
+        power: number | null;
+        accuracy: number | null;
+        type: string;
+        priority: number;
+        damageClass: 'physical' | 'special' | 'status';
+        ailment?: string | null;
+        ailmentChance?: number | null;
+        flinchChance?: number | null;
+        statChanges?: any | null;
+      };
+      typeEffectivenessMultiplier: number;
+    }
+  | {
+      type: 'item';
+      pokemonId: string; // The active pokemon using the item (usually player)
+      itemId: string;
+      ballBonus: number;
+    }
+  | {
+      type: 'switch';
+      pokemonId: string; // The active pokemon doing the switching
+      targetPokemonId: string; // The new pokemon entering battle
+    };
 
 export type TurnEvent = 
   | { type: 'move'; pokemonId: string; moveName: string }
+  | { type: 'switch'; pokemonId: string; targetPokemonId: string; name: string; isPlayer: boolean }
   | { type: 'miss'; pokemonId: string }
   | { type: 'damage'; pokemonId: string; amount: number; isCritical: boolean; effectiveness: number }
   | { type: 'status_inflicted'; pokemonId: string; status: StatusAilment }
   | { type: 'status_effect'; pokemonId: string; status: StatusAilment; message: string; damage?: number }
   | { type: 'status_cleared'; pokemonId: string; status: StatusAilment }
   | { type: 'flinch'; pokemonId: string }
-  | { type: 'faint'; pokemonId: string };
+  | { type: 'faint'; pokemonId: string }
+  | { type: 'catch_attempt'; pokemonId: string; itemId: string; success: boolean; shakes: number }
+  | { type: 'xp_gain'; pokemonId: string; amount: number }
+  | { type: 'level_up'; pokemonId: string; level: number };
 
 export interface TurnResult {
   p1State: ActivePokemon;

@@ -9,6 +9,7 @@ export class BattlesRepository {
     playerActivePokemonId: string;
     wildPokemonData: any;
     playerPokemonData: any;
+    playerPartyData: any;
   }) {
     return prisma.battleSession.create({
       data: {
@@ -16,6 +17,7 @@ export class BattlesRepository {
         playerActivePokemonId: data.playerActivePokemonId,
         wildPokemonData: data.wildPokemonData,
         playerPokemonData: data.playerPokemonData,
+        playerPartyData: data.playerPartyData,
         log: [],
         status: BattleStatus.ACTIVE,
         turnNumber: 1
@@ -33,7 +35,7 @@ export class BattlesRepository {
     return prisma.battleSession.findFirst({
       where: {
         trainerId,
-        status: BattleStatus.ACTIVE
+        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH] }
       }
     });
   }
@@ -41,11 +43,13 @@ export class BattlesRepository {
   async updateBattleSession(
     id: string, 
     data: { 
-      status: BattleStatus; 
-      turnNumber: number; 
-      wildPokemonData: any; 
-      playerPokemonData: any; 
-      log: any; 
+      status?: BattleStatus; 
+      turnNumber?: number; 
+      playerActivePokemonId?: string;
+      wildPokemonData?: any; 
+      playerPokemonData?: any;
+      playerPartyData?: any; 
+      log?: any; 
     }
   ) {
     return prisma.battleSession.update({

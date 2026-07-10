@@ -33,7 +33,9 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
       spAtk: dbModel.species.spAtk,
       spDef: dbModel.species.spDef,
       speed: dbModel.species.speed,
-    }
+    },
+    catchRate: dbModel.species.catchRate,
+    baseExp: dbModel.species.baseExp,
   };
 
   // 2. Hydrate via Pure Factory
@@ -41,6 +43,7 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
     id: dbModel.id,
     nickname: dbModel.nickname,
     level: dbModel.level,
+    currentXp: dbModel.currentXp,
     ivs: {
       hp: dbModel.ivHp,
       attack: dbModel.ivAttack,

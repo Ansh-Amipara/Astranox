@@ -19,6 +19,8 @@ export interface SpeciesContext {
     spDef: number;
     speed: number;
   };
+  catchRate?: number;
+  baseExp?: number;
 }
 
 /**
@@ -40,6 +42,7 @@ export interface PokemonInstancePayload {
   id: string; // e.g. UUID from the database
   nickname: string | null;
   level: number;
+  currentXp?: number;
   ivs: IndividualValues;
   species: SpeciesContext;
   
@@ -56,6 +59,7 @@ export interface PokemonInstance {
   id: string;
   name: string;
   level: number;
+  currentXp: number;
   types: string[];
   
   // Combat Stats

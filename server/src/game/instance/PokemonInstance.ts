@@ -35,6 +35,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     id: payload.id,
     name: payload.nickname || payload.species.name,
     level: payload.level,
+    currentXp: payload.currentXp || 0,
     types: payload.species.types,
     
     maxHp,

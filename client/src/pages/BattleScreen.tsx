@@ -6,8 +6,17 @@ import { useNavigate } from 'react-router-dom';
 export function BattleScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [menu, setMenu] = useState<'main' | 'fight'>('main');
+  const [menu, setMenu] = useState<'main' | 'fight' | 'bag' | 'party'>('main');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // Fetch Trainer Save to get inventory
+  const { data: trainerSave } = useQuery({
+    queryKey: ['trainerSave'],
+    queryFn: async () => {
+      const { data } = await api.get('/trainers/me');
+      return data.data;
+    }
+  });
 
   const { data: battleRes, isLoading, error } = useQuery({
     queryKey: ['activeBattle'],
@@ -47,8 +56,10 @@ export function BattleScreen() {
 
   const wild = battleRes.wildPokemonData;
   const player = battleRes.playerPokemonData;
+  const playerPartyData = battleRes.playerPartyData || [];
   const status = battleRes.status;
-  const isFinished = status !== 'ACTIVE';
+  const isFinished = status === 'WON' || status === 'LOST' || status === 'FLED' || status === 'CAUGHT';
+  const isWaitingSwitch = status === 'WAITING_SWITCH';
   
   // Last events logic to show what happened
   const log = battleRes.log || [];
@@ -65,7 +76,20 @@ export function BattleScreen() {
       case 'status_inflicted': return `${name} got ${ev.status}!`;
       case 'status_effect': return ev.message || null;
       case 'status_cleared': return `${name} recovered!`;
+      case 'switch': return ev.isPlayer ? `You sent out ${ev.name}!` : `Foe sent out ${ev.name}!`;
+      case 'xp_gain': return `${name} gained ${ev.amount} Exp. Points!`;
+      case 'level_up': return `${name} grew to Lv. ${ev.level}!`;
       case 'fled': return "Got away safely!";
+      case 'catch_attempt': 
+        if (ev.success) {
+          return `Gotcha! ${wild.speciesName} was caught!`;
+        } else {
+          if (ev.shakes === 0) return `Oh no! The Pokémon broke free!`;
+          if (ev.shakes === 1) return `Aww! It appeared to be caught!`;
+          if (ev.shakes === 2) return `Aargh! Almost had it!`;
+          if (ev.shakes === 3) return `Shoot! It was so close too!`;
+          return `The Pokémon broke free!`;
+        }
       default: return null;
     }
   };
@@ -149,6 +173,7 @@ export function BattleScreen() {
                 <p className="text-xl text-slate-900 dark:text-white font-bold capitalize">Battle Finished!</p>
                 <p className="text-slate-800 dark:text-slate-200">
                   {status === 'WON' ? `You defeated the wild ${wild.speciesName}!` : 
+                   status === 'CAUGHT' ? `Gotcha! ${wild.speciesName} was caught!` :
                    status === 'FLED' ? 'Got away safely!' : 'You blacked out!'}
                 </p>
                 <button 
@@ -171,13 +196,18 @@ export function BattleScreen() {
                     What will <span className="font-bold capitalize text-blue-600 dark:text-blue-400">{player.nickname || player.speciesName}</span> do?
                   </p>
                 )}
+                {isWaitingSwitch && (
+                  <p className="text-lg font-bold text-red-600 dark:text-red-400 mt-2">
+                    Choose a Pokémon to send out!
+                  </p>
+                )}
               </div>
             )}
           </div>
 
           {/* Action Menu Box */}
           <div className="bg-slate-200 dark:bg-slate-900 rounded-xl p-4 flex flex-col transition-colors duration-200">
-            {!isFinished && (
+            {(!isFinished || isWaitingSwitch) && (
               <div className="h-full">
                 {menu === 'main' && (
                   <div className="grid grid-cols-2 gap-4 h-full">
@@ -188,14 +218,14 @@ export function BattleScreen() {
                       FIGHT
                     </button>
                     <button 
-                      onClick={() => showToast('Bag is a future feature!')}
-                      className="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 font-black text-2xl rounded-lg border-2 border-slate-400 dark:border-slate-700 cursor-not-allowed transition-colors"
+                      onClick={() => setMenu('bag')}
+                      className="bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-yellow-500/50 transition-all hover:-translate-y-1"
                     >
                       BAG
                     </button>
                     <button 
-                      onClick={() => showToast('Switching Pokémon is a future feature!')}
-                      className="bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 font-black text-2xl rounded-lg border-2 border-slate-400 dark:border-slate-700 cursor-not-allowed transition-colors"
+                      onClick={() => setMenu('party')}
+                      className="bg-gradient-to-br from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-green-500/50 transition-all hover:-translate-y-1"
                     >
                       POKéMON
                     </button>
@@ -232,6 +262,94 @@ export function BattleScreen() {
                       {Array.from({ length: Math.max(0, 4 - (player.moves?.length || 1)) }).map((_, i) => (
                         <div key={`empty-${i}`} className="bg-slate-300 dark:bg-slate-800 border-2 border-slate-400 dark:border-slate-700 rounded-lg"></div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {menu === 'bag' && (
+                  <div className="flex flex-col h-full gap-2">
+                    <button 
+                      onClick={() => setMenu('main')}
+                      className="self-start text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white font-bold mb-2 flex items-center transition-colors"
+                    >
+                      ← Back
+                    </button>
+                    <div className="flex-1 overflow-y-auto">
+                      {trainerSave?.inventory?.filter((inv: any) => inv.item.name.includes('ball') && inv.quantity > 0).length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {trainerSave.inventory
+                            .filter((inv: any) => inv.item.name.includes('ball') && inv.quantity > 0)
+                            .map((inv: any) => (
+                              <button
+                                key={inv.itemId}
+                                onClick={() => turnMutation.mutate(`item:${inv.item.name}`)}
+                                disabled={turnMutation.isPending}
+                                className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 flex items-center gap-2 p-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                              >
+                                {inv.item.spriteUrl && <img src={inv.item.spriteUrl} alt={inv.item.name} className="w-8 h-8 object-contain drop-shadow" />}
+                                <div className="flex flex-col items-start">
+                                  <span className="font-bold text-slate-900 dark:text-white capitalize text-sm">{inv.item.name.replace('-', ' ')}</span>
+                                  <span className="text-xs text-slate-500 dark:text-slate-400">x{inv.quantity}</span>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-slate-500 dark:text-slate-400">
+                          You have no Pokéballs.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {menu === 'party' && (
+                  <div className="flex flex-col h-full gap-2">
+                    {!isWaitingSwitch && (
+                      <button 
+                        onClick={() => setMenu('main')}
+                        className="self-start text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white font-bold mb-2 flex items-center transition-colors"
+                      >
+                        ← Back
+                      </button>
+                    )}
+                    <div className="flex-1 overflow-y-auto">
+                      <div className="grid grid-cols-2 gap-2">
+                        {playerPartyData.map((p: any) => {
+                          const isActive = p.id === player.id;
+                          const isFainted = p.currentHp <= 0;
+                          return (
+                            <button
+                              key={p.id}
+                              onClick={() => {
+                                if (isActive) {
+                                  showToast(`${p.name || p.speciesName} is already in battle!`);
+                                  return;
+                                }
+                                if (isFainted) {
+                                  showToast(`${p.name || p.speciesName} has no energy left to battle!`);
+                                  return;
+                                }
+                                turnMutation.mutate(`switch:${p.id}`);
+                              }}
+                              disabled={turnMutation.isPending || isActive || isFainted}
+                              className={`flex flex-col items-start p-2 rounded-lg border-2 shadow-sm transition-all text-left ${isActive ? 'bg-blue-100 border-blue-400 dark:bg-blue-900 dark:border-blue-600' : isFainted ? 'bg-slate-200 border-slate-300 opacity-50 dark:bg-slate-800 dark:border-slate-700' : 'bg-white hover:bg-slate-50 border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:hover:bg-slate-600 hover:-translate-y-0.5'}`}
+                            >
+                              <div className="flex items-center gap-2 mb-1 w-full justify-between">
+                                <span className="font-bold text-slate-900 dark:text-white capitalize text-sm">{p.name || p.speciesName}</span>
+                                <span className="text-xs font-bold text-slate-500 dark:text-slate-300">Lv {p.level}</span>
+                              </div>
+                              <div className="w-full bg-slate-300 dark:bg-slate-900 rounded-full h-2 overflow-hidden relative">
+                                <div 
+                                  className={`h-full ${p.currentHp / p.maxHp > 0.5 ? 'bg-green-500' : p.currentHp / p.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                                  style={{ width: `${Math.max(0, (p.currentHp / p.maxHp) * 100)}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs mt-1 text-slate-600 dark:text-slate-400">{p.currentHp} / {p.maxHp} HP</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 )}

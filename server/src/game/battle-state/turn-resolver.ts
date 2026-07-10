@@ -3,6 +3,7 @@ import { applyLevelScaling } from './level-scaling';
 import { determineFirstStriker } from './turn-order';
 import { checkCanAttack, applyResidualDamage } from './status-effects';
 import { calculateDamage, checkAccuracy } from '../battle/damage';
+import { calculateCatchResult } from '../battle/catch-math';
 
 interface TurnContext {
   rngAccuracyOverride?: number;
@@ -40,18 +41,32 @@ export function resolveTurn(
 
   // 3. Process First Attacker
   if (firstAttacker.currentHp > 0) {
-    const { fainted, flinched } = executeAction(firstAttacker, firstAction, secondAttacker, events, context);
-    if (flinched) secondAttackerFlinched = true;
-    if (fainted) return finishTurn(state1, state2, events); // End turn early
+    if (firstAction.type === 'switch') {
+      executeSwitch(firstAttacker, firstAction, events, isP1(firstAttacker));
+    } else if (firstAction.type === 'item') {
+      const { caught } = executeItem(firstAttacker, firstAction, secondAttacker, events, context);
+      if (caught) return finishTurn(state1, state2, events); // End turn early if caught
+    } else {
+      const { fainted, flinched } = executeMove(firstAttacker, firstAction, secondAttacker, events, context);
+      if (flinched) secondAttackerFlinched = true;
+      if (fainted) return finishTurn(state1, state2, events); // End turn early
+    }
   }
 
   // 4. Process Second Attacker
   if (secondAttacker.currentHp > 0) {
-    if (secondAttackerFlinched) {
-      events.push({ type: 'flinch', pokemonId: secondAttacker.id });
+    if (secondAction.type === 'switch') {
+      executeSwitch(secondAttacker, secondAction, events, isP1(secondAttacker));
+    } else if (secondAction.type === 'item') {
+      const { caught } = executeItem(secondAttacker, secondAction, firstAttacker, events, context);
+      if (caught) return finishTurn(state1, state2, events);
     } else {
-      const { fainted } = executeAction(secondAttacker, secondAction, firstAttacker, events, context);
-      if (fainted) return finishTurn(state1, state2, events);
+      if (secondAttackerFlinched) {
+        events.push({ type: 'flinch', pokemonId: secondAttacker.id });
+      } else {
+        const { fainted } = executeMove(secondAttacker, secondAction, firstAttacker, events, context);
+        if (fainted) return finishTurn(state1, state2, events);
+      }
     }
   }
 
@@ -71,9 +86,51 @@ export function resolveTurn(
   return finishTurn(state1, state2, events);
 }
 
-function executeAction(
+function executeSwitch(
+  user: ActivePokemon,
+  action: BattleAction & { type: 'switch' },
+  events: TurnEvent[],
+  isPlayer: boolean
+) {
+  events.push({
+    type: 'switch',
+    pokemonId: user.id, // ID of the new active pokemon
+    targetPokemonId: action.targetPokemonId,
+    name: user.speciesName,
+    isPlayer
+  });
+}
+
+function executeItem(
+  user: ActivePokemon,
+  action: BattleAction & { type: 'item' },
+  target: ActivePokemon,
+  events: TurnEvent[],
+  ctx: TurnContext
+): { caught: boolean } {
+  // Only Pokeballs are supported right now
+  const catchResult = calculateCatchResult({
+    maxHp: target.maxHp,
+    currentHp: target.currentHp,
+    catchRate: target.catchRate,
+    ballBonus: action.ballBonus,
+    status: target.status,
+  });
+
+  events.push({
+    type: 'catch_attempt',
+    pokemonId: target.id,
+    itemId: action.itemId,
+    success: catchResult.caught,
+    shakes: catchResult.shakes
+  });
+
+  return { caught: catchResult.caught };
+}
+
+function executeMove(
   attacker: ActivePokemon,
-  action: BattleAction,
+  action: BattleAction & { type: 'move' },
   defender: ActivePokemon,
   events: TurnEvent[],
   ctx: TurnContext
