@@ -15,6 +15,8 @@ import { Pokemart } from './pages/Pokemart';
 import { Bag } from './pages/Bag';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminLayout } from './components/AdminLayout';
+import { AdminMap } from './pages/admin/AdminMap';
 
 function App() {
   const location = useLocation();
@@ -93,14 +95,16 @@ function App() {
             } 
           />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route 
-            path="/admin/dashboard" 
-            element={
-              <AdminGuard>
-                <AdminDashboard />
-              </AdminGuard>
-            } 
-          />
+          
+          {/* Admin Routes with Layout */}
+          <Route path="/admin" element={
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          }>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="map" element={<AdminMap />} />
+          </Route>
         </Routes>
       </main>
     </div>

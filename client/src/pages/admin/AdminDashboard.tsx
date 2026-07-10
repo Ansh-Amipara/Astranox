@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
-import { useAuthStore } from '../../store/auth.store';
-import { useNavigate } from 'react-router-dom';
 
 export function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -14,8 +12,6 @@ export function AdminDashboard() {
   const [ivs, setIvs] = useState({ hp: 31, attack: 31, defense: 31, spAtk: 31, spDef: 31, speed: 31 });
   const [useCustomIvs, setUseCustomIvs] = useState(false);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const logout = useAuthStore(state => state.logout);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['adminUsers'],
@@ -59,31 +55,18 @@ export function AdminDashboard() {
     }
   });
 
-  const handleLogout = () => {
-    logout();
-    navigate('/admin/login');
-  };
-
   if (isLoading) {
     return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center font-bold text-2xl">Loading Admin Dashboard...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-8 text-slate-100 font-sans">
-      <div className="max-w-6xl mx-auto">
+    <div className="flex-1 bg-slate-950 p-8 text-slate-100 font-sans">
+      <div className="max-w-7xl mx-auto w-full">
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-6">
-          <div>
-            <h1 className="text-4xl font-black tracking-tight text-white mb-2">Admin Dashboard</h1>
-            <p className="text-slate-400 font-medium">Manage players, inject currency, and distribute Pokémon.</p>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 font-bold px-6 py-2.5 rounded-xl transition-colors"
-          >
-            Logout
-          </button>
+        <div className="mb-8">
+          <h1 className="text-3xl font-black tracking-tight text-white mb-2">User Management</h1>
+          <p className="text-slate-400 font-medium">Manage players, inject currency, and distribute Pokémon.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

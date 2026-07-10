@@ -173,6 +173,8 @@ model ZoneEncounter {
   speciesId   Int
   species     Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
   encounterRate Float
+  minIv       Int     @default(0)
+  maxIv       Int     @default(31)
 }
 
 enum BattleStatus {

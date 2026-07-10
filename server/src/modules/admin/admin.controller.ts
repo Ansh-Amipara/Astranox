@@ -70,4 +70,35 @@ export class AdminController {
       next(err);
     }
   };
+
+  getAllZones = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const zones = await this.service.getAllZones();
+      res.json({ success: true, data: zones });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  addZoneEncounter = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const zoneId = parseInt(req.params.zoneId, 10);
+      const { speciesId, encounterRate, minIv, maxIv } = req.body;
+      
+      const encounter = await this.service.addZoneEncounter(zoneId, speciesId, encounterRate, minIv || 0, maxIv || 31);
+      res.json({ success: true, data: encounter });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  deleteZoneEncounter = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const encounterId = parseInt(req.params.encounterId, 10);
+      await this.service.deleteZoneEncounter(encounterId);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

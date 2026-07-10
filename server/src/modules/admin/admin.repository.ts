@@ -61,6 +61,37 @@ export class AdminRepository {
     });
   }
 
+  async getAllZones() {
+    return prisma.zone.findMany({
+      include: {
+        habitat: true,
+        encounters: {
+          include: { species: true }
+        }
+      },
+      orderBy: { id: 'asc' }
+    });
+  }
+
+  async addZoneEncounter(zoneId: number, speciesId: number, encounterRate: number, minIv: number, maxIv: number) {
+    return prisma.zoneEncounter.create({
+      data: {
+        zoneId,
+        speciesId,
+        encounterRate,
+        minIv,
+        maxIv
+      },
+      include: { species: true }
+    });
+  }
+
+  async deleteZoneEncounter(encounterId: number) {
+    return prisma.zoneEncounter.delete({
+      where: { id: encounterId }
+    });
+  }
+
   async addPokemon(userId: string, speciesId: number, level: number, ivs?: any) {
     const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) return null;

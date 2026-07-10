@@ -199,6 +199,104 @@
           }
         }
       ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Add Money",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/1/money",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "1", "money"]
+            }
+          }
+        },
+        {
+          "name": "Add Pokemon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"speciesId\": 1,\n  \"level\": 5,\n  \"ivs\": {\"hp\": 31, \"attack\": 31, \"defense\": 31, \"spAtk\": 31, \"spDef\": 31, \"speed\": 31}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/1/pokemon",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "1", "pokemon"]
+            }
+          }
+        },
+        {
+          "name": "Get Zones",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "url": {
+              "raw": "{{baseUrl}}/admin/zones",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "zones"]
+            }
+          }
+        },
+        {
+          "name": "Add Encounter to Zone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"speciesId\": 1,\n  \"encounterRate\": 10,\n  \"minIv\": 0,\n  \"maxIv\": 31\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/zones/1/encounters",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "zones", "1", "encounters"]
+            }
+          }
+        },
+        {
+          "name": "Delete Encounter",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "url": {
+              "raw": "{{baseUrl}}/admin/encounters/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "encounters", "1"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [

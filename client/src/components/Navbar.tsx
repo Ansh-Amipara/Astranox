@@ -41,7 +41,7 @@ export function Navbar() {
             <div className="ml-10 flex items-baseline space-x-4">
               <Link to="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link to="/map" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Map</Link>
-              <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300">Pokémart</Link>
+              <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
               
               {/* Pokemon Dropdown */}
               <div className="relative" ref={dropdownRef}>
