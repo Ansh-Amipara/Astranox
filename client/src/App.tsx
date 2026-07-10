@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useThemeStore } from './store/theme.store';
 import { AuthGuard } from './components/AuthGuard';
+import { AdminGuard } from './components/AdminGuard';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Home } from './pages/Home';
@@ -12,10 +13,12 @@ import { MapPage } from './pages/MapPage';
 import { BattleScreen } from './pages/BattleScreen';
 import { Pokemart } from './pages/Pokemart';
 import { Bag } from './pages/Bag';
+import { AdminLogin } from './pages/admin/AdminLogin';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
 
 function App() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/admin');
   const { theme } = useThemeStore();
 
   useEffect(() => {
@@ -87,6 +90,15 @@ function App() {
               <AuthGuard>
                 <Bag />
               </AuthGuard>
+            } 
+          />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <AdminGuard>
+                <AdminDashboard />
+              </AdminGuard>
             } 
           />
         </Routes>

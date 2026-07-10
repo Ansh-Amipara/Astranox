@@ -248,18 +248,18 @@ export function BattleScreen() {
                       ← Back
                     </button>
                     <div className="grid grid-cols-2 gap-2 flex-1">
-                      {(player.moves || [{ name: 'tackle' }]).map((move: any, i: number) => (
+                      {(player.moves || []).map((moveName: string, i: number) => (
                         <button
                           key={i}
-                          onClick={() => turnMutation.mutate(move.name)}
+                          onClick={() => turnMutation.mutate(`move:${moveName}`)}
                           disabled={turnMutation.isPending}
                           className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-bold text-xl rounded-lg border-2 border-slate-300 dark:border-slate-600 capitalize shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
                         >
-                          {move.name}
+                          {moveName}
                         </button>
                       ))}
                       {/* Fill empty move slots */}
-                      {Array.from({ length: Math.max(0, 4 - (player.moves?.length || 1)) }).map((_, i) => (
+                      {Array.from({ length: Math.max(0, 4 - (player.moves?.length || 0)) }).map((_, i) => (
                         <div key={`empty-${i}`} className="bg-slate-300 dark:bg-slate-800 border-2 border-slate-400 dark:border-slate-700 rounded-lg"></div>
                       ))}
                     </div>

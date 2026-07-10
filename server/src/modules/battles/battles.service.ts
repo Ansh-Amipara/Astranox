@@ -131,7 +131,8 @@ export class BattlesService {
           spDef: selectedEncounter.species.spDef,
           speed: selectedEncounter.species.speed
         }
-      }
+      },
+      moves: ['tackle']
     });
 
     const wildActive = toActivePokemon(wildInstance);
@@ -268,6 +269,12 @@ export class BattlesService {
     } else {
       const moveName = action.split(':')[1];
       
+      // Ensure the pokemon actually knows this move
+      const playerMoves = playerPokemon.moves || [];
+      if (!playerMoves.includes(moveName.toLowerCase())) {
+        throw new ValidationError(`Pokemon does not know the move: ${moveName}.`);
+      }
+
       // Fetch move from DB
       const playerMoveData = await prisma.move.findUnique({
         where: { name: moveName.toLowerCase() },
@@ -275,7 +282,7 @@ export class BattlesService {
       });
 
       if (!playerMoveData) {
-        throw new ValidationError(`Move ${moveName} not found.`);
+        throw new ValidationError(`Move ${moveName} not found in database.`);
       }
 
       playerAction = {

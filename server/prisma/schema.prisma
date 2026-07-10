@@ -67,6 +67,12 @@ model OwnedPokemon {
   // Experience System (Phase 15)
   currentXp       Int      @default(0)
 
+  // Moves (Phase 18)
+  move1           String?
+  move2           String?
+  move3           String?
+  move4           String?
+
   createdAt       DateTime @default(now())
 }
 

@@ -52,6 +52,7 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
       spDef: dbModel.ivSpDef,
       speed: dbModel.ivSpeed,
     },
-    species: speciesContext
+    species: speciesContext,
+    moves: [dbModel.move1, dbModel.move2, dbModel.move3, dbModel.move4].filter(Boolean) as string[]
   });
 }

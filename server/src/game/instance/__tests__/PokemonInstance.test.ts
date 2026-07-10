@@ -13,7 +13,8 @@ describe('PokemonInstance Factory', () => {
       name: 'garchomp',
       types: ['dragon', 'ground'],
       baseStats: { hp: 108, attack: 130, defense: 95, spAtk: 80, spDef: 85, speed: 102 }
-    }
+    },
+    moves: ['tackle', 'earthquake']
   };
 
   it('hydrates stats correctly using Gen 5 exact formulas (no EVs)', () => {

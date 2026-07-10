@@ -58,4 +58,23 @@ export class TrainersService {
     const save = await this.getMySave(userId);
     return this.repo.swapSlots(save.id, from, to);
   }
+
+  async getAllMoves() {
+    return this.repo.getAllMoves();
+  }
+
+  async changeMoves(userId: string, pokemonId: string, moves: string[]) {
+    const save = await this.getMySave(userId);
+    
+    if (!Array.isArray(moves) || moves.length > 4) {
+      throw new ValidationError('Moves must be an array of at most 4 move names.');
+    }
+
+    const result = await this.repo.changeMoves(save.id, pokemonId, moves);
+    if (!result) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+    
+    return result;
+  }
 }

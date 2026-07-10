@@ -116,4 +116,36 @@ export class TrainersRepository {
       return true;
     });
   }
+
+  async getAllMoves() {
+    return prisma.move.findMany({
+      orderBy: { name: 'asc' },
+      select: {
+        name: true,
+        type: { select: { name: true } },
+        power: true,
+        accuracy: true,
+        damageClass: true
+      }
+    });
+  }
+
+  async changeMoves(trainerId: string, pokemonId: string, moves: string[]) {
+    // Ensure the pokemon belongs to the trainer
+    const pokemon = await prisma.ownedPokemon.findFirst({
+      where: { id: pokemonId, trainerId }
+    });
+
+    if (!pokemon) return null;
+
+    return prisma.ownedPokemon.update({
+      where: { id: pokemonId },
+      data: {
+        move1: moves[0] || null,
+        move2: moves[1] || null,
+        move3: moves[2] || null,
+        move4: moves[3] || null,
+      }
+    });
+  }
 }

@@ -47,7 +47,7 @@ export interface PokemonInstancePayload {
   species: SpeciesContext;
   
   // Future Expansion:
-  // moves: string[];
+  moves: string[];
   // ability: string;
 }
 
@@ -76,4 +76,5 @@ export interface PokemonInstance {
   // Internal State
   ivs: IndividualValues;
   species: SpeciesContext;
+  moves: string[];
 }

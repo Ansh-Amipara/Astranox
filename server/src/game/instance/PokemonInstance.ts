@@ -43,6 +43,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     stats,
     
     ivs: payload.ivs,
-    species: payload.species
+    species: payload.species,
+    moves: payload.moves || ['tackle']
   };
 }

@@ -8,6 +8,7 @@ import { trainersRoutes } from './modules/trainers/trainers.routes';
 import { mapRoutes } from './modules/map/map.routes';
 import { battlesRoutes } from './modules/battles/battles.routes';
 import { shopRoutes } from './modules/shop/shop.routes';
+import { adminRoutes } from './modules/admin/admin.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import cookieParser from 'cookie-parser';
 
@@ -32,6 +33,7 @@ app.use('/trainers', trainersRoutes);
 app.use('/map', mapRoutes);
 app.use('/battles', battlesRoutes);
 app.use('/shop', shopRoutes);
+app.use('/admin', adminRoutes);
 
 app.use(errorHandler);
 

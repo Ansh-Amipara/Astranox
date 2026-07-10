@@ -71,4 +71,32 @@ export class TrainersController {
       next(err);
     }
   };
+
+  getAllMoves = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const moves = await this.service.getAllMoves();
+      res.json({ success: true, data: moves });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  changeMoves = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+      
+      const { pokemonId } = req.params;
+      const { moves } = req.body;
+      
+      if (!pokemonId || !moves) {
+        throw new ValidationError('pokemonId and moves array are required');
+      }
+
+      await this.service.changeMoves(userId, pokemonId, moves);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  };
 }
