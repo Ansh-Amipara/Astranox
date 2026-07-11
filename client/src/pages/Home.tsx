@@ -27,13 +27,25 @@ export function Home() {
       <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4">
         Welcome to Astranox, Trainer {user?.username}!
       </h1>
-      <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">
-        Use the navigation menu above to manage your Pokémon Team and PC Box.
-      </p>
       <div className="flex gap-4">
         <span className="rounded-full bg-yellow-100 dark:bg-yellow-500/10 px-6 py-3 text-lg font-bold text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.1)] dark:shadow-[0_0_15px_rgba(234,179,8,0.2)]">
           Balance: ₽ {save.money}
         </span>
+      </div>
+
+      <div className="mt-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm max-w-2xl w-full text-center">
+        <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-slate-200">Badges Earned</h2>
+        {save.badges && save.badges.length > 0 ? (
+          <div className="flex flex-wrap gap-4 justify-center">
+            {save.badges.map((badge: string) => (
+              <div key={badge} className="px-4 py-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-semibold shadow-inner text-slate-700 dark:text-slate-300">
+                {badge}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-slate-500 dark:text-slate-500 italic">No badges earned yet. Challenge Gym Leaders to earn them!</p>
+        )}
       </div>
     </div>
   );

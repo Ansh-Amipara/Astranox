@@ -21,160 +21,163 @@ model User {
   refreshTokenHash String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  
-  trainerSave      TrainerSave?
+
+  trainerSave TrainerSave?
 }
 
 model TrainerSave {
-  id              String   @id @default(uuid()) @db.Uuid
-  userId          String   @unique @db.Uuid
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   starterChosenAt DateTime?
-  money           Int      @default(3000)
-  
-  party           OwnedPokemon[]
-  inventory       InventoryItem[]
-  battles         BattleSession[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  money           Int       @default(3000)
+
+  badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
+
+  party        OwnedPokemon[]
+  inventory    InventoryItem[]
+  battles      BattleSession[]
+  defeatedNpcs TrainerDefeatedNpc[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
 
 model OwnedPokemon {
-  id              String   @id @default(uuid()) @db.Uuid
-  trainerId       String   @db.Uuid
-  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  
-  speciesId       Int
-  species         Species  @relation(fields: [speciesId], references: [id])
-  
-  nickname        String?
-  level           Int      @default(5)
-  
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  speciesId Int
+  species   Species @relation(fields: [speciesId], references: [id])
+
+  nickname String?
+  level    Int     @default(5)
+
   // Location Tracking
-  isParty         Boolean  @default(false)
-  boxNumber       Int?     // 0 to 31. Null if in party.
-  position        Int      @default(0) // 0 to 5 if party, 0 to 29 if box.
-  
+  isParty   Boolean @default(false)
+  boxNumber Int? // 0 to 31. Null if in party.
+  position  Int     @default(0) // 0 to 5 if party, 0 to 29 if box.
+
   // Basic IVs for now (will be expanded in Phase 5)
-  ivHp            Int      @default(0)
-  ivAttack        Int      @default(0)
-  ivDefense       Int      @default(0)
-  ivSpAtk         Int      @default(0)
-  ivSpDef         Int      @default(0)
-  ivSpeed         Int      @default(0)
+  ivHp      Int @default(0)
+  ivAttack  Int @default(0)
+  ivDefense Int @default(0)
+  ivSpAtk   Int @default(0)
+  ivSpDef   Int @default(0)
+  ivSpeed   Int @default(0)
 
   // Experience System (Phase 15)
-  currentXp       Int      @default(0)
+  currentXp Int @default(0)
 
   // Moves (Phase 18)
-  move1           String?
-  move2           String?
-  move3           String?
-  move4           String?
+  move1 String?
+  move2 String?
+  move3 String?
+  move4 String?
 
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Type {
-  id              Int       @id
-  name            String    @unique
+  id              Int    @id
+  name            String @unique
   damageRelations Json
 
-  moves           Move[]
-  speciesType1    Species[] @relation("SpeciesType1")
-  speciesType2    Species[] @relation("SpeciesType2")
+  moves        Move[]
+  speciesType1 Species[] @relation("SpeciesType1")
+  speciesType2 Species[] @relation("SpeciesType2")
 }
 
 model Item {
-  id          String   @id
-  name        String   @unique
+  id          String  @id
+  name        String  @unique
   cost        Int
   description String
   spriteUrl   String?
-  
-  inventory   InventoryItem[]
+
+  inventory InventoryItem[]
 }
 
 model InventoryItem {
-  id        String   @id @default(uuid()) @db.Uuid
-  trainerId String   @db.Uuid
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
   trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  
-  itemId    String
-  item      Item     @relation(fields: [itemId], references: [id])
-  
-  quantity  Int      @default(0)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id])
+
+  quantity Int @default(0)
 
   @@unique([trainerId, itemId])
 }
 
 model Move {
-  id           Int      @id
-  name         String   @unique
-  typeId       Int
-  type         Type     @relation(fields: [typeId], references: [id])
-  power        Int?
-  accuracy     Int?
-  priority     Int
-  damageClass  String
+  id          Int    @id
+  name        String @unique
+  typeId      Int
+  type        Type   @relation(fields: [typeId], references: [id])
+  power       Int?
+  accuracy    Int?
+  priority    Int
+  damageClass String
 
-  ailment        String?
-  ailmentChance  Int?
-  flinchChance   Int?
-  statChanges    Json?
+  ailment       String?
+  ailmentChance Int?
+  flinchChance  Int?
+  statChanges   Json?
 }
 
 model Species {
-  id          Int      @id
-  name        String   @unique
-  spriteUrl   String
-  
-  hp          Int
-  attack      Int
-  defense     Int
-  spAtk       Int
-  spDef       Int
-  speed       Int
-  
-  catchRate   Int      @default(255)
-  baseExp     Int      @default(100)
+  id        Int    @id
+  name      String @unique
+  spriteUrl String
 
-  type1Id     Int
-  type1       Type     @relation("SpeciesType1", fields: [type1Id], references: [id])
-  type2Id     Int?
-  type2       Type?    @relation("SpeciesType2", fields: [type2Id], references: [id])
+  hp      Int
+  attack  Int
+  defense Int
+  spAtk   Int
+  spDef   Int
+  speed   Int
 
-  owned       OwnedPokemon[]
-  encounters  ZoneEncounter[]
+  catchRate Int @default(255)
+  baseExp   Int @default(100)
+
+  type1Id Int
+  type1   Type  @relation("SpeciesType1", fields: [type1Id], references: [id])
+  type2Id Int?
+  type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id])
+
+  owned      OwnedPokemon[]
+  encounters ZoneEncounter[]
 }
 
 model Habitat {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
+  id    Int    @id @default(autoincrement())
+  name  String @unique
   zones Zone[]
 }
 
 model Zone {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
-  habitatId   Int
-  habitat     Habitat @relation(fields: [habitatId], references: [id], onDelete: Cascade)
-  minLevel    Int
-  maxLevel    Int
-  
-  encounters  ZoneEncounter[]
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  habitatId Int
+  habitat   Habitat @relation(fields: [habitatId], references: [id], onDelete: Cascade)
+  minLevel  Int
+  maxLevel  Int
+
+  encounters ZoneEncounter[]
 }
 
 model ZoneEncounter {
-  id          Int     @id @default(autoincrement())
-  zoneId      Int
-  zone        Zone    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-  speciesId   Int
-  species     Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  id            Int     @id @default(autoincrement())
+  zoneId        Int
+  zone          Zone    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  speciesId     Int
+  species       Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
   encounterRate Float
-  minIv       Int     @default(0)
-  maxIv       Int     @default(31)
+  minIv         Int     @default(0)
+  maxIv         Int     @default(31)
 }
 
 enum BattleStatus {
@@ -186,21 +189,78 @@ enum BattleStatus {
   CAUGHT
 }
 
+enum BattleType {
+  WILD
+  NPC
+}
+
 model BattleSession {
-  id                    String       @id @default(uuid()) @db.Uuid
-  trainerId             String       @db.Uuid
-  trainer               TrainerSave  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  
-  status                BattleStatus @default(ACTIVE)
-  turnNumber            Int          @default(1)
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
 
-  playerActivePokemonId String       @db.Uuid
-  wildPokemonData       Json
-  playerPokemonData     Json
-  playerPartyData       Json?        // Array of all 6 party members' active states mid-battle
+  status     BattleStatus @default(ACTIVE)
+  battleType BattleType   @default(WILD)
+  turnNumber Int          @default(1)
 
-  log                   Json?        // Array of TurnEvent
+  playerActivePokemonId String  @db.Uuid
+  npcTrainerId          String? @db.Uuid
 
-  createdAt             DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
+  opponentPokemonData Json         @default("{}") // Replaces wildPokemonData
+  opponentPartyData   Json? // Array of all NPC party members
+
+  playerPokemonData Json
+  playerPartyData   Json? // Array of all 6 party members' active states mid-battle
+
+  log Json? // Array of TurnEvent
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NpcTrainer {
+  id           String  @id @default(uuid()) @db.Uuid
+  name         String
+  spriteUrl    String
+  trainerClass String // e.g. "Gym Leader", "Elite Four", "Champion", "Youngster"
+  rewardMoney  Int     @default(0)
+  badgeName    String? // e.g. "Boulder Badge"
+
+  party      NpcTrainerPokemon[]
+  defeatedBy TrainerDefeatedNpc[]
+}
+
+model NpcTrainerPokemon {
+  id           String     @id @default(uuid()) @db.Uuid
+  npcTrainerId String     @db.Uuid
+  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: Cascade)
+
+  speciesId Int
+  level     Int @default(5)
+  position  Int @default(0)
+
+  ivHp      Int @default(0)
+  ivAttack  Int @default(0)
+  ivDefense Int @default(0)
+  ivSpAtk   Int @default(0)
+  ivSpDef   Int @default(0)
+  ivSpeed   Int @default(0)
+
+  move1 String?
+  move2 String?
+  move3 String?
+  move4 String?
+}
+
+model TrainerDefeatedNpc {
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  npcTrainerId String     @db.Uuid
+  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: Cascade)
+
+  defeatedAt DateTime @default(now())
+
+  @@unique([trainerId, npcTrainerId])
 }

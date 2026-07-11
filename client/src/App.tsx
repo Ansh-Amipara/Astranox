@@ -10,6 +10,7 @@ import { Navbar } from './components/Navbar';
 import { PokemonManagement } from './pages/PokemonManagement';
 import { TeamPage } from './pages/TeamPage';
 import { MapPage } from './pages/MapPage';
+import { Gyms } from './pages/Gyms';
 import { BattleScreen } from './pages/BattleScreen';
 import { Pokemart } from './pages/Pokemart';
 import { Bag } from './pages/Bag';
@@ -67,6 +68,14 @@ function App() {
             element={
               <AuthGuard>
                 <MapPage />
+              </AuthGuard>
+            } 
+          />
+          <Route 
+            path="/gyms" 
+            element={
+              <AuthGuard>
+                <Gyms />
               </AuthGuard>
             } 
           />

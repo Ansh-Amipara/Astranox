@@ -74,9 +74,6 @@ export function Pokemart() {
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Pokémart
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
-            Welcome! How may I help you today?
-          </p>
         </div>
         <div className="bg-yellow-100 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 px-6 py-3 rounded-xl flex flex-col items-end shadow-sm">
           <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-wider mb-1">Your Money</span>
@@ -135,11 +132,12 @@ export function Pokemart() {
                     -
                   </button>
                   <input 
-                    type="number"
-                    min="1"
-                    max="99"
-                    value={qty}
-                    onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                    type="text"
+                    value={qty || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      handleQuantityChange(item.id, val ? parseInt(val) : 0);
+                    }}
                     className="w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none"
                   />
                   <button 

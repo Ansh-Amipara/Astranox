@@ -7,17 +7,23 @@ export class BattlesRepository {
   async createBattleSession(data: {
     trainerId: string;
     playerActivePokemonId: string;
-    wildPokemonData: any;
+    opponentPokemonData: any;
+    opponentPartyData?: any;
     playerPokemonData: any;
     playerPartyData: any;
+    battleType?: any;
+    npcTrainerId?: string | null;
   }) {
     return prisma.battleSession.create({
       data: {
         trainerId: data.trainerId,
         playerActivePokemonId: data.playerActivePokemonId,
-        wildPokemonData: data.wildPokemonData,
+        opponentPokemonData: data.opponentPokemonData,
+        opponentPartyData: data.opponentPartyData,
         playerPokemonData: data.playerPokemonData,
         playerPartyData: data.playerPartyData,
+        battleType: data.battleType || 'WILD',
+        npcTrainerId: data.npcTrainerId,
         log: [],
         status: BattleStatus.ACTIVE,
         turnNumber: 1
@@ -46,7 +52,8 @@ export class BattlesRepository {
       status?: BattleStatus; 
       turnNumber?: number; 
       playerActivePokemonId?: string;
-      wildPokemonData?: any; 
+      opponentPokemonData?: any;
+      opponentPartyData?: any;
       playerPokemonData?: any;
       playerPartyData?: any; 
       log?: any; 

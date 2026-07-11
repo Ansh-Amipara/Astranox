@@ -151,7 +151,7 @@ export class BattlesService {
     const session = await this.repository.createBattleSession({
       trainerId,
       playerActivePokemonId: playerActive.id,
-      wildPokemonData: wildActive,
+      opponentPokemonData: wildActive,
       playerPokemonData: playerActive,
       playerPartyData
     });
@@ -161,6 +161,75 @@ export class BattlesService {
         species: selectedEncounter.species,
         level: randomLevel
       },
+      battleSession: session
+    };
+  }
+
+  async engageNpc(userId: string, npcTrainerId: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
+
+    const active = await this.repository.getActiveBattleByTrainer(trainerSave.id);
+    if (active) throw new ValidationError('You are already in a battle.');
+
+    if (trainerSave.party.length === 0) throw new ValidationError('You have no Pokemon to battle with!');
+
+    const npc = await prisma.npcTrainer.findUnique({
+      where: { id: npcTrainerId },
+      include: { party: { orderBy: { position: 'asc' } } }
+    });
+
+    if (!npc || npc.party.length === 0) throw new NotFoundError('NPC Trainer not found or has no Pokemon.');
+
+    const opponentPartyData = [];
+    for (const p of npc.party) {
+       const species = await prisma.species.findUnique({ where: { id: p.speciesId }, include: { type1: true, type2: true } });
+       if (!species) continue;
+       
+       const types = [species.type1.name];
+       if (species.type2) types.push(species.type2.name);
+
+       const moves = [];
+       if (p.move1) moves.push(p.move1);
+       if (p.move2) moves.push(p.move2);
+       if (p.move3) moves.push(p.move3);
+       if (p.move4) moves.push(p.move4);
+
+       const npcInstance = createPokemonInstance({
+         id: p.id,
+         nickname: species.name,
+         level: p.level,
+         ivs: { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed },
+         species: {
+           id: species.id,
+           name: species.name,
+           types,
+           baseStats: { hp: species.hp, attack: species.attack, defense: species.defense, spAtk: species.spAtk, spDef: species.spDef, speed: species.speed }
+         },
+         moves
+       });
+       opponentPartyData.push(toActivePokemon(npcInstance));
+    }
+
+    if (opponentPartyData.length === 0) throw new ValidationError('NPC party is invalid.');
+
+    const playerLead = mapOwnedPokemonToInstance(trainerSave.party[0] as any);
+    const playerActive = toActivePokemon(playerLead);
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
+    const session = await this.repository.createBattleSession({
+      trainerId: trainerSave.id,
+      playerActivePokemonId: playerActive.id,
+      opponentPokemonData: opponentPartyData[0],
+      opponentPartyData,
+      playerPokemonData: playerActive,
+      playerPartyData,
+      battleType: 'NPC',
+      npcTrainerId
+    });
+
+    return {
+      npcTrainer: { id: npc.id, name: npc.name, spriteUrl: npc.spriteUrl, trainerClass: npc.trainerClass },
       battleSession: session
     };
   }
@@ -184,14 +253,14 @@ export class BattlesService {
         status: BattleStatus.FLED,
         turnNumber: session.turnNumber,
         playerPokemonData: session.playerPokemonData,
-        wildPokemonData: session.wildPokemonData,
+        opponentPokemonData: session.opponentPokemonData,
         log: session.log,
       });
       return { status: BattleStatus.FLED, events: [{ type: 'fled' }] };
     }
 
     let playerAction: BattleAction;
-    const wildPokemon = session.wildPokemonData as any;
+    const wildPokemon = session.opponentPokemonData as any;
     let playerPokemon = session.playerPokemonData as any;
     let playerPartyData = (session.playerPartyData as any[]) || [];
 
@@ -303,11 +372,14 @@ export class BattlesService {
       };
     }
 
-    // Wild AI logic: Just pick Tackle for now until we store moves.
+    // Wild/NPC AI logic: Randomly pick a known move
+    const opponentMoves = wildPokemon.moves && wildPokemon.moves.length > 0 ? wildPokemon.moves : ['tackle'];
+    const randomMoveName = opponentMoves[Math.floor(Math.random() * opponentMoves.length)];
+
     const wildMoveData = await prisma.move.findUnique({
-      where: { name: 'tackle' },
+      where: { name: randomMoveName.toLowerCase() },
       include: { type: true }
-    });
+    }) || await prisma.move.findUnique({ where: { name: 'tackle' }, include: { type: true } });
 
     const wildAction: BattleAction = {
       type: 'move',
@@ -327,7 +399,7 @@ export class BattlesService {
     const result = resolveTurn(
       playerPokemon,
       playerAction,
-      session.wildPokemonData as any,
+      session.opponentPokemonData as any,
       wildAction
     );
 
@@ -341,13 +413,57 @@ export class BattlesService {
 
     // Update Session Status
     let newStatus: BattleStatus = BattleStatus.ACTIVE;
+    let opponentPartyData = (session.opponentPartyData as any[]) || [];
+
     if (isCaught) {
       newStatus = BattleStatus.CAUGHT;
     } else if (result.p1State.currentHp <= 0) {
       const hasHealthy = playerPartyData.some(p => p.currentHp > 0);
       newStatus = hasHealthy ? BattleStatus.WAITING_SWITCH : BattleStatus.LOST;
     } else if (result.p2State.currentHp <= 0) {
-      newStatus = BattleStatus.WON;
+      // Award XP immediately on faint
+      const { getExpYield, getLevelFromXp } = require('../../game/battle/level-math');
+      const xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
+      
+      result.p1State.currentXp += xpYield;
+      result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: xpYield });
+
+      const oldLevel = result.p1State.level;
+      const newLevel = getLevelFromXp(result.p1State.currentXp);
+
+      if (newLevel > oldLevel) {
+        result.p1State.level = newLevel;
+        result.events.push({ type: 'level_up', pokemonId: result.p1State.id, level: newLevel });
+      }
+
+      for (const p of playerPartyData) {
+        if (p.id === result.p1State.id) {
+          p.currentXp = result.p1State.currentXp;
+          p.level = result.p1State.level;
+        }
+        await prisma.ownedPokemon.update({
+          where: { id: p.id },
+          data: {
+            currentXp: p.currentXp,
+            level: p.level
+          }
+        });
+      }
+
+      if (session.battleType === 'NPC') {
+        const p2Index = opponentPartyData.findIndex(p => p.id === result.p2State.id);
+        if (p2Index !== -1) opponentPartyData[p2Index] = result.p2State;
+        
+        const nextHealthy = opponentPartyData.find(p => p.currentHp > 0);
+        if (nextHealthy) {
+          result.p2State = nextHealthy;
+          result.events.push({ type: 'switch', pokemonId: nextHealthy.id, targetPokemonId: nextHealthy.id, name: nextHealthy.speciesName, isPlayer: false });
+        } else {
+          newStatus = BattleStatus.WON;
+        }
+      } else {
+        newStatus = BattleStatus.WON;
+      }
     }
 
     if (isCaught) {
@@ -381,32 +497,25 @@ export class BattlesService {
           ivSpeed: Math.floor(Math.random() * 32),
         }
       });
-    } else if (newStatus === BattleStatus.WON) {
-      const { getExpYield, getLevelFromXp } = require('../../game/battle/level-math');
-      const xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
-      
-      result.p1State.currentXp += xpYield;
-      result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: xpYield });
+    }
 
-      const oldLevel = result.p1State.level;
-      const newLevel = getLevelFromXp(result.p1State.currentXp);
-
-      if (newLevel > oldLevel) {
-        result.p1State.level = newLevel;
-        // Recalculate stats? The DB will naturally re-hydrate it on next map OwnedPokemonToInstance.
-        // We only need to tell the user they levelled up right now.
-        // But we should update the DB currentXp and level.
-        result.events.push({ type: 'level_up', pokemonId: result.p1State.id, level: newLevel });
-      }
-
-      // Actually, all pokemon in party should just be saved to DB here to persist XP and Level.
-      for (const p of playerPartyData) {
-        await prisma.ownedPokemon.update({
-          where: { id: p.id },
-          data: {
-            currentXp: p.currentXp,
-            level: p.level
-          }
+    if (newStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
+      const npcTrainer = await prisma.npcTrainer.findUnique({ where: { id: session.npcTrainerId } });
+      if (npcTrainer) {
+        const hasBadge = trainerSave.badges.includes(npcTrainer.badgeName || '');
+        const updateData: any = { money: { increment: npcTrainer.rewardMoney } };
+        if (npcTrainer.badgeName && !hasBadge) {
+          updateData.badges = { push: npcTrainer.badgeName };
+        }
+        await prisma.trainerSave.update({
+          where: { id: trainerSave.id },
+          data: updateData
+        });
+        
+        await prisma.trainerDefeatedNpc.upsert({
+           where: { trainerId_npcTrainerId: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id } },
+           create: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id },
+           update: {}
         });
       }
     }
@@ -419,7 +528,8 @@ export class BattlesService {
       playerActivePokemonId: session.playerActivePokemonId,
       playerPokemonData: result.p1State as any,
       playerPartyData: playerPartyData as any,
-      wildPokemonData: result.p2State as any,
+      opponentPokemonData: result.p2State as any,
+      opponentPartyData: opponentPartyData as any,
       log: updatedLog,
     });
 

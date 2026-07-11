@@ -12,6 +12,7 @@ Astranox is a feature-rich, browser-based Pokémon game built with a modern web 
   - Backpack inventory for managing your Pokéballs and currency.
 - **Exploration & Habitats**: Interactive map zones for wild encounters.
 - **Pokémart**: Purchase items and Pokéballs using in-game currency.
+- **Modern UI & UX**: Clean, responsive design featuring seamless Light and Dark modes, strict digitized numeric inputs, and intuitive smart-search dropdowns.
 
 ## Admin Panel
 

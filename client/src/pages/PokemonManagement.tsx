@@ -122,9 +122,6 @@ export function PokemonManagement() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Team Management</h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
-              {selectedSlot ? 'Select another slot to swap.' : 'Select a Pokémon to move it.'}
-            </p>
           </div>
           {swapMutation.isPending && (
             <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20 px-4 py-2 rounded-full border border-blue-200 dark:border-blue-900/50">

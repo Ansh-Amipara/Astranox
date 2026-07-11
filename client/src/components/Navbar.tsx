@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../services/api';
 import { useThemeStore } from '../store/theme.store';
 
 export function Navbar() {
@@ -10,15 +8,6 @@ export function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
-
-  const { data: save } = useQuery({
-    queryKey: ['trainerSave'],
-    queryFn: async () => {
-      const { data } = await api.get('/trainers/me');
-      return data.data;
-    },
-    enabled: !!user,
-  });
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -41,6 +30,7 @@ export function Navbar() {
             <div className="ml-10 flex items-baseline space-x-4">
               <Link to="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link to="/map" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Map</Link>
+              <Link to="/gyms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Gyms</Link>
               <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
               
               {/* Pokemon Dropdown */}
@@ -107,14 +97,9 @@ export function Navbar() {
             </button>
             {user && (
               <>
-                <span className="text-sm text-slate-500 dark:text-slate-400 hidden sm:inline-block">
+                <span className="text-sm text-slate-500 dark:text-slate-400 hidden sm:inline-block mr-2">
                   Trainer <span className="font-semibold text-slate-800 dark:text-slate-200">{user.username}</span>
                 </span>
-                {save && (
-                  <span className="rounded-full bg-yellow-100 dark:bg-yellow-500/10 px-3 py-1 text-sm font-medium text-yellow-700 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/20">
-                    ₽ {save.money}
-                  </span>
-                )}
                 <button 
                   onClick={logout}
                   className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
@@ -125,6 +110,14 @@ export function Navbar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
                 </button>
+                {user.role === 'ADMIN' && (
+                  <Link 
+                    to="/admin/dashboard" 
+                    className="px-3 py-1.5 rounded-lg font-bold text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 transition-colors ml-2"
+                  >
+                    Admin
+                  </Link>
+                )}
               </>
             )}
           </div>

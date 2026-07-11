@@ -34,11 +34,10 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Admin Portal</h1>
-          <p className="text-slate-400 font-medium">Authorized personnel only</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Admin Portal</h1>
         </div>
 
         {error && (
@@ -49,23 +48,23 @@ export function AdminLogin() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-bold text-slate-300 mb-2">Username</label>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Username</label>
             <input 
               type="text"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              className="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-medium"
+              className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-medium"
               placeholder="admin"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-300 mb-2">Password</label>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Password</label>
             <input 
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-medium"
+              className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-medium"
               placeholder="••••••••"
               required
             />

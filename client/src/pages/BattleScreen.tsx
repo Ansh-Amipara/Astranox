@@ -54,10 +54,12 @@ export function BattleScreen() {
     );
   }
 
-  const wild = battleRes.wildPokemonData;
+  const wild = battleRes.opponentPokemonData;
+  const opponentPartyData = battleRes.opponentPartyData || [];
   const player = battleRes.playerPokemonData;
   const playerPartyData = battleRes.playerPartyData || [];
   const status = battleRes.status;
+  const battleType = battleRes.battleType || 'WILD';
   const isFinished = status === 'WON' || status === 'LOST' || status === 'FLED' || status === 'CAUGHT';
   const isWaitingSwitch = status === 'WAITING_SWITCH';
   
@@ -120,12 +122,28 @@ export function BattleScreen() {
               <span className="text-sm font-bold text-slate-500 dark:text-slate-300">Lv {wild.level}</span>
             </div>
             
+            {/* Enemy Party Indicators (NPC only) */}
+            {battleType === 'NPC' && opponentPartyData.length > 0 && (
+              <div className="flex gap-1 mb-2">
+                {opponentPartyData.map((p: any) => (
+                  <div 
+                    key={p.id} 
+                    className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500' : 'bg-slate-400 dark:bg-slate-700'}`} 
+                    title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
+                  ></div>
+                ))}
+              </div>
+            )}
+            
             {/* HP Bar */}
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4 border-2 border-slate-300 dark:border-slate-900 overflow-hidden relative">
                 <div 
-                  className={`h-full transition-all duration-500 ${wild.currentHP / wild.maxHp > 0.5 ? 'bg-green-500' : wild.currentHP / wild.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                  style={{ width: `${Math.max(0, (wild.currentHP / wild.maxHp) * 100)}%` }}
+                  className={`h-full transition-all duration-500 ${wild.currentHp / wild.maxHp > 0.5 ? 'bg-green-500' : wild.currentHp / wild.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                  style={{ width: `${Math.max(0, (wild.currentHp / wild.maxHp) * 100)}%` }}
                 ></div>
+            </div>
+            <div className="text-right mt-1 text-xs text-slate-500 dark:text-slate-400 font-bold">
+              {wild.currentHp} / {wild.maxHp}
             </div>
           </div>
         </div>
@@ -154,9 +172,12 @@ export function BattleScreen() {
             {/* HP Bar */}
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4 border-2 border-slate-300 dark:border-slate-900 overflow-hidden relative">
                 <div 
-                  className={`h-full transition-all duration-500 ${player.currentHP / player.maxHp > 0.5 ? 'bg-green-500' : player.currentHP / player.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                  style={{ width: `${Math.max(0, (player.currentHP / player.maxHp) * 100)}%` }}
+                  className={`h-full transition-all duration-500 ${player.currentHp / player.maxHp > 0.5 ? 'bg-green-500' : player.currentHp / player.maxHp > 0.2 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                  style={{ width: `${Math.max(0, (player.currentHp / player.maxHp) * 100)}%` }}
                 ></div>
+            </div>
+            <div className="text-right mt-1 text-xs text-slate-500 dark:text-slate-400 font-bold">
+              {player.currentHp} / {player.maxHp}
             </div>
           </div>
         </div>
@@ -172,7 +193,7 @@ export function BattleScreen() {
               <div className="flex flex-col items-center justify-center h-full space-y-4">
                 <p className="text-xl text-slate-900 dark:text-white font-bold capitalize">Battle Finished!</p>
                 <p className="text-slate-800 dark:text-slate-200">
-                  {status === 'WON' ? `You defeated the wild ${wild.speciesName}!` : 
+                  {status === 'WON' ? (battleType === 'NPC' ? 'You defeated the opposing Trainer!' : `You defeated the wild ${wild.speciesName}!`) : 
                    status === 'CAUGHT' ? `Gotcha! ${wild.speciesName} was caught!` :
                    status === 'FLED' ? 'Got away safely!' : 'You blacked out!'}
                 </p>
@@ -218,8 +239,14 @@ export function BattleScreen() {
                       FIGHT
                     </button>
                     <button 
-                      onClick={() => setMenu('bag')}
-                      className="bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-yellow-500/50 transition-all hover:-translate-y-1"
+                      onClick={() => {
+                        if (battleType === 'NPC') {
+                          showToast("You can't catch other trainers' Pokémon!");
+                        } else {
+                          setMenu('bag');
+                        }
+                      }}
+                      className={`bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-yellow-500/50 transition-all hover:-translate-y-1 ${battleType === 'NPC' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                     >
                       BAG
                     </button>
