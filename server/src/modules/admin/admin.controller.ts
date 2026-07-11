@@ -46,7 +46,7 @@ export class AdminController {
         throw new ValidationError('Amount must be a valid number');
       }
 
-      const save = await this.service.addMoney(id, amount);
+      const save = await this.service.addMoney(req.user!.id, id, amount);
       res.json({ success: true, data: save });
     } catch (err) {
       next(err);
@@ -66,7 +66,7 @@ export class AdminController {
         throw new ValidationError('Valid level between 1 and 100 is required');
       }
 
-      const pokemon = await this.service.addPokemon(id, speciesId, level, ivs);
+      const pokemon = await this.service.addPokemon(req.user!.id, id, speciesId, level, ivs);
       res.json({ success: true, data: pokemon });
     } catch (err) {
       next(err);
@@ -91,7 +91,7 @@ export class AdminController {
         throw new ValidationError('speciesId, minLevel, maxLevel, and spawnRate are required');
       }
 
-      const spawn = await this.service.addSpawnToMap(id, speciesId, minLevel, maxLevel, spawnRate);
+      const spawn = await this.service.addSpawnToMap(req.user!.id, id, speciesId, minLevel, maxLevel, spawnRate);
       res.json({ success: true, data: spawn });
     } catch (err) {
       next(err);
@@ -101,7 +101,7 @@ export class AdminController {
   removeSpawn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      await this.service.removeSpawn(id);
+      await this.service.removeSpawn(req.user!.id, id);
       res.json({ success: true, data: { deleted: true } });
     } catch (err) {
       next(err);

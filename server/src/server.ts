@@ -1,6 +1,7 @@
+import { env } from './config/env';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import helmet from 'helmet';
 import { ASTRANOX_VERSION } from '@astranox/shared';
 
 import { authRoutes } from './modules/auth/auth.routes';
@@ -11,14 +12,16 @@ import { adminRoutes } from './modules/admin/admin.routes';
 import { npcsRoutes } from './modules/npcs/npcs.routes';
 import { worldRoutes } from './modules/world/world.routes';
 import { errorHandler } from './common/middleware/error-handler';
+import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
-
-dotenv.config();
+import { logger } from './config/logger';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = env.PORT;
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(helmet());
+app.use(cors({ origin: env.CORS_ORIGIN === 'true' ? true : env.CORS_ORIGIN, credentials: true }));
+app.use(httpLogger);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -40,5 +43,5 @@ app.use('/world', worldRoutes);
 app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  logger.info(`Server running on port ${port}`);
 });

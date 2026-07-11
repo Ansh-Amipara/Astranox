@@ -8,9 +8,10 @@ import { resolveTurn } from '../../game/battle-state/turn-resolver';
 import { createPokemonInstance } from '../../game/instance/PokemonInstance';
 import { getBallBonus } from '../../game/battle/catch-math';
 import crypto from 'crypto';
-import { PrismaClient, BattleStatus } from '@prisma/client';
+import { PrismaClient, BattleStatus, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
+const BATTLE_ACTION_PATTERN = /^(run|move:[1-9]\d*|switch:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|item:(poke-ball|great-ball|ultra-ball|luxury-ball|master-ball))$/;
 
 function toActivePokemon(inst: any): ActivePokemon {
   return {
@@ -306,19 +307,32 @@ export class BattlesService {
   }
 
   async submitTurn(userId: string, action: string) {
-    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!BATTLE_ACTION_PATTERN.test(action)) {
+      throw new ValidationError('Invalid battle action.');
+    }
+
+    return this.repository.runTurnTransaction((tx) => this.submitTurnInTransaction(userId, action, tx));
+  }
+
+  private async submitTurnInTransaction(userId: string, action: string, tx: Prisma.TransactionClient) {
+    const trainerSave = await this.repository.getTrainerForTurn(tx, userId);
     if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
-    const session = await this.repository.getActiveBattleByTrainer(trainerSave.id);
+    const session = await this.repository.getActiveBattleForUpdate(tx, trainerSave.id);
     if (!session) throw new NotFoundError('No active battle session found.');
     
     if (action === 'run') {
-      await this.repository.updateBattleSession(session.id, {
+      if (session.battleType !== 'WILD') {
+        throw new ValidationError('You cannot run from an NPC battle.');
+      }
+
+      const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
         status: BattleStatus.FLED,
-        turnNumber: session.turnNumber,
-        playerPokemonData: session.playerPokemonData,
-        opponentPokemonData: session.opponentPokemonData,
-        log: session.log,
+        turnNumber: session.turnNumber + 1,
+        playerPokemonData: session.playerPokemonData as Prisma.InputJsonValue,
+        opponentPokemonData: session.opponentPokemonData as Prisma.InputJsonValue,
+        log: [...((session.log as any[]) || []), { turn: session.turnNumber, events: [{ type: 'fled' }] }],
       });
+      if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
       return { status: BattleStatus.FLED, events: [{ type: 'fled' }] };
     }
 
@@ -343,12 +357,15 @@ export class BattlesService {
       session.playerPokemonData = targetData;
 
       // Update session and return early, no turn resolution for wild pokemon
-      await this.repository.updateBattleSession(session.id, {
+      const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
         status: BattleStatus.ACTIVE,
         playerActivePokemonId: targetId,
         playerPokemonData: targetData,
+        playerPartyData,
+        turnNumber: session.turnNumber + 1,
         log: [...(session.log as any || []), { turn: session.turnNumber, events: [{ type: 'switch', pokemonId: targetId, targetPokemonId: targetId, name: targetData.speciesName, isPlayer: true }] }]
       });
+      if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
 
       return {
         status: BattleStatus.ACTIVE,
@@ -362,7 +379,7 @@ export class BattlesService {
     if (action.startsWith('switch:')) {
       const targetId = action.split(':')[1];
       const targetData = playerPartyData.find(p => p.id === targetId);
-      if (!targetData || targetData.currentHp <= 0) {
+      if (!targetData || targetData.currentHp <= 0 || targetId === session.playerActivePokemonId) {
         throw new ValidationError('Invalid switch target.');
       }
 
@@ -379,15 +396,19 @@ export class BattlesService {
         targetPokemonId: targetId
       };
     } else if (action.startsWith('item:')) {
-      const itemName = action.split(':')[1];
-      const inventoryItem = trainerSave.inventory.find((i: any) => i.item.name === itemName);
+      if (session.battleType !== 'WILD') {
+        throw new ValidationError('Items cannot be used to catch an NPC trainer\'s Pokemon.');
+      }
+
+      const itemId = action.split(':')[1];
+      const inventoryItem = trainerSave.inventory.find((i: any) => i.itemId === itemId);
       
       if (!inventoryItem || inventoryItem.quantity <= 0) {
-        throw new ValidationError(`You don't have any ${itemName} left.`);
+        throw new ValidationError(`You don't have any ${itemId} left.`);
       }
 
       // Decrement inventory (we'll just use Prisma directly here for simplicity, though a repo method is better)
-      await prisma.inventoryItem.update({
+      await tx.inventoryItem.update({
         where: { id: inventoryItem.id },
         data: { quantity: inventoryItem.quantity - 1 }
       });
@@ -395,8 +416,8 @@ export class BattlesService {
       playerAction = {
         type: 'item',
         pokemonId: session.playerActivePokemonId,
-        itemId: itemName,
-        ballBonus: getBallBonus(itemName)
+        itemId,
+        ballBonus: getBallBonus(itemId)
       };
     } else {
       const moveIdStr = action.split(':')[1];
@@ -409,7 +430,7 @@ export class BattlesService {
       }
 
       // Fetch move from DB
-      const playerMoveData = await prisma.move.findUnique({
+      const playerMoveData = await tx.move.findUnique({
         where: { id: moveId },
         include: { type: true }
       });
@@ -440,10 +461,10 @@ export class BattlesService {
     const opponentMoves = wildPokemon.moves && wildPokemon.moves.length > 0 ? wildPokemon.moves : [{ moveId: 33 }]; // 33 is tackle
     const randomMove = opponentMoves[Math.floor(Math.random() * opponentMoves.length)];
 
-    const wildMoveData = await prisma.move.findUnique({
+    const wildMoveData = await tx.move.findUnique({
       where: { id: randomMove.moveId },
       include: { type: true }
-    }) || await prisma.move.findUnique({ where: { name: 'tackle' }, include: { type: true } });
+    }) || await tx.move.findUnique({ where: { name: 'tackle' }, include: { type: true } });
 
     const wildAction: BattleAction = {
       type: 'move',
@@ -505,7 +526,7 @@ export class BattlesService {
           p.currentXp = result.p1State.currentXp;
           p.level = result.p1State.level;
         }
-        await prisma.ownedPokemon.update({
+        await tx.ownedPokemon.update({
           where: { id: p.id },
           data: {
             currentXp: p.currentXp,
@@ -539,13 +560,13 @@ export class BattlesService {
       if (!isParty) {
         // Send to Box 1 for now if party is full
         boxNumber = 1;
-        const boxMons = await prisma.ownedPokemon.findMany({
+        const boxMons = await tx.ownedPokemon.findMany({
           where: { trainerId: trainerSave.id, isParty: false, boxNumber: 1 }
         });
         position = boxMons.length;
       }
 
-      const newPokemon = await prisma.ownedPokemon.create({
+      const newPokemon = await tx.ownedPokemon.create({
         data: {
           trainerId: trainerSave.id,
           speciesId: wildPokemon.speciesId,
@@ -563,7 +584,7 @@ export class BattlesService {
       });
 
       if (wildPokemon.moves && wildPokemon.moves.length > 0) {
-        await prisma.ownedPokemonMove.createMany({
+        await tx.ownedPokemonMove.createMany({
           data: wildPokemon.moves.map((m: any) => ({
             ownedPokemonId: newPokemon.id,
             moveId: m.moveId,
@@ -574,19 +595,19 @@ export class BattlesService {
     }
 
     if (newStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
-      const npcTrainer = await prisma.npcTrainer.findUnique({ where: { id: session.npcTrainerId } });
+      const npcTrainer = await tx.npcTrainer.findUnique({ where: { id: session.npcTrainerId } });
       if (npcTrainer) {
         const hasBadge = trainerSave.badges.includes(npcTrainer.badgeName || '');
         const updateData: any = { money: { increment: npcTrainer.rewardMoney } };
         if (npcTrainer.badgeName && !hasBadge) {
           updateData.badges = { push: npcTrainer.badgeName };
         }
-        await prisma.trainerSave.update({
+        await tx.trainerSave.update({
           where: { id: trainerSave.id },
           data: updateData
         });
         
-        await prisma.trainerDefeatedNpc.upsert({
+        await tx.trainerDefeatedNpc.upsert({
            where: { trainerId_npcTrainerId: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id } },
            create: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id },
            update: {}
@@ -596,7 +617,7 @@ export class BattlesService {
 
     const updatedLog = [...(session.log as any || []), { turn: session.turnNumber, events: result.events }];
 
-    await this.repository.updateBattleSession(session.id, {
+    const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
       status: newStatus,
       turnNumber: session.turnNumber + 1,
       playerActivePokemonId: session.playerActivePokemonId,
@@ -606,6 +627,7 @@ export class BattlesService {
       opponentPartyData: opponentPartyData as any,
       log: updatedLog,
     });
+    if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
 
     return {
       status: newStatus,

@@ -270,7 +270,7 @@ export function BattleScreen() {
                       POKéMON
                     </button>
                     <button 
-                      onClick={() => turnMutation.mutate('FLED')}
+                      onClick={() => turnMutation.mutate('run')}
                       disabled={turnMutation.isPending}
                       className="bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-black text-2xl rounded-lg shadow-lg hover:shadow-blue-500/50 transition-all hover:-translate-y-1 disabled:opacity-50"
                     >
@@ -315,14 +315,14 @@ export function BattleScreen() {
                       ← Back
                     </button>
                     <div className="flex-1 overflow-y-auto">
-                      {trainerSave?.inventory?.filter((inv: any) => inv.item.name.includes('ball') && inv.quantity > 0).length > 0 ? (
+                      {trainerSave?.inventory?.filter((inv: any) => inv.itemId.endsWith('ball') && inv.quantity > 0).length > 0 ? (
                         <div className="grid grid-cols-2 gap-2">
                           {trainerSave.inventory
-                            .filter((inv: any) => inv.item.name.includes('ball') && inv.quantity > 0)
+                            .filter((inv: any) => inv.itemId.endsWith('ball') && inv.quantity > 0)
                             .map((inv: any) => (
                               <button
                                 key={inv.itemId}
-                                onClick={() => turnMutation.mutate(`item:${inv.item.name}`)}
+                                  onClick={() => turnMutation.mutate(`item:${inv.itemId}`)}
                                 disabled={turnMutation.isPending}
                                 className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 flex items-center gap-2 p-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
                               >

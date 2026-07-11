@@ -564,3 +564,15 @@ model TrainerDefeatedNpc {
 
   @@unique([trainerId, npcTrainerId])
 }
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  adminId      String   @db.Uuid
+  action       String
+  entityType   String
+  entityId     String?
+  beforeValues Json?
+  afterValues  Json?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+}

@@ -58,19 +58,27 @@ describe('Turn Resolver Engine', () => {
     expect(result.events[0].pokemonId).toBe('p2'); // p2 moves first despite being slower
   });
 
-  it('applies level scaling penalty when gap is > 5', () => {
+  it('applies scaling only to a turn and does not persist the penalty', () => {
     // p1 is level 20, p2 is level 10 (gap of 10)
     // p2 should suffer 50% stat reduction (5 levels * 10%)
     const p1 = createMockPokemon('p1', 20, 50, ['normal']);
     const p2 = createMockPokemon('p2', 10, 50, ['normal']);
     p2.defense = 40; // Base 40
     
-    const result = resolveTurn(p1, createMockAction('p1'), p2, createMockAction('p2'));
+    const result = resolveTurn(p1, createMockAction('p1', 0, 0), p2, createMockAction('p2', 0, 0));
     
-    // Level scaling applies before combat. p2's defense becomes 20.
-    // Let's inspect the returned state.
-    expect(result.p2State.defense).toBe(20);
+    // The 50% penalty is used while resolving the turn, but stored battle state
+    // retains its base stats for the next turn.
+    expect(result.p2State.defense).toBe(40);
     expect(result.p1State.defense).toBe(50); // No penalty for p1
+
+    const nextTurn = resolveTurn(
+      result.p1State,
+      createMockAction('p1', 0, 0),
+      result.p2State,
+      createMockAction('p2', 0, 0)
+    );
+    expect(nextTurn.p2State.defense).toBe(40);
   });
 
   it('does not apply level scaling penalty when gap is <= 5', () => {
