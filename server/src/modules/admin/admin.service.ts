@@ -34,23 +34,7 @@ export class AdminService {
     return this.repo.getUserPokemon(userId);
   }
 
-  async getAllZones() {
-    return this.repo.getAllZones();
-  }
 
-  async addZoneEncounter(zoneId: number, speciesId: number, encounterRate: number, minIv: number, maxIv: number) {
-    if (encounterRate <= 0 || encounterRate > 100) {
-      throw new ValidationError('Encounter rate must be between 0 and 100');
-    }
-    if (minIv < 0 || maxIv > 31 || minIv > maxIv) {
-      throw new ValidationError('Invalid IV range. Must be between 0 and 31, and min <= max.');
-    }
-    return this.repo.addZoneEncounter(zoneId, speciesId, encounterRate, minIv, maxIv);
-  }
-
-  async deleteZoneEncounter(encounterId: number) {
-    return this.repo.deleteZoneEncounter(encounterId);
-  }
 
   async addPokemon(userId: string, speciesId: number, level: number, ivs?: any) {
     if (level < 1 || level > 100) {
@@ -75,5 +59,24 @@ export class AdminService {
       throw new NotFoundError('Trainer save not found for this user');
     }
     return result;
+  }
+
+  async getAllMaps() {
+    return this.repo.getAllMaps();
+  }
+
+  async addSpawnToMap(gameMapId: string, speciesId: number, minLevel: number, maxLevel: number, spawnRate: number) {
+    if (minLevel > maxLevel) throw new ValidationError('minLevel cannot be greater than maxLevel');
+    if (minLevel < 1 || maxLevel > 100) throw new ValidationError('Levels must be between 1 and 100');
+    if (spawnRate <= 0 || spawnRate > 100) throw new ValidationError('spawnRate must be between 1 and 100');
+
+    const species = await prisma.species.findUnique({ where: { id: speciesId } });
+    if (!species) throw new ValidationError('Invalid species ID');
+
+    return this.repo.addSpawnToMap(gameMapId, speciesId, minLevel, maxLevel, spawnRate);
+  }
+
+  async removeSpawn(spawnEntryId: string) {
+    return this.repo.removeSpawn(spawnEntryId);
   }
 }

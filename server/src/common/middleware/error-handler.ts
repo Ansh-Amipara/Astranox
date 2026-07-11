@@ -6,9 +6,9 @@ const logger = pino();
 
 export const errorHandler = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   if (err instanceof AppError) {
     logger.warn({ code: err.code, message: err.message });

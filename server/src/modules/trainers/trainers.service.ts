@@ -63,14 +63,14 @@ export class TrainersService {
     return this.repo.getAllMoves();
   }
 
-  async changeMoves(userId: string, pokemonId: string, moves: string[]) {
+  async changeMoves(userId: string, pokemonId: string, moveIds: number[]) {
     const save = await this.getMySave(userId);
     
-    if (!Array.isArray(moves) || moves.length > 4) {
-      throw new ValidationError('Moves must be an array of at most 4 move names.');
+    if (!Array.isArray(moveIds) || moveIds.length > 4) {
+      throw new ValidationError('Moves must be an array of at most 4 move IDs.');
     }
 
-    const result = await this.repo.changeMoves(save.id, pokemonId, moves);
+    const result = await this.repo.changeMoves(save.id, pokemonId, moveIds);
     if (!result) {
       throw new NotFoundError('Pokemon not found or does not belong to you.');
     }

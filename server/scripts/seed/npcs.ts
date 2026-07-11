@@ -6,7 +6,7 @@ async function main() {
   console.log('Seeding NPCs...');
   await prisma.npcTrainer.deleteMany(); // reset
 
-  const brock = await prisma.npcTrainer.create({
+  await prisma.npcTrainer.create({
     data: {
       name: 'Brock',
       spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/brock.png',
@@ -15,14 +15,14 @@ async function main() {
       badgeName: 'Boulder Badge',
       party: {
         create: [
-          { speciesId: 74, level: 12, position: 0, move1: 'tackle', move2: 'defense-curl' },
-          { speciesId: 95, level: 14, position: 1, move1: 'tackle', move2: 'bind' }
+          { speciesId: 74, level: 12, position: 0 },
+          { speciesId: 95, level: 14, position: 1 }
         ]
       }
     }
   });
 
-  const misty = await prisma.npcTrainer.create({
+  await prisma.npcTrainer.create({
     data: {
       name: 'Misty',
       spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/misty.png',
@@ -31,14 +31,14 @@ async function main() {
       badgeName: 'Cascade Badge',
       party: {
         create: [
-          { speciesId: 120, level: 18, position: 0, move1: 'tackle', move2: 'water-gun' },
-          { speciesId: 121, level: 21, position: 1, move1: 'tackle', move2: 'water-gun', move3: 'bubble-beam' }
+          { speciesId: 120, level: 18, position: 0 },
+          { speciesId: 121, level: 21, position: 1 }
         ]
       }
     }
   });
 
-  const surge = await prisma.npcTrainer.create({
+  await prisma.npcTrainer.create({
     data: {
       name: 'Lt. Surge',
       spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/surge.png',
@@ -47,15 +47,15 @@ async function main() {
       badgeName: 'Thunder Badge',
       party: {
         create: [
-          { speciesId: 100, level: 21, position: 0, move1: 'tackle', move2: 'thunder-shock' },
-          { speciesId: 25, level: 18, position: 1, move1: 'tackle', move2: 'thunder-shock' },
-          { speciesId: 26, level: 24, position: 2, move1: 'tackle', move2: 'thunderbolt' }
+          { speciesId: 100, level: 21, position: 0 },
+          { speciesId: 25, level: 18, position: 1 },
+          { speciesId: 26, level: 24, position: 2 }
         ]
       }
     }
   });
   
-  const erika = await prisma.npcTrainer.create({
+  await prisma.npcTrainer.create({
     data: {
       name: 'Erika',
       spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/erika.png',
@@ -64,9 +64,9 @@ async function main() {
       badgeName: 'Rainbow Badge',
       party: {
         create: [
-          { speciesId: 71, level: 29, position: 0, move1: 'tackle', move2: 'razor-leaf' },
-          { speciesId: 114, level: 24, position: 1, move1: 'tackle', move2: 'vine-whip' },
-          { speciesId: 45, level: 29, position: 2, move1: 'tackle', move2: 'petal-dance' }
+          { speciesId: 71, level: 29, position: 0 },
+          { speciesId: 114, level: 24, position: 1 },
+          { speciesId: 45, level: 29, position: 2 }
         ]
       }
     }

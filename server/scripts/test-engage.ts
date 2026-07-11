@@ -11,20 +11,20 @@ async function run() {
       return;
     }
     
-    const zone = await prisma.zone.findFirst();
+    const zone = await prisma.gameMap.findFirst();
     if (!zone) {
-      console.error("No zones found");
+      console.error("No GameMaps found");
       return;
     }
 
     const service = new BattlesService();
-    console.log(`Testing engage for user ${user.id} in zone ${zone.id}`);
+    console.log(`Testing engage for user ${user.id} in map ${zone.id}`);
     
     // Force a 100% encounter by overriding Math.random temporarily
     const originalRandom = Math.random;
     Math.random = () => 0.1; // 0.1 is <= 0.3, so it should trigger an encounter
     
-    const result = await service.engageWild(user.id, zone.id);
+    const result = await service.exploreMap(user.id, zone.id);
     console.log("Result:", result);
     
     Math.random = originalRandom;

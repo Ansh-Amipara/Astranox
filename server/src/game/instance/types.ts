@@ -35,6 +35,8 @@ export interface IndividualValues {
   speed: number;
 }
 
+import { PokemonMove } from '../battle-state/types';
+
 /**
  * Raw data payload required to hydrate a PokemonInstance.
  */
@@ -47,7 +49,7 @@ export interface PokemonInstancePayload {
   species: SpeciesContext;
   
   // Future Expansion:
-  moves: string[];
+  moves: PokemonMove[];
   // ability: string;
 }
 
@@ -76,5 +78,5 @@ export interface PokemonInstance {
   // Internal State
   ivs: IndividualValues;
   species: SpeciesContext;
-  moves: string[];
+  moves: PokemonMove[];
 }

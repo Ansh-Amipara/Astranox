@@ -4,13 +4,13 @@ import { api } from '../../services/api';
 
 export function AdminMap() {
   const queryClient = useQueryClient();
-  const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   
   // Form State
-  const [speciesId, setSpeciesId] = useState<number | ''>('');
-  const [encounterRate, setEncounterRate] = useState<number>(10);
-  const [minIv, setMinIv] = useState<number>(0);
-  const [maxIv, setMaxIv] = useState<number>(31);
+  const [speciesId, setSpeciesId] = useState<number>(1);
+  const [minLevel, setMinLevel] = useState<number>(1);
+  const [maxLevel, setMaxLevel] = useState<number>(5);
+  const [spawnRate, setSpawnRate] = useState<number>(10);
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
 
@@ -22,237 +22,237 @@ export function AdminMap() {
     }
   });
 
-  const { data: zonesData, isLoading } = useQuery({
-    queryKey: ['adminZones'],
+  const { data: mapsData, isLoading } = useQuery({
+    queryKey: ['adminMaps'],
     queryFn: async () => {
-      const { data } = await api.get('/admin/zones');
+      const { data } = await api.get('/admin/maps');
       return data.data;
     }
   });
 
-  const addEncounterMutation = useMutation({
-    mutationFn: async (payload: { zoneId: number, speciesId: number, encounterRate: number, minIv: number, maxIv: number }) => {
-      return api.post(`/admin/zones/${payload.zoneId}/encounters`, payload);
+  const addSpawnMutation = useMutation({
+    mutationFn: async (payload: { mapId: string, speciesId: number, minLevel: number, maxLevel: number, spawnRate: number }) => {
+      return api.post(`/admin/maps/${payload.mapId}/spawns`, payload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminZones'] });
-      setSpeciesId('');
-      setSpeciesSearch('');
-      setEncounterRate(10);
-      setMinIv(0);
-      setMaxIv(31);
+      queryClient.invalidateQueries({ queryKey: ['adminMaps'] });
+      alert('Spawn added successfully');
+    },
+    onError: (err: any) => {
+      alert(`Error: ${err.response?.data?.error?.message || err.message}`);
     }
   });
 
-  const deleteEncounterMutation = useMutation({
-    mutationFn: async (encounterId: number) => {
-      return api.delete(`/admin/encounters/${encounterId}`);
+  const deleteSpawnMutation = useMutation({
+    mutationFn: async (spawnId: string) => {
+      return api.delete(`/admin/spawns/${spawnId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminZones'] });
+      queryClient.invalidateQueries({ queryKey: ['adminMaps'] });
     }
   });
 
   if (isLoading) {
-    return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex items-center justify-center font-bold text-2xl">Loading Map Data...</div>;
+    return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex items-center justify-center font-bold text-2xl">Loading World Builder...</div>;
   }
 
-  const selectedZone = zonesData?.find((z: any) => z.id === selectedZoneId);
+  const selectedMap = mapsData?.find((m: any) => m.id === selectedMapId);
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-8 text-slate-900 dark:text-slate-100 font-sans">
-      <div className="max-w-7xl mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2">Map Management</h1>
-        </div>
+    <div className="flex-1 p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-200">
+      <h1 className="text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-500">
+        World Builder
+      </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         
-        {/* Left Col: Zone List */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-            <h2 className="font-bold text-slate-800 dark:text-slate-200">Zones</h2>
-          </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/50 max-h-[600px] overflow-y-auto">
-            {zonesData?.map((zone: any) => (
+        {/* Left Column: Map List */}
+        <div className="lg:w-1/3 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-y-auto max-h-[800px]">
+          <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Game Maps</h2>
+          <div className="space-y-3">
+            {mapsData?.map((map: any) => (
               <button
-                key={zone.id}
-                onClick={() => setSelectedZoneId(zone.id)}
-                className={`w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${selectedZoneId === zone.id ? 'bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500' : 'border-l-4 border-transparent'}`}
+                key={map.id}
+                onClick={() => setSelectedMapId(map.id)}
+                className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
+                  selectedMapId === map.id
+                    ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 shadow-md shadow-blue-500/10'
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                }`}
               >
-                <div className="font-bold text-slate-900 dark:text-white">{zone.name}</div>
-                <div className="text-xs text-slate-500 mt-1">Level: {zone.minLevel} - {zone.maxLevel}</div>
-                <div className="text-xs text-slate-400 mt-1">Habitat: {zone.habitat?.name}</div>
+                <div className="font-bold text-lg">{map.name}</div>
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
+                  {map.area?.region?.name} &gt; {map.area?.name}
+                </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Right Col: Encounter Management */}
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          
-          {selectedZone ? (
-            <>
-              {/* Encounters List */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-                  Encounters in {selectedZone.name}
-                </h3>
-                
-                {selectedZone.encounters?.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {selectedZone.encounters.map((enc: any) => (
-                      <div key={enc.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
-                        <div className="flex items-center gap-4">
-                          <img 
-                            src={`http://localhost:3000/sprites/${enc.speciesId}.png`} 
-                            className="w-12 h-12 pixelated object-contain"
+        {/* Right Column: Map Editor */}
+        <div className="lg:w-2/3">
+          {selectedMap ? (
+            <div className="space-y-6">
+              
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
+                <div className="flex justify-between items-start mb-6 border-b border-slate-200 dark:border-slate-700 pb-4">
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-2">{selectedMap.name}</h2>
+                    <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                      <span>{selectedMap.area?.region?.continent?.name}</span>
+                      <span>•</span>
+                      <span>{selectedMap.area?.region?.name}</span>
+                      <span>•</span>
+                      <span>{selectedMap.area?.name}</span>
+                    </div>
+                  </div>
+                  <span className="px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 font-bold text-sm border border-slate-200 dark:border-slate-700">
+                    Theme: {selectedMap.theme}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Spawn Form */}
+                  <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                      Add Spawn Entry
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Pokémon Species</label>
+                        <input
+                          type="text"
+                          value={speciesSearch}
+                          onFocus={() => setShowSpeciesDropdown(true)}
+                          onChange={(e) => {
+                            setSpeciesSearch(e.target.value);
+                            setShowSpeciesDropdown(true);
+                          }}
+                          placeholder="Search Pokémon..."
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                        {showSpeciesDropdown && (
+                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-h-48 overflow-y-auto shadow-xl">
+                            {speciesList
+                              ?.filter((s: any) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
+                              .map((s: any) => (
+                                <div
+                                  key={s.id}
+                                  className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-blue-600 cursor-pointer text-slate-900 dark:text-white capitalize text-sm font-medium flex justify-between"
+                                  onClick={() => {
+                                    setSpeciesId(s.id);
+                                    setSpeciesSearch(s.name);
+                                    setShowSpeciesDropdown(false);
+                                  }}
+                                >
+                                  <span>{s.name}</span>
+                                  <span className="text-slate-500 dark:text-slate-400 text-xs">#{s.id}</span>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Min Level</label>
+                          <input
+                            type="text"
+                            value={minLevel || ''}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              setMinLevel(val ? Number(val) : 1);
+                            }}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500"
                           />
-                          <div>
-                            <div className="font-bold capitalize text-slate-900 dark:text-white">{enc.species?.name}</div>
-                            <div className="text-xs text-slate-500 font-medium">Rate: {enc.encounterRate}%</div>
-                            <div className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded mt-1 inline-block">
-                              IV Range: {enc.minIv} - {enc.maxIv}
-                            </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Max Level</label>
+                          <input
+                            type="text"
+                            value={maxLevel || ''}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              setMaxLevel(val ? Number(val) : 1);
+                            }}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Spawn Rate (1-100)</label>
+                        <input
+                          type="text"
+                          value={spawnRate || ''}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            setSpawnRate(val ? Number(val) : 1);
+                          }}
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => addSpawnMutation.mutate({ mapId: selectedMap.id, speciesId, minLevel, maxLevel, spawnRate })}
+                        disabled={addSpawnMutation.isPending || !speciesId}
+                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50"
+                      >
+                        Add Spawn Entry
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Spawn List */}
+                  <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
+                     <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                      Current Encounters
+                    </h3>
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                      {selectedMap.spawnGroups?.map((group: any) => (
+                        <div key={group.id} className="mb-4">
+                          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{group.name}</h4>
+                          <div className="space-y-2">
+                            {group.entries.map((enc: any) => (
+                              <div key={enc.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg flex justify-between items-center group">
+                                <div className="flex items-center gap-3">
+                                  <img src={enc.species.spriteUrl} alt={enc.species.name} className="w-10 h-10 rendering-pixelated" />
+                                  <div>
+                                    <div className="font-bold text-slate-900 dark:text-white capitalize">{enc.species.name}</div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                                      Lv {enc.minLevel}-{enc.maxLevel} • {enc.spawnRate}%
+                                    </div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm('Delete this encounter?')) {
+                                      deleteSpawnMutation.mutate(enc.id);
+                                    }
+                                  }}
+                                  className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                        <button 
-                          onClick={() => deleteEncounterMutation.mutate(enc.id)}
-                          disabled={deleteEncounterMutation.isPending}
-                          className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          title="Remove Encounter"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                ) : (
-                  <div className="p-8 text-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                    No encounters assigned to this zone yet.
-                  </div>
-                )}
+                </div>
+
               </div>
-
-              {/* Add Encounter Form */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Add Encounter</h3>
-                
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!speciesId) return;
-                    addEncounterMutation.mutate({
-                      zoneId: selectedZone.id,
-                      speciesId: Number(speciesId),
-                      encounterRate,
-                      minIv,
-                      maxIv
-                    });
-                  }}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                >
-                  <div className="space-y-1 relative">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Pokémon Species</label>
-                    <input 
-                      type="text" 
-                      value={speciesSearch}
-                      onFocus={() => setShowSpeciesDropdown(true)}
-                      onChange={(e) => {
-                        setSpeciesSearch(e.target.value);
-                        setShowSpeciesDropdown(true);
-                      }}
-                      placeholder="Search Pokémon..."
-                      className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                    {showSpeciesDropdown && (
-                      <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-h-48 overflow-y-auto shadow-xl">
-                        {speciesList
-                          ?.filter((s: any) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
-                          .map((s: any) => (
-                            <div 
-                              key={s.id} 
-                              className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-blue-600 cursor-pointer text-slate-900 dark:text-white capitalize text-sm font-medium flex justify-between"
-                              onClick={() => {
-                                setSpeciesId(s.id);
-                                setSpeciesSearch(s.name);
-                                setShowSpeciesDropdown(false);
-                              }}
-                            >
-                              <span>{s.name}</span>
-                              <span className="text-slate-500 dark:text-slate-400 text-xs">#{s.id}</span>
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Encounter Rate (%)</label>
-                    <input 
-                      type="text"
-                      required
-                      value={encounterRate || ''}
-                      onChange={e => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '');
-                        setEncounterRate(val ? parseFloat(val) : 0);
-                      }}
-                      className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Min IV</label>
-                    <input 
-                      type="text"
-                      required
-                      value={minIv === 0 ? '0' : (minIv || '')}
-                      onChange={e => {
-                        const val = e.target.value.replace(/\D/g, '');
-                        setMinIv(val ? parseInt(val) : 0);
-                      }}
-                      className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Max IV</label>
-                    <input 
-                      type="text"
-                      required
-                      value={maxIv === 0 ? '0' : (maxIv || '')}
-                      onChange={e => {
-                        const val = e.target.value.replace(/\D/g, '');
-                        setMaxIv(val ? parseInt(val) : 0);
-                      }}
-                      className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 pt-4">
-                    <button 
-                      type="submit"
-                      disabled={addEncounterMutation.isPending || !speciesId}
-                      className="w-full bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl shadow-sm transition-colors"
-                    >
-                      {addEncounterMutation.isPending ? 'Adding...' : 'Add Encounter to Zone'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </>
+            </div>
           ) : (
-            <div className="bg-slate-100 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-              <span className="text-4xl mb-4">🗺️</span>
-              <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300">No Zone Selected</h3>
-              <p className="text-slate-500 mt-2">Select a zone from the list to manage its wild Pokémon encounters.</p>
+            <div className="h-full flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl min-h-[600px] text-slate-400 dark:text-slate-500 font-bold text-xl">
+              Select a Game Map to edit
             </div>
           )}
-          
         </div>
+
       </div>
-      </div>
-      <style>{`.pixelated { image-rendering: pixelated; }`}</style>
     </div>
   );
 }

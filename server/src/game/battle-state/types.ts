@@ -1,11 +1,18 @@
 export type StatusAilment = 'burn' | 'poison' | 'paralysis' | 'sleep' | 'freeze' | null;
 
+export interface PokemonMove {
+  moveId: number;
+  currentSlot: number;
+  name: string;
+}
+
 export interface ActivePokemon {
   id: string; // unique instance id
   speciesId: number;
   speciesName: string;
   level: number;
   types: string[]; // ["fire", "flying"]
+  moves: PokemonMove[];
   
   // Base effective stats (already calculated with IVs)
   maxHp: number;

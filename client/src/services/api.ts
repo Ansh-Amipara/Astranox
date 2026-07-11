@@ -39,6 +39,13 @@ api.interceptors.response.use(
   }
 );
 
+export const trainerApi = {
+  getMe: async () => {
+    const { data } = await api.get('/trainers/me');
+    return data.data;
+  }
+};
+
 export const shopApi = {
   getItems: async () => {
     const { data } = await api.get('/shop/items');
@@ -47,5 +54,24 @@ export const shopApi = {
   buyItem: async (itemId: string, quantity: number) => {
     const { data } = await api.post('/shop/buy', { itemId, quantity });
     return data;
+  }
+};
+
+export const worldApi = {
+  getMacroLayout: async () => {
+    const { data } = await api.get('/world');
+    return data.data;
+  },
+  getMapDetails: async (mapId: string) => {
+    const { data } = await api.get(`/world/map/${mapId}`);
+    return data.data;
+  },
+  travel: async (targetMapId: string, connectionId?: string) => {
+    const { data } = await api.post('/world/travel', { targetMapId, connectionId });
+    return data.data;
+  },
+  getProgress: async () => {
+    const { data } = await api.get('/world/progress');
+    return data.data;
   }
 };

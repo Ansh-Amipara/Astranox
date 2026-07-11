@@ -102,11 +102,11 @@ function executeSwitch(
 }
 
 function executeItem(
-  user: ActivePokemon,
+  _user: ActivePokemon,
   action: BattleAction & { type: 'item' },
   target: ActivePokemon,
   events: TurnEvent[],
-  ctx: TurnContext
+  _ctx: TurnContext
 ): { caught: boolean } {
   // Only Pokeballs are supported right now
   const catchResult = calculateCatchResult({

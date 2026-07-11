@@ -14,9 +14,7 @@ router.get('/species', controller.getAllSpecies);
 router.get('/users/:id/pokemon', controller.getUserPokemon);
 router.post('/users/:id/money', controller.addMoney);
 router.post('/users/:id/pokemon', controller.addPokemon);
-
-router.get('/zones', controller.getAllZones);
-router.post('/zones/:zoneId/encounters', controller.addZoneEncounter);
-router.delete('/encounters/:encounterId', controller.deleteZoneEncounter);
-
+router.get('/maps', controller.getAllMaps);
+router.post('/maps/:id/spawns', controller.addSpawn);
+router.delete('/spawns/:id', controller.removeSpawn);
 export { router as adminRoutes };

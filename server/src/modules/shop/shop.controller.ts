@@ -8,7 +8,7 @@ const buyItemSchema = z.object({
 });
 
 export class ShopController {
-  async getItems(req: Request, res: Response, next: NextFunction) {
+  async getItems(_req: Request, res: Response, next: NextFunction) {
     try {
       const items = await shopService.getItems();
       res.json({ success: true, data: items });

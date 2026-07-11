@@ -97,6 +97,57 @@ export async function seedSpecies() {
           type1Id, type2Id,
         },
       });
+
+      // Parse Learnsets
+      const learnsetEntries: any[] = [];
+      for (const moveData of data.moves) {
+        const moveId = parseInt(moveData.move.url.split('/').filter(Boolean).pop()!);
+        
+        // Find Gen 9 or fallback
+        const vgDetails = moveData.version_group_details;
+        let targetDetail = vgDetails.find((d: any) => d.version_group.name === 'scarlet-violet' && d.move_learn_method.name === 'level-up');
+        if (!targetDetail) targetDetail = vgDetails.find((d: any) => d.version_group.name === 'sword-shield' && d.move_learn_method.name === 'level-up');
+        if (!targetDetail) targetDetail = vgDetails.find((d: any) => d.version_group.name === 'ultra-sun-ultra-moon' && d.move_learn_method.name === 'level-up');
+        if (!targetDetail) targetDetail = vgDetails.find((d: any) => d.move_learn_method.name === 'level-up'); // Ultimate fallback
+
+        if (targetDetail && targetDetail.level_learned_at > 0) {
+          learnsetEntries.push({
+            speciesId: id,
+            moveId,
+            level: targetDetail.level_learned_at,
+          });
+        }
+      }
+
+      // Sort by level ASC, then assign learnOrder
+      learnsetEntries.sort((a, b) => a.level - b.level);
+      
+      const uniqueMoves = new Set();
+      const finalLearnset = [];
+      let currentOrder = 1;
+
+      for (const entry of learnsetEntries) {
+        // Prevent duplicate move entries for the same species/level (sometimes happens in PokeAPI)
+        const key = `${entry.moveId}-${entry.level}`;
+        if (!uniqueMoves.has(key)) {
+          uniqueMoves.add(key);
+          finalLearnset.push({
+            ...entry,
+            learnOrder: currentOrder++
+          });
+        }
+      }
+
+      // Insert Learnset
+      if (finalLearnset.length > 0) {
+        // We delete existing learnsets for this species to ensure idempotency
+        await prisma.learnset.deleteMany({ where: { speciesId: id } });
+        await prisma.learnset.createMany({
+          data: finalLearnset,
+          skipDuplicates: true
+        });
+      }
+
     } catch (e) {
       console.error(`Failed seeding species ${id}`, e);
     }

@@ -14,7 +14,10 @@ describe('PokemonInstance Factory', () => {
       types: ['dragon', 'ground'],
       baseStats: { hp: 108, attack: 130, defense: 95, spAtk: 80, spDef: 85, speed: 102 }
     },
-    moves: ['tackle', 'earthquake']
+    moves: [
+      { moveId: 33, currentSlot: 0, name: 'tackle' },
+      { moveId: 89, currentSlot: 1, name: 'earthquake' }
+    ]
   };
 
   it('hydrates stats correctly using Gen 5 exact formulas (no EVs)', () => {

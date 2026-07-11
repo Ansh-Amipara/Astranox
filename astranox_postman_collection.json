@@ -12,8 +12,12 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/health",
-          "host": ["{{baseUrl}}"],
-          "path": ["health"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
         }
       }
     },
@@ -24,15 +28,25 @@
           "name": "Register",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -40,15 +54,25 @@
           "name": "Login",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -59,8 +83,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             }
           }
         },
@@ -71,8 +100,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
             }
           }
         }
@@ -85,11 +119,21 @@
           "name": "Get My Save",
           "request": {
             "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/trainers/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["trainers", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "me"
+              ]
             }
           }
         },
@@ -98,8 +142,14 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -107,8 +157,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/trainers/starter",
-              "host": ["{{baseUrl}}"],
-              "path": ["trainers", "starter"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "starter"
+              ]
             }
           }
         },
@@ -116,11 +171,22 @@
           "name": "Get Box",
           "request": {
             "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/trainers/box/0",
-              "host": ["{{baseUrl}}"],
-              "path": ["trainers", "box", "0"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "box",
+                "0"
+              ]
             }
           }
         },
@@ -129,8 +195,14 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -138,8 +210,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/trainers/swap",
-              "host": ["{{baseUrl}}"],
-              "path": ["trainers", "swap"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "swap"
+              ]
             }
           }
         }
@@ -153,17 +230,28 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"zoneId\": 1\n}"
+              "raw": "{\n  \"gameMapId\": \"00000000-0000-0000-0000-000000000000\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/battles/engage",
-              "host": ["{{baseUrl}}"],
-              "path": ["battles", "engage"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "battles",
+                "engage"
+              ]
             }
           }
         },
@@ -171,11 +259,21 @@
           "name": "Get Active Battle",
           "request": {
             "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/battles/active",
-              "host": ["{{baseUrl}}"],
-              "path": ["battles", "active"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "battles",
+                "active"
+              ]
             }
           }
         },
@@ -184,17 +282,28 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"action\": \"move:Tackle\"\n}"
+              "raw": "{\n  \"action\": \"move:33\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/battles/turn",
-              "host": ["{{baseUrl}}"],
-              "path": ["battles", "turn"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "battles",
+                "turn"
+              ]
             }
           }
         }
@@ -207,11 +316,21 @@
           "name": "Get Users",
           "request": {
             "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/admin/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
             }
           }
         },
@@ -220,8 +339,14 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -229,8 +354,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/admin/users/1/money",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users", "1", "money"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "1",
+                "money"
+              ]
             }
           }
         },
@@ -239,8 +371,14 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -248,8 +386,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/admin/users/1/pokemon",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users", "1", "pokemon"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "1",
+                "pokemon"
+              ]
             }
           }
         },
@@ -257,11 +402,21 @@
           "name": "Get Zones",
           "request": {
             "method": "GET",
-            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/admin/zones",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "zones"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "zones"
+              ]
             }
           }
         },
@@ -270,8 +425,14 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
-              {"key": "Content-Type", "value": "application/json"}
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -279,8 +440,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/admin/zones/1/encounters",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "zones", "1", "encounters"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "zones",
+                "1",
+                "encounters"
+              ]
             }
           }
         },
@@ -288,11 +456,158 @@
           "name": "Delete Encounter",
           "request": {
             "method": "DELETE",
-            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/admin/encounters/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "encounters", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "encounters",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Maps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/maps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "maps"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Map Spawn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"speciesId\": 1,\n  \"minLevel\": 3,\n  \"maxLevel\": 5,\n  \"spawnRate\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/maps/00000000-0000-0000-0000-000000000000/spawns",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "maps",
+                "00000000-0000-0000-0000-000000000000",
+                "spawns"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Map Spawn",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/spawns/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "spawns",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "World",
+      "item": [
+        {
+          "name": "Get Continents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/world/continents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "world",
+                "continents"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Areas By Region",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/world/regions/00000000-0000-0000-0000-000000000000/areas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "world",
+                "regions",
+                "00000000-0000-0000-0000-000000000000",
+                "areas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Map Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/world/maps/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "world",
+                "maps",
+                "00000000-0000-0000-0000-000000000000"
+              ]
             }
           }
         }

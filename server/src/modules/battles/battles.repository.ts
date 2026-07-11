@@ -1,5 +1,5 @@
 // Trigger IDE reload
-import { PrismaClient, BattleStatus, BattleSession } from '@prisma/client';
+import { PrismaClient, BattleStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 

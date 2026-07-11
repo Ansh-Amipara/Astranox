@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+export const requireAuth = (req: Request, _res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -29,7 +29,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+export const requireAdmin = (req: Request, _res: Response, next: NextFunction) => {
   if (!req.user) {
     return next(new UnauthorizedError('Authentication required'));
   }

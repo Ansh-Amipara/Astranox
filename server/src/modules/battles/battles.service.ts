@@ -1,10 +1,9 @@
 // Trigger IDE reload
 import { BattlesRepository } from './battles.repository';
-import { MapRepository } from '../map/map.repository';
 import { TrainersRepository } from '../trainers/trainers.repository';
-import { AppError, NotFoundError, ValidationError } from '../../common/errors/AppError';
+import { NotFoundError, ValidationError } from '../../common/errors/AppError';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
-import { ActivePokemon, BattleAction, TurnEvent } from '../../game/battle-state/types';
+import { ActivePokemon, BattleAction } from '../../game/battle-state/types';
 import { resolveTurn } from '../../game/battle-state/turn-resolver';
 import { createPokemonInstance } from '../../game/instance/PokemonInstance';
 import { getBallBonus } from '../../game/battle/catch-math';
@@ -20,6 +19,7 @@ function toActivePokemon(inst: any): ActivePokemon {
     speciesName: inst.name,
     level: inst.level,
     types: inst.types,
+    moves: inst.moves || [],
     maxHp: inst.maxHp,
     currentHp: inst.currentHp,
     attack: inst.stats.attack,
@@ -37,12 +37,10 @@ function toActivePokemon(inst: any): ActivePokemon {
 
 export class BattlesService {
   private repository: BattlesRepository;
-  private mapRepo: MapRepository;
   private trainersRepo: TrainersRepository;
 
   constructor() {
     this.repository = new BattlesRepository();
-    this.mapRepo = new MapRepository();
     this.trainersRepo = new TrainersRepository();
   }
 
@@ -63,10 +61,10 @@ export class BattlesService {
     return multiplier;
   }
 
-  async engageWild(userId: string, zoneId: number) {
+  async exploreMap(userId: string, gameMapId: string) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
     if (!trainerSave) {
-      throw new NotFoundError('Trainer profile not found.');
+      throw new NotFoundError('Trainer save not found');
     }
     const trainerId = trainerSave.id;
 
@@ -77,8 +75,27 @@ export class BattlesService {
     }
 
     // 2. Roll wild encounter
-    const zone = await this.mapRepo.getZoneById(zoneId);
-    if (!zone || zone.encounters.length === 0) {
+    const gameMap = await prisma.gameMap.findUnique({
+      where: { id: gameMapId },
+      include: {
+        spawnGroups: {
+          include: {
+            entries: {
+              include: { 
+                species: {
+                  include: {
+                    type1: true,
+                    type2: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!gameMap || gameMap.spawnGroups.length === 0) {
       throw new NotFoundError('No Pokemon found here.');
     }
 
@@ -89,18 +106,25 @@ export class BattlesService {
 
     const speciesRoll = Math.random();
     let cumulative = 0;
-    let selectedEncounter = zone.encounters[zone.encounters.length - 1];
+    
+    // Just pick the first group for now since this is a stub
+    const group = gameMap.spawnGroups[0];
+    if (!group || group.entries.length === 0) {
+      return { encounter: null, battleSession: null };
+    }
+    
+    let selectedEncounter = group.entries[group.entries.length - 1];
 
-    for (const enc of zone.encounters) {
-      cumulative += enc.encounterRate;
+    for (const enc of group.entries) {
+      cumulative += (enc.spawnRate / 100);
       if (speciesRoll <= cumulative) {
         selectedEncounter = enc;
         break;
       }
     }
 
-    const levelRange = zone.maxLevel - zone.minLevel;
-    const randomLevel = zone.minLevel + Math.floor(Math.random() * (levelRange + 1));
+    const levelRange = selectedEncounter.maxLevel - selectedEncounter.minLevel;
+    const randomLevel = selectedEncounter.minLevel + Math.floor(Math.random() * (levelRange + 1));
     const ivs = {
       hp: Math.floor(Math.random() * 32),
       attack: Math.floor(Math.random() * 32),
@@ -132,8 +156,31 @@ export class BattlesService {
           speed: selectedEncounter.species.speed
         }
       },
-      moves: ['tackle']
+      moves: []
     });
+
+    // Populate moves dynamically from Learnset
+    const learnset = await prisma.learnset.findMany({
+      where: { speciesId: selectedEncounter.species.id, level: { lte: randomLevel } },
+      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+      include: { move: true }
+    });
+
+    const uniqueMoves: any[] = [];
+    const seen = new Set();
+    for (let i = learnset.length - 1; i >= 0; i--) {
+      if (!seen.has(learnset[i].moveId)) {
+        seen.add(learnset[i].moveId);
+        uniqueMoves.unshift(learnset[i]);
+      }
+    }
+
+    const latestMoves = uniqueMoves.slice(-4);
+    wildInstance.moves = latestMoves.map((m: any, i: number) => ({
+      moveId: m.moveId,
+      currentSlot: i,
+      name: m.move.name
+    }));
 
     const wildActive = toActivePokemon(wildInstance);
 
@@ -189,11 +236,27 @@ export class BattlesService {
        const types = [species.type1.name];
        if (species.type2) types.push(species.type2.name);
 
-       const moves = [];
-       if (p.move1) moves.push(p.move1);
-       if (p.move2) moves.push(p.move2);
-       if (p.move3) moves.push(p.move3);
-       if (p.move4) moves.push(p.move4);
+       const learnset = await prisma.learnset.findMany({
+         where: { speciesId: p.speciesId, level: { lte: p.level } },
+         orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+         include: { move: true }
+       });
+
+       const uniqueMoves: any[] = [];
+       const seen = new Set();
+       for (let i = learnset.length - 1; i >= 0; i--) {
+         if (!seen.has(learnset[i].moveId)) {
+           seen.add(learnset[i].moveId);
+           uniqueMoves.unshift(learnset[i]);
+         }
+       }
+
+       const latestMoves = uniqueMoves.slice(-4);
+       const moves = latestMoves.map((m: any, i: number) => ({
+         moveId: m.moveId,
+         currentSlot: i,
+         name: m.move.name
+       }));
 
        const npcInstance = createPokemonInstance({
          id: p.id,
@@ -336,22 +399,23 @@ export class BattlesService {
         ballBonus: getBallBonus(itemName)
       };
     } else {
-      const moveName = action.split(':')[1];
+      const moveIdStr = action.split(':')[1];
+      const moveId = parseInt(moveIdStr);
       
       // Ensure the pokemon actually knows this move
       const playerMoves = playerPokemon.moves || [];
-      if (!playerMoves.includes(moveName.toLowerCase())) {
-        throw new ValidationError(`Pokemon does not know the move: ${moveName}.`);
+      if (!playerMoves.some((m: any) => m.moveId === moveId)) {
+        throw new ValidationError(`Pokemon does not know this move.`);
       }
 
       // Fetch move from DB
       const playerMoveData = await prisma.move.findUnique({
-        where: { name: moveName.toLowerCase() },
+        where: { id: moveId },
         include: { type: true }
       });
 
       if (!playerMoveData) {
-        throw new ValidationError(`Move ${moveName} not found in database.`);
+        throw new ValidationError(`Move not found in database.`);
       }
 
       playerAction = {
@@ -373,11 +437,11 @@ export class BattlesService {
     }
 
     // Wild/NPC AI logic: Randomly pick a known move
-    const opponentMoves = wildPokemon.moves && wildPokemon.moves.length > 0 ? wildPokemon.moves : ['tackle'];
-    const randomMoveName = opponentMoves[Math.floor(Math.random() * opponentMoves.length)];
+    const opponentMoves = wildPokemon.moves && wildPokemon.moves.length > 0 ? wildPokemon.moves : [{ moveId: 33 }]; // 33 is tackle
+    const randomMove = opponentMoves[Math.floor(Math.random() * opponentMoves.length)];
 
     const wildMoveData = await prisma.move.findUnique({
-      where: { name: randomMoveName.toLowerCase() },
+      where: { id: randomMove.moveId },
       include: { type: true }
     }) || await prisma.move.findUnique({ where: { name: 'tackle' }, include: { type: true } });
 
@@ -481,7 +545,7 @@ export class BattlesService {
         position = boxMons.length;
       }
 
-      await prisma.ownedPokemon.create({
+      const newPokemon = await prisma.ownedPokemon.create({
         data: {
           trainerId: trainerSave.id,
           speciesId: wildPokemon.speciesId,
@@ -497,6 +561,16 @@ export class BattlesService {
           ivSpeed: Math.floor(Math.random() * 32),
         }
       });
+
+      if (wildPokemon.moves && wildPokemon.moves.length > 0) {
+        await prisma.ownedPokemonMove.createMany({
+          data: wildPokemon.moves.map((m: any) => ({
+            ownedPokemonId: newPokemon.id,
+            moveId: m.moveId,
+            slot: m.currentSlot
+          }))
+        });
+      }
     }
 
     if (newStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {

@@ -13,12 +13,12 @@ export class BattlesController {
   engage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const schema = z.object({
-        zoneId: z.number().positive(),
+        gameMapId: z.string().uuid(),
       });
-      const { zoneId } = schema.parse(req.body);
+      const { gameMapId } = schema.parse(req.body);
       const userId = (req as any).user.id;
 
-      const result = await this.service.engageWild(userId, zoneId);
+      const result = await this.service.exploreMap(userId, gameMapId);
 
       res.json({
         success: true,

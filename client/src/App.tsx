@@ -9,7 +9,8 @@ import { Home } from './pages/Home';
 import { Navbar } from './components/Navbar';
 import { PokemonManagement } from './pages/PokemonManagement';
 import { TeamPage } from './pages/TeamPage';
-import { MapPage } from './pages/MapPage';
+import MapPage from './pages/MapPage';
+import MapDetail from './pages/MapDetail.tsx';
 import { Gyms } from './pages/Gyms';
 import { BattleScreen } from './pages/BattleScreen';
 import { Pokemart } from './pages/Pokemart';
@@ -39,72 +40,80 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <AuthGuard>
                 <Home />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/team" 
+          <Route
+            path="/team"
             element={
               <AuthGuard>
                 <TeamPage />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/box" 
+          <Route
+            path="/box"
             element={
               <AuthGuard>
                 <PokemonManagement />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/map" 
+          <Route
+            path="/map"
             element={
               <AuthGuard>
                 <MapPage />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/gyms" 
+          <Route
+            path="/map/:id"
+            element={
+              <AuthGuard>
+                <MapDetail />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/gyms"
             element={
               <AuthGuard>
                 <Gyms />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/battle" 
+          <Route
+            path="/battle"
             element={
               <AuthGuard>
                 <BattleScreen />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/shop" 
+          <Route
+            path="/shop"
             element={
               <AuthGuard>
                 <Pokemart />
               </AuthGuard>
-            } 
+            }
           />
-          <Route 
-            path="/bag" 
+          <Route
+            path="/bag"
             element={
               <AuthGuard>
                 <Bag />
               </AuthGuard>
-            } 
+            }
           />
           <Route path="/admin/login" element={<AdminLogin />} />
-          
+
           {/* Admin Routes with Layout */}
           <Route path="/admin" element={
             <AdminGuard>

@@ -1,4 +1,4 @@
-import { PrismaClient, TrainerSave, OwnedPokemon } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -61,36 +61,6 @@ export class AdminRepository {
     });
   }
 
-  async getAllZones() {
-    return prisma.zone.findMany({
-      include: {
-        habitat: true,
-        encounters: {
-          include: { species: true }
-        }
-      },
-      orderBy: { id: 'asc' }
-    });
-  }
-
-  async addZoneEncounter(zoneId: number, speciesId: number, encounterRate: number, minIv: number, maxIv: number) {
-    return prisma.zoneEncounter.create({
-      data: {
-        zoneId,
-        speciesId,
-        encounterRate,
-        minIv,
-        maxIv
-      },
-      include: { species: true }
-    });
-  }
-
-  async deleteZoneEncounter(encounterId: number) {
-    return prisma.zoneEncounter.delete({
-      where: { id: encounterId }
-    });
-  }
 
   async addPokemon(userId: string, speciesId: number, level: number, ivs?: any) {
     const save = await prisma.trainerSave.findUnique({ where: { userId } });
@@ -133,12 +103,70 @@ export class AdminRepository {
         ivDefense: ivs?.defense ?? Math.floor(Math.random() * 32),
         ivSpAtk: ivs?.spAtk ?? Math.floor(Math.random() * 32),
         ivSpDef: ivs?.spDef ?? Math.floor(Math.random() * 32),
-        ivSpeed: ivs?.speed ?? Math.floor(Math.random() * 32),
-        move1: 'tackle' // Default move
+        ivSpeed: ivs?.speed ?? Math.floor(Math.random() * 32)
       },
       include: {
         species: true
       }
+    });
+  }
+
+  async getAllMaps() {
+    return prisma.gameMap.findMany({
+      include: {
+        area: {
+          include: {
+            region: {
+              include: { continent: true }
+            }
+          }
+        },
+        spawnGroups: {
+          include: {
+            entries: {
+              include: { species: true }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  async addSpawnToMap(gameMapId: string, speciesId: number, minLevel: number, maxLevel: number, spawnRate: number) {
+    // Check if the map has a default spawn group, if not create one
+    const map = await prisma.gameMap.findUnique({
+      where: { id: gameMapId },
+      include: { spawnGroups: true }
+    });
+    
+    if (!map) return null;
+
+    let groupId = map.spawnGroups[0]?.id;
+    if (!groupId) {
+      const newGroup = await prisma.spawnGroup.create({
+        data: {
+          name: 'Default Encounters',
+          gameMapId
+        }
+      });
+      groupId = newGroup.id;
+    }
+
+    return prisma.spawnEntry.create({
+      data: {
+        spawnGroupId: groupId,
+        speciesId,
+        minLevel,
+        maxLevel,
+        spawnRate
+      },
+      include: { species: true }
+    });
+  }
+
+  async removeSpawn(spawnEntryId: string) {
+    return prisma.spawnEntry.delete({
+      where: { id: spawnEntryId }
     });
   }
 }

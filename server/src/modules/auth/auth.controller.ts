@@ -46,7 +46,7 @@ export class AuthController {
     }
   };
 
-  refresh = async (req: Request, res: Response, next: NextFunction) => {
+  refresh = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const token = req.cookies?.refreshToken;
       if (!token) {

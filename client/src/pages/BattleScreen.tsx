@@ -114,9 +114,21 @@ export function BattleScreen() {
       <div className="relative z-10 flex-1 flex flex-col justify-between p-8">
         
         {/* Top Half: Wild Pokemon */}
-        <div className="flex justify-end w-full max-w-5xl mx-auto mt-12">
+        <div className="flex justify-end w-full max-w-5xl mx-auto mt-12 relative">
+          
+          {/* Wild Sprite */}
+          <div className="absolute right-[400px] top-4">
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/30 dark:bg-black/50 blur-xl rounded-full"></div>
+            <img 
+              src={`http://localhost:3000/sprites/${wild.speciesId}.png`}
+              className="relative w-64 h-64 object-contain animate-bounce"
+              style={{ imageRendering: 'pixelated' }}
+              alt={wild.speciesName}
+            />
+          </div>
+
           {/* Wild Info Card */}
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl w-80 mb-4">
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl w-80 mb-4 z-10">
             <div className="flex justify-between items-end mb-2">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize tracking-wide">{wild.speciesName}</h2>
               <span className="text-sm font-bold text-slate-500 dark:text-slate-300">Lv {wild.level}</span>
@@ -156,9 +168,10 @@ export function BattleScreen() {
           <div className="relative inline-block mt-24">
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/30 dark:bg-black/50 blur-xl rounded-full"></div>
             <img 
-              src={`http://localhost:3000/sprites/back/${player.speciesId}.png`}
+              src={`http://localhost:3000/sprites/${player.speciesId}.png`}
               className="relative w-64 h-64 object-contain"
-              style={{ imageRendering: 'pixelated' }}
+              style={{ imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
+              alt={player.speciesName}
             />
           </div>
           
@@ -275,14 +288,14 @@ export function BattleScreen() {
                       ← Back
                     </button>
                     <div className="grid grid-cols-2 gap-2 flex-1">
-                      {(player.moves || []).map((moveName: string, i: number) => (
+                      {(player.moves || []).map((move: any, i: number) => (
                         <button
                           key={i}
-                          onClick={() => turnMutation.mutate(`move:${moveName}`)}
+                          onClick={() => turnMutation.mutate(`move:${move.moveId}`)}
                           disabled={turnMutation.isPending}
                           className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-bold text-xl rounded-lg border-2 border-slate-300 dark:border-slate-600 capitalize shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
                         >
-                          {moveName}
+                          {move.name.replace('-', ' ')}
                         </button>
                       ))}
                       {/* Fill empty move slots */}

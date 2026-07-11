@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "tsx scripts/seed/index.ts",
+    "seed:world": "tsx scripts/seed/world-seed.ts",
     "seed:pokeapi": "tsx scripts/seed/pokeapi/index.ts",
     "test": "vitest run"
   },

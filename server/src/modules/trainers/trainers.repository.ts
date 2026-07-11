@@ -1,4 +1,4 @@
-import { PrismaClient, TrainerSave, OwnedPokemon } from '@prisma/client';
+import { PrismaClient, TrainerSave } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -10,7 +10,10 @@ export class TrainersRepository {
         party: {
           where: { isParty: true },
           orderBy: { position: 'asc' },
-          include: { species: { include: { type1: true, type2: true } } }
+          include: { 
+            species: { include: { type1: true, type2: true } },
+            moves: { include: { move: true } }
+          }
         },
         inventory: {
           include: { item: true }
@@ -26,7 +29,10 @@ export class TrainersRepository {
         party: {
           where: { isParty: true },
           orderBy: { position: 'asc' },
-          include: { species: { include: { type1: true, type2: true } } }
+          include: { 
+            species: { include: { type1: true, type2: true } },
+            moves: { include: { move: true } }
+          }
         },
         inventory: {
           include: { item: true }
@@ -54,6 +60,31 @@ export class TrainersRepository {
         }
       });
 
+      const learnset = await tx.learnset.findMany({
+        where: { speciesId, level: { lte: 5 } },
+        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }]
+      });
+
+      const uniqueMoves: any[] = [];
+      const seen = new Set();
+      for (let i = learnset.length - 1; i >= 0; i--) {
+        if (!seen.has(learnset[i].moveId)) {
+          seen.add(learnset[i].moveId);
+          uniqueMoves.unshift(learnset[i]);
+        }
+      }
+
+      const latestMoves = uniqueMoves.slice(-4);
+      if (latestMoves.length > 0) {
+        await tx.ownedPokemonMove.createMany({
+          data: latestMoves.map((m: any, i: number) => ({
+            ownedPokemonId: starter.id,
+            moveId: m.moveId,
+            slot: i
+          }))
+        });
+      }
+
       const save = await tx.trainerSave.update({
         where: { id: trainerId },
         data: { starterChosenAt: new Date() },
@@ -61,7 +92,10 @@ export class TrainersRepository {
           party: {
             where: { isParty: true },
             orderBy: { position: 'asc' },
-            include: { species: { include: { type1: true, type2: true } } }
+            include: { 
+              species: { include: { type1: true, type2: true } },
+              moves: { include: { move: true } }
+            }
           },
           inventory: {
             include: { item: true }
@@ -81,7 +115,10 @@ export class TrainersRepository {
         boxNumber,
       },
       orderBy: { position: 'asc' },
-      include: { species: { include: { type1: true, type2: true } } }
+      include: { 
+        species: { include: { type1: true, type2: true } },
+        moves: { include: { move: true } }
+      }
     });
   }
 
@@ -130,7 +167,7 @@ export class TrainersRepository {
     });
   }
 
-  async changeMoves(trainerId: string, pokemonId: string, moves: string[]) {
+  async changeMoves(trainerId: string, pokemonId: string, moveIds: number[]) {
     // Ensure the pokemon belongs to the trainer
     const pokemon = await prisma.ownedPokemon.findFirst({
       where: { id: pokemonId, trainerId }
@@ -138,14 +175,22 @@ export class TrainersRepository {
 
     if (!pokemon) return null;
 
-    return prisma.ownedPokemon.update({
-      where: { id: pokemonId },
-      data: {
-        move1: moves[0] || null,
-        move2: moves[1] || null,
-        move3: moves[2] || null,
-        move4: moves[3] || null,
+    return prisma.$transaction(async (tx) => {
+      await tx.ownedPokemonMove.deleteMany({
+        where: { ownedPokemonId: pokemonId }
+      });
+
+      if (moveIds.length > 0) {
+        await tx.ownedPokemonMove.createMany({
+          data: moveIds.map((moveId, i) => ({
+            ownedPokemonId: pokemonId,
+            moveId,
+            slot: i
+          }))
+        });
       }
+
+      return true;
     });
   }
 }

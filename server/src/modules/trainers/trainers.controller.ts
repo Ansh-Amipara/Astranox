@@ -72,7 +72,7 @@ export class TrainersController {
     }
   };
 
-  getAllMoves = async (req: Request, res: Response, next: NextFunction) => {
+  getAllMoves = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const moves = await this.service.getAllMoves();
       res.json({ success: true, data: moves });
