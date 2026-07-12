@@ -72,39 +72,4 @@ export class AdminController {
       next(err);
     }
   };
-
-  getAllMaps = async (_req: Request, res: Response, next: NextFunction) => {
-    try {
-      const maps = await this.service.getAllMaps();
-      res.json({ success: true, data: maps });
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  addSpawn = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params;
-      const { speciesId, minLevel, maxLevel, spawnRate } = req.body;
-
-      if (!speciesId || !minLevel || !maxLevel || !spawnRate) {
-        throw new ValidationError('speciesId, minLevel, maxLevel, and spawnRate are required');
-      }
-
-      const spawn = await this.service.addSpawnToMap(req.user!.id, id, speciesId, minLevel, maxLevel, spawnRate);
-      res.json({ success: true, data: spawn });
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  removeSpawn = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params;
-      await this.service.removeSpawn(req.user!.id, id);
-      res.json({ success: true, data: { deleted: true } });
-    } catch (err) {
-      next(err);
-    }
-  };
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api, getSpriteUrl } from '../services/api';
 
 const PSEUDO_LEGENDARIES = [
   { id: 147, name: 'Dratini', type: 'Dragon' },
@@ -68,7 +68,7 @@ export function StarterSelection() {
                 
                 <div className="relative z-20 flex flex-col items-center p-6">
                   <img
-                    src={`http://localhost:3000/sprites/${pkm.id}.png`}
+                    src={getSpriteUrl(pkm.id)}
                     alt={pkm.name}
                     className="h-32 w-32 object-contain transition-transform duration-500 group-hover:scale-110"
                     style={{ imageRendering: 'pixelated' }}
@@ -86,7 +86,7 @@ export function StarterSelection() {
           <div className="max-w-5xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img
-                src={selectedId ? `http://localhost:3000/sprites/${selectedId}.png` : ''}
+                src={selectedId ? getSpriteUrl(selectedId) : ''}
                 className="h-16 w-16"
                 style={{ imageRendering: 'pixelated' }}
               />

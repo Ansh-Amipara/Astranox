@@ -24,15 +24,6 @@ export function AdminLayout() {
                 >
                   Users
                 </Link>
-                <Link
-                  to="/admin/map"
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${pathname === '/admin/map'
-                      ? 'bg-red-500 text-white shadow-sm'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
-                    }`}
-                >
-                  Map
-                </Link>
               </div>
             </div>
 

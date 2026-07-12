@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api, getSpriteUrl } from '../services/api';
 
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number): number {
@@ -110,7 +110,7 @@ export function TeamPage() {
                   <div className="p-6 flex items-start gap-6">
                     <div className="w-24 h-24 shrink-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
                       <img 
-                        src={`http://localhost:3000/sprites/${pkm.speciesId}.png`} 
+                        src={getSpriteUrl(pkm.speciesId)} 
                         alt={pkm.species?.name}
                         className="w-20 h-20 object-contain drop-shadow-md"
                         style={{ imageRendering: 'pixelated' }}
@@ -160,7 +160,7 @@ export function TeamPage() {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-xs flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
               <img 
-                src={`http://localhost:3000/sprites/${activeMenuPkm.speciesId}.png`} 
+                src={getSpriteUrl(activeMenuPkm.speciesId)} 
                 className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg object-contain pixelated border border-slate-200 dark:border-slate-700"
               />
               <div>
@@ -195,7 +195,7 @@ export function TeamPage() {
               
               <button 
                 onClick={() => { 
-                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [activeMenuPkm.move1, activeMenuPkm.move2, activeMenuPkm.move3, activeMenuPkm.move4].map(m => m || 'tackle') });
+                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') });
                   setActiveMenuPkm(null);
                 }}
                 className="w-full text-left px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/50 dark:hover:bg-blue-800 dark:text-blue-300 rounded-xl font-bold transition-colors"
@@ -221,7 +221,7 @@ export function TeamPage() {
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <img 
-                  src={`http://localhost:3000/sprites/${detailsPkm.speciesId}.png`} 
+                  src={getSpriteUrl(detailsPkm.speciesId)} 
                   className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-xl object-contain pixelated border border-slate-200 dark:border-slate-700"
                 />
                 <div>
@@ -270,7 +270,7 @@ export function TeamPage() {
               <div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">Learned Moves</h3>
                 <div className="space-y-2">
-                  {[detailsPkm.move1, detailsPkm.move2, detailsPkm.move3, detailsPkm.move4].map((m, idx) => (
+                  {[0, 1, 2, 3].map(i => detailsPkm.moves?.find((m: any) => m.slot === i)?.move?.name || null).map((m, idx) => (
                     <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
                       {m ? (
                         <div className="flex justify-between items-center">
@@ -286,7 +286,7 @@ export function TeamPage() {
                 
                 <button 
                   onClick={() => {
-                    setChangeMovePkm({ ...detailsPkm, currentMoves: [detailsPkm.move1, detailsPkm.move2, detailsPkm.move3, detailsPkm.move4].map(m => m || 'tackle') });
+                    setChangeMovePkm({ ...detailsPkm, currentMoves: [0, 1, 2, 3].map(i => detailsPkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') });
                     setDetailsPkm(null);
                   }}
                   className="mt-4 w-full bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:hover:bg-blue-800/60 dark:text-blue-300 font-bold py-3 rounded-xl transition-colors"

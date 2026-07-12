@@ -9,8 +9,7 @@ import { Home } from './pages/Home';
 import { Navbar } from './components/Navbar';
 import { PokemonManagement } from './pages/PokemonManagement';
 import { TeamPage } from './pages/TeamPage';
-import MapPage from './pages/MapPage';
-import MapDetail from './pages/MapDetail.tsx';
+
 import { Gyms } from './pages/Gyms';
 import { BattleScreen } from './pages/BattleScreen';
 import { Pokemart } from './pages/Pokemart';
@@ -18,7 +17,7 @@ import { Bag } from './pages/Bag';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminLayout } from './components/AdminLayout';
-import { AdminMap } from './pages/admin/AdminMap';
+import { FightSetup } from './pages/FightSetup';
 
 function App() {
   const location = useLocation();
@@ -57,7 +56,6 @@ function App() {
             }
           />
           <Route
-            path="/box"
             element={
               <AuthGuard>
                 <PokemonManagement />
@@ -65,21 +63,14 @@ function App() {
             }
           />
           <Route
-            path="/map"
+            path="/fight"
             element={
               <AuthGuard>
-                <MapPage />
+                <FightSetup />
               </AuthGuard>
             }
           />
-          <Route
-            path="/map/:id"
-            element={
-              <AuthGuard>
-                <MapDetail />
-              </AuthGuard>
-            }
-          />
+
           <Route
             path="/gyms"
             element={
@@ -121,7 +112,6 @@ function App() {
             </AdminGuard>
           }>
             <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="map" element={<AdminMap />} />
           </Route>
         </Routes>
       </main>

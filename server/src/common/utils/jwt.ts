@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import type { UserPayload } from '@astranox/shared';
+import { env } from '../../config/env';
 
-const ACCESS_SECRET = process.env.JWT_SECRET || 'dev_secret';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret';
+const ACCESS_SECRET = env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = env.JWT_REFRESH_SECRET;
 
 export const generateAccessToken = (user: UserPayload): string => {
   return jwt.sign(user, ACCESS_SECRET, { expiresIn: '15m' });

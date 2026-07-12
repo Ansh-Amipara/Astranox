@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api, getSpriteUrl } from '../services/api';
 
 type Slot = { isParty: boolean; boxNumber: number | null; position: number };
 
@@ -86,7 +86,7 @@ export function PokemonManagement() {
         {pkm ? (
           <div className={`flex items-center w-full ${isParty ? 'gap-4' : 'justify-center'}`}>
             <img
-              src={`http://localhost:3000/sprites/${pkm.speciesId}.png`}
+              src={getSpriteUrl(pkm.speciesId)}
               alt={pkm.species.name}
               className={`${isParty ? 'h-16 w-16' : 'h-12 w-12'} object-contain`}
               style={{ imageRendering: 'pixelated' }}

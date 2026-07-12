@@ -39,7 +39,6 @@ model TrainerSave {
   continentId String? @db.Uuid
   regionId    String? @db.Uuid
   areaId      String? @db.Uuid
-  gameMapId   String? @db.Uuid
   positionX   Int     @default(0)
   positionY   Int     @default(0)
   facing      String  @default("DOWN")
@@ -48,9 +47,6 @@ model TrainerSave {
   inventory    InventoryItem[]
   battles      BattleSession[]
   defeatedNpcs TrainerDefeatedNpc[]
-
-  explorationProgress ExplorationProgress[]
-  questProgress       PlayerQuestProgress[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -174,7 +170,6 @@ model Species {
   type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id])
 
   owned        OwnedPokemon[]
-  spawnEntries SpawnEntry[]
   learnsets    Learnset[]
 }
 
@@ -194,282 +189,8 @@ model Learnset {
 }
 
 // ----------------------------------------------------------------------
-// WORLD HIERARCHY
+// BATTLES & NPCS
 // ----------------------------------------------------------------------
-
-model World {
-  id          String      @id @default(uuid()) @db.Uuid
-  name        String      @unique
-  description String?
-  continents  Continent[]
-}
-
-model Continent {
-  id          String   @id @default(uuid()) @db.Uuid
-  worldId     String   @db.Uuid
-  world       World    @relation(fields: [worldId], references: [id], onDelete: Cascade)
-  name        String
-  description String?
-  regions     Region[]
-}
-
-model Region {
-  id          String   @id @default(uuid()) @db.Uuid
-  continentId String   @db.Uuid
-  continent   Continent @relation(fields: [continentId], references: [id], onDelete: Cascade)
-  name        String
-  description String?
-  imageUrl    String?
-
-  areas       Area[]
-}
-
-enum AreaType {
-  CITY
-  TOWN
-  ROUTE
-  WILDERNESS
-  DUNGEON
-  CAVE
-  BUILDING
-}
-
-model Area {
-  id          String   @id @default(uuid()) @db.Uuid
-  regionId    String   @db.Uuid
-  region      Region   @relation(fields: [regionId], references: [id], onDelete: Cascade)
-  name        String
-  description String?
-  areaType    AreaType @default(WILDERNESS)
-
-  gameMaps GameMap[]
-}
-
-model GameMap {
-  id     String @id @default(uuid()) @db.Uuid
-  areaId String @db.Uuid
-  area   Area   @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  name   String
-  theme  String // e.g. Grassland, Forest, Volcano
-
-  musicId String?     @db.Uuid
-  music   MusicTrack? @relation(fields: [musicId], references: [id])
-
-  difficulty  Int     @default(1)
-  mapImage    String?
-  npcCount    Int     @default(0)
-  hiddenItems Int     @default(0)
-  secretArea  Boolean @default(false)
-  worldX      Int     @default(0)
-  worldY      Int     @default(0)
-
-  weatherProfileId String?         @db.Uuid
-  weatherProfile   WeatherProfile? @relation(fields: [weatherProfileId], references: [id])
-
-  seasonProfileId String?        @db.Uuid
-  seasonProfile   SeasonProfile? @relation(fields: [seasonProfileId], references: [id])
-
-  spawnGroups SpawnGroup[]
-  npcs        Npc[]
-  npcTrainers NpcTrainer[]
-
-  connectionsOut WorldConnection[] @relation("SourceMap")
-  connectionsIn  WorldConnection[] @relation("TargetMap")
-
-  explorationProgress ExplorationProgress[]
-}
-
-model MusicTrack {
-  id       String    @id @default(uuid()) @db.Uuid
-  name     String
-  fileUrl  String
-  gameMaps GameMap[]
-}
-
-// ----------------------------------------------------------------------
-// CONNECTIONS & UNLOCKS
-// ----------------------------------------------------------------------
-
-enum ConnectionType {
-  ROAD
-  CAVE
-  WARP
-  PORTAL
-  STAIRS
-  LADDER
-  DOOR
-  WATER
-  FLY
-  TELEPORT
-}
-
-model WorldConnection {
-  id          String  @id @default(uuid()) @db.Uuid
-  sourceMapId String  @db.Uuid
-  sourceMap   GameMap @relation("SourceMap", fields: [sourceMapId], references: [id], onDelete: Cascade)
-  targetMapId String  @db.Uuid
-  targetMap   GameMap @relation("TargetMap", fields: [targetMapId], references: [id], onDelete: Cascade)
-
-  connectionType       ConnectionType
-  travelCost           Int            @default(0)
-  travelAnimation      String?
-  pathData             Json?          // Stores curved paths/waypoints
-  requiresConfirmation Boolean        @default(false)
-
-  unlockRequirements UnlockRequirement[]
-}
-
-enum RequirementType {
-  LEVEL
-  BADGE
-  QUEST
-  NPC
-  ITEM
-  EVENT
-  POKEMON
-  TIME
-  SEASON
-}
-
-model UnlockRequirement {
-  id                String           @id @default(uuid()) @db.Uuid
-  worldConnectionId String?          @db.Uuid
-  worldConnection   WorldConnection? @relation(fields: [worldConnectionId], references: [id], onDelete: Cascade)
-  requirementType   RequirementType
-  value             String
-}
-
-// ----------------------------------------------------------------------
-// PROFILES & EVENTS
-// ----------------------------------------------------------------------
-
-model WeatherProfile {
-  id       String    @id @default(uuid()) @db.Uuid
-  name     String
-  states   Json // e.g. { "NORMAL": 70, "RAIN": 20, "FOG": 10 }
-  gameMaps GameMap[]
-}
-
-model SeasonProfile {
-  id       String    @id @default(uuid()) @db.Uuid
-  name     String
-  states   Json // e.g. { "SPRING": 25, "SUMMER": 25 }
-  gameMaps GameMap[]
-}
-
-model WorldEvent {
-  id        String    @id @default(uuid()) @db.Uuid
-  name      String
-  isActive  Boolean   @default(false)
-  startTime DateTime?
-  endTime   DateTime?
-}
-
-// ----------------------------------------------------------------------
-// SPAWN SYSTEM
-// ----------------------------------------------------------------------
-
-model SpawnGroup {
-  id        String       @id @default(uuid()) @db.Uuid
-  gameMapId String       @db.Uuid
-  gameMap   GameMap      @relation(fields: [gameMapId], references: [id], onDelete: Cascade)
-  name      String // e.g. "Tall Grass", "Surfing"
-  entries   SpawnEntry[]
-}
-
-enum SpawnCondition {
-  MORNING
-  DAY
-  EVENING
-  NIGHT
-  RAIN
-  SNOW
-  SURF
-  FISHING
-  ROCK_SMASH
-  HEADBUTT
-  HONEY_TREE
-  RADAR
-  SPECIAL_EVENT
-}
-
-model SpawnEntry {
-  id           String           @id @default(uuid()) @db.Uuid
-  spawnGroupId String           @db.Uuid
-  spawnGroup   SpawnGroup       @relation(fields: [spawnGroupId], references: [id], onDelete: Cascade)
-  speciesId    Int
-  species      Species          @relation(fields: [speciesId], references: [id])
-  minLevel     Int
-  maxLevel     Int
-  spawnRate    Float
-  conditions   SpawnCondition[]
-}
-
-// ----------------------------------------------------------------------
-// QUESTS & PROGRESS
-// ----------------------------------------------------------------------
-
-model Quest {
-  id          String                @id @default(uuid()) @db.Uuid
-  name        String
-  description String
-  objectives  QuestObjective[]
-  progress    PlayerQuestProgress[]
-}
-
-model QuestObjective {
-  id          String @id @default(uuid()) @db.Uuid
-  questId     String @db.Uuid
-  quest       Quest  @relation(fields: [questId], references: [id], onDelete: Cascade)
-  description String
-  targetValue Int    @default(1)
-}
-
-enum QuestStatus {
-  ACTIVE
-  COMPLETED
-  FAILED
-}
-
-model PlayerQuestProgress {
-  id           String      @id @default(uuid()) @db.Uuid
-  trainerId    String      @db.Uuid
-  trainer      TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  questId      String      @db.Uuid
-  quest        Quest       @relation(fields: [questId], references: [id], onDelete: Cascade)
-  status       QuestStatus @default(ACTIVE)
-  currentValue Int         @default(0)
-}
-
-model ExplorationProgress {
-  id        String      @id @default(uuid()) @db.Uuid
-  trainerId String      @db.Uuid
-  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  gameMapId String      @db.Uuid
-  gameMap   GameMap     @relation(fields: [gameMapId], references: [id], onDelete: Cascade)
-
-  mapsCleared          Int   @default(0)
-  bossesDefeated       Int   @default(0)
-  npcsDefeated         Int   @default(0)
-  itemsFound           Int   @default(0)
-  secretsFound         Int   @default(0)
-  rarePokemonSeen      Int   @default(0)
-  rarePokemonCaught    Int   @default(0)
-  completionPercentage Float @default(0)
-}
-
-// ----------------------------------------------------------------------
-// NPCS & TRAINERS
-// ----------------------------------------------------------------------
-
-model Npc {
-  id        String  @id @default(uuid()) @db.Uuid
-  gameMapId String  @db.Uuid
-  gameMap   GameMap @relation(fields: [gameMapId], references: [id], onDelete: Cascade)
-  name      String
-  spriteUrl String
-  dialogue  Json // array or object of dialogue lines
-}
 
 enum BattleStatus {
   ACTIVE
@@ -527,9 +248,6 @@ model NpcTrainer {
   rewardMoney  Int         @default(0)
   badgeName    String?
   trainerType  TrainerType @default(NORMAL)
-
-  gameMapId String?  @db.Uuid
-  gameMap   GameMap? @relation(fields: [gameMapId], references: [id], onDelete: Cascade)
 
   party      NpcTrainerPokemon[]
   defeatedBy TrainerDefeatedNpc[]

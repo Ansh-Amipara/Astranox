@@ -62,7 +62,14 @@ export class BattlesService {
     return multiplier;
   }
 
-  async exploreMap(userId: string, gameMapId: string) {
+  async getAvailableSpecies() {
+    return prisma.species.findMany({
+      select: { id: true, name: true, spriteUrl: true },
+      orderBy: { id: 'asc' }
+    });
+  }
+
+  async startCustomEncounter(userId: string, speciesId: number, level: number) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
     if (!trainerSave) {
       throw new NotFoundError('Trainer save not found');
@@ -75,57 +82,15 @@ export class BattlesService {
       throw new ValidationError('You are already in a battle.');
     }
 
-    // 2. Roll wild encounter
-    const gameMap = await prisma.gameMap.findUnique({
-      where: { id: gameMapId },
-      include: {
-        spawnGroups: {
-          include: {
-            entries: {
-              include: { 
-                species: {
-                  include: {
-                    type1: true,
-                    type2: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    const species = await prisma.species.findUnique({
+      where: { id: speciesId },
+      include: { type1: true, type2: true }
     });
 
-    if (!gameMap || gameMap.spawnGroups.length === 0) {
-      throw new NotFoundError('No Pokemon found here.');
+    if (!species) {
+      throw new NotFoundError('Species not found.');
     }
 
-    const exploreRoll = Math.random();
-    if (exploreRoll > 0.3) {
-      return { encounter: null, battleSession: null };
-    }
-
-    const speciesRoll = Math.random();
-    let cumulative = 0;
-    
-    // Just pick the first group for now since this is a stub
-    const group = gameMap.spawnGroups[0];
-    if (!group || group.entries.length === 0) {
-      return { encounter: null, battleSession: null };
-    }
-    
-    let selectedEncounter = group.entries[group.entries.length - 1];
-
-    for (const enc of group.entries) {
-      cumulative += (enc.spawnRate / 100);
-      if (speciesRoll <= cumulative) {
-        selectedEncounter = enc;
-        break;
-      }
-    }
-
-    const levelRange = selectedEncounter.maxLevel - selectedEncounter.minLevel;
-    const randomLevel = selectedEncounter.minLevel + Math.floor(Math.random() * (levelRange + 1));
     const ivs = {
       hp: Math.floor(Math.random() * 32),
       attack: Math.floor(Math.random() * 32),
@@ -136,25 +101,25 @@ export class BattlesService {
     };
 
     // Construct wild PokemonInstance
-    const types = [selectedEncounter.species.type1.name];
-    if (selectedEncounter.species.type2) types.push(selectedEncounter.species.type2.name);
+    const types = [species.type1.name];
+    if (species.type2) types.push(species.type2.name);
     
     const wildInstance = createPokemonInstance({
       id: crypto.randomUUID(),
-      nickname: selectedEncounter.species.name,
-      level: randomLevel,
+      nickname: species.name,
+      level: level,
       ivs,
       species: {
-        id: selectedEncounter.species.id,
-        name: selectedEncounter.species.name,
+        id: species.id,
+        name: species.name,
         types,
         baseStats: {
-          hp: selectedEncounter.species.hp,
-          attack: selectedEncounter.species.attack,
-          defense: selectedEncounter.species.defense,
-          spAtk: selectedEncounter.species.spAtk,
-          spDef: selectedEncounter.species.spDef,
-          speed: selectedEncounter.species.speed
+          hp: species.hp,
+          attack: species.attack,
+          defense: species.defense,
+          spAtk: species.spAtk,
+          spDef: species.spDef,
+          speed: species.speed
         }
       },
       moves: []
@@ -162,7 +127,7 @@ export class BattlesService {
 
     // Populate moves dynamically from Learnset
     const learnset = await prisma.learnset.findMany({
-      where: { speciesId: selectedEncounter.species.id, level: { lte: randomLevel } },
+      where: { speciesId: species.id, level: { lte: level } },
       orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
       include: { move: true }
     });
@@ -206,8 +171,8 @@ export class BattlesService {
 
     return {
       encounter: {
-        species: selectedEncounter.species,
-        level: randomLevel
+        species: species,
+        level: level
       },
       battleSession: session
     };

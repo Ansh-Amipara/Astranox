@@ -43,8 +43,6 @@ export class AdminService {
     return this.repo.getUserPokemon(userId);
   }
 
-
-
   async addPokemon(adminId: string, userId: string, speciesId: number, level: number, ivs?: any) {
     if (level < 1 || level > 100) {
       throw new ValidationError('Level must be between 1 and 100');
@@ -74,44 +72,6 @@ export class AdminService {
         entityType: 'USER',
         entityId: userId,
         afterValues: { speciesId, level, ivs }
-      }
-    });
-    return result;
-  }
-
-  async getAllMaps() {
-    return this.repo.getAllMaps();
-  }
-
-  async addSpawnToMap(adminId: string, gameMapId: string, speciesId: number, minLevel: number, maxLevel: number, spawnRate: number) {
-    if (minLevel > maxLevel) throw new ValidationError('minLevel cannot be greater than maxLevel');
-    if (minLevel < 1 || maxLevel > 100) throw new ValidationError('Levels must be between 1 and 100');
-    if (spawnRate <= 0 || spawnRate > 100) throw new ValidationError('spawnRate must be between 1 and 100');
-
-    const species = await prisma.species.findUnique({ where: { id: speciesId } });
-    if (!species) throw new ValidationError('Invalid species ID');
-
-    const result = await this.repo.addSpawnToMap(gameMapId, speciesId, minLevel, maxLevel, spawnRate);
-    await prisma.auditLog.create({
-      data: {
-        adminId,
-        action: 'ADD_SPAWN',
-        entityType: 'GAME_MAP',
-        entityId: gameMapId,
-        afterValues: { speciesId, minLevel, maxLevel, spawnRate }
-      }
-    });
-    return result;
-  }
-
-  async removeSpawn(adminId: string, spawnEntryId: string) {
-    const result = await this.repo.removeSpawn(spawnEntryId);
-    await prisma.auditLog.create({
-      data: {
-        adminId,
-        action: 'REMOVE_SPAWN',
-        entityType: 'SPAWN_ENTRY',
-        entityId: spawnEntryId,
       }
     });
     return result;

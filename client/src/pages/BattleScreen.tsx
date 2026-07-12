@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api, getSpriteUrl } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 export function BattleScreen() {
@@ -49,7 +49,7 @@ export function BattleScreen() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
         <p>No active battle found.</p>
-        <button onClick={() => navigate('/map')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors">Return to Map</button>
+        <button onClick={() => navigate('/')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors">Return</button>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export function BattleScreen() {
           <div className="absolute right-[400px] top-4">
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/30 dark:bg-black/50 blur-xl rounded-full"></div>
             <img 
-              src={`http://localhost:3000/sprites/${wild.speciesId}.png`}
+              src={getSpriteUrl(wild.speciesId)}
               className="relative w-64 h-64 object-contain animate-bounce"
               style={{ imageRendering: 'pixelated' }}
               alt={wild.speciesName}
@@ -168,7 +168,7 @@ export function BattleScreen() {
           <div className="relative inline-block mt-24">
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/30 dark:bg-black/50 blur-xl rounded-full"></div>
             <img 
-              src={`http://localhost:3000/sprites/${player.speciesId}.png`}
+              src={getSpriteUrl(player.speciesId)}
               className="relative w-64 h-64 object-contain"
               style={{ imageRendering: 'pixelated', transform: 'scaleX(-1)' }}
               alt={player.speciesName}
@@ -211,7 +211,7 @@ export function BattleScreen() {
                    status === 'FLED' ? 'Got away safely!' : 'You blacked out!'}
                 </p>
                 <button 
-                  onClick={() => navigate('/map')} 
+                  onClick={() => navigate('/')} 
                   className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors"
                 >
                   Leave Battle
@@ -295,7 +295,7 @@ export function BattleScreen() {
                           disabled={turnMutation.isPending}
                           className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-bold text-xl rounded-lg border-2 border-slate-300 dark:border-slate-600 capitalize shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
                         >
-                          {move.name.replace('-', ' ')}
+                          {(move.name || move.move?.name || 'Unknown').replace('-', ' ')}
                         </button>
                       ))}
                       {/* Fill empty move slots */}

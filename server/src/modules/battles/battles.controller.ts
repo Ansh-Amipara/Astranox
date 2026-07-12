@@ -23,15 +23,16 @@ export class BattlesController {
     this.service = new BattlesService();
   }
 
-  engage = async (req: Request, res: Response, next: NextFunction) => {
+  engageCustom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const schema = z.object({
-        gameMapId: z.string().uuid(),
+        speciesId: z.number().positive(),
+        level: z.number().min(1).max(100),
       });
-      const { gameMapId } = schema.parse(req.body);
+      const { speciesId, level } = schema.parse(req.body);
       const userId = (req as any).user.id;
 
-      const result = await this.service.exploreMap(userId, gameMapId);
+      const result = await this.service.startCustomEncounter(userId, speciesId, level);
 
       res.json({
         success: true,
@@ -42,6 +43,15 @@ export class BattlesController {
         next(new ValidationError('Invalid input parameters'));
         return;
       }
+      next(err);
+    }
+  };
+
+  getAvailableSpecies = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const species = await this.service.getAvailableSpecies();
+      res.json({ success: true, data: species });
+    } catch (err) {
       next(err);
     }
   };

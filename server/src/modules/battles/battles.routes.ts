@@ -8,6 +8,7 @@ const controller = new BattlesController();
 
 battlesRoutes.use(requireAuth);
 
-battlesRoutes.post('/engage', gameplayLimiter, controller.engage);
+battlesRoutes.post('/engage-custom', gameplayLimiter, controller.engageCustom);
+battlesRoutes.get('/available-species', controller.getAvailableSpecies);
 battlesRoutes.get('/active', controller.getActive);
 battlesRoutes.post('/turn', gameplayLimiter, controller.submitTurn);

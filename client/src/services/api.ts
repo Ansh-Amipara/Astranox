@@ -6,6 +6,8 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+export const getSpriteUrl = (id: string | number) => `${api.defaults.baseURL}/sprites/${id}.png`;
+
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {

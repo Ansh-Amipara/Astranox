@@ -24,7 +24,7 @@ export function AdminLogin() {
         throw new Error('This account does not have admin privileges.');
       }
       
-      setAuth(data.data.token, data.data.user);
+      setAuth(data.data.accessToken, data.data.user);
       navigate('/admin/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || err.message || 'Failed to login');
