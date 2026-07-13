@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { TradesService } from './trades.service';
-import { z } from 'zod';
 import { ValidationError } from '../../common/errors/AppError';
 
 export class TradesController {
@@ -34,21 +33,12 @@ export class TradesController {
 
   requestTrade = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const schema = z.object({
-        targetUserId: z.string().uuid(),
-        offeredPokemonId: z.string().uuid(),
-        requestedPokemonId: z.string().uuid()
-      });
-      const { targetUserId, offeredPokemonId, requestedPokemonId } = schema.parse(req.body);
+      const { targetUserId, offeredPokemonId, requestedPokemonId } = req.body;
       const userId = (req as any).user.id;
 
       const trade = await this.service.requestTrade(userId, targetUserId, offeredPokemonId, requestedPokemonId);
       res.json({ success: true, data: trade });
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        next(new ValidationError('Invalid input parameters'));
-        return;
-      }
       next(err);
     }
   };

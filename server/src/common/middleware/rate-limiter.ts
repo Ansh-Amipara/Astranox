@@ -15,3 +15,19 @@ export const gameplayLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+export const catchLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10, // Limit each IP to 10 catch attempts per minute
+  message: { success: false, error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many catch attempts. Please wait a minute.' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const battleActionLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 40, // Limit each IP to 40 battle actions per minute
+  message: { success: false, error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many battle actions. Please slow down.' } },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

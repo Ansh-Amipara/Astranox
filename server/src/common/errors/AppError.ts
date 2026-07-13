@@ -23,8 +23,11 @@ export class ForbiddenError extends AppError {
 }
 
 export class ValidationError extends AppError {
-  constructor(message = 'Validation Error') {
+  public details?: any;
+
+  constructor(message = 'Validation Error', details?: any) {
     super(message, 400, 'VALIDATION_ERROR');
+    this.details = details;
   }
 }
 

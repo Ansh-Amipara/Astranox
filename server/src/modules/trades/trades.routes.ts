@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { TradesController } from './trades.controller';
 import { requireAuth } from '../../common/middleware/require-auth';
-
+import { validate } from '../../common/middleware/validate';
+import { requestTradeSchema } from './trades.schema';
 const router = Router();
 const controller = new TradesController();
 
@@ -13,7 +14,7 @@ router.get('/users/:userId/tradeable', controller.getTradeablePokemon);
 router.get('/incoming', controller.getIncomingTrades);
 router.get('/outgoing', controller.getOutgoingTrades);
 
-router.post('/request', controller.requestTrade);
+router.post('/request', validate(requestTradeSchema), controller.requestTrade);
 router.post('/accept/:id', controller.acceptTrade);
 router.post('/reject/:id', controller.rejectTrade);
 
