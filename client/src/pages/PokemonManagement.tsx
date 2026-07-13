@@ -48,6 +48,16 @@ export function PokemonManagement() {
     }
   });
 
+  const toggleTradeMutation = useMutation({
+    mutationFn: async (pokemonId: string) => {
+      await api.post(`/trades/pokemon/${pokemonId}/toggle-trade`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      queryClient.invalidateQueries({ queryKey: ['pcBox', currentBox] });
+    }
+  });
+
   const handleSlotClick = (slot: Slot) => {
     if (swapMutation.isPending) return;
 
@@ -110,9 +120,17 @@ export function PokemonManagement() {
                   </h3>
                   <div className="flex items-center justify-center gap-1 mt-1 flex-wrap">
                     <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Lv. {pkm.level}</span>
-
                   </div>
                 </div>
+              </div>
+            )}
+            
+            {pkm.isForTrade && (
+              <div className="absolute top-1 right-1">
+                <span title="For Trade" className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                </span>
               </div>
             )}
           </div>
@@ -198,21 +216,36 @@ export function PokemonManagement() {
                 <span className="font-bold">Tip:</span> Click any Pokémon in your Party or Box to select it, then click an empty slot or another Pokémon to swap their positions.
               </div>
               
-              {selectedSlot && (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) && (
-                <button
-                  onClick={() => {
-                    const pkm = (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) as any;
-                    if (!pkm) return;
-                    if (window.confirm(`Are you sure you want to release ${pkm.nickname || pkm.species?.name}? This cannot be undone.`)) {
-                      releaseMutation.mutate(pkm.id);
-                    }
-                  }}
-                  disabled={releaseMutation.isPending || (selectedSlot.isParty && save?.party?.length <= 1)}
-                  className="px-6 py-4 rounded-xl font-bold bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-800/60 transition-colors disabled:opacity-50"
-                >
-                  {releaseMutation.isPending ? 'Releasing...' : '🗑️ Release Selected'}
-                </button>
-              )}
+              {selectedSlot && (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) && (() => {
+                const pkm = (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) as any;
+                if (!pkm) return null;
+                return (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => toggleTradeMutation.mutate(pkm.id)}
+                      disabled={toggleTradeMutation.isPending}
+                      className={`px-6 py-4 rounded-xl font-bold transition-colors shadow-sm ${
+                        pkm.isForTrade
+                          ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:hover:bg-purple-800/60'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {toggleTradeMutation.isPending ? 'Toggling...' : (pkm.isForTrade ? '🔒 Remove from Trade' : '🔄 Mark for Trade')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to release ${pkm.nickname || pkm.species?.name}? This cannot be undone.`)) {
+                          releaseMutation.mutate(pkm.id);
+                        }
+                      }}
+                      disabled={releaseMutation.isPending || (selectedSlot.isParty && save?.party?.length <= 1)}
+                      className="px-6 py-4 rounded-xl font-bold bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-800/60 transition-colors disabled:opacity-50"
+                    >
+                      {releaseMutation.isPending ? 'Releasing...' : '🗑️ Release Selected'}
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 

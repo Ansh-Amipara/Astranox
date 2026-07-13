@@ -34,6 +34,7 @@ export function Navbar() {
               <Link to="/fight" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Fight</Link>
               <Link to="/gyms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Gyms</Link>
               <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
+              <Link to="/social" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Social</Link>
 
               {/* Pokemon Dropdown */}
               <div className="relative" ref={dropdownRef}>

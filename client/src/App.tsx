@@ -18,6 +18,8 @@ import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminLayout } from './components/AdminLayout';
 import { FightSetup } from './pages/FightSetup';
+import { SocialHub } from './pages/SocialHub';
+import { TradeScreen } from './pages/TradeScreen';
 
 function App() {
   const location = useLocation();
@@ -101,6 +103,22 @@ function App() {
             element={
               <AuthGuard>
                 <Bag />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/social"
+            element={
+              <AuthGuard>
+                <SocialHub />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/trade/:friendId"
+            element={
+              <AuthGuard>
+                <TradeScreen />
               </AuthGuard>
             }
           />

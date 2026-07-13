@@ -10,6 +10,8 @@ import { battlesRoutes } from './modules/battles/battles.routes';
 import { shopRoutes } from './modules/shop/shop.routes';
 import { adminRoutes } from './modules/admin/admin.routes';
 import { npcsRoutes } from './modules/npcs/npcs.routes';
+import { socialRoutes } from './modules/social/social.routes';
+import { tradesRoutes } from './modules/trades/trades.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
@@ -37,6 +39,8 @@ app.use('/battles', battlesRoutes);
 app.use('/shop', shopRoutes);
 app.use('/admin', adminRoutes);
 app.use('/npcs', npcsRoutes);
+app.use('/social', socialRoutes);
+app.use('/trades', tradesRoutes);
 
 app.use(errorHandler);
 
