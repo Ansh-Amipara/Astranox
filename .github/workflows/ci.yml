@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: astranox
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: astranox
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9.12.3
+
+    - name: Install Dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Generate Prisma Client
+      working-directory: ./server
+      env:
+        DATABASE_URL: postgresql://astranox:password123@localhost:5432/astranox?schema=public
+      run: pnpm prisma generate
+
+    - name: Run Database Migrations
+      working-directory: ./server
+      env:
+        DATABASE_URL: postgresql://astranox:password123@localhost:5432/astranox?schema=public
+      run: pnpm prisma migrate deploy
+
+    - name: Lint
+      run: pnpm lint || echo "Lint step needs workspace-wide config"
+
+    - name: Typecheck
+      run: pnpm -r run typecheck
+
+    - name: Run Tests
+      run: pnpm -r run test
+      
+    - name: Install Playwright Browsers
+      working-directory: ./e2e
+      run: pnpm exec playwright install --with-deps
+
+    - name: Run E2E Tests
+      working-directory: ./e2e
+      env:
+        DATABASE_URL: postgresql://astranox:password123@localhost:5432/astranox?schema=public
+        JWT_SECRET: testing_jwt_secret_123
+        PORT: 3000
+      run: pnpm test

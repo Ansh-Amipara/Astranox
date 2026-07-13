@@ -1,310 +1,70 @@
-// Trigger IDE reload
-import { BattlesRepository } from './battles.repository';
-import { TrainersRepository } from '../trainers/trainers.repository';
+import { BattleSessionService } from './services/battle-session.service';
+import { BattleValidatorService } from './services/battle-validator.service';
+import { BattleTurnService } from './services/battle-turn.service';
+import { BattleRewardService } from './services/battle-reward.service';
+import { BattlePersistenceService } from './services/battle-persistence.service';
+import { BattleEventService } from './services/battle-event.service';
+import { BattleLogService } from './services/battle-log.service';
 import { NotFoundError, ValidationError } from '../../common/errors/AppError';
-import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
-import { ActivePokemon, BattleAction } from '../../game/battle-state/types';
-import { resolveTurn } from '../../game/battle-state/turn-resolver';
-import { createPokemonInstance } from '../../game/instance/PokemonInstance';
+import { Prisma, BattleStatus } from '@prisma/client';
 import { getBallBonus } from '../../game/battle/catch-math';
-import crypto from 'crypto';
-import { PrismaClient, BattleStatus, Prisma } from '@prisma/client';
-
-const prisma = new PrismaClient();
-const BATTLE_ACTION_PATTERN = /^(run|move:[1-9]\d*|switch:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|item:(poke-ball|great-ball|ultra-ball|luxury-ball|master-ball))$/;
-
-function generateWildIVs() {
-  return {
-    hp: Math.floor(Math.random() * 32),
-    attack: Math.floor(Math.random() * 32),
-    defense: Math.floor(Math.random() * 32),
-    spAtk: Math.floor(Math.random() * 32),
-    spDef: Math.floor(Math.random() * 32),
-    speed: Math.floor(Math.random() * 32),
-  };
-}
-
-function toActivePokemon(inst: any): ActivePokemon {
-  return {
-    id: inst.id,
-    speciesId: inst.species.id,
-    speciesName: inst.name,
-    level: inst.level,
-    types: inst.types,
-    moves: inst.moves || [],
-    maxHp: inst.maxHp,
-    currentHp: inst.currentHp,
-    attack: inst.stats.attack,
-    defense: inst.stats.defense,
-    spAtk: inst.stats.spAtk,
-    spDef: inst.stats.spDef,
-    speed: inst.stats.speed,
-    catchRate: inst.species.catchRate || 255,
-    baseExp: inst.species.baseExp || 100,
-    currentXp: inst.currentXp || 0,
-    status: null,
-    stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
-  };
-}
+import { BattleAction } from '../../game/battle-state/types';
 
 export class BattlesService {
-  private repository: BattlesRepository;
-  private trainersRepo: TrainersRepository;
-
-  constructor() {
-    this.repository = new BattlesRepository();
-    this.trainersRepo = new TrainersRepository();
-  }
-
-  private calculateTypeMultiplier(moveType: any, defenderTypes: string[]): number {
-    let multiplier = 1;
-    if (!moveType || !moveType.damageRelations) return 1;
-
-    const rels = moveType.damageRelations as any;
-    const double = (rels.double_damage_to || []).map((t: any) => t.name);
-    const half = (rels.half_damage_to || []).map((t: any) => t.name);
-    const zero = (rels.no_damage_to || []).map((t: any) => t.name);
-
-    for (const dType of defenderTypes) {
-      if (zero.includes(dType)) return 0;
-      if (double.includes(dType)) multiplier *= 2;
-      if (half.includes(dType)) multiplier *= 0.5;
-    }
-    return multiplier;
-  }
+  private sessionService = new BattleSessionService();
+  private validatorService = new BattleValidatorService();
+  private turnService = new BattleTurnService();
+  private rewardService = new BattleRewardService();
+  private persistenceService = new BattlePersistenceService();
+  private eventService = new BattleEventService();
+  private logService = new BattleLogService();
 
   async getAvailableSpecies() {
-    return prisma.species.findMany({
-      select: { id: true, name: true, spriteUrl: true },
-      orderBy: { id: 'asc' }
-    });
+    return this.sessionService.getAvailableSpecies();
   }
 
   async startCustomEncounter(userId: string, speciesId: number, level: number) {
-    const trainerSave = await this.trainersRepo.findByUserId(userId);
-    if (!trainerSave) {
-      throw new NotFoundError('Trainer save not found');
-    }
-    const trainerId = trainerSave.id;
-
-    // 1. Check if user already in battle
-    const active = await this.repository.getActiveBattleByTrainer(trainerId);
-    if (active) {
-      throw new ValidationError('You are already in a battle.');
-    }
-
-    const species = await prisma.species.findUnique({
-      where: { id: speciesId },
-      include: { type1: true, type2: true }
-    });
-
-    if (!species) {
-      throw new NotFoundError('Species not found.');
-    }
-
-    const ivs = generateWildIVs();
-
-    // Construct wild PokemonInstance
-    const types = [species.type1.name];
-    if (species.type2) types.push(species.type2.name);
-    
-    const wildInstance = createPokemonInstance({
-      id: crypto.randomUUID(),
-      nickname: species.name,
-      level: level,
-      ivs,
-      species: {
-        id: species.id,
-        name: species.name,
-        types,
-        baseStats: {
-          hp: species.hp,
-          attack: species.attack,
-          defense: species.defense,
-          spAtk: species.spAtk,
-          spDef: species.spDef,
-          speed: species.speed
-        }
-      },
-      moves: []
-    });
-
-    // Populate moves dynamically from Learnset
-    const learnset = await prisma.learnset.findMany({
-      where: { speciesId: species.id, level: { lte: level } },
-      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
-      include: { move: { include: { type: true } } }
-    });
-
-    const uniqueMoves: any[] = [];
-    const seen = new Set();
-    for (let i = learnset.length - 1; i >= 0; i--) {
-      if (!seen.has(learnset[i].moveId)) {
-        seen.add(learnset[i].moveId);
-        uniqueMoves.unshift(learnset[i]);
-      }
-    }
-
-    const latestMoves = uniqueMoves.slice(-4);
-    wildInstance.moves = latestMoves.map((m: any, i: number) => ({
-      moveId: m.moveId,
-      currentSlot: i,
-      name: m.move.name,
-      type: m.move.type.name
-    }));
-
-    const wildActive = toActivePokemon(wildInstance);
-
-    // 3. Get player lead Pokemon
-    if (trainerSave.party.length === 0) {
-      throw new ValidationError('You have no Pokemon to battle with!');
-    }
-    const lead = trainerSave.party[0]; // Already ordered by position
-    const playerInstance = mapOwnedPokemonToInstance(lead as any);
-    const playerActive = toActivePokemon(playerInstance);
-
-    // 4. Create BattleSession
-    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
-
-    const session = await this.repository.createBattleSession({
-      trainerId,
-      playerActivePokemonId: playerActive.id,
-      opponentPokemonData: wildActive,
-      playerPokemonData: playerActive,
-      playerPartyData
-    });
-
-    return {
-      encounter: {
-        species: species,
-        level: level
-      },
-      battleSession: session
-    };
+    return this.sessionService.startCustomEncounter(userId, speciesId, level);
   }
 
   async engageNpc(userId: string, npcTrainerId: string) {
-    const trainerSave = await this.trainersRepo.findByUserId(userId);
-    if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
-
-    const active = await this.repository.getActiveBattleByTrainer(trainerSave.id);
-    if (active) throw new ValidationError('You are already in a battle.');
-
-    if (trainerSave.party.length === 0) throw new ValidationError('You have no Pokemon to battle with!');
-
-    const npc = await prisma.npcTrainer.findUnique({
-      where: { id: npcTrainerId },
-      include: { party: { orderBy: { position: 'asc' } } }
-    });
-
-    if (!npc || npc.party.length === 0) throw new NotFoundError('NPC Trainer not found or has no Pokemon.');
-
-    const opponentPartyData = [];
-    for (const p of npc.party) {
-       const species = await prisma.species.findUnique({ where: { id: p.speciesId }, include: { type1: true, type2: true } });
-       if (!species) continue;
-       
-       const types = [species.type1.name];
-       if (species.type2) types.push(species.type2.name);
-
-       const learnset = await prisma.learnset.findMany({
-         where: { speciesId: p.speciesId, level: { lte: p.level } },
-         orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
-         include: { move: { include: { type: true } } }
-       });
-
-       const uniqueMoves: any[] = [];
-       const seen = new Set();
-       for (let i = learnset.length - 1; i >= 0; i--) {
-         if (!seen.has(learnset[i].moveId)) {
-           seen.add(learnset[i].moveId);
-           uniqueMoves.unshift(learnset[i]);
-         }
-       }
-
-       const latestMoves = uniqueMoves.slice(-4);
-       const moves = latestMoves.map((m: any, i: number) => ({
-         moveId: m.moveId,
-         currentSlot: i,
-         name: m.move.name,
-         type: m.move.type.name
-       }));
-
-       const npcInstance = createPokemonInstance({
-         id: p.id,
-         nickname: species.name,
-         level: p.level,
-         ivs: { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed },
-         species: {
-           id: species.id,
-           name: species.name,
-           types,
-           baseStats: { hp: species.hp, attack: species.attack, defense: species.defense, spAtk: species.spAtk, spDef: species.spDef, speed: species.speed }
-         },
-         moves
-       });
-       opponentPartyData.push(toActivePokemon(npcInstance));
-    }
-
-    if (opponentPartyData.length === 0) throw new ValidationError('NPC party is invalid.');
-
-    const playerLead = mapOwnedPokemonToInstance(trainerSave.party[0] as any);
-    const playerActive = toActivePokemon(playerLead);
-    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
-
-    const session = await this.repository.createBattleSession({
-      trainerId: trainerSave.id,
-      playerActivePokemonId: playerActive.id,
-      opponentPokemonData: opponentPartyData[0],
-      opponentPartyData,
-      playerPokemonData: playerActive,
-      playerPartyData,
-      battleType: 'NPC',
-      npcTrainerId
-    });
-
-    return {
-      npcTrainer: { id: npc.id, name: npc.name, spriteUrl: npc.spriteUrl, trainerClass: npc.trainerClass },
-      battleSession: session
-    };
+    return this.sessionService.engageNpc(userId, npcTrainerId);
   }
 
   async getActiveSession(userId: string) {
-    const trainerSave = await this.trainersRepo.findByUserId(userId);
-    if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
-    const session = await this.repository.getActiveBattleByTrainer(trainerSave.id);
-    if (!session) throw new NotFoundError('No active battle session found.');
-    return session;
+    return this.sessionService.getActiveSession(userId);
   }
 
   async submitTurn(userId: string, action: string) {
-    if (!BATTLE_ACTION_PATTERN.test(action)) {
-      throw new ValidationError('Invalid battle action.');
-    }
-
-    return this.repository.runTurnTransaction((tx) => this.submitTurnInTransaction(userId, action, tx));
+    this.validatorService.validateActionFormat(action);
+    return this.persistenceService.runTurnTransaction((tx) => this.submitTurnInTransaction(userId, action, tx));
   }
 
   private async submitTurnInTransaction(userId: string, action: string, tx: Prisma.TransactionClient) {
-    const trainerSave = await this.repository.getTrainerForTurn(tx, userId);
+    const trainerSave = await this.persistenceService.getTrainerForTurn(tx, userId);
     if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
-    const session = await this.repository.getActiveBattleForUpdate(tx, trainerSave.id);
+    
+    const session = await this.persistenceService.getActiveBattleForUpdate(tx, trainerSave.id);
     if (!session) throw new NotFoundError('No active battle session found.');
     
+    // --- 1. RUN ACTION ---
     if (action === 'run') {
       if (session.battleType !== 'WILD') {
         throw new ValidationError('You cannot run from an NPC battle.');
       }
 
-      const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+      const event = this.eventService.createFledEvent(session.playerActivePokemonId);
+      const updatedLog = this.logService.appendTurnLog(session.log, session.turnNumber, [event]);
+
+      const updated = await this.persistenceService.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
         status: BattleStatus.FLED,
         turnNumber: session.turnNumber + 1,
         playerPokemonData: session.playerPokemonData as Prisma.InputJsonValue,
         opponentPokemonData: session.opponentPokemonData as Prisma.InputJsonValue,
-        log: [...((session.log as any[]) || []), { turn: session.turnNumber, events: [{ type: 'fled', pokemonId: session.playerActivePokemonId }] }],
+        log: updatedLog,
       });
       if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
-      return { status: BattleStatus.FLED, events: [{ type: 'fled', pokemonId: session.playerActivePokemonId }] };
+      return { status: BattleStatus.FLED, events: [event] };
     }
 
     let playerAction: BattleAction;
@@ -312,6 +72,7 @@ export class BattlesService {
     let playerPokemon = session.playerPokemonData as any;
     let playerPartyData = (session.playerPartyData as any[]) || [];
 
+    // --- 2. WAITING_MOVE_LEARN STATE ---
     if (session.status === BattleStatus.WAITING_MOVE_LEARN) {
       const pendingMoveId = (playerPokemon as any).pendingMoveToLearn;
       if (!pendingMoveId) throw new ValidationError('No pending move to learn.');
@@ -324,19 +85,8 @@ export class BattlesService {
           throw new ValidationError('Invalid slot to replace.');
         }
 
-        // Update DB
-        await tx.ownedPokemonMove.deleteMany({
-          where: { ownedPokemonId: playerPokemon.id, slot: slotToReplace }
-        });
-        await tx.ownedPokemonMove.create({
-          data: {
-            ownedPokemonId: playerPokemon.id,
-            moveId: pendingMoveId,
-            slot: slotToReplace
-          }
-        });
-
-        // Update in-memory state
+        await this.persistenceService.learnMove(playerPokemon.id, pendingMoveId, slotToReplace, tx);
+        
         const moveData = await tx.move.findUnique({ where: { id: pendingMoveId }, include: { type: true } });
         if (moveData) {
           playerPokemon.moves[slotToReplace] = {
@@ -348,34 +98,32 @@ export class BattlesService {
             priority: moveData.priority,
             damageClass: moveData.damageClass
           };
-          eventLog.push({ type: 'learned_move', pokemonId: playerPokemon.id, moveName: moveData.name });
+          eventLog.push(this.eventService.createLearnedMoveEvent(playerPokemon.id, moveData.name));
         }
       } else if (action === 'skip_move') {
-        eventLog.push({ type: 'skipped_move', pokemonId: playerPokemon.id });
+        eventLog.push(this.eventService.createSkippedMoveEvent(playerPokemon.id));
       } else {
         throw new ValidationError('You must choose to learn the move or skip it.');
       }
 
       delete (playerPokemon as any).pendingMoveToLearn;
 
-      // Determine next status (Opponent just fainted since we only get XP on faint)
       let nextStatus: BattleStatus = BattleStatus.WON;
       let opponentPartyData = (session.opponentPartyData as any[]) || [];
       if (session.battleType === 'NPC') {
         const nextHealthy = opponentPartyData.find(p => p.currentHp > 0);
         if (nextHealthy) {
-          nextStatus = BattleStatus.ACTIVE; // Switch was already processed in the previous turn
-          // Wait, the opponent switch happened in the previous turn's events!
-          // We just need to resume to ACTIVE.
+          nextStatus = BattleStatus.ACTIVE; 
         }
       }
 
-      const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+      const updatedLog = this.logService.appendTurnLog(session.log, session.turnNumber, eventLog);
+      const updated = await this.persistenceService.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
         status: nextStatus,
         playerPokemonData: playerPokemon,
         playerPartyData,
         turnNumber: session.turnNumber + 1,
-        log: [...((session.log as any[]) || []), { turn: session.turnNumber, events: eventLog }]
+        log: updatedLog
       });
       if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
       
@@ -388,29 +136,28 @@ export class BattlesService {
       };
     }
 
+    // --- 3. WAITING_SWITCH STATE ---
     if (session.status === BattleStatus.WAITING_SWITCH) {
       if (!action.startsWith('switch:')) {
         throw new ValidationError('You must switch in a new Pokemon.');
       }
       const targetId = action.split(':')[1];
-      const targetData = playerPartyData.find(p => p.id === targetId);
-      if (!targetData || targetData.currentHp <= 0) {
-        throw new ValidationError('Invalid switch target.');
-      }
+      const targetData = this.validatorService.validateSwitchForFainted(targetId, playerPartyData);
       
-      // We don't save the old one since it already saved its fainted state at the end of last turn.
       playerPokemon = targetData;
       session.playerActivePokemonId = targetId;
       session.playerPokemonData = targetData;
 
-      // Update session and return early, no turn resolution for wild pokemon
-      const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+      const event = this.eventService.createSwitchEvent(targetId, targetId, targetData.speciesName, true);
+      const updatedLog = this.logService.appendTurnLog(session.log, session.turnNumber, [event]);
+
+      const updated = await this.persistenceService.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
         status: BattleStatus.ACTIVE,
         playerActivePokemonId: targetId,
         playerPokemonData: targetData,
         playerPartyData,
         turnNumber: session.turnNumber + 1,
-        log: [...(session.log as any || []), { turn: session.turnNumber, events: [{ type: 'switch', pokemonId: targetId, targetPokemonId: targetId, name: targetData.speciesName, isPlayer: true }] }]
+        log: updatedLog
       });
       if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
 
@@ -423,14 +170,11 @@ export class BattlesService {
       };
     }
 
+    // --- 4. PARSE ACTION ---
     if (action.startsWith('switch:')) {
       const targetId = action.split(':')[1];
-      const targetData = playerPartyData.find(p => p.id === targetId);
-      if (!targetData || targetData.currentHp <= 0 || targetId === session.playerActivePokemonId) {
-        throw new ValidationError('Invalid switch target.');
-      }
+      const targetData = this.validatorService.validateSwitchTarget(targetId, playerPartyData, session.playerActivePokemonId);
 
-      // We are about to execute a turn. Update old pokemon in party data
       const oldIndex = playerPartyData.findIndex(p => p.id === playerPokemon.id);
       if (oldIndex !== -1) playerPartyData[oldIndex] = playerPokemon;
 
@@ -443,22 +187,10 @@ export class BattlesService {
         targetPokemonId: targetId
       };
     } else if (action.startsWith('item:')) {
-      if (session.battleType !== 'WILD') {
-        throw new ValidationError('Items cannot be used to catch an NPC trainer\'s Pokemon.');
-      }
-
       const itemId = action.split(':')[1];
-      const inventoryItem = trainerSave.inventory.find((i: any) => i.itemId === itemId);
+      const inventoryItem = this.validatorService.validateItem(itemId, trainerSave.inventory, session.battleType);
       
-      if (!inventoryItem || inventoryItem.quantity <= 0) {
-        throw new ValidationError(`You don't have any ${itemId} left.`);
-      }
-
-      // Decrement inventory (we'll just use Prisma directly here for simplicity, though a repo method is better)
-      await tx.inventoryItem.update({
-        where: { id: inventoryItem.id },
-        data: { quantity: inventoryItem.quantity - 1 }
-      });
+      await this.persistenceService.useItem(inventoryItem.id, inventoryItem.quantity, tx);
 
       playerAction = {
         type: 'item',
@@ -467,16 +199,9 @@ export class BattlesService {
         ballBonus: getBallBonus(itemId)
       };
     } else {
-      const moveIdStr = action.split(':')[1];
-      const moveId = parseInt(moveIdStr);
-      
-      // Ensure the pokemon actually knows this move
-      const playerMoves = playerPokemon.moves || [];
-      if (!playerMoves.some((m: any) => m.moveId === moveId)) {
-        throw new ValidationError(`Pokemon does not know this move.`);
-      }
+      const moveId = parseInt(action.split(':')[1]);
+      this.validatorService.validateMove(moveId, playerPokemon.moves || []);
 
-      // Fetch move from DB
       const playerMoveData = await tx.move.findUnique({
         where: { id: moveId },
         include: { type: true }
@@ -489,7 +214,7 @@ export class BattlesService {
       playerAction = {
         type: 'move',
         pokemonId: session.playerActivePokemonId,
-        typeEffectivenessMultiplier: this.calculateTypeMultiplier(playerMoveData.type, wildPokemon.types),
+        typeEffectivenessMultiplier: this.validatorService.calculateTypeMultiplier(playerMoveData.type, wildPokemon.types),
         move: {
           name: playerMoveData.name,
           power: playerMoveData.power,
@@ -504,46 +229,18 @@ export class BattlesService {
       };
     }
 
-    // Wild/NPC AI logic: Randomly pick a known move
-    const opponentMoves = wildPokemon.moves && wildPokemon.moves.length > 0 ? wildPokemon.moves : [{ moveId: 33 }]; // 33 is tackle
-    const randomMove = opponentMoves[Math.floor(Math.random() * opponentMoves.length)];
-
-    const wildMoveData = await tx.move.findUnique({
-      where: { id: randomMove.moveId },
-      include: { type: true }
-    }) || await tx.move.findUnique({ where: { name: 'tackle' }, include: { type: true } });
-
-    const wildAction: BattleAction = {
-      type: 'move',
-      pokemonId: wildPokemon.id,
-      typeEffectivenessMultiplier: this.calculateTypeMultiplier(wildMoveData!.type, playerPokemon.types),
-      move: {
-        name: wildMoveData!.name,
-        power: wildMoveData!.power,
-        accuracy: wildMoveData!.accuracy,
-        type: wildMoveData!.type.name,
-        priority: wildMoveData!.priority,
-        damageClass: wildMoveData!.damageClass as any
-      }
-    };
-
-    // Resolve Turn
-    const result = resolveTurn(
-      playerPokemon,
-      playerAction,
-      session.opponentPokemonData as any,
-      wildAction
-    );
+    // --- 5. OPPONENT ACTION & EXECUTE TURN ---
+    const wildAction = await this.turnService.getOpponentAction(wildPokemon, playerPokemon, tx);
+    const result = this.turnService.executeTurn(playerPokemon, playerAction, wildPokemon, wildAction);
 
     // Sync p1 state back to party data
     const p1Index = playerPartyData.findIndex(p => p.id === result.p1State.id);
     if (p1Index !== -1) playerPartyData[p1Index] = result.p1State;
 
-    // Check if caught
+    // --- 6. CHECK RESULTS ---
     const catchEvent = result.events.find(e => e.type === 'catch_attempt') as any;
     const isCaught = catchEvent && catchEvent.success;
 
-    // Update Session Status
     let newStatus: BattleStatus = BattleStatus.ACTIVE;
     let opponentPartyData = (session.opponentPartyData as any[]) || [];
 
@@ -553,71 +250,12 @@ export class BattlesService {
       const hasHealthy = playerPartyData.some(p => p.currentHp > 0);
       newStatus = hasHealthy ? BattleStatus.WAITING_SWITCH : BattleStatus.LOST;
     } else if (result.p2State.currentHp <= 0) {
-      // Award XP immediately on faint
-      const { getExpYield, getLevelFromXp } = require('../../game/battle/level-math');
-      const xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
       
-      result.p1State.currentXp += xpYield;
-      result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: xpYield });
-
-      const oldLevel = result.p1State.level;
-      const newLevel = getLevelFromXp(result.p1State.currentXp);
-
-      if (newLevel > oldLevel) {
-        result.p1State.level = newLevel;
-        result.events.push({ type: 'level_up', pokemonId: result.p1State.id, level: newLevel });
-
-        // Check for new moves
-        const newMoves = await tx.learnset.findMany({
-          where: {
-            speciesId: result.p1State.speciesId,
-            level: { gt: oldLevel, lte: newLevel }
-          },
-          include: { move: true },
-          orderBy: { level: 'asc' }
-        });
-
-        for (const learn of newMoves) {
-          const alreadyKnows = await tx.ownedPokemonMove.findFirst({
-            where: { ownedPokemonId: result.p1State.id, moveId: learn.moveId }
-          });
-          if (alreadyKnows) continue;
-
-          const currentMovesCount = await tx.ownedPokemonMove.count({
-            where: { ownedPokemonId: result.p1State.id }
-          });
-
-          if (currentMovesCount < 4) {
-            await tx.ownedPokemonMove.create({
-              data: {
-                ownedPokemonId: result.p1State.id,
-                moveId: learn.moveId,
-                slot: currentMovesCount
-              }
-            });
-            result.events.push({ type: 'learned_move', pokemonId: result.p1State.id, moveName: learn.move.name });
-          } else {
-            newStatus = BattleStatus.WAITING_MOVE_LEARN;
-            (result.p1State as any).pendingMoveToLearn = learn.moveId;
-            result.events.push({ type: 'prompt_learn_move', pokemonId: result.p1State.id, moveId: learn.moveId, moveName: learn.move.name });
-            break; // Stop at the first move that needs replacing
-          }
-        }
+      const faintResult = await this.rewardService.processFaintRewards(result, wildPokemon, tx);
+      if (faintResult.newStatus) {
+         newStatus = faintResult.newStatus;
       }
-
-      for (const p of playerPartyData) {
-        if (p.id === result.p1State.id) {
-          p.currentXp = result.p1State.currentXp;
-          p.level = result.p1State.level;
-        }
-        await tx.ownedPokemon.update({
-          where: { id: p.id },
-          data: {
-            currentXp: p.currentXp,
-            level: p.level
-          }
-        });
-      }
+      await this.persistenceService.syncPartyExperience(playerPartyData, result.p1State, tx);
 
       if (session.battleType === 'NPC') {
         const p2Index = opponentPartyData.findIndex(p => p.id === result.p2State.id);
@@ -626,7 +264,7 @@ export class BattlesService {
         const nextHealthy = opponentPartyData.find(p => p.currentHp > 0);
         if (nextHealthy) {
           result.p2State = nextHealthy;
-          result.events.push({ type: 'switch', pokemonId: nextHealthy.id, targetPokemonId: nextHealthy.id, name: nextHealthy.speciesName, isPlayer: false });
+          result.events.push(this.eventService.createSwitchEvent(nextHealthy.id, nextHealthy.id, nextHealthy.speciesName, false));
         } else if (newStatus === BattleStatus.ACTIVE) {
           newStatus = BattleStatus.WON;
         }
@@ -635,74 +273,18 @@ export class BattlesService {
       }
     }
 
+    // --- 7. POST-BATTLE PROCESSING ---
     if (isCaught) {
-      const partyCount = trainerSave.party.length;
-      const isParty = partyCount < 6;
-      let boxNumber: number | null = null;
-      let position = partyCount;
-
-      if (!isParty) {
-        // Send to Box 1 for now if party is full
-        boxNumber = 1;
-        const boxMons = await tx.ownedPokemon.findMany({
-          where: { trainerId: trainerSave.id, isParty: false, boxNumber: 1 }
-        });
-        position = boxMons.length;
-      }
-
-      const newPokemon = await tx.ownedPokemon.create({
-        data: {
-          trainerId: trainerSave.id,
-          speciesId: wildPokemon.speciesId,
-          level: wildPokemon.level,
-          currentXp: wildPokemon.level * 1000,
-          isParty,
-          boxNumber,
-          position,
-          ivHp: Math.floor(Math.random() * 32),
-          ivAttack: Math.floor(Math.random() * 32),
-          ivDefense: Math.floor(Math.random() * 32),
-          ivSpAtk: Math.floor(Math.random() * 32),
-          ivSpDef: Math.floor(Math.random() * 32),
-          ivSpeed: Math.floor(Math.random() * 32),
-        }
-      });
-
-      if (wildPokemon.moves && wildPokemon.moves.length > 0) {
-        await tx.ownedPokemonMove.createMany({
-          data: wildPokemon.moves.map((m: any) => ({
-            ownedPokemonId: newPokemon.id,
-            moveId: m.moveId,
-            slot: m.currentSlot
-          }))
-        });
-      }
+      await this.persistenceService.saveCaughtPokemon(trainerSave, wildPokemon, tx);
     }
 
     if (newStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
-      const npcTrainer = await tx.npcTrainer.findUnique({ where: { id: session.npcTrainerId } });
-      if (npcTrainer) {
-        const hasBadge = trainerSave.badges.includes(npcTrainer.badgeName || '');
-        const updateData: any = { money: { increment: npcTrainer.rewardMoney } };
-        if (npcTrainer.badgeName && !hasBadge) {
-          updateData.badges = { push: npcTrainer.badgeName };
-        }
-        await tx.trainerSave.update({
-          where: { id: trainerSave.id },
-          data: updateData
-        });
-        
-        await tx.trainerDefeatedNpc.upsert({
-           where: { trainerId_npcTrainerId: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id } },
-           create: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id },
-           update: {}
-        });
-      }
+       await this.rewardService.processNpcVictory(trainerSave, session.npcTrainerId, tx);
     }
 
-    const updatedLog = [...(session.log as any || []), { turn: session.turnNumber, events: result.events }];
+    const updatedLog = this.logService.appendTurnLog(session.log, session.turnNumber, result.events);
 
-    const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+    const updated = await this.persistenceService.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
       status: newStatus,
       turnNumber: session.turnNumber + 1,
       playerActivePokemonId: session.playerActivePokemonId,

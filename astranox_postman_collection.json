@@ -219,6 +219,114 @@
               ]
             }
           }
+        },
+        {
+          "name": "Get All Moves",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trainers/moves",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "moves"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Moves",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"moveIds\": [1, 2, 3, 4]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trainers/party/1/moves",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "party",
+                "1",
+                "moves"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Release Pokemon",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trainers/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Evolve Pokemon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemName\": \"fire-stone\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trainers/party/1/evolve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trainers",
+                "party",
+                "1",
+                "evolve"
+              ]
+            }
+          }
         }
       ]
     },
@@ -607,6 +715,403 @@
                 "world",
                 "maps",
                 "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "NPCs",
+      "item": [
+        {
+          "name": "List NPCs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/npcs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "npcs"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Challenge NPC",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/npcs/1/challenge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "npcs",
+                "1",
+                "challenge"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shop",
+      "item": [
+        {
+          "name": "Get Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buy Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemName\": \"poke-ball\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shop/buy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "buy"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Social",
+      "item": [
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/social/search?q=test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "social",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Friends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/social/friends",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "social",
+                "friends"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUserId\": \"uuid-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/social/friends/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "social",
+                "friends",
+                "request"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Accept Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/social/friends/accept/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "social",
+                "friends",
+                "accept",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trades",
+      "item": [
+        {
+          "name": "Toggle Trade Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isForTrade\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trades/pokemon/1/toggle-trade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "pokemon",
+                "1",
+                "toggle-trade"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Tradeable Pokemon",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trades/users/1/tradeable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "users",
+                "1",
+                "tradeable"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Incoming Trades",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trades/incoming",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "incoming"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Outgoing Trades",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trades/outgoing",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "outgoing"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request Trade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"offeredPokemonId\": \"uuid-1\",\n  \"requestedPokemonId\": \"uuid-2\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trades/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "request"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Accept Trade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trades/accept/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "accept",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Trade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/trades/reject/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "trades",
+                "reject",
+                "1"
               ]
             }
           }

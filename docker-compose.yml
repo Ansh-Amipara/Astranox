@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: astranox-db
+    environment:
+      POSTGRES_USER: astranox
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: astranox
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U astranox"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: astranox-server
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://astranox:password123@db:5432/astranox?schema=public
+      - JWT_SECRET=astranox_super_secret_jwt_key_123!
+      - CLIENT_URL=http://localhost:5174
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: astranox-client
+    ports:
+      - "5174:80"
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:
