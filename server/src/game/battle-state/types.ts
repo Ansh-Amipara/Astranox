@@ -4,6 +4,7 @@ export interface PokemonMove {
   moveId: number;
   currentSlot: number;
   name: string;
+  type: string;
 }
 
 export interface ActivePokemon {
@@ -85,7 +86,11 @@ export type TurnEvent =
   | { type: 'faint'; pokemonId: string }
   | { type: 'catch_attempt'; pokemonId: string; itemId: string; success: boolean; shakes: number }
   | { type: 'xp_gain'; pokemonId: string; amount: number }
-  | { type: 'level_up'; pokemonId: string; level: number };
+  | { type: 'level_up'; pokemonId: string; level: number }
+  | { type: 'learned_move'; pokemonId: string; moveName: string }
+  | { type: 'prompt_learn_move'; pokemonId: string; moveId: number; moveName: string }
+  | { type: 'skipped_move'; pokemonId: string }
+  | { type: 'fled'; pokemonId: string };
 
 export interface TurnResult {
   p1State: ActivePokemon;

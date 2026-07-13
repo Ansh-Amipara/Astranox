@@ -10,10 +10,9 @@ describe('Gen 5 Damage Calculations (RNG Removed)', () => {
     // Base damage steps:
     // levelMult = floor(2 * 50 / 5) + 2 = 22
     // statMult = floor( 22 * 100 * (150 / 60) ) = floor( 2200 * 2.5 ) = 5500
-    // baseDamage = floor( 5500 / 50 ) + 2 = 112
-    
-    // STAB = floor( 112 * 1.5 ) = 168
-    // Effectiveness = floor( 168 * 2 ) = 336
+    // Base damage = floor(5500 / 50) + 2 = 112
+    // STAB = floor(112 * 1.5) = 168
+    // Effectiveness = floor(168 * 2) = 336
     
     const damage = calculateDamage({
       attackerLevel: 50,

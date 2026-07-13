@@ -9,8 +9,8 @@ export function AdminDashboard() {
   const [pokemonLevel, setPokemonLevel] = useState<number>(5);
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
-  const [ivs, setIvs] = useState({ hp: 31, attack: 31, defense: 31, spAtk: 31, spDef: 31, speed: 31 });
   const [useCustomIvs, setUseCustomIvs] = useState(false);
+  const [customIvs, setCustomIvs] = useState({ ivHp: 31, ivAttack: 31, ivDefense: 31, ivSpAtk: 31, ivSpDef: 31, ivSpeed: 31 });
   const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
@@ -43,8 +43,8 @@ export function AdminDashboard() {
   });
 
   const addPokemonMutation = useMutation({
-    mutationFn: async ({ userId, speciesId, level, ivsData }: { userId: string, speciesId: number, level: number, ivsData?: any }) => {
-      await api.post(`/admin/users/${userId}/pokemon`, { speciesId, level, ivs: ivsData });
+    mutationFn: async ({ userId, speciesId, level, customIvs }: { userId: string, speciesId: number, level: number, customIvs?: any }) => {
+      await api.post(`/admin/users/${userId}/pokemon`, { speciesId, level, ivs: customIvs });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
@@ -210,30 +210,32 @@ export function AdminDashboard() {
                         />
                       </div>
 
-                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-4">
-                        <label className="flex items-center gap-2 cursor-pointer mb-3">
-                          <input
-                            type="checkbox"
-                            checked={useCustomIvs}
+                      <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                        <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">
+                          <input 
+                            type="checkbox" 
+                            checked={useCustomIvs} 
                             onChange={(e) => setUseCustomIvs(e.target.checked)}
-                            className="w-4 h-4 rounded bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-slate-950"
+                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
                           />
-                          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Set Custom IVs (0-31)</span>
+                          Set Custom IVs (0-31)
                         </label>
-
+                        
                         {useCustomIvs && (
-                          <div className="grid grid-cols-3 gap-2">
-                            {['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'].map(stat => (
+                          <div className="grid grid-cols-3 gap-3">
+                            {['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'].map(stat => (
                               <div key={stat}>
-                                <label className="block text-[10px] font-bold text-slate-500 uppercase">{stat}</label>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
+                                  {stat.replace('iv', '')}
+                                </label>
                                 <input
                                   type="text"
-                                  value={(ivs as any)[stat] === 0 ? '0' : ((ivs as any)[stat] || '')}
+                                  value={(customIvs as any)[stat] ?? ''}
                                   onChange={(e) => {
                                     const val = e.target.value.replace(/\D/g, '');
-                                    setIvs({ ...ivs, [stat]: val ? Math.min(31, Number(val)) : 0 });
+                                    setCustomIvs(prev => ({ ...prev, [stat]: val ? Math.min(31, Number(val)) : 0 }));
                                   }}
-                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:border-blue-500"
+                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors text-center"
                                 />
                               </div>
                             ))}
@@ -243,8 +245,12 @@ export function AdminDashboard() {
 
                       <button
                         onClick={() => {
-                          const payload = useCustomIvs ? ivs : undefined;
-                          addPokemonMutation.mutate({ userId: selectedUser.id, speciesId, level: pokemonLevel, ivsData: payload });
+                          addPokemonMutation.mutate({ 
+                            userId: selectedUser.id, 
+                            speciesId, 
+                            level: pokemonLevel,
+                            customIvs: useCustomIvs ? customIvs : undefined 
+                          });
                         }}
                         disabled={addPokemonMutation.isPending || !selectedUser.trainerSave}
                         className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 mt-2"

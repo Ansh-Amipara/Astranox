@@ -7,7 +7,17 @@ const ITEMS_TO_SEED = [
   'great-ball',
   'ultra-ball',
   'master-ball',
-  'luxury-ball'
+  'luxury-ball',
+  'fire-stone',
+  'water-stone',
+  'thunder-stone',
+  'leaf-stone',
+  'moon-stone',
+  'sun-stone',
+  'shiny-stone',
+  'dusk-stone',
+  'dawn-stone',
+  'ice-stone'
 ];
 
 export async function seedItems() {

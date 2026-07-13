@@ -23,17 +23,6 @@ export interface SpeciesContext {
   baseExp?: number;
 }
 
-/**
- * The individual potential of a specific Pokémon instance.
- */
-export interface IndividualValues {
-  hp: number;
-  attack: number;
-  defense: number;
-  spAtk: number;
-  spDef: number;
-  speed: number;
-}
 
 import { PokemonMove } from '../battle-state/types';
 
@@ -45,7 +34,14 @@ export interface PokemonInstancePayload {
   nickname: string | null;
   level: number;
   currentXp?: number;
-  ivs: IndividualValues;
+  ivs: {
+    hp: number;
+    attack: number;
+    defense: number;
+    spAtk: number;
+    spDef: number;
+    speed: number;
+  };
   species: SpeciesContext;
   
   // Future Expansion:
@@ -76,7 +72,14 @@ export interface PokemonInstance {
   };
   
   // Internal State
-  ivs: IndividualValues;
+  ivs: {
+    hp: number;
+    attack: number;
+    defense: number;
+    spAtk: number;
+    spDef: number;
+    speed: number;
+  };
   species: SpeciesContext;
   moves: PokemonMove[];
 }

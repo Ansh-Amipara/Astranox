@@ -22,7 +22,7 @@ export class BattlesRepository {
     return tx.battleSession.findFirst({
       where: {
         trainerId,
-        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH] }
+        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN] }
       }
     });
   }
@@ -54,7 +54,7 @@ export class BattlesRepository {
       where: {
         id,
         turnNumber: expectedTurnNumber,
-        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH] }
+        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN] }
       },
       data
     });
@@ -98,7 +98,7 @@ export class BattlesRepository {
     return prisma.battleSession.findFirst({
       where: {
         trainerId,
-        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH] }
+        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN] }
       }
     });
   }

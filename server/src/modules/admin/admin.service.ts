@@ -43,16 +43,9 @@ export class AdminService {
     return this.repo.getUserPokemon(userId);
   }
 
-  async addPokemon(adminId: string, userId: string, speciesId: number, level: number, ivs?: any) {
+  async addPokemon(adminId: string, userId: string, speciesId: number, level: number, ivs?: { ivHp?: number, ivAttack?: number, ivDefense?: number, ivSpAtk?: number, ivSpDef?: number, ivSpeed?: number }) {
     if (level < 1 || level > 100) {
       throw new ValidationError('Level must be between 1 and 100');
-    }
-    if (ivs) {
-      ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'].forEach(stat => {
-        if (ivs[stat] !== undefined && (ivs[stat] < 0 || ivs[stat] > 31)) {
-          throw new ValidationError(`IV ${stat} must be between 0 and 31`);
-        }
-      });
     }
     
     // Verify species exists

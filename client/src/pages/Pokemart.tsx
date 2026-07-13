@@ -95,74 +95,86 @@ export function Pokemart() {
         </div>
       )}
 
-      {/* Grid of items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {items?.map((item) => {
-          const qty = quantities[item.id] || 1;
-          const cost = item.cost * qty;
-          const canAfford = (save?.money || 0) >= cost;
+      {/* Table of items */}
+      <div className="bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Item</th>
+                <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Description</th>
+                <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Price</th>
+                <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Quantity</th>
+                <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Total</th>
+                <th className="p-4 font-bold text-slate-500 dark:text-slate-400 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items?.map((item) => {
+                const qty = quantities[item.id] || 1;
+                const cost = item.cost * qty;
+                const canAfford = (save?.money || 0) >= cost;
 
-          return (
-            <div key={item.id} className="group bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col relative overflow-hidden">
-              {/* Background accent */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 dark:bg-red-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-500"></div>
-              
-              <div className="flex justify-between items-start mb-4 relative">
-                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-center p-2 border border-slate-100 dark:border-slate-800 shadow-inner">
-                  {item.spriteUrl ? (
-                    <img src={item.spriteUrl} alt={item.name} className="w-12 h-12 object-contain filter drop-shadow-md group-hover:scale-110 transition-transform" />
-                  ) : (
-                    <div className="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
-                  )}
-                </div>
-                <div className="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">₽ {item.cost}</span>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 capitalize relative">{item.name.replace('-', ' ')}</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-grow relative">{item.description}</p>
-
-              <div className="mt-auto relative space-y-4">
-                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                  <button 
-                    onClick={() => handleQuantityChange(item.id, qty - 1)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    -
-                  </button>
-                  <input 
-                    type="text"
-                    value={qty || ''}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      handleQuantityChange(item.id, val ? parseInt(val) : 0);
-                    }}
-                    className="w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none"
-                  />
-                  <button 
-                    onClick={() => handleQuantityChange(item.id, qty + 1)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => handleBuy(item)}
-                  disabled={!canAfford || buyMutation.isPending}
-                  className={`w-full py-3 px-4 rounded-xl font-bold shadow-sm transition-all flex justify-between items-center
-                    ${canAfford 
-                      ? 'bg-red-500 hover:bg-red-600 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' 
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
-                >
-                  <span>{buyMutation.isPending ? 'Buying...' : 'Buy'}</span>
-                  <span className={canAfford ? 'text-red-100' : 'opacity-50'}>Total: ₽ {cost}</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
+                return (
+                  <tr key={item.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0">
+                          {item.spriteUrl ? (
+                            <img src={item.spriteUrl} alt={item.name} className="w-8 h-8 object-contain filter drop-shadow-md" />
+                          ) : (
+                            <div className="w-6 h-6 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                          )}
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-white capitalize">{item.name.replace('-', ' ')}</span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs">{item.description}</td>
+                    <td className="p-4 font-bold text-slate-700 dark:text-slate-300">₽ {item.cost}</td>
+                    <td className="p-4">
+                      <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 w-max">
+                        <button 
+                          onClick={() => handleQuantityChange(item.id, qty - 1)}
+                          className="w-8 h-8 rounded-l-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          -
+                        </button>
+                        <input 
+                          type="text"
+                          value={qty || ''}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            handleQuantityChange(item.id, val ? parseInt(val) : 0);
+                          }}
+                          className="w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none text-sm"
+                        />
+                        <button 
+                          onClick={() => handleQuantityChange(item.id, qty + 1)}
+                          className="w-8 h-8 rounded-r-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td className={`p-4 font-bold ${canAfford ? 'text-red-500' : 'text-slate-400 dark:text-slate-600'}`}>₽ {cost}</td>
+                    <td className="p-4 text-center">
+                      <button
+                        onClick={() => handleBuy(item)}
+                        disabled={!canAfford || buyMutation.isPending}
+                        className={`px-6 py-2 rounded-lg font-bold shadow-sm transition-all whitespace-nowrap
+                          ${canAfford 
+                            ? 'bg-red-500 hover:bg-red-600 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' 
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
+                      >
+                        {buyMutation.isPending ? 'Buying...' : 'Buy'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

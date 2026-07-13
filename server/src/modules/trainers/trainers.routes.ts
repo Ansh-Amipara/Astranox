@@ -14,3 +14,5 @@ trainersRoutes.get('/box/:boxNumber', controller.getBox);
 trainersRoutes.post('/swap', gameplayLimiter, controller.swapSlots);
 trainersRoutes.get('/moves', controller.getAllMoves);
 trainersRoutes.patch('/party/:pokemonId/moves', gameplayLimiter, controller.changeMoves);
+trainersRoutes.delete('/:pokemonId', gameplayLimiter, controller.releasePokemon);
+trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, controller.evolvePokemon);

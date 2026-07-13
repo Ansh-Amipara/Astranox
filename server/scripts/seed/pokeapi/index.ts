@@ -2,6 +2,7 @@ import { seedTypes } from './types.seed';
 import { seedMoves } from './moves.seed';
 import { seedSpecies } from './species.seed';
 import { seedItems } from './items.seed';
+import { seedEvolutions } from './evolutions.seed';
 
 async function main() {
   console.log('Starting PokeAPI Seed Pipeline...');
@@ -10,6 +11,7 @@ async function main() {
   await seedMoves();
   await seedSpecies();
   await seedItems();
+  await seedEvolutions();
   
   console.log('PokeAPI Seed Pipeline Complete!');
   process.exit(0);

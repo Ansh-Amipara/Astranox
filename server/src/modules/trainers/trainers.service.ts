@@ -77,4 +77,63 @@ export class TrainersService {
     
     return result;
   }
+
+  async releasePokemon(userId: string, pokemonId: string) {
+    const save = await this.getMySave(userId);
+    
+    // Prevent releasing if it's the last pokemon in the party
+    const partyCount = save.party.length;
+    
+    const pokemonToRelease = await this.repo.findByUserId(userId).then((s: any) => {
+      // Find in party
+      const inParty = s.party.find((p: any) => p.id === pokemonId);
+      if (inParty) return inParty;
+      // Have to check if it exists in DB at all to see if it's in the PC
+      // We can just rely on the delete failing if it doesn't exist, but we need to prevent last party member deletion
+      return inParty;
+    });
+
+    if (pokemonToRelease && pokemonToRelease.isParty && partyCount <= 1) {
+      throw new ValidationError('You cannot release your last active party Pokemon.');
+    }
+
+    const result = await this.repo.releasePokemon(save.id, pokemonId);
+    if (result.count === 0) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+    
+    return true;
+  }
+
+  async evolvePokemon(userId: string, pokemonId: string) {
+    const save = await this.getMySave(userId);
+    
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    const species = pokemon.species;
+    if (!species.evolvesToId) {
+      throw new ValidationError('This Pokemon cannot evolve.');
+    }
+
+    let itemIdToConsume: string | undefined;
+
+    if (species.evolutionLevel && pokemon.level >= species.evolutionLevel) {
+      // Level requirement met
+    } else if (species.evolutionItem) {
+      // Stone requirement
+      const item = await this.repo.getInventoryItem(save.id, species.evolutionItem);
+      if (!item || item.quantity <= 0) {
+        throw new ValidationError(`You do not have the required ${species.evolutionItem} to evolve this Pokemon.`);
+      }
+      itemIdToConsume = species.evolutionItem;
+    } else {
+      throw new ValidationError('This Pokemon has not met its evolution requirements yet.');
+    }
+
+    const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, species.evolvesToId, itemIdToConsume);
+    return evolvedPokemon;
+  }
 }

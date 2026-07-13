@@ -13,6 +13,17 @@ import { PrismaClient, BattleStatus, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 const BATTLE_ACTION_PATTERN = /^(run|move:[1-9]\d*|switch:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|item:(poke-ball|great-ball|ultra-ball|luxury-ball|master-ball))$/;
 
+function generateWildIVs() {
+  return {
+    hp: Math.floor(Math.random() * 32),
+    attack: Math.floor(Math.random() * 32),
+    defense: Math.floor(Math.random() * 32),
+    spAtk: Math.floor(Math.random() * 32),
+    spDef: Math.floor(Math.random() * 32),
+    speed: Math.floor(Math.random() * 32),
+  };
+}
+
 function toActivePokemon(inst: any): ActivePokemon {
   return {
     id: inst.id,
@@ -91,14 +102,7 @@ export class BattlesService {
       throw new NotFoundError('Species not found.');
     }
 
-    const ivs = {
-      hp: Math.floor(Math.random() * 32),
-      attack: Math.floor(Math.random() * 32),
-      defense: Math.floor(Math.random() * 32),
-      spAtk: Math.floor(Math.random() * 32),
-      spDef: Math.floor(Math.random() * 32),
-      speed: Math.floor(Math.random() * 32),
-    };
+    const ivs = generateWildIVs();
 
     // Construct wild PokemonInstance
     const types = [species.type1.name];
@@ -129,7 +133,7 @@ export class BattlesService {
     const learnset = await prisma.learnset.findMany({
       where: { speciesId: species.id, level: { lte: level } },
       orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
-      include: { move: true }
+      include: { move: { include: { type: true } } }
     });
 
     const uniqueMoves: any[] = [];
@@ -145,7 +149,8 @@ export class BattlesService {
     wildInstance.moves = latestMoves.map((m: any, i: number) => ({
       moveId: m.moveId,
       currentSlot: i,
-      name: m.move.name
+      name: m.move.name,
+      type: m.move.type.name
     }));
 
     const wildActive = toActivePokemon(wildInstance);
@@ -205,7 +210,7 @@ export class BattlesService {
        const learnset = await prisma.learnset.findMany({
          where: { speciesId: p.speciesId, level: { lte: p.level } },
          orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
-         include: { move: true }
+         include: { move: { include: { type: true } } }
        });
 
        const uniqueMoves: any[] = [];
@@ -221,7 +226,8 @@ export class BattlesService {
        const moves = latestMoves.map((m: any, i: number) => ({
          moveId: m.moveId,
          currentSlot: i,
-         name: m.move.name
+         name: m.move.name,
+         type: m.move.type.name
        }));
 
        const npcInstance = createPokemonInstance({
@@ -295,16 +301,92 @@ export class BattlesService {
         turnNumber: session.turnNumber + 1,
         playerPokemonData: session.playerPokemonData as Prisma.InputJsonValue,
         opponentPokemonData: session.opponentPokemonData as Prisma.InputJsonValue,
-        log: [...((session.log as any[]) || []), { turn: session.turnNumber, events: [{ type: 'fled' }] }],
+        log: [...((session.log as any[]) || []), { turn: session.turnNumber, events: [{ type: 'fled', pokemonId: session.playerActivePokemonId }] }],
       });
       if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
-      return { status: BattleStatus.FLED, events: [{ type: 'fled' }] };
+      return { status: BattleStatus.FLED, events: [{ type: 'fled', pokemonId: session.playerActivePokemonId }] };
     }
 
     let playerAction: BattleAction;
     const wildPokemon = session.opponentPokemonData as any;
     let playerPokemon = session.playerPokemonData as any;
     let playerPartyData = (session.playerPartyData as any[]) || [];
+
+    if (session.status === BattleStatus.WAITING_MOVE_LEARN) {
+      const pendingMoveId = (playerPokemon as any).pendingMoveToLearn;
+      if (!pendingMoveId) throw new ValidationError('No pending move to learn.');
+
+      let eventLog = [];
+
+      if (action.startsWith('learn_move:')) {
+        const slotToReplace = parseInt(action.split(':')[1]);
+        if (isNaN(slotToReplace) || slotToReplace < 0 || slotToReplace > 3) {
+          throw new ValidationError('Invalid slot to replace.');
+        }
+
+        // Update DB
+        await tx.ownedPokemonMove.deleteMany({
+          where: { ownedPokemonId: playerPokemon.id, slot: slotToReplace }
+        });
+        await tx.ownedPokemonMove.create({
+          data: {
+            ownedPokemonId: playerPokemon.id,
+            moveId: pendingMoveId,
+            slot: slotToReplace
+          }
+        });
+
+        // Update in-memory state
+        const moveData = await tx.move.findUnique({ where: { id: pendingMoveId }, include: { type: true } });
+        if (moveData) {
+          playerPokemon.moves[slotToReplace] = {
+            id: moveData.id,
+            name: moveData.name,
+            type: moveData.type.name,
+            power: moveData.power,
+            accuracy: moveData.accuracy,
+            priority: moveData.priority,
+            damageClass: moveData.damageClass
+          };
+          eventLog.push({ type: 'learned_move', pokemonId: playerPokemon.id, moveName: moveData.name });
+        }
+      } else if (action === 'skip_move') {
+        eventLog.push({ type: 'skipped_move', pokemonId: playerPokemon.id });
+      } else {
+        throw new ValidationError('You must choose to learn the move or skip it.');
+      }
+
+      delete (playerPokemon as any).pendingMoveToLearn;
+
+      // Determine next status (Opponent just fainted since we only get XP on faint)
+      let nextStatus: BattleStatus = BattleStatus.WON;
+      let opponentPartyData = (session.opponentPartyData as any[]) || [];
+      if (session.battleType === 'NPC') {
+        const nextHealthy = opponentPartyData.find(p => p.currentHp > 0);
+        if (nextHealthy) {
+          nextStatus = BattleStatus.ACTIVE; // Switch was already processed in the previous turn
+          // Wait, the opponent switch happened in the previous turn's events!
+          // We just need to resume to ACTIVE.
+        }
+      }
+
+      const updated = await this.repository.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+        status: nextStatus,
+        playerPokemonData: playerPokemon,
+        playerPartyData,
+        turnNumber: session.turnNumber + 1,
+        log: [...((session.log as any[]) || []), { turn: session.turnNumber, events: eventLog }]
+      });
+      if (!updated) throw new ValidationError('Battle action was already processed. Refresh the battle state.');
+      
+      return {
+        status: nextStatus,
+        turnNumber: session.turnNumber,
+        events: eventLog,
+        p1State: playerPokemon,
+        p2State: wildPokemon
+      };
+    }
 
     if (session.status === BattleStatus.WAITING_SWITCH) {
       if (!action.startsWith('switch:')) {
@@ -484,6 +566,43 @@ export class BattlesService {
       if (newLevel > oldLevel) {
         result.p1State.level = newLevel;
         result.events.push({ type: 'level_up', pokemonId: result.p1State.id, level: newLevel });
+
+        // Check for new moves
+        const newMoves = await tx.learnset.findMany({
+          where: {
+            speciesId: result.p1State.speciesId,
+            level: { gt: oldLevel, lte: newLevel }
+          },
+          include: { move: true },
+          orderBy: { level: 'asc' }
+        });
+
+        for (const learn of newMoves) {
+          const alreadyKnows = await tx.ownedPokemonMove.findFirst({
+            where: { ownedPokemonId: result.p1State.id, moveId: learn.moveId }
+          });
+          if (alreadyKnows) continue;
+
+          const currentMovesCount = await tx.ownedPokemonMove.count({
+            where: { ownedPokemonId: result.p1State.id }
+          });
+
+          if (currentMovesCount < 4) {
+            await tx.ownedPokemonMove.create({
+              data: {
+                ownedPokemonId: result.p1State.id,
+                moveId: learn.moveId,
+                slot: currentMovesCount
+              }
+            });
+            result.events.push({ type: 'learned_move', pokemonId: result.p1State.id, moveName: learn.move.name });
+          } else {
+            newStatus = BattleStatus.WAITING_MOVE_LEARN;
+            (result.p1State as any).pendingMoveToLearn = learn.moveId;
+            result.events.push({ type: 'prompt_learn_move', pokemonId: result.p1State.id, moveId: learn.moveId, moveName: learn.move.name });
+            break; // Stop at the first move that needs replacing
+          }
+        }
       }
 
       for (const p of playerPartyData) {
@@ -508,10 +627,10 @@ export class BattlesService {
         if (nextHealthy) {
           result.p2State = nextHealthy;
           result.events.push({ type: 'switch', pokemonId: nextHealthy.id, targetPokemonId: nextHealthy.id, name: nextHealthy.speciesName, isPlayer: false });
-        } else {
+        } else if (newStatus === BattleStatus.ACTIVE) {
           newStatus = BattleStatus.WON;
         }
-      } else {
+      } else if (newStatus === BattleStatus.ACTIVE) {
         newStatus = BattleStatus.WON;
       }
     }
@@ -536,6 +655,7 @@ export class BattlesService {
           trainerId: trainerSave.id,
           speciesId: wildPokemon.speciesId,
           level: wildPokemon.level,
+          currentXp: wildPokemon.level * 1000,
           isParty,
           boxNumber,
           position,

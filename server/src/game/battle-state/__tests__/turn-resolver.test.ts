@@ -19,7 +19,7 @@ describe('Turn Resolver Engine', () => {
     catchRate: 255,
     baseExp: 100,
     currentXp: 0,
-    moves: [{ moveId: 33, currentSlot: 0, name: 'tackle' }],
+    moves: [{ moveId: 1, currentSlot: 0, name: 'tackle', type: 'normal' }],
     status: null,
     stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
   });

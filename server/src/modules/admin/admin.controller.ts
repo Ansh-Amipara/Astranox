@@ -66,6 +66,18 @@ export class AdminController {
         throw new ValidationError('Valid level between 1 and 100 is required');
       }
 
+      // Basic validation for custom IVs if provided
+      if (ivs) {
+        const ivKeys = ['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'];
+        for (const key of ivKeys) {
+          if (ivs[key] !== undefined) {
+            if (typeof ivs[key] !== 'number' || ivs[key] < 0 || ivs[key] > 31) {
+              throw new ValidationError(`If provided, ${key} must be a number between 0 and 31`);
+            }
+          }
+        }
+      }
+
       const pokemon = await this.service.addPokemon(req.user!.id, id, speciesId, level, ivs);
       res.json({ success: true, data: pokemon });
     } catch (err) {

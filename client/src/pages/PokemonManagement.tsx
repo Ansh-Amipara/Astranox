@@ -37,6 +37,17 @@ export function PokemonManagement() {
     },
   });
 
+  const releaseMutation = useMutation({
+    mutationFn: async (pokemonId: string) => {
+      await api.delete(`/trainers/${pokemonId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      queryClient.invalidateQueries({ queryKey: ['pcBox', currentBox] });
+      setSelectedSlot(null);
+    }
+  });
+
   const handleSlotClick = (slot: Slot) => {
     if (swapMutation.isPending) return;
 
@@ -93,13 +104,14 @@ export function PokemonManagement() {
             />
             {isParty && (
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                  <h3 className="font-bold text-slate-900 dark:text-white capitalize truncate">{pkm.nickname || pkm.species.name}</h3>
-                  <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Lv. {pkm.level}</span>
-                </div>
-                <div className="flex gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  <span>HP: {pkm.ivHp}</span>
-                  <span>ATK: {pkm.ivAttack}</span>
+                <div className="mt-2 text-center w-full">
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize truncate">
+                    {pkm.nickname || pkm.species.name}
+                  </h3>
+                  <div className="flex items-center justify-center gap-1 mt-1 flex-wrap">
+                    <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Lv. {pkm.level}</span>
+
+                  </div>
                 </div>
               </div>
             )}
@@ -181,8 +193,26 @@ export function PokemonManagement() {
               )}
             </div>
             
-            <div className="rounded-xl border border-blue-200 dark:border-blue-900/30 bg-blue-50 dark:bg-blue-900/10 p-4 text-sm text-blue-700 dark:text-blue-400/80">
-              <span className="font-bold">Tip:</span> Click any Pokémon in your Party or Box to select it, then click an empty slot or another Pokémon to swap their positions.
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+              <div className="flex-1 rounded-xl border border-blue-200 dark:border-blue-900/30 bg-blue-50 dark:bg-blue-900/10 p-4 text-sm text-blue-700 dark:text-blue-400/80">
+                <span className="font-bold">Tip:</span> Click any Pokémon in your Party or Box to select it, then click an empty slot or another Pokémon to swap their positions.
+              </div>
+              
+              {selectedSlot && (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) && (
+                <button
+                  onClick={() => {
+                    const pkm = (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) as any;
+                    if (!pkm) return;
+                    if (window.confirm(`Are you sure you want to release ${pkm.nickname || pkm.species?.name}? This cannot be undone.`)) {
+                      releaseMutation.mutate(pkm.id);
+                    }
+                  }}
+                  disabled={releaseMutation.isPending || (selectedSlot.isParty && save?.party?.length <= 1)}
+                  className="px-6 py-4 rounded-xl font-bold bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-800/60 transition-colors disabled:opacity-50"
+                >
+                  {releaseMutation.isPending ? 'Releasing...' : '🗑️ Release Selected'}
+                </button>
+              )}
             </div>
           </div>
 

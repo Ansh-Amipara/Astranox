@@ -56,6 +56,7 @@ function App() {
             }
           />
           <Route
+            path="/box"
             element={
               <AuthGuard>
                 <PokemonManagement />

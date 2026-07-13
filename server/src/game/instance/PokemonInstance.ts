@@ -37,11 +37,9 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     level: payload.level,
     currentXp: payload.currentXp || 0,
     types: payload.species.types,
-    
     maxHp,
     currentHp: maxHp, // Fresh instances spawn at full health
     stats,
-    
     ivs: payload.ivs,
     species: payload.species,
     moves: payload.moves || []

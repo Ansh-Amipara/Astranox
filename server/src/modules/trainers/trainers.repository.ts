@@ -12,7 +12,7 @@ export class TrainersRepository {
           orderBy: { position: 'asc' },
           include: { 
             species: { include: { type1: true, type2: true } },
-            moves: { include: { move: true } }
+            moves: { include: { move: { include: { type: true } } } }
           }
         },
         inventory: {
@@ -31,7 +31,7 @@ export class TrainersRepository {
           orderBy: { position: 'asc' },
           include: { 
             species: { include: { type1: true, type2: true } },
-            moves: { include: { move: true } }
+            moves: { include: { move: { include: { type: true } } } }
           }
         },
         inventory: {
@@ -48,6 +48,7 @@ export class TrainersRepository {
           trainerId,
           speciesId,
           level: 5,
+          currentXp: 5000,
           isParty: true,
           position: 0,
           boxNumber: null,
@@ -94,7 +95,7 @@ export class TrainersRepository {
             orderBy: { position: 'asc' },
             include: { 
               species: { include: { type1: true, type2: true } },
-              moves: { include: { move: true } }
+              moves: { include: { move: { include: { type: true } } } }
             }
           },
           inventory: {
@@ -117,7 +118,7 @@ export class TrainersRepository {
       orderBy: { position: 'asc' },
       include: { 
         species: { include: { type1: true, type2: true } },
-        moves: { include: { move: true } }
+        moves: { include: { move: { include: { type: true } } } }
       }
     });
   }
@@ -158,6 +159,7 @@ export class TrainersRepository {
     return prisma.move.findMany({
       orderBy: { name: 'asc' },
       select: {
+        id: true,
         name: true,
         type: { select: { name: true } },
         power: true,
@@ -191,6 +193,55 @@ export class TrainersRepository {
       }
 
       return true;
+    });
+  }
+
+  async releasePokemon(trainerId: string, pokemonId: string) {
+    return prisma.ownedPokemon.deleteMany({
+      where: {
+        id: pokemonId,
+        trainerId
+      }
+    });
+  }
+
+  async getPokemonById(trainerId: string, pokemonId: string) {
+    return prisma.ownedPokemon.findFirst({
+      where: { id: pokemonId, trainerId },
+      include: {
+        species: true,
+        moves: { include: { move: true } }
+      }
+    });
+  }
+
+  async getInventoryItem(trainerId: string, itemId: string) {
+    return prisma.inventoryItem.findUnique({
+      where: {
+        trainerId_itemId: { trainerId, itemId }
+      }
+    });
+  }
+
+  async evolvePokemon(trainerId: string, pokemonId: string, evolvesToId: number, itemIdToConsume?: string) {
+    return prisma.$transaction(async (tx) => {
+      if (itemIdToConsume) {
+        const item = await tx.inventoryItem.findUnique({
+          where: { trainerId_itemId: { trainerId, itemId: itemIdToConsume } }
+        });
+        if (!item || item.quantity <= 0) {
+          throw new Error('Item not found or insufficient quantity');
+        }
+        await tx.inventoryItem.update({
+          where: { id: item.id },
+          data: { quantity: item.quantity - 1 }
+        });
+      }
+
+      return tx.ownedPokemon.update({
+        where: { id: pokemonId },
+        data: { speciesId: evolvesToId }
+      });
     });
   }
 }

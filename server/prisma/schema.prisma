@@ -68,7 +68,7 @@ model OwnedPokemon {
   boxNumber Int? // 0 to 31. Null if in party.
   position  Int     @default(0) // 0 to 5 if party, 0 to 29 if box.
 
-  // Basic IVs for now (will be expanded in Phase 5)
+  // IVs
   ivHp      Int @default(0)
   ivAttack  Int @default(0)
   ivDefense Int @default(0)
@@ -169,6 +169,12 @@ model Species {
   type2Id Int?
   type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id])
 
+  evolutionLevel Int?
+  evolutionItem  String?
+  evolvesToId    Int?
+  evolvesTo      Species?  @relation("Evolution", fields: [evolvesToId], references: [id])
+  evolvesFrom    Species[] @relation("Evolution")
+
   owned        OwnedPokemon[]
   learnsets    Learnset[]
 }
@@ -195,6 +201,7 @@ model Learnset {
 enum BattleStatus {
   ACTIVE
   WAITING_SWITCH
+  WAITING_MOVE_LEARN
   WON
   LOST
   FLED
@@ -262,6 +269,7 @@ model NpcTrainerPokemon {
   level     Int @default(5)
   position  Int @default(0)
 
+  // IVs
   ivHp      Int @default(0)
   ivAttack  Int @default(0)
   ivDefense Int @default(0)

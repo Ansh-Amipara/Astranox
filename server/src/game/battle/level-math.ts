@@ -1,30 +1,24 @@
 /**
  * Pure mathematical functions for Experience and Leveling.
- * Uses the Medium Fast experience curve (n^3) which is standard for most Pokemon.
+ * House Rule: Flat experience curve. 1,000 XP = 1 Level.
  */
 
 /**
  * Calculates the total XP required to reach a specific level.
- * Using Medium Fast curve: XP = n^3
+ * Using House Rule: XP = Level * 1000
  */
 export function getXpForLevel(level: number): number {
-  if (level <= 1) return 0;
-  return Math.floor(Math.pow(level, 3));
+  if (level <= 1) return 1000;
+  return level * 1000;
 }
 
 /**
  * Calculates the current level based on total XP.
- * Using Medium Fast curve: Level = cube_root(XP)
+ * Using House Rule: Level = Math.floor(XP / 1000)
  */
 export function getLevelFromXp(xp: number): number {
-  if (xp <= 0) return 1;
-  const rawLevel = Math.floor(Math.pow(xp, 1/3));
-  // JavaScript floating point precision might make cube_root(8) slightly less than 2, so let's be safe:
-  // (Math.pow(8, 1/3) = 2, but just in case, we check if rawLevel+1 is valid)
-  if (getXpForLevel(rawLevel + 1) <= xp) {
-    return Math.min(100, rawLevel + 1);
-  }
-  return Math.min(100, Math.max(1, rawLevel));
+  if (xp < 1000) return 1;
+  return Math.min(100, Math.floor(xp / 1000));
 }
 
 /**

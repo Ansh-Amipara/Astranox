@@ -62,7 +62,7 @@ export class AdminRepository {
   }
 
 
-  async addPokemon(userId: string, speciesId: number, level: number, ivs?: any) {
+  async addPokemon(userId: string, speciesId: number, level: number, ivs?: { ivHp?: number, ivAttack?: number, ivDefense?: number, ivSpAtk?: number, ivSpDef?: number, ivSpeed?: number }) {
     const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) return null;
 
@@ -90,24 +90,56 @@ export class AdminRepository {
       position = boxPokemon.filter(p => p.boxNumber === 0).length;
     }
 
-    return prisma.ownedPokemon.create({
-      data: {
-        trainerId: save.id,
-        speciesId,
-        level,
-        isParty,
-        boxNumber,
-        position,
-        ivHp: ivs?.hp ?? Math.floor(Math.random() * 32),
-        ivAttack: ivs?.attack ?? Math.floor(Math.random() * 32),
-        ivDefense: ivs?.defense ?? Math.floor(Math.random() * 32),
-        ivSpAtk: ivs?.spAtk ?? Math.floor(Math.random() * 32),
-        ivSpDef: ivs?.spDef ?? Math.floor(Math.random() * 32),
-        ivSpeed: ivs?.speed ?? Math.floor(Math.random() * 32)
-      },
-      include: {
-        species: true
+    return prisma.$transaction(async (tx) => {
+      const pokemon = await tx.ownedPokemon.create({
+        data: {
+          trainerId: save.id,
+          speciesId,
+          level,
+          currentXp: level * 1000,
+          isParty,
+          boxNumber,
+          position,
+          ivHp: ivs?.ivHp !== undefined ? ivs.ivHp : Math.floor(Math.random() * 32),
+          ivAttack: ivs?.ivAttack !== undefined ? ivs.ivAttack : Math.floor(Math.random() * 32),
+          ivDefense: ivs?.ivDefense !== undefined ? ivs.ivDefense : Math.floor(Math.random() * 32),
+          ivSpAtk: ivs?.ivSpAtk !== undefined ? ivs.ivSpAtk : Math.floor(Math.random() * 32),
+          ivSpDef: ivs?.ivSpDef !== undefined ? ivs.ivSpDef : Math.floor(Math.random() * 32),
+          ivSpeed: ivs?.ivSpeed !== undefined ? ivs.ivSpeed : Math.floor(Math.random() * 32)
+        }
+      });
+
+      const learnset = await tx.learnset.findMany({
+        where: { speciesId, level: { lte: level } },
+        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }]
+      });
+
+      const uniqueMoves: any[] = [];
+      const seen = new Set();
+      for (let i = learnset.length - 1; i >= 0; i--) {
+        if (!seen.has(learnset[i].moveId)) {
+          seen.add(learnset[i].moveId);
+          uniqueMoves.unshift(learnset[i]);
+        }
       }
+
+      const latestMoves = uniqueMoves.slice(-4);
+      if (latestMoves.length > 0) {
+        await tx.ownedPokemonMove.createMany({
+          data: latestMoves.map((m: any, i: number) => ({
+            ownedPokemonId: pokemon.id,
+            moveId: m.moveId,
+            slot: i
+          }))
+        });
+      }
+
+      return tx.ownedPokemon.findUnique({
+        where: { id: pokemon.id },
+        include: {
+          species: true
+        }
+      });
     });
   }
 }

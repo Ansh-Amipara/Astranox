@@ -8,7 +8,7 @@ type OwnedPokemonWithRelations = OwnedPokemon & {
     type1: Type;
     type2: Type | null;
   };
-  moves: (OwnedPokemonMove & { move: Move })[];
+  moves: (OwnedPokemonMove & { move: Move & { type: Type } })[];
 };
 
 /**
@@ -57,7 +57,8 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
     moves: dbModel.moves ? dbModel.moves.sort((a, b) => a.slot - b.slot).map(m => ({ 
       moveId: m.moveId, 
       currentSlot: m.slot,
-      name: m.move.name
+      name: m.move.name,
+      type: m.move.type.name
     })) : []
   });
 }

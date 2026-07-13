@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api, getSpriteUrl } from '../services/api';
+import { useAuthStore } from '../store/auth.store';
 
 
 interface Species {
@@ -120,7 +121,7 @@ export function FightSetup() {
               <div className="relative">
                 <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
                 <img
-                  src={selectedSpecies.spriteUrl}
+                  src={getSpriteUrl(selectedSpecies.id)}
                   alt={selectedSpecies.name}
                   className="w-32 h-32 object-contain relative z-10"
                   style={{ imageRendering: 'pixelated' }}
