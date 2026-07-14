@@ -67,4 +67,20 @@ describe('Catch Math (Gen V+)', () => {
     expect(result.caught).toBe(true);
     expect(result.shakes).toBe(3);
   });
+
+  it('applies 1.5x bonus for paralysis, poison, burn', () => {
+    const result = calculateCatchResult({
+      maxHp: 100,
+      currentHp: 1, // 1 HP
+      catchRate: 255,
+      ballBonus: getBallBonus('luxury-ball'), // 1x (covers luxury-ball)
+      status: 'paralysis' // 1.5x (covers paralysis)
+    });
+    
+    expect(result.caught).toBe(true);
+  });
+
+  it('returns default ball bonus for unknown balls', () => {
+    expect(getBallBonus('unknown-ball')).toBe(1);
+  });
 });

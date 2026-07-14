@@ -1,16 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { useErrorBoundary } from 'react-error-boundary';
 import { useAuthStore } from '../../../shared/store/auth.store';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isInitialized, initialize } = useAuthStore();
   const location = useLocation();
+  const { showBoundary } = useErrorBoundary();
+  const [initStarted, setInitStarted] = useState(false);
 
   useEffect(() => {
-    if (!isInitialized) {
-      initialize();
+    if (!isInitialized && !initStarted) {
+      setInitStarted(true);
+      initialize().catch((error) => {
+        showBoundary(error);
+      });
     }
-  }, [isInitialized, initialize]);
+  }, [isInitialized, initialize, initStarted, showBoundary]);
 
   // Premium loading state while checking auth
   if (!isInitialized) {

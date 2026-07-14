@@ -38,7 +38,17 @@ api.interceptors.response.use(
         return Promise.reject(err);
       }
     }
-    return Promise.reject(error);
+
+    // Standardize error payload for frontend consumption
+    const customError = new Error(
+      error.response?.data?.error?.message || error.message || 'An unexpected error occurred'
+    ) as Error & { code?: string; status?: number; data?: any };
+    
+    customError.code = error.response?.data?.error?.code || 'UNKNOWN_ERROR';
+    customError.status = error.response?.status;
+    customError.data = error.response?.data;
+
+    return Promise.reject(customError);
   }
 );
 
