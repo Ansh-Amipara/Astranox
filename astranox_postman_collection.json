@@ -414,6 +414,58 @@
               ]
             }
           }
+        },
+        {
+          "name": "Available Species",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/battles/available-species",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "battles",
+                "available-species"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Engage Custom",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"speciesId\": 25,\n  \"level\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/battles/engage-custom",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "battles",
+                "engage-custom"
+              ]
+            }
+          }
         }
       ]
     },

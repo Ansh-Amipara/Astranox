@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 
@@ -12,9 +12,24 @@ interface Species {
 
 export function FightSetup() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [speciesId, setSpeciesId] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [level, setLevel] = useState<string>('5');
   const [error, setError] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Fetch species
   const { data: speciesData, isLoading: speciesLoading } = useQuery<{ success: boolean; data: Species[] }>({
@@ -30,7 +45,8 @@ export function FightSetup() {
   const engageMutation = useMutation({
     mutationFn: (data: { speciesId: number; level: number }) => api.post('/battles/engage-custom', data),
     onSuccess: () => {
-      navigate('/battle');
+      const returnUrl = location.pathname + location.search;
+      navigate('/battle', { state: { returnUrl } });
     },
     onError: (err: any) => {
       setError(err.response?.data?.error?.message || 'Failed to start battle');
@@ -41,8 +57,18 @@ export function FightSetup() {
     e.preventDefault();
     setError('');
 
-    if (!speciesId) {
-      setError('Please select a Pokemon.');
+    // If they typed an exact name but didn't click it, try to resolve it
+    let resolvedId = speciesId;
+    if (!resolvedId && searchTerm) {
+      const exactMatch = speciesList.find(s => s.name.toLowerCase() === searchTerm.toLowerCase());
+      if (exactMatch) {
+        resolvedId = exactMatch.id.toString();
+        setSpeciesId(resolvedId);
+      }
+    }
+
+    if (!resolvedId) {
+      setError('Please select a valid Pokémon.');
       return;
     }
 
@@ -53,7 +79,7 @@ export function FightSetup() {
     }
 
     engageMutation.mutate({
-      speciesId: parseInt(speciesId, 10),
+      speciesId: parseInt(resolvedId, 10),
       level: levelNum
     });
   };
@@ -67,6 +93,7 @@ export function FightSetup() {
   }
 
   const selectedSpecies = speciesList.find(s => s.id === parseInt(speciesId, 10));
+  const filteredSpecies = speciesList.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center">
@@ -83,23 +110,50 @@ export function FightSetup() {
         )}
 
         <form onSubmit={handleBattle} className="space-y-6">
-          <div>
-            <label htmlFor="speciesId" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Select Pokémon
+          <div className="relative" ref={dropdownRef}>
+            <label htmlFor="speciesInput" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Search Pokémon
             </label>
-            <select
-              id="speciesId"
-              value={speciesId}
-              onChange={(e) => setSpeciesId(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
-            >
-              <option value="">-- Choose a Pokémon --</option>
-              {speciesList.map((species) => (
-                <option key={species.id} value={species.id}>
-                  #{species.id} {species.name}
-                </option>
-              ))}
-            </select>
+            <input
+              id="speciesInput"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setSpeciesId(''); // Reset ID since user is typing a new search
+                setIsDropdownOpen(true);
+              }}
+              onFocus={() => setIsDropdownOpen(true)}
+              placeholder="e.g. Pikachu"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder:text-slate-400"
+              autoComplete="off"
+            />
+            
+            {isDropdownOpen && (
+              <div className="absolute z-[100] w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto ring-1 ring-black/5">
+                {filteredSpecies.length === 0 ? (
+                  <div className="px-4 py-3 text-slate-500 dark:text-slate-400 text-sm text-center">
+                    No Pokémon found.
+                  </div>
+                ) : (
+                  filteredSpecies.map(species => (
+                    <button
+                      key={species.id}
+                      type="button"
+                      onClick={() => {
+                        setSpeciesId(species.id.toString());
+                        setSearchTerm(species.name);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-between border-b border-slate-100 dark:border-slate-700/50 last:border-0"
+                    >
+                      <span className="capitalize text-slate-800 dark:text-slate-200 font-medium">{species.name}</span>
+                      <span className="text-slate-400 dark:text-slate-500 text-sm font-mono">#{species.id}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -131,7 +185,7 @@ export function FightSetup() {
 
           <button
             type="submit"
-            disabled={engageMutation.isPending || !speciesId || !level}
+            disabled={engageMutation.isPending || (!speciesId && !searchTerm) || !level}
             className="w-full bg-red-500 hover:bg-red-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-colors text-lg shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center gap-2"
           >
             {engageMutation.isPending ? 'Starting...' : 'Battle!'}

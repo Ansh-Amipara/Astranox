@@ -42,6 +42,17 @@ app.use('/npcs', npcsRoutes);
 app.use('/social', socialRoutes);
 app.use('/trades', tradesRoutes);
 
+// 404 Fallback for unhandled routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: {
+      code: 'NOT_FOUND',
+      message: `Cannot ${req.method} ${req.originalUrl}`
+    }
+  });
+});
+
 app.use(errorHandler);
 
 app.listen(port, () => {

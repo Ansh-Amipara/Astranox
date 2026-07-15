@@ -23,6 +23,7 @@ import { TradeScreen } from '../pages/trade/ui/TradeScreen';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import { GlobalErrorFallback } from '../shared/ui/GlobalErrorFallback';
+import { Toaster } from 'sonner';
 
 function App() {
   const location = useLocation();
@@ -39,6 +40,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-200">
+      <Toaster position="top-right" richColors />
       {!isAuthPage && <Navbar />}
       <main className="flex-1 flex flex-col">
         <ErrorBoundary FallbackComponent={GlobalErrorFallback} onReset={() => window.location.href = '/'}>

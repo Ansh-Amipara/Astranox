@@ -12,7 +12,7 @@ Astranox is a feature-rich, browser-based Pokémon game built with a modern web 
   - Backpack inventory for managing your Pokéballs and currency.
 - **World Map Hierarchy**: Explore a massive world with Continents, Regions, Areas, and GameMaps populated by real Pokémon encounters.
 - **Pokémart**: Purchase items and Pokéballs using in-game currency.
-- **Modern UI & UX**: Clean, responsive design featuring seamless Light and Dark modes, strict digitized numeric inputs, and intuitive smart-search dropdowns.
+- **Modern UI & UX**: Clean, responsive design featuring seamless Light and Dark modes, strict digitized numeric inputs, intuitive smart-search dropdowns, and global React Error Boundaries.
 
 ## Admin Panel
 
@@ -22,9 +22,10 @@ The game includes a powerful Admin portal (`/admin/login`) for managing the game
 
 ## Tech Stack
 
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Zustand, TanStack Query
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Zustand, TanStack Query (Structured using Feature-Sliced Design [FSD])
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
+- **Testing**: Vitest with `@vitest/coverage-v8` for comprehensive backend and frontend testing.
 
 ## Getting Started
 
@@ -42,3 +43,24 @@ The game includes a powerful Admin portal (`/admin/login`) for managing the game
    ```bash
    pnpm dev
    ```
+
+## Testing
+
+Astranox includes a comprehensive test suite covering both the React frontend and the backend Game Engine using Vitest.
+
+- **Run all tests:**
+  ```bash
+  pnpm test
+  ```
+- **Run tests with coverage reporting:**
+  ```bash
+  pnpm test -- --coverage
+  ```
+
+## Common Commands
+
+- `pnpm dev` - Start the monorepo development server.
+- `pnpm build` - Build both client and server packages.
+- `pnpm lint` - Run ESLint across the monorepo.
+- `pnpm typecheck` - Run TypeScript compiler checks without emitting files.
+- `pnpm seed` - Fetch and seed the latest PokeAPI data into your local database.

@@ -5,7 +5,9 @@ import { useThemeStore } from '../../../shared/store/theme.store';
 
 export function Navbar() {
   const [isPokemonOpen, setIsPokemonOpen] = useState(false);
+  const [isTrainerOpen, setIsTrainerOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const trainerDropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
 
@@ -14,6 +16,9 @@ export function Navbar() {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsPokemonOpen(false);
+      }
+      if (trainerDropdownRef.current && !trainerDropdownRef.current.contains(event.target as Node)) {
+        setIsTrainerOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -32,7 +37,59 @@ export function Navbar() {
             <div className="ml-10 flex items-baseline space-x-4">
               <Link to="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link to="/fight" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Fight</Link>
-              <Link to="/gyms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Gyms</Link>
+              
+              {/* Trainer Dropdown */}
+              <div className="relative" ref={trainerDropdownRef}>
+                <button
+                  onClick={() => setIsTrainerOpen(!isTrainerOpen)}
+                  className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium focus:outline-none flex items-center"
+                >
+                  Trainer
+                  <svg className={`ml-1 w-4 h-4 transition-transform ${isTrainerOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {isTrainerOpen && (
+                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-black ring-opacity-20 focus:outline-none overflow-hidden origin-top-left transition-all z-[100]">
+                    <div className="py-1 flex flex-col" role="menu" aria-orientation="vertical">
+                      <Link
+                        to="/gyms"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                        role="menuitem"
+                        onClick={() => setIsTrainerOpen(false)}
+                      >
+                        Gym
+                      </Link>
+                      <Link
+                        to="/gyms?type=strong"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                        role="menuitem"
+                        onClick={() => setIsTrainerOpen(false)}
+                      >
+                        Strong
+                      </Link>
+                      <Link
+                        to="/gyms?type=super"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                        role="menuitem"
+                        onClick={() => setIsTrainerOpen(false)}
+                      >
+                        Super
+                      </Link>
+                      <Link
+                        to="/gyms?type=villain"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                        role="menuitem"
+                        onClick={() => setIsTrainerOpen(false)}
+                      >
+                        Villain
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
               <Link to="/social" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Social</Link>
 

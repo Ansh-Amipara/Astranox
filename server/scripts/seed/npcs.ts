@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { bossTrainers } from './data/boss-trainers';
+import { villainTrainers } from './data/villains';
 
 const prisma = new PrismaClient();
 
@@ -6,73 +8,106 @@ async function main() {
   console.log('Seeding NPCs...');
   await prisma.npcTrainer.deleteMany(); // reset
 
-  await prisma.npcTrainer.create({
-    data: {
-      name: 'Brock',
-      spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/brock.png',
-      trainerClass: 'Gym Leader',
-      rewardMoney: 1500,
-      badgeName: 'Boulder Badge',
-      party: {
-        create: [
-          { speciesId: 74, level: 12, position: 0 },
-          { speciesId: 95, level: 14, position: 1 }
-        ]
-      }
-    }
-  });
+  // Preload species to map names to IDs quickly
+  const allSpecies = await prisma.species.findMany({ select: { id: true, name: true } });
+  const speciesMap = new Map<string, number>();
+  for (const s of allSpecies) {
+    speciesMap.set(s.name.toLowerCase(), s.id);
+  }
 
-  await prisma.npcTrainer.create({
-    data: {
-      name: 'Misty',
-      spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/misty.png',
-      trainerClass: 'Gym Leader',
-      rewardMoney: 2100,
-      badgeName: 'Cascade Badge',
-      party: {
-        create: [
-          { speciesId: 120, level: 18, position: 0 },
-          { speciesId: 121, level: 21, position: 1 }
-        ]
-      }
-    }
-  });
+  let successCount = 0;
 
-  await prisma.npcTrainer.create({
-    data: {
-      name: 'Lt. Surge',
-      spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/surge.png',
-      trainerClass: 'Gym Leader',
-      rewardMoney: 2400,
-      badgeName: 'Thunder Badge',
-      party: {
-        create: [
-          { speciesId: 100, level: 21, position: 0 },
-          { speciesId: 25, level: 18, position: 1 },
-          { speciesId: 26, level: 24, position: 2 }
-        ]
-      }
-    }
-  });
-  
-  await prisma.npcTrainer.create({
-    data: {
-      name: 'Erika',
-      spriteUrl: 'https://play.pokemonshowdown.com/sprites/trainers/erika.png',
-      trainerClass: 'Gym Leader',
-      rewardMoney: 2900,
-      badgeName: 'Rainbow Badge',
-      party: {
-        create: [
-          { speciesId: 71, level: 29, position: 0 },
-          { speciesId: 114, level: 24, position: 1 },
-          { speciesId: 45, level: 29, position: 2 }
-        ]
-      }
-    }
-  });
+  const allTrainers = [...bossTrainers, ...villainTrainers];
 
-  console.log('NPCs seeded successfully.');
+  for (const trainer of allTrainers) {
+    const partyCreateData: any[] = [];
+    let position = 0;
+    
+    for (const [speciesName, level] of trainer.party) {
+      const speciesId = speciesMap.get(speciesName.toLowerCase());
+      if (speciesId === undefined) {
+        console.warn(`[WARNING] Could not find species "${speciesName}" for trainer ${trainer.name}. Skipping this Pokemon.`);
+        continue;
+      }
+      partyCreateData.push({
+        speciesId,
+        level,
+        position
+      });
+      position++;
+    }
+
+    if (partyCreateData.length === 0) {
+      console.warn(`[WARNING] Trainer ${trainer.name} has no valid Pokemon. Skipping trainer.`);
+      continue;
+    }
+
+    // Seed the base version
+    await prisma.npcTrainer.create({
+      data: {
+        name: trainer.name,
+        region: trainer.region,
+        spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
+        trainerClass: trainer.trainerClass,
+        trainerType: trainer.trainerType,
+        rewardMoney: trainer.rewardMoney,
+        badgeName: trainer.badgeName,
+        party: {
+          create: partyCreateData
+        }
+      }
+    });
+    successCount++;
+
+    // Generate scaled rematches for GYM / ELITE -> STRONG
+    if (trainer.trainerType === 'GYM' || trainer.trainerType === 'ELITE') {
+      const strongParty = partyCreateData.map(p => ({
+        ...p,
+        level: Math.floor(50 + (p.level / 70) * 25) // scales to roughly 50-75
+      }));
+      
+      await prisma.npcTrainer.create({
+        data: {
+          name: `${trainer.name} (Strong)`,
+          region: trainer.region,
+          spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
+          trainerClass: `${trainer.trainerClass} Rematch`,
+          trainerType: 'STRONG',
+          rewardMoney: trainer.rewardMoney * 2,
+          badgeName: trainer.badgeName,
+          party: {
+            create: strongParty
+          }
+        }
+      });
+      successCount++;
+    }
+
+    // Generate scaled rematches for CHAMPION -> SUPER
+    if (trainer.trainerType === 'CHAMPION') {
+      const superParty = partyCreateData.map(p => ({
+        ...p,
+        level: Math.floor(80 + (p.level / 80) * 10) // scales to roughly 80-90
+      }));
+      
+      await prisma.npcTrainer.create({
+        data: {
+          name: `${trainer.name} (Super)`,
+          region: trainer.region,
+          spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
+          trainerClass: 'Super Champion',
+          trainerType: 'SUPER',
+          rewardMoney: trainer.rewardMoney * 3,
+          party: {
+            create: superParty
+          }
+        }
+      });
+      successCount++;
+    }
+  }
+
+  console.log(`Successfully seeded ${successCount} NPCs.`);
 }
 
 main()

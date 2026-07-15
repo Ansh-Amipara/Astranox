@@ -1,5 +1,17 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
+import { logRequest, logResponse, logErrorAndToast } from './logger';
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    silent?: boolean;
+    metadata?: { start: number; requestId: string };
+  }
+  export interface InternalAxiosRequestConfig {
+    silent?: boolean;
+    metadata?: { start: number; requestId: string };
+  }
+}
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
@@ -13,15 +25,23 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  logRequest(config);
+
   return config;
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    logResponse(response);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
-    const url = originalRequest.url || '';
-    if (error.response?.status === 401 && !originalRequest._retry && !url.includes('/auth/refresh') && !url.includes('/auth/logout') && !url.includes('/auth/login')) {
+    const url = originalRequest?.url || '';
+
+    logErrorAndToast(error);
+    if (error.response?.status === 401 && !originalRequest?._retry && !url.includes('/auth/refresh') && !url.includes('/auth/logout') && !url.includes('/auth/login')) {
       originalRequest._retry = true;
       try {
         const { data } = await axios.post(
@@ -38,6 +58,8 @@ api.interceptors.response.use(
         return Promise.reject(err);
       }
     }
+
+
 
     // Standardize error payload for frontend consumption
     const customError = new Error(

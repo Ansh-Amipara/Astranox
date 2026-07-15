@@ -20,8 +20,20 @@ export const errorHandler = (
     });
   }
 
+  // Handle express.json() payload errors (e.g., malformed JSON)
+  if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
+    logger.warn('Malformed JSON payload');
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'BAD_REQUEST',
+        message: 'Invalid JSON payload format',
+      },
+    });
+  }
+
   logger.error(err);
-  return res.status(500).json({
+  return res.status((err as any).status || 500).json({
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
