@@ -42,6 +42,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     stats,
     ivs: payload.ivs,
     species: payload.species,
-    moves: payload.moves || []
+    moves: payload.moves || [],
+    heldItem: payload.heldItem ? payload.heldItem.id : null
   };
 }

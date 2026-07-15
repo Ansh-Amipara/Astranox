@@ -93,6 +93,10 @@ model OwnedPokemon {
   offeredInTrades   TradeRequest[] @relation("OfferedInTrades")
   requestedInTrades TradeRequest[] @relation("RequestedInTrades")
 
+  // Held Item
+  heldItemId String?
+  heldItem   Item?   @relation("HeldItem", fields: [heldItemId], references: [id])
+
   createdAt DateTime @default(now())
 }
 
@@ -126,6 +130,7 @@ model Item {
   spriteUrl   String?
 
   inventory InventoryItem[]
+  heldBy    OwnedPokemon[] @relation("HeldItem")
 }
 
 model InventoryItem {

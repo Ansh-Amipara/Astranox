@@ -16,3 +16,5 @@ trainersRoutes.get('/moves', controller.getAllMoves);
 trainersRoutes.patch('/party/:pokemonId/moves', gameplayLimiter, controller.changeMoves);
 trainersRoutes.delete('/:pokemonId', gameplayLimiter, controller.releasePokemon);
 trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, controller.evolvePokemon);
+trainersRoutes.post('/party/:pokemonId/equip', gameplayLimiter, controller.equipItem);
+trainersRoutes.post('/party/:pokemonId/unequip', gameplayLimiter, controller.unequipItem);

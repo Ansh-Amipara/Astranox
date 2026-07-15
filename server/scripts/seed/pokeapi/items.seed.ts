@@ -17,7 +17,19 @@ const ITEMS_TO_SEED = [
   'shiny-stone',
   'dusk-stone',
   'dawn-stone',
-  'ice-stone'
+  'ice-stone',
+  'leftovers',
+  'life-orb',
+  'choice-band',
+  'choice-specs',
+  'choice-scarf',
+  'focus-sash',
+  'mystic-water',
+  'charcoal',
+  'miracle-seed',
+  'silk-scarf',
+  'black-glasses',
+  'magnet'
 ];
 
 export async function seedItems() {

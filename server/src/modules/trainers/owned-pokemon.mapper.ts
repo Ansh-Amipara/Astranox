@@ -9,6 +9,7 @@ type OwnedPokemonWithRelations = OwnedPokemon & {
     type2: Type | null;
   };
   moves: (OwnedPokemonMove & { move: Move & { type: Type } })[];
+  heldItem?: { id: string, name: string } | null;
 };
 
 /**
@@ -59,6 +60,7 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
       currentSlot: m.slot,
       name: m.move.name,
       type: m.move.type.name
-    })) : []
+    })) : [],
+    heldItem: dbModel.heldItem ? { id: dbModel.heldItem.id, name: dbModel.heldItem.name } : null
   });
 }

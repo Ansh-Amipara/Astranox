@@ -14,6 +14,7 @@ export interface ActivePokemon {
   level: number;
   types: string[]; // ["fire", "flying"]
   moves: PokemonMove[];
+  heldItem?: string | null;
   
   // Base effective stats (already calculated with IVs)
   maxHp: number;

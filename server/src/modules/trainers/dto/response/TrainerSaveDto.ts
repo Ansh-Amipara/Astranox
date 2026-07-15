@@ -3,7 +3,11 @@ import type { OwnedPokemonDto } from './OwnedPokemonDto';
 export interface InventoryItemDto {
   readonly itemId: string;
   readonly quantity: number;
-  readonly name: string;
+  readonly item: {
+    readonly name: string;
+    readonly description: string;
+    readonly spriteUrl: string | null;
+  };
 }
 
 export interface TrainerSaveDto {

@@ -20,7 +20,11 @@ export class TrainerMapper {
     return {
       itemId: entity.itemId,
       quantity: entity.quantity,
-      name: entity.item?.name || 'Unknown Item',
+      item: {
+        name: entity.item?.name || 'Unknown Item',
+        description: entity.item?.description || 'No description',
+        spriteUrl: entity.item?.spriteUrl || null,
+      }
     };
   }
 
@@ -46,6 +50,7 @@ export class TrainerMapper {
       ivSpDef: entity.ivSpDef,
       ivSpeed: entity.ivSpeed,
       moves: Array.isArray(entity.moves) ? entity.moves.map(TrainerMapper.toOwnedPokemonMoveDto) : [],
+      heldItem: entity.heldItemId ? { id: entity.heldItemId, name: entity.heldItem?.name || entity.heldItemId } : null,
     };
   }
 

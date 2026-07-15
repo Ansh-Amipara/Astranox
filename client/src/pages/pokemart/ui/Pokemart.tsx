@@ -13,6 +13,7 @@ interface Item {
 export function Pokemart() {
   const queryClient = useQueryClient();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [multiplier, setMultiplier] = useState<number>(1);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const { data: save } = useQuery({
@@ -49,7 +50,7 @@ export function Pokemart() {
 
   const handleQuantityChange = (itemId: string, val: number) => {
     if (val < 1) val = 1;
-    if (val > 99) val = 99;
+    if (val > 999) val = 999;
     setQuantities(prev => ({ ...prev, [itemId]: val }));
   };
 
@@ -74,6 +75,22 @@ export function Pokemart() {
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Pokémart
           </h1>
+          <div className="mt-4 flex gap-2">
+            <span className="text-sm font-bold text-slate-500 self-center mr-2">Quantity Step:</span>
+            {[1, 10, 25, 50].map(m => (
+              <button
+                key={m}
+                onClick={() => setMultiplier(m)}
+                className={`px-3 py-1 rounded-lg text-sm font-bold transition-colors ${
+                  multiplier === m 
+                    ? 'bg-red-500 text-white shadow-sm' 
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'
+                }`}
+              >
+                x{m}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="bg-yellow-100 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 px-6 py-3 rounded-xl flex flex-col items-end shadow-sm">
           <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-wider mb-1">Your Money</span>
@@ -134,7 +151,7 @@ export function Pokemart() {
                     <td className="p-4">
                       <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 w-max">
                         <button 
-                          onClick={() => handleQuantityChange(item.id, qty - 1)}
+                          onClick={() => handleQuantityChange(item.id, qty - multiplier)}
                           className="w-8 h-8 rounded-l-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                         >
                           -
@@ -149,7 +166,7 @@ export function Pokemart() {
                           className="w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none text-sm"
                         />
                         <button 
-                          onClick={() => handleQuantityChange(item.id, qty + 1)}
+                          onClick={() => handleQuantityChange(item.id, qty + multiplier)}
                           className="w-8 h-8 rounded-r-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                         >
                           +

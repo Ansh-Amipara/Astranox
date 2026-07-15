@@ -150,4 +150,95 @@ export class TrainersService {
     const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);
     return TrainerMapper.toOwnedPokemonDto(fullyIncludedPokemon);
   }
+  async equipItem(userId: string, pokemonId: string, itemId: string): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    const inventoryItem = await this.repo.getInventoryItem(save.id, itemId);
+    if (!inventoryItem || inventoryItem.quantity <= 0) {
+      throw new ValidationError(`You do not have a ${itemId} in your inventory.`);
+    }
+
+    // Execute in transaction
+    const prisma = (this.repo as any).prisma || require('@prisma/client').PrismaClient; // fallback if repo doesn't expose prisma
+    // Actually repo.prisma is private or doesn't exist, let's just use a new client or expose it
+    const prismaClient = new (require('@prisma/client').PrismaClient)();
+
+    const result = await prismaClient.$transaction(async (tx: any) => {
+      // If holding an item, put it back
+      if ((pokemon as any).heldItemId) {
+        await tx.inventoryItem.upsert({
+          where: { trainerId_itemId: { trainerId: save.id, itemId: (pokemon as any).heldItemId } },
+          update: { quantity: { increment: 1 } },
+          create: { trainerId: save.id, itemId: (pokemon as any).heldItemId, quantity: 1 }
+        });
+      }
+
+      // Deduct new item
+      await tx.inventoryItem.update({
+        where: { trainerId_itemId: { trainerId: save.id, itemId: itemId } },
+        data: { quantity: { decrement: 1 } }
+      });
+
+      // Update pokemon
+      const updated = await tx.ownedPokemon.update({
+        where: { id: pokemonId },
+        data: { heldItemId: itemId },
+        include: {
+          species: { include: { type1: true, type2: true } },
+          moves: { include: { move: { include: { type: true } } } },
+          heldItem: true
+        }
+      });
+
+      return updated;
+    });
+
+    return TrainerMapper.toOwnedPokemonDto(result);
+  }
+
+  async unequipItem(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    if (!(pokemon as any).heldItemId) {
+      throw new ValidationError('This Pokemon is not holding an item.');
+    }
+
+    const prismaClient = new (require('@prisma/client').PrismaClient)();
+
+    const result = await prismaClient.$transaction(async (tx: any) => {
+      // Put item back
+      await tx.inventoryItem.upsert({
+        where: { trainerId_itemId: { trainerId: save.id, itemId: (pokemon as any).heldItemId! } },
+        update: { quantity: { increment: 1 } },
+        create: { trainerId: save.id, itemId: (pokemon as any).heldItemId!, quantity: 1 }
+      });
+
+      // Update pokemon
+      const updated = await tx.ownedPokemon.update({
+        where: { id: pokemonId },
+        data: { heldItemId: null },
+        include: {
+          species: { include: { type1: true, type2: true } },
+          moves: { include: { move: { include: { type: true } } } },
+          heldItem: true
+        }
+      });
+
+      return updated;
+    });
+
+    return TrainerMapper.toOwnedPokemonDto(result);
+  }
 }
