@@ -4,4 +4,5 @@ export type AdminUserDto = Readonly<{
   email: string;
   role: string;
   createdAt: Date;
+  trainerSave?: any;
 }>;

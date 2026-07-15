@@ -37,20 +37,30 @@ export class BattleRewardService {
           where: { ownedPokemonId: result.p1State.id }
         });
 
-        if (currentMovesCount < 4) {
+        // Initialize pendingMoveLearns queue if it doesn't exist
+        if (!(result.p1State as any).pendingMoveLearns) {
+          (result.p1State as any).pendingMoveLearns = [];
+        }
+        
+        // Also account for moves we are about to learn in the queue
+        const pendingCount = (result.p1State as any).pendingMoveLearns.length;
+        const totalMoves = currentMovesCount + pendingCount;
+
+        if (totalMoves < 4) {
           await tx.ownedPokemonMove.create({
             data: {
               ownedPokemonId: result.p1State.id,
               moveId: learn.moveId,
-              slot: currentMovesCount
+              slot: totalMoves
             }
           });
           result.events.push({ type: 'learned_move', pokemonId: result.p1State.id, moveName: learn.move.name });
         } else {
-          newStatus = BattleStatus.WAITING_MOVE_LEARN;
-          (result.p1State as any).pendingMoveToLearn = learn.moveId;
-          result.events.push({ type: 'prompt_learn_move', pokemonId: result.p1State.id, moveId: learn.moveId, moveName: learn.move.name });
-          break; // Stop at the first move that needs replacing
+          // Add to the queue instead of breaking the battle state immediately
+          (result.p1State as any).pendingMoveLearns.push({
+            moveId: learn.moveId,
+            moveName: learn.move.name
+          });
         }
       }
     }

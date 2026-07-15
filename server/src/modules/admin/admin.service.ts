@@ -57,8 +57,8 @@ export class AdminService {
 
   async addPokemon(adminId: string, userId: string, dto: AddPokemonDto): Promise<OwnedPokemonDto> {
     const { speciesId, level, ivs } = dto;
-    if (level < 1 || level > 100) {
-      throw new ValidationError('Level must be between 1 and 100');
+    if (level < 1 || level > 200) {
+      throw new ValidationError('Level must be between 1 and 200');
     }
     
     // Verify species exists
@@ -78,6 +78,24 @@ export class AdminService {
         entityType: 'USER',
         entityId: userId,
         afterValues: { speciesId, level, ivs }
+      }
+    });
+    return TrainerMapper.toOwnedPokemonDto(result);
+  }
+
+  async editPokemon(adminId: string, pokemonId: string, dto: any): Promise<OwnedPokemonDto> {
+    const { addXp, ivs } = dto;
+    const result = await this.repo.editPokemon(pokemonId, addXp, ivs);
+    if (!result) {
+      throw new NotFoundError('Pokemon not found');
+    }
+    await prisma.auditLog.create({
+      data: {
+        adminId,
+        action: 'EDIT_POKEMON',
+        entityType: 'POKEMON',
+        entityId: pokemonId,
+        afterValues: { addXp, ivs }
       }
     });
     return TrainerMapper.toOwnedPokemonDto(result);

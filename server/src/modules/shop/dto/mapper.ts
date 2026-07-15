@@ -7,6 +7,8 @@ export class ShopMapper {
       name: entity.name,
       cost: entity.cost,
       description: entity.description || null,
+      spriteUrl: entity.spriteUrl || null,
+      category: entity.category || 'misc',
     };
   }
 

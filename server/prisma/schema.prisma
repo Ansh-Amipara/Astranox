@@ -93,10 +93,6 @@ model OwnedPokemon {
   offeredInTrades   TradeRequest[] @relation("OfferedInTrades")
   requestedInTrades TradeRequest[] @relation("RequestedInTrades")
 
-  // Held Item
-  heldItemId String?
-  heldItem   Item?   @relation("HeldItem", fields: [heldItemId], references: [id])
-
   createdAt DateTime @default(now())
 }
 
@@ -128,9 +124,9 @@ model Item {
   cost        Int
   description String
   spriteUrl   String?
+  category    String  @default("misc")
 
   inventory InventoryItem[]
-  heldBy    OwnedPokemon[] @relation("HeldItem")
 }
 
 model InventoryItem {
@@ -161,8 +157,9 @@ model Move {
   flinchChance  Int?
   statChanges   Json?
 
-  learnsets        Learnset[]
-  ownedPokemonMove OwnedPokemonMove[]
+  learnsets             Learnset[]
+  ownedPokemonMove      OwnedPokemonMove[]
+  npcTrainerPokemonMove NpcTrainerPokemonMove[]
 }
 
 model Species {
@@ -255,15 +252,15 @@ model BattleSession {
 
 enum TrainerType {
   NORMAL
-  GYM
-  ELITE
-  CHAMPION
-  STRONG
-  SUPER
-  VILLAIN
   RIVAL
   BOSS
   LEGENDARY
+  HUNTER
+  CHAMPION
+  ELDER
+  GUARDIAN
+  CADRE
+  OPERATIVE
 }
 
 model NpcTrainer {
@@ -296,6 +293,21 @@ model NpcTrainerPokemon {
   ivSpAtk   Int @default(0)
   ivSpDef   Int @default(0)
   ivSpeed   Int @default(0)
+
+  // Moves
+  moves NpcTrainerPokemonMove[]
+}
+
+model NpcTrainerPokemonMove {
+  id                  Int               @id @default(autoincrement())
+  npcTrainerPokemonId String            @db.Uuid
+  moveId              Int
+  slot                Int               @default(0)
+
+  npcTrainerPokemon   NpcTrainerPokemon @relation(fields: [npcTrainerPokemonId], references: [id], onDelete: Cascade)
+  move                Move              @relation(fields: [moveId], references: [id], onDelete: Cascade)
+
+  @@unique([npcTrainerPokemonId, slot])
 }
 
 model TrainerDefeatedNpc {

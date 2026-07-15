@@ -11,6 +11,12 @@ const prisma = new PrismaClient();
 export class ShopService {
   async getItems(): Promise<ShopItemDto[]> {
     const items = await prisma.item.findMany({
+      where: {
+        // @ts-ignore: Prisma client typings need a TS server restart to reflect the new category field
+        category: {
+          not: 'misc',
+        }
+      },
       orderBy: { cost: 'asc' },
     });
     return ShopMapper.toShopItemDtoList(items);

@@ -135,34 +135,4 @@ export class TrainersController {
       next(err);
     }
   };
-  equipItem = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) throw new ValidationError('User ID missing from request');
-
-      const { pokemonId } = req.params;
-      const { itemId } = req.body;
-      if (!pokemonId || !itemId) throw new ValidationError('Pokemon ID and Item ID are required');
-
-      const result = await this.service.equipItem(userId, pokemonId, itemId);
-      res.json({ success: true, data: result });
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  unequipItem = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) throw new ValidationError('User ID missing from request');
-
-      const { pokemonId } = req.params;
-      if (!pokemonId) throw new ValidationError('Pokemon ID is required');
-
-      const result = await this.service.unequipItem(userId, pokemonId);
-      res.json({ success: true, data: result });
-    } catch (err) {
-      next(err);
-    }
-  };
 }

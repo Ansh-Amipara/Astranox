@@ -46,7 +46,6 @@ export interface PokemonInstancePayload {
   
   // Future Expansion:
   moves: PokemonMove[];
-  heldItem?: { id: string; name: string } | null;
   // ability: string;
 }
 
@@ -83,5 +82,4 @@ export interface PokemonInstance {
   };
   species: SpeciesContext;
   moves: PokemonMove[];
-  heldItem?: string | null;
 }

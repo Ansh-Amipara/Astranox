@@ -14,9 +14,9 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     }
   }
 
-  // 2. Validate Level (1-100)
-  if (payload.level < 1 || payload.level > 100) {
-    throw new Error(`Invalid Level: ${payload.level}. Level must be strictly between 1 and 100.`);
+  // 2. Validate Level (1-200)
+  if (payload.level < 1 || payload.level > 200) {
+    throw new Error(`Invalid Level: ${payload.level}. Level must be strictly between 1 and 200.`);
   }
 
   // 3. Hydrate Stats via Gen V Engine
@@ -42,7 +42,6 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     stats,
     ivs: payload.ivs,
     species: payload.species,
-    moves: payload.moves || [],
-    heldItem: payload.heldItem ? payload.heldItem.id : null
+    moves: payload.moves || []
   };
 }

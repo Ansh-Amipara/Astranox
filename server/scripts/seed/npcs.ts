@@ -1,120 +1,295 @@
-import { PrismaClient } from '@prisma/client';
-import { bossTrainers } from './data/boss-trainers';
-import { villainTrainers } from './data/villains';
+import fs from 'fs';
+import path from 'path';
+import { PrismaClient, TrainerType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function main() {
-  console.log('Seeding NPCs...');
-  await prisma.npcTrainer.deleteMany(); // reset
+// Define expected interfaces
+interface ParsedPokemon {
+  speciesName: string;
+  level: number;
+  isAce: boolean;
+  ivs: string;
+  heldItem: string | null;
+  moves: string[];
+}
 
-  // Preload species to map names to IDs quickly
-  const allSpecies = await prisma.species.findMany({ select: { id: true, name: true } });
-  const speciesMap = new Map<string, number>();
-  for (const s of allSpecies) {
-    speciesMap.set(s.name.toLowerCase(), s.id);
-  }
+interface ParsedTrainer {
+  name: string;
+  trainerClass: string;
+  trainerType: TrainerType;
+  region: string;
+  pokemon: ParsedPokemon[];
+}
 
-  let successCount = 0;
+function parseMarkdownFile(filePath: string, defaultRegion: string): ParsedTrainer[] {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const lines = content.split('\n');
 
-  const allTrainers = [...bossTrainers, ...villainTrainers];
+  const trainers: ParsedTrainer[] = [];
+  let currentTrainer: ParsedTrainer | null = null;
+  let inTable = false;
+  let tableHeaders: string[] = [];
 
-  for (const trainer of allTrainers) {
-    const partyCreateData: any[] = [];
-    let position = 0;
-    
-    for (const [speciesName, level] of trainer.party) {
-      const speciesId = speciesMap.get(speciesName.toLowerCase());
-      if (speciesId === undefined) {
-        console.warn(`[WARNING] Could not find species "${speciesName}" for trainer ${trainer.name}. Skipping this Pokemon.`);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    const headerMatch = line.match(/^##\s+(.+?)(?:\s+\((.*?)\))?$/);
+    if (headerMatch) {
+      const fullTitle = headerMatch[1].trim();
+      
+      if (
+        fullTitle.includes('Summary') ||
+        fullTitle.includes('Lore') ||
+        fullTitle.includes('Eclipse Dawn') ||
+        fullTitle.includes('Final World') ||
+        fullTitle.includes('Regional Roster') ||
+        fullTitle.includes('Example') ||
+        (fullTitle.includes('Aurelia') && fullTitle === 'Aurelia') || 
+        (fullTitle.includes('Vespera') && fullTitle === 'Vespera') ||
+        (fullTitle.includes('Solara') && fullTitle === 'Solara') ||
+        (fullTitle.includes('Noctara') && fullTitle === 'Noctara') ||
+        (fullTitle.includes('Verdantis') && fullTitle === 'Verdantis') ||
+        (fullTitle.includes('Crythos') && fullTitle === 'Crythos') ||
+        (fullTitle.includes('Lumina') && fullTitle === 'Lumina') ||
+        (fullTitle.includes('Dravora') && fullTitle === 'Dravora') ||
+        (fullTitle.includes('Elyndor') && fullTitle === 'Elyndor') ||
+        (fullTitle.includes('Zephyria') && fullTitle === 'Zephyria')
+      ) {
+        if (!fullTitle.startsWith('Champion')) {
+          currentTrainer = null;
+          continue;
+        }
+      }
+
+      let trainerClass = 'Trainer';
+      let trainerType: TrainerType = 'NORMAL';
+      
+      if (fullTitle.startsWith('Hunter')) { trainerClass = 'Hunter'; trainerType = 'HUNTER'; }
+      else if (fullTitle.startsWith('Champion')) { trainerClass = 'Champion'; trainerType = 'CHAMPION'; }
+      else if (fullTitle.startsWith('Elder')) { trainerClass = 'Elder'; trainerType = 'ELDER'; }
+      else if (fullTitle.startsWith('Guardian')) { trainerClass = 'Guardian'; trainerType = 'GUARDIAN'; }
+      else if (fullTitle.startsWith('Leader')) { trainerClass = 'Leader'; trainerType = 'LEGENDARY'; }
+      else if (fullTitle.startsWith('Vice Leader')) { trainerClass = 'Vice Leader'; trainerType = 'BOSS'; }
+      else {
+        currentTrainer = null;
         continue;
       }
-      partyCreateData.push({
-        speciesId,
-        level,
-        position
-      });
-      position++;
-    }
 
-    if (partyCreateData.length === 0) {
-      console.warn(`[WARNING] Trainer ${trainer.name} has no valid Pokemon. Skipping trainer.`);
+      let name = fullTitle.replace(/^(Hunter|Champion|Elder|Guardian|Leader|Vice Leader)\s+/, '').trim();
+      
+      currentTrainer = {
+        name,
+        trainerClass,
+        trainerType,
+        region: defaultRegion,
+        pokemon: []
+      };
+      trainers.push(currentTrainer);
+      inTable = false;
       continue;
     }
 
-    // Seed the base version
-    await prisma.npcTrainer.create({
-      data: {
-        name: trainer.name,
-        region: trainer.region,
-        spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
-        trainerClass: trainer.trainerClass,
-        trainerType: trainer.trainerType as any,
-        rewardMoney: trainer.rewardMoney,
-        badgeName: trainer.badgeName,
-        party: {
-          create: partyCreateData
-        }
-      }
-    });
-    successCount++;
+    if (!currentTrainer) continue;
 
-    // Generate scaled rematches for GYM / ELITE -> STRONG
-    if (trainer.trainerType === 'GYM' || trainer.trainerType === 'ELITE') {
-      const strongParty = partyCreateData.map(p => ({
-        ...p,
-        level: Math.floor(50 + (p.level / 70) * 25) // scales to roughly 50-75
-      }));
-      
-      await prisma.npcTrainer.create({
-        data: {
-          name: `${trainer.name} (Strong)`,
-          region: trainer.region,
-          spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
-          trainerClass: `${trainer.trainerClass} Rematch`,
-          trainerType: 'STRONG',
-          rewardMoney: trainer.rewardMoney * 2,
-          badgeName: trainer.badgeName,
-          party: {
-            create: strongParty
-          }
-        }
-      });
-      successCount++;
+    if (line.startsWith('|') && line.includes('Pokémon') && line.includes('Lv')) {
+      inTable = true;
+      tableHeaders = line.split('|').map(s => s.trim()).filter(s => s !== '');
+      continue;
     }
 
-    // Generate scaled rematches for CHAMPION -> SUPER
-    if (trainer.trainerType === 'CHAMPION') {
-      const superParty = partyCreateData.map(p => ({
-        ...p,
-        level: Math.floor(80 + (p.level / 80) * 10) // scales to roughly 80-90
-      }));
+    if (inTable && line.startsWith('|') && line.includes('---')) {
+      continue;
+    }
+
+    if (inTable && line.startsWith('|')) {
+      const cells = line.split('|').map(s => s.trim()).filter(s => s !== '');
+      if (cells.length < 2) continue;
+
+      const pokemonStr = cells[0];
+      const isAce = pokemonStr.includes('⭐') || pokemonStr.includes('(Ace)');
+      const speciesName = pokemonStr.replace(/⭐/g, '').replace(/\(Ace\)/g, '').trim();
       
-      await prisma.npcTrainer.create({
-        data: {
-          name: `${trainer.name} (Super)`,
-          region: trainer.region,
-          spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
-          trainerClass: 'Super Champion',
-          trainerType: 'SUPER',
-          rewardMoney: trainer.rewardMoney * 3,
-          party: {
-            create: superParty
+      const level = parseInt(cells[1], 10);
+      let ivs = '0';
+      let heldItem: string | null = null;
+      let moves: string[] = [];
+
+      if (cells.length > 2) ivs = cells[2];
+      if (cells.length > 3) heldItem = cells[3] === '' || cells[3] === '-' ? null : cells[3];
+      if (cells.length > 4) {
+        moves = cells[4].split(',').map(m => m.trim()).filter(m => m.length > 0);
+      }
+
+      if (tableHeaders.length === 2 && tableHeaders[1] === 'Lv') {
+         ivs = '31';
+      }
+
+      currentTrainer.pokemon.push({ speciesName, level, isAce, ivs, heldItem, moves });
+      continue;
+    }
+
+    if (line.startsWith('* ') || line.startsWith('- ')) {
+      const pokemonStr = line.substring(2).trim();
+      const isAce = pokemonStr.includes('⭐');
+      const speciesName = pokemonStr.replace(/⭐/g, '').replace(/\(Young\)/g, '').trim();
+      
+      let level = 50; 
+      for (let back = 1; back <= 5; back++) {
+        if (i - back >= 0) {
+          const prevLine = lines[i - back].trim();
+          const lvlMatch = prevLine.match(/\*\*Level:\*\*\s+(\d+)/);
+          if (lvlMatch) {
+            level = parseInt(lvlMatch[1], 10);
+            break;
+          }
+          const plainLvlMatch = prevLine.match(/Level:\s+(\d+)/);
+          if (plainLvlMatch) {
+            level = parseInt(plainLvlMatch[1], 10);
+            break;
           }
         }
+      }
+
+      currentTrainer.pokemon.push({
+        speciesName,
+        level,
+        isAce,
+        ivs: '15',
+        heldItem: null,
+        moves: []
       });
-      successCount++;
+      continue;
     }
   }
 
-  console.log(`Successfully seeded ${successCount} NPCs.`);
+  return trainers;
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+function parseIvString(ivs: string): number {
+  if (!ivs || ivs === '0') return 0;
+  if (ivs.includes('–')) {
+    const parts = ivs.split('–');
+    return parseInt(parts[1], 10); // take the upper bound
+  }
+  if (ivs.includes('-')) {
+    const parts = ivs.split('-');
+    return parseInt(parts[1], 10);
+  }
+  return parseInt(ivs, 10) || 0;
+}
+
+function normalizeName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+async function seed() {
+  const regionsDir = path.resolve(__dirname, '../../../docs/regions');
+  const eclipseDawnFile = path.resolve(__dirname, '../../../docs/ECLIPSE_DAWN.md');
+
+  const allTrainers: ParsedTrainer[] = [];
+
+  if (fs.existsSync(regionsDir)) {
+    const files = fs.readdirSync(regionsDir).filter(f => f.endsWith('.md'));
+    for (const file of files) {
+      const regionMatch = file.match(/^\d+_(.+)\.md$/);
+      const regionName = regionMatch ? regionMatch[1] : 'Unknown';
+      const parsed = parseMarkdownFile(path.join(regionsDir, file), regionName);
+      allTrainers.push(...parsed);
+    }
+  }
+
+  if (fs.existsSync(eclipseDawnFile)) {
+    const parsed = parseMarkdownFile(eclipseDawnFile, 'Eclipse Dawn Base');
+    allTrainers.push(...parsed);
+  }
+
+  console.log(`Parsed ${allTrainers.length} total trainers. Fetching reference data...`);
+
+  const speciesList = await prisma.species.findMany({ select: { id: true, name: true } });
+  const moveList = await prisma.move.findMany({ select: { id: true, name: true } });
+
+  const speciesMap = new Map<string, number>();
+  speciesList.forEach(s => speciesMap.set(normalizeName(s.name), s.id));
+
+  const moveMap = new Map<string, number>();
+  moveList.forEach(m => moveMap.set(normalizeName(m.name), m.id));
+
+  // Some overrides for names that PokeAPI has differently
+  speciesMap.set('florges', speciesMap.get('florges-red') || 0);
+  speciesMap.set('lycanrocmidnight', speciesMap.get('lycanroc-midnight') || 0);
+  
+  for (const trainer of allTrainers) {
+    console.log(`\nInserting ${trainer.trainerClass} ${trainer.name} (${trainer.region})...`);
+
+    // Clean up existing if rerunning
+    await prisma.npcTrainer.deleteMany({
+      where: { name: trainer.name, trainerClass: trainer.trainerClass, region: trainer.region }
+    });
+
+    const npc = await prisma.npcTrainer.create({
+      data: {
+        name: trainer.name,
+        trainerClass: trainer.trainerClass,
+        trainerType: trainer.trainerType,
+        region: trainer.region,
+        spriteUrl: `/sprites/trainers/${normalizeName(trainer.trainerClass)}.png`, // Placeholder
+        rewardMoney: trainer.pokemon.length * 1000 // Simple formula
+      }
+    });
+
+    let pos = 0;
+    for (const poke of trainer.pokemon) {
+      const cleanSpecies = normalizeName(poke.speciesName);
+      let speciesId = speciesMap.get(cleanSpecies);
+      
+      if (!speciesId) {
+        console.warn(`  ⚠️ Species not found: ${poke.speciesName} (normalized: ${cleanSpecies})`);
+        // Fallback to Bulbasaur so it doesn't crash
+        speciesId = 1; 
+      }
+
+      const ivValue = parseIvString(poke.ivs);
+
+      const createdPoke = await prisma.npcTrainerPokemon.create({
+        data: {
+          npcTrainerId: npc.id,
+          speciesId,
+          level: poke.level,
+          position: pos,
+          ivHp: ivValue,
+          ivAttack: ivValue,
+          ivDefense: ivValue,
+          ivSpAtk: ivValue,
+          ivSpDef: ivValue,
+          ivSpeed: ivValue
+        }
+      });
+
+      let moveSlot = 0;
+      for (const moveName of poke.moves) {
+        const cleanMove = normalizeName(moveName);
+        const moveId = moveMap.get(cleanMove);
+        if (moveId) {
+          await prisma.npcTrainerPokemonMove.create({
+            data: {
+              npcTrainerPokemonId: createdPoke.id,
+              moveId,
+              slot: moveSlot
+            }
+          });
+          moveSlot++;
+        } else {
+          console.warn(`  ⚠️ Move not found: ${moveName} (normalized: ${cleanMove})`);
+        }
+      }
+      
+      pos++;
+    }
+    console.log(`  ✅ Inserted ${trainer.pokemon.length} Pokémon.`);
+  }
+
+  console.log('\nSeeding complete!');
+}
+
+seed().catch(console.error).finally(() => prisma.$disconnect());

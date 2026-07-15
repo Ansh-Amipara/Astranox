@@ -216,7 +216,7 @@ export function TeamPage() {
                 onClick={() => { setDetailsPkm(activeMenuPkm); setActiveMenuPkm(null); }}
                 className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
               >
-                🔍 View Details
+                View Details
               </button>
               
               <button 
@@ -224,7 +224,7 @@ export function TeamPage() {
                 disabled={activeMenuPkm.position === 0 || swapMutation.isPending}
                 className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ⬆️ Move Up
+                Move Up
               </button>
               
               <button 
@@ -232,7 +232,7 @@ export function TeamPage() {
                 disabled={activeMenuPkm.position === 5 || swapMutation.isPending}
                 className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ⬇️ Move Down
+                Move Down
               </button>
               
               <button 
@@ -243,7 +243,7 @@ export function TeamPage() {
                 }}
                 className="w-full text-left px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/50 dark:hover:bg-blue-800 dark:text-blue-300 rounded-xl font-bold transition-colors"
               >
-                ⚔️ Change Moves
+                Change Moves
               </button>
 
               {activeMenuPkm.species?.evolvesToId && (
@@ -267,7 +267,7 @@ export function TeamPage() {
                 disabled={party.length <= 1 || releaseMutation.isPending}
                 className="w-full text-left px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/50 dark:hover:bg-red-800 dark:text-red-300 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {releaseMutation.isPending ? 'Releasing...' : '🗑️ Release Pokemon'}
+                {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
               </button>
             </div>
             

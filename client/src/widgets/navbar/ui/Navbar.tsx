@@ -54,36 +54,20 @@ export function Navbar() {
                   <div className="absolute left-0 mt-2 w-48 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-black ring-opacity-20 focus:outline-none overflow-hidden origin-top-left transition-all z-[100]">
                     <div className="py-1 flex flex-col" role="menu" aria-orientation="vertical">
                       <Link
-                        to="/gyms"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                        to="/trainers/league"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
                       >
-                        Gym
+                        League
                       </Link>
                       <Link
-                        to="/gyms?type=strong"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsTrainerOpen(false)}
-                      >
-                        Strong
-                      </Link>
-                      <Link
-                        to="/gyms?type=super"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsTrainerOpen(false)}
-                      >
-                        Super
-                      </Link>
-                      <Link
-                        to="/gyms?type=villain"
+                        to="/trainers/evil"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
                       >
-                        Villain
+                        Evil Teams
                       </Link>
                     </div>
                   </div>

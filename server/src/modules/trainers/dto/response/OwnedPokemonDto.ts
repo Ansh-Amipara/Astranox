@@ -17,7 +17,14 @@ export interface OwnedPokemonDto {
   readonly ivSpDef: number;
   readonly ivSpeed: number;
   readonly moves: ReadonlyArray<OwnedPokemonMoveDto>;
-  readonly heldItem?: { id: string; name: string } | null;
+  readonly species: {
+    readonly hp: number;
+    readonly attack: number;
+    readonly defense: number;
+    readonly spAtk: number;
+    readonly spDef: number;
+    readonly speed: number;
+  };
 }
 
 export interface PokemonSummaryDto {

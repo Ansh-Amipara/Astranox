@@ -8,6 +8,7 @@ export class AdminMapper {
       email: entity.email,
       role: entity.role,
       createdAt: entity.createdAt,
+      trainerSave: entity.trainerSave,
     };
   }
 

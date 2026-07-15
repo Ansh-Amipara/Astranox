@@ -142,4 +142,33 @@ export class AdminRepository {
       });
     });
   }
+
+  async editPokemon(pokemonId: string, addXp?: number, ivs?: any) {
+    const pokemon = await prisma.ownedPokemon.findUnique({ where: { id: pokemonId } });
+    if (!pokemon) return null;
+
+    const data: any = {};
+    if (addXp) {
+      const newXp = pokemon.currentXp + addXp;
+      const newLevel = Math.min(200, Math.max(1, Math.floor(newXp / 1000)));
+      data.currentXp = newXp;
+      data.level = newLevel;
+    }
+    if (ivs) {
+      if (ivs.ivHp !== undefined) data.ivHp = ivs.ivHp;
+      if (ivs.ivAttack !== undefined) data.ivAttack = ivs.ivAttack;
+      if (ivs.ivDefense !== undefined) data.ivDefense = ivs.ivDefense;
+      if (ivs.ivSpAtk !== undefined) data.ivSpAtk = ivs.ivSpAtk;
+      if (ivs.ivSpDef !== undefined) data.ivSpDef = ivs.ivSpDef;
+      if (ivs.ivSpeed !== undefined) data.ivSpeed = ivs.ivSpeed;
+    }
+
+    return prisma.ownedPokemon.update({
+      where: { id: pokemonId },
+      data,
+      include: {
+        species: true
+      }
+    });
+  }
 }

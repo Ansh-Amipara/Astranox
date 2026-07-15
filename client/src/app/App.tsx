@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useThemeStore } from '../shared/store/theme.store';
 import { AuthGuard } from '../features/auth/ui/AuthGuard';
 import { AdminGuard } from '../features/auth/ui/AdminGuard';
@@ -10,7 +10,7 @@ import { Navbar } from '../widgets/navbar/ui/Navbar';
 import { PokemonManagement } from '../pages/pokemon-management/ui/PokemonManagement';
 import { TeamPage } from '../pages/team/ui/TeamPage';
 
-import { Gyms } from '../pages/gyms/ui/Gyms';
+import { Trainers } from '../pages/trainers/ui/Trainers';
 import { BattleScreen } from '../pages/battle/ui/BattleScreen';
 import { Pokemart } from '../pages/pokemart/ui/Pokemart';
 import { Bag } from '../pages/bag/ui/Bag';
@@ -81,10 +81,14 @@ function App() {
             />
   
             <Route
-              path="/gyms"
+              path="/trainers"
+              element={<Navigate to="/trainers/league" replace />}
+            />
+            <Route
+              path="/trainers/:mode"
               element={
                 <AuthGuard>
-                  <Gyms />
+                  <Trainers />
                 </AuthGuard>
               }
             />

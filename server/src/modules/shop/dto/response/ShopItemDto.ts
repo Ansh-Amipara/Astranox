@@ -3,4 +3,6 @@ export type ShopItemDto = Readonly<{
   name: string;
   cost: number;
   description: string | null;
+  spriteUrl: string | null;
+  category: string;
 }>;

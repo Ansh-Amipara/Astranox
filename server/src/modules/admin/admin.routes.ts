@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AdminController } from './admin.controller';
 import { requireAuth, requireAdmin } from '../../common/middleware/require-auth';
 import { validate } from '../../common/middleware/validate';
-import { addMoneySchema, addPokemonSchema } from './admin.schema';
+import { addMoneySchema, addPokemonSchema, editPokemonSchema } from './admin.schema';
 
 const router = Router();
 const controller = new AdminController();
@@ -16,4 +16,5 @@ router.get('/species', controller.getAllSpecies);
 router.get('/users/:id/pokemon', controller.getUserPokemon);
 router.post('/users/:id/money', validate(addMoneySchema), controller.addMoney);
 router.post('/users/:id/pokemon', validate(addPokemonSchema), controller.addPokemon);
+router.put('/users/:id/pokemon/:pokemonId', validate(editPokemonSchema), controller.editPokemon);
 export { router as adminRoutes };

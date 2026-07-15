@@ -18,7 +18,7 @@ export function getXpForLevel(level: number): number {
  */
 export function getLevelFromXp(xp: number): number {
   if (xp < 1000) return 1;
-  return Math.min(100, Math.floor(xp / 1000));
+  return Math.min(200, Math.floor(xp / 1000));
 }
 
 /**

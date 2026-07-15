@@ -9,6 +9,10 @@ export class NpcMapper {
       trainerClass: entity.trainerClass,
       rewardMoney: entity.rewardMoney,
       isDefeated: !!entity.isDefeated,
+      region: entity.region,
+      trainerType: entity.trainerType,
+      badgeName: entity.badgeName || null,
+      party: entity.party || [],
     };
   }
 }

@@ -5,4 +5,8 @@ export interface NpcDto {
   readonly trainerClass: string | null;
   readonly rewardMoney: number;
   readonly isDefeated: boolean;
+  readonly region: string;
+  readonly trainerType: string;
+  readonly badgeName: string | null;
+  readonly party: any[];
 }

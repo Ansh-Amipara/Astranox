@@ -7,6 +7,7 @@ export interface InventoryItemDto {
     readonly name: string;
     readonly description: string;
     readonly spriteUrl: string | null;
+    readonly category: string;
   };
 }
 

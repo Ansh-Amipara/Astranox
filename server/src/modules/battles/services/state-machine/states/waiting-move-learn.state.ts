@@ -16,8 +16,11 @@ export class WaitingMoveLearnState implements IBattleState {
     let playerPartyData = (session.playerPartyData as any[]) || [];
     const wildPokemon = session.opponentPokemonData as any;
     
-    const pendingMoveId = (playerPokemon as any).pendingMoveToLearn;
-    if (!pendingMoveId) throw new ValidationError('No pending move to learn.');
+    const pendingLearns = (playerPokemon as any).pendingMoveLearns || [];
+    if (pendingLearns.length === 0) throw new ValidationError('No pending move to learn.');
+
+    const currentLearn = pendingLearns[0];
+    const pendingMoveId = currentLearn.moveId;
 
     let eventLog = [];
 
@@ -48,14 +51,26 @@ export class WaitingMoveLearnState implements IBattleState {
       throw new ValidationError('You must choose to learn the move or skip it.');
     }
 
-    delete (playerPokemon as any).pendingMoveToLearn;
+    // Remove the move we just processed
+    pendingLearns.shift();
+    (playerPokemon as any).pendingMoveLearns = pendingLearns;
 
-    let nextStatus: BattleStatus = BattleStatus.WON;
-    let opponentPartyData = (session.opponentPartyData as any[]) || [];
-    if (session.battleType === 'NPC') {
-      const nextHealthy = opponentPartyData.find(p => p.currentHp > 0);
-      if (nextHealthy) {
-        nextStatus = BattleStatus.ACTIVE; 
+    let nextStatus: BattleStatus;
+    if (pendingLearns.length > 0) {
+      nextStatus = BattleStatus.WAITING_MOVE_LEARN;
+      const nextLearn = pendingLearns[0];
+      eventLog.push({ 
+        type: 'prompt_learn_move', 
+        pokemonId: playerPokemon.id, 
+        moveId: nextLearn.moveId, 
+        moveName: nextLearn.moveName 
+      });
+    } else {
+      nextStatus = (playerPokemon as any).finalStatusAfterMoveLearn || BattleStatus.WON;
+      delete (playerPokemon as any).finalStatusAfterMoveLearn;
+      
+      if (nextStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
+        await services.reward.processNpcVictory(trainerSave, session.npcTrainerId, tx);
       }
     }
 

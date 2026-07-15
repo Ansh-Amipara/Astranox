@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const engageCustomSchema = z.object({
   body: z.object({
     speciesId: z.number().positive(),
-    level: z.number().min(1).max(100),
+    level: z.number().min(1).max(200),
   })
 });
 
@@ -17,7 +17,9 @@ const battleActionSchema = z.union([
     'item:ultra-ball',
     'item:luxury-ball',
     'item:master-ball'
-  ])
+  ]),
+  z.literal('skip_move'),
+  z.string().regex(/^learn_move:[0-3]$/, 'Invalid learn move action')
 ]);
 
 export const submitTurnSchema = z.object({

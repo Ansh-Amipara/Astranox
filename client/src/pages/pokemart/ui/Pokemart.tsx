@@ -8,12 +8,14 @@ interface Item {
   cost: number;
   description: string;
   spriteUrl: string | null;
+  category: string;
 }
 
 export function Pokemart() {
   const queryClient = useQueryClient();
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [multiplier, setMultiplier] = useState<number>(1);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const { data: save } = useQuery({
@@ -67,34 +69,69 @@ export function Pokemart() {
     );
   }
 
+  const categories = ['all', ...Array.from(new Set(items?.map(i => i.category) || []))].sort();
+  const filteredItems = items?.filter(item => selectedCategory === 'all' || item.category === selectedCategory);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
-      {/* Header section */}
-      <div className="flex justify-between items-end mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Pokémart
-          </h1>
-          <div className="mt-4 flex gap-2">
-            <span className="text-sm font-bold text-slate-500 self-center mr-2">Quantity Step:</span>
-            {[1, 10, 25, 50].map(m => (
-              <button
-                key={m}
-                onClick={() => setMultiplier(m)}
-                className={`px-3 py-1 rounded-lg text-sm font-bold transition-colors ${
-                  multiplier === m 
-                    ? 'bg-red-500 text-white shadow-sm' 
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'
-                }`}
-              >
-                x{m}
-              </button>
-            ))}
+      {/* Header and Controls section */}
+      <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          
+          {/* Left Side: Title & Filter */}
+          <div className="flex flex-col gap-6 w-full md:w-auto">
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Pokémart
+            </h1>
+            
+            {/* Category Filter */}
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg overflow-x-auto w-full sm:w-max">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${
+                    selectedCategory === cat
+                      ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  {cat.replace('-', ' ')}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="bg-yellow-100 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 px-6 py-3 rounded-xl flex flex-col items-end shadow-sm">
-          <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-wider mb-1">Your Money</span>
-          <span className="text-2xl font-black text-yellow-700 dark:text-yellow-400">₽ {save?.money || 0}</span>
+          
+          {/* Right Side: Money & Quantity */}
+          <div className="flex flex-col items-start md:items-end gap-3 w-full md:w-auto">
+            {/* Money */}
+            <div className="bg-yellow-100 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 px-4 py-2 rounded-xl flex items-center justify-between md:justify-start w-full md:w-auto gap-3 shadow-sm shrink-0">
+              <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-wider">Your Money</span>
+              <span className="text-xl font-black text-yellow-700 dark:text-yellow-400">₽ {save?.money || 0}</span>
+            </div>
+            
+            {/* Quantity Step */}
+            <div className="flex items-center justify-between md:justify-end w-full md:w-auto">
+              <span className="text-sm font-bold text-slate-500 mr-3 whitespace-nowrap">Quantity Step:</span>
+              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                {[1, 10, 25, 50].map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setMultiplier(m)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-bold transition-colors ${
+                      multiplier === m 
+                        ? 'bg-red-500 text-white shadow-sm' 
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    x{m}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -127,7 +164,7 @@ export function Pokemart() {
               </tr>
             </thead>
             <tbody>
-              {items?.map((item) => {
+              {filteredItems?.map((item) => {
                 const qty = quantities[item.id] || 1;
                 const cost = item.cost * qty;
                 const canAfford = (save?.money || 0) >= cost;

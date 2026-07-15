@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { api } from '../../../shared/api/api';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
-const REGIONS = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea'];
+const REGIONS = [
+  'Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea',
+  'Aurelia', 'Vespera', 'Solara', 'Noctara', 'Verdantis', 'Crythos', 'Lumina', 'Dravora', 'Elyndor', 'Zephyria', 'Eclipse Dawn Base'
+];
 
 export function Gyms() {
   const navigate = useNavigate();
@@ -12,7 +15,7 @@ export function Gyms() {
   const queryClient = useQueryClient();
   const [selectedRegion, setSelectedRegion] = useState(REGIONS[0]);
 
-  const typeParam = searchParams.get('type') || 'gym';
+  const typeParam = searchParams.get('type') || 'guardian';
 
   const { data: npcs, isLoading } = useQuery({
     queryKey: ['npcs'],
@@ -38,49 +41,58 @@ export function Gyms() {
     }
   });
 
+  const showRegionFilter = ['guardian', 'elder', 'hunter'].includes(typeParam);
+
+  const availableRegions = useMemo(() => {
+    if (!npcs) return REGIONS;
+    const trainersInType = npcs.filter((n: any) => {
+      if (typeParam === 'guardian') return n.trainerType === 'GUARDIAN';
+      if (typeParam === 'elder') return n.trainerType === 'ELDER';
+      if (typeParam === 'hunter') return n.trainerType === 'HUNTER';
+      return false;
+    });
+    const regionsWithTrainers = new Set(trainersInType.map((n: any) => n.region));
+    return REGIONS.filter(r => regionsWithTrainers.has(r));
+  }, [npcs, typeParam]);
+
+  useEffect(() => {
+    if (showRegionFilter && availableRegions.length > 0 && !availableRegions.includes(selectedRegion)) {
+      setSelectedRegion(availableRegions[0]);
+    }
+  }, [showRegionFilter, availableRegions, selectedRegion]);
+
   if (isLoading) {
     return <div className="min-h-[calc(100vh-64px)] flex items-center justify-center text-slate-500">Loading...</div>;
   }
 
-  const isGymType = typeParam === 'gym';
   const filteredNpcs = npcs?.filter((npc: any) => npc.region === selectedRegion) || [];
-  
+
   let pageTitle = "League Challenges";
   const displayedSections: { title: string; data: any[] }[] = [];
 
-  if (typeParam === 'strong') {
-    pageTitle = "Strong Trainers";
-    const strongTrainers = (npcs || []).filter((n: any) => n.trainerType === 'STRONG');
-    if (strongTrainers.length > 0) displayedSections.push({ title: "Rematch Challenges", data: strongTrainers });
-  } else if (typeParam === 'super') {
-    pageTitle = "Super Champions";
-    const superTrainers = (npcs || []).filter((n: any) => n.trainerType === 'SUPER');
-    if (superTrainers.length > 0) displayedSections.push({ title: "Super Champion Rematches", data: superTrainers });
-  } else if (typeParam === 'villain') {
-    pageTitle = "Villain Bosses";
-    const villainTrainers = (npcs || []).filter((n: any) => n.trainerType === 'VILLAIN');
-    if (villainTrainers.length > 0) displayedSections.push({ title: "Evil Team Bosses", data: villainTrainers });
+  if (typeParam === 'guardian') {
+    pageTitle = "Eclipse Guardians";
+    const guardians = filteredNpcs.filter((n: any) => n.trainerType === 'GUARDIAN');
+    if (guardians.length > 0) displayedSections.push({ title: "Guardians", data: guardians });
+  } else if (typeParam === 'elder') {
+    pageTitle = "Eclipse Elders";
+    const elders = filteredNpcs.filter((n: any) => n.trainerType === 'ELDER');
+    if (elders.length > 0) displayedSections.push({ title: "Elders", data: elders });
+  } else if (typeParam === 'hunter') {
+    pageTitle = "Eclipse Hunters";
+    const hunters = filteredNpcs.filter((n: any) => n.trainerType === 'HUNTER');
+    if (hunters.length > 0) displayedSections.push({ title: "Hunters", data: hunters });
+  } else if (typeParam === 'eclipse-leaders') {
+    pageTitle = "Eclipse Dawn Leaders";
+    const leaders = (npcs || []).filter((n: any) => n.region === 'Eclipse Dawn Base');
+    if (leaders.length > 0) displayedSections.push({ title: "Supreme Leaders", data: leaders });
   } else {
-    pageTitle = "League Challenges";
-    const gymLeaders = filteredNpcs.filter((n: any) => n.trainerType === 'GYM');
-    const eliteFour = filteredNpcs.filter((n: any) => n.trainerType === 'ELITE');
-    const champions = filteredNpcs.filter((n: any) => n.trainerType === 'CHAMPION');
-    if (gymLeaders.length > 0) displayedSections.push({ title: "Gym Leaders", data: gymLeaders });
-    if (eliteFour.length > 0) displayedSections.push({ title: "Elite Four", data: eliteFour });
-    if (champions.length > 0) displayedSections.push({ title: "Champion", data: champions });
+    pageTitle = "Eclipse Dawn";
   }
 
   const renderTrainerCard = (npc: any) => (
     <div key={npc.id} className={`bg-white dark:bg-slate-900 border rounded-xl overflow-hidden shadow-sm flex flex-col ${npc.isDefeated ? 'border-green-500 dark:border-green-500/50' : 'border-slate-200 dark:border-slate-800'}`}>
       <div className="p-6 flex flex-col items-center flex-1">
-        <img 
-          src={npc.spriteUrl} 
-          alt={npc.name} 
-          className="w-24 h-24 object-contain pixelated mb-4" 
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://play.pokemonshowdown.com/sprites/trainers/unknown.png';
-          }}
-        />
         <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 text-center">{npc.name}</h3>
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2 text-center">{npc.trainerClass}</p>
         <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-2 uppercase">{npc.region}</p>
@@ -91,14 +103,14 @@ export function Gyms() {
         )}
         <p className="text-sm text-slate-600 dark:text-slate-400">Prize: ₽ {npc.rewardMoney}</p>
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Team Size: {npc.party.length}</p>
-        
+
         {npc.isDefeated && (
           <div className="mt-auto w-full py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-center font-bold rounded-lg text-sm">
             DEFEATED
           </div>
         )}
       </div>
-      
+
       <button
         onClick={() => challengeMutation.mutate(npc.id)}
         disabled={challengeMutation.isPending}
@@ -113,9 +125,9 @@ export function Gyms() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">{pageTitle}</h1>
-        {isGymType && (
+        {showRegionFilter && (
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg overflow-x-auto w-full md:w-auto">
-            {REGIONS.map(region => (
+            {availableRegions.map(region => (
               <button
                 key={region}
                 onClick={() => setSelectedRegion(region)}
@@ -127,10 +139,10 @@ export function Gyms() {
           </div>
         )}
       </div>
-      
+
       {displayedSections.length === 0 ? (
         <div className="text-center text-slate-500 py-12">
-          {isGymType ? `No trainers found for this category in the ${selectedRegion} region.` : 'No trainers found for this category.'}
+          {showRegionFilter ? `No trainers found for this category in the ${selectedRegion} region.` : 'No trainers found for this category.'}
         </div>
       ) : (
         displayedSections.map(section => (

@@ -15,8 +15,8 @@ describe('Level Math (Flat XP)', () => {
     expect(getLevelFromXp(2000)).toBe(2);
     expect(getLevelFromXp(2500)).toBe(2);
     expect(getLevelFromXp(50000)).toBe(50);
-    expect(getLevelFromXp(125000)).toBe(100);
-    expect(getLevelFromXp(999999)).toBe(100);
+    expect(getLevelFromXp(125000)).toBe(125);
+    expect(getLevelFromXp(999999)).toBe(200);
   });
 
   it('calculates XP yield correctly', () => {

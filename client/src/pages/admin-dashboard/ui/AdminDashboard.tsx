@@ -11,6 +11,12 @@ export function AdminDashboard() {
   const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
   const [useCustomIvs, setUseCustomIvs] = useState(false);
   const [customIvs, setCustomIvs] = useState({ ivHp: 31, ivAttack: 31, ivDefense: 31, ivSpAtk: 31, ivSpDef: 31, ivSpeed: 31 });
+
+  const [selectedPokemonToEdit, setSelectedPokemonToEdit] = useState<any>(null);
+  const [editXp, setEditXp] = useState<number>(0);
+  const [editIvs, setEditIvs] = useState({ ivHp: 31, ivAttack: 31, ivDefense: 31, ivSpAtk: 31, ivSpDef: 31, ivSpeed: 31 });
+  const [useEditIvs, setUseEditIvs] = useState(false);
+
   const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
@@ -49,6 +55,32 @@ export function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
       alert('Pokémon added successfully!');
+    },
+    onError: (err: any) => {
+      alert(`Error: ${err.response?.data?.error?.message || err.message}`);
+    }
+  });
+
+  const { data: userPokemon } = useQuery({
+    queryKey: ['adminUserPokemon', selectedUser?.id],
+    queryFn: async () => {
+      if (!selectedUser) return [];
+      const { data } = await api.get(`/admin/users/${selectedUser.id}/pokemon`);
+      return data.data;
+    },
+    enabled: !!selectedUser
+  });
+
+  const editPokemonMutation = useMutation({
+    mutationFn: async ({ userId, pokemonId, addXp, ivs }: { userId: string, pokemonId: string, addXp?: number, ivs?: any }) => {
+      await api.put(`/admin/users/${userId}/pokemon/${pokemonId}`, { addXp, ivs });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUserPokemon', selectedUser?.id] });
+      alert('Pokémon edited successfully!');
+      setSelectedPokemonToEdit(null);
+      setEditXp(0);
+      setUseEditIvs(false);
     },
     onError: (err: any) => {
       alert(`Error: ${err.response?.data?.error?.message || err.message}`);
@@ -96,7 +128,7 @@ export function AdminDashboard() {
                       <td className="p-4 font-bold text-slate-900 dark:text-white">{user.username} {user.role === 'ADMIN' && <span className="ml-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase">Admin</span>}</td>
                       <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">{user.email}</td>
                       <td className="p-4 text-emerald-600 dark:text-emerald-400 font-bold">₽ {user.trainerSave?.money ?? 0}</td>
-                      <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?._count?.party ?? 0} / 6</td>
+                      <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</td>
                       <td className="p-4 text-right">
                         <button
                           className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
@@ -134,7 +166,7 @@ export function AdminDashboard() {
                 <div className="space-y-8">
                   {/* Add Money Form */}
                   <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <h3 className="font-bold text-black-600 dark:text-black-400 mb-4 flex items-center gap-2">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                       Inject Currency
                     </h3>
                     <div className="flex gap-3">
@@ -159,7 +191,7 @@ export function AdminDashboard() {
 
                   {/* Add Pokemon Form */}
                   <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <h3 className="font-bold text-black-600 dark:text-black-400 mb-4 flex items-center gap-2">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                       Give Pokémon
                     </h3>
                     <div className="space-y-4">
@@ -258,6 +290,102 @@ export function AdminDashboard() {
                         Generate & Give
                       </button>
                     </div>
+                  </div>
+
+                  {/* Edit Pokemon Form */}
+                  <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                      Edit Existing Pokémon
+                    </h3>
+                    {!selectedPokemonToEdit ? (
+                      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        {userPokemon?.map((p: any) => (
+                          <div 
+                            key={p.id} 
+                            onClick={() => {
+                              setSelectedPokemonToEdit(p);
+                              setEditIvs({ ivHp: p.ivHp, ivAttack: p.ivAttack, ivDefense: p.ivDefense, ivSpAtk: p.ivSpAtk, ivSpDef: p.ivSpDef, ivSpeed: p.ivSpeed });
+                            }}
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          >
+                            <div>
+                              <p className="font-bold text-slate-900 dark:text-white capitalize">{p.speciesName} <span className="text-xs text-slate-500 ml-1">Lv. {p.level}</span></p>
+                              <p className="text-xs text-slate-500">XP: {p.currentXp} | {p.isParty ? 'In Party' : `Box ${p.boxNumber ?? 0}`}</p>
+                            </div>
+                            <span className="text-blue-500 font-bold text-sm">Edit</span>
+                          </div>
+                        ))}
+                        {userPokemon?.length === 0 && <p className="text-slate-500 text-sm italic">User has no Pokémon.</p>}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg mb-2">
+                          <p className="font-bold text-slate-900 dark:text-white capitalize">{selectedPokemonToEdit.speciesName} <span className="text-xs text-slate-500 ml-1">Lv. {selectedPokemonToEdit.level}</span></p>
+                          <button onClick={() => setSelectedPokemonToEdit(null)} className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white">Cancel</button>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Add XP</label>
+                          <input
+                            type="text"
+                            value={editXp || ''}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              setEditXp(val ? Number(val) : 0);
+                            }}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+
+                        <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                          <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">
+                            <input 
+                              type="checkbox" 
+                              checked={useEditIvs} 
+                              onChange={(e) => setUseEditIvs(e.target.checked)}
+                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                            />
+                            Modify IVs (0-31)
+                          </label>
+                          
+                          {useEditIvs && (
+                            <div className="grid grid-cols-3 gap-3">
+                              {['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'].map(stat => (
+                                <div key={stat}>
+                                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
+                                    {stat.replace('iv', '')}
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={(editIvs as any)[stat] ?? ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value.replace(/\D/g, '');
+                                      setEditIvs(prev => ({ ...prev, [stat]: val ? Math.min(31, Number(val)) : 0 }));
+                                    }}
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors text-center"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            editPokemonMutation.mutate({ 
+                              userId: selectedUser.id, 
+                              pokemonId: selectedPokemonToEdit.id,
+                              addXp: editXp > 0 ? editXp : undefined,
+                              ivs: useEditIvs ? editIvs : undefined 
+                            });
+                          }}
+                          disabled={editPokemonMutation.isPending || (!editXp && !useEditIvs)}
+                          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50 mt-2"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
