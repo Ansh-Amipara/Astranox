@@ -37,7 +37,7 @@ export class SocialController {
       const { username } = schema.parse(req.body);
       const userId = (req as any).user.id;
 
-      const friendship = await this.service.sendFriendRequest(userId, username);
+      const friendship = await this.service.sendFriendRequest(userId, { username });
       res.json({ success: true, data: friendship });
     } catch (err) {
       if (err instanceof z.ZodError) {

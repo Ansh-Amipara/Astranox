@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TradesService } from './trades.service';
 import { ValidationError } from '../../common/errors/AppError';
+import type { RequestTradeDto } from './dto/request/RequestTradeDto';
 
 export class TradesController {
   private service: TradesService;
@@ -36,7 +37,8 @@ export class TradesController {
       const { targetUserId, offeredPokemonId, requestedPokemonId } = req.body;
       const userId = (req as any).user.id;
 
-      const trade = await this.service.requestTrade(userId, targetUserId, offeredPokemonId, requestedPokemonId);
+      const dto: RequestTradeDto = { targetUserId, offeredPokemonId, requestedPokemonId };
+      const trade = await this.service.requestTrade(userId, dto);
       res.json({ success: true, data: trade });
     } catch (err) {
       next(err);

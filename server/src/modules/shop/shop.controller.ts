@@ -21,7 +21,7 @@ export class ShopController {
     try {
       const { itemId, quantity } = buyItemSchema.parse(req.body);
       
-      const trainerSave = await shopService.buyItem(req.user!.id, itemId, quantity);
+      const trainerSave = await shopService.buyItem(req.user!.id, { itemId, quantity });
       
       res.json({ success: true, data: trainerSave });
     } catch (error) {

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { BattlesService } from './battles.service';
 import { ValidationError } from '../../common/errors/AppError';
+import type { EngageCustomDto } from './dto/request/EngageCustomDto';
+import type { SubmitTurnDto } from './dto/request/SubmitTurnDto';
 
 export class BattlesController {
   private service: BattlesService;
@@ -14,7 +16,7 @@ export class BattlesController {
       const { speciesId, level } = req.body;
       const userId = (req as any).user.id;
 
-      const result = await this.service.startCustomEncounter(userId, speciesId, level);
+      const result = await this.service.startCustomEncounter(userId, { speciesId, level });
 
       res.json({
         success: true,
@@ -53,7 +55,7 @@ export class BattlesController {
       const { action } = req.body;
       const userId = (req as any).user.id;
 
-      const result = await this.service.submitTurn(userId, action);
+      const result = await this.service.submitTurn(userId, { action });
 
       res.json({
         success: true,

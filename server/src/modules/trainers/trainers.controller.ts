@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { TrainersService } from './trainers.service';
 import { ValidationError } from '../../common/errors/AppError';
+import type { PickStarterDto } from './dto/request/PickStarterDto';
+import type { SwapSlotsDto } from './dto/request/SwapSlotsDto';
+import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 
 export class TrainersController {
   private service: TrainersService;
@@ -31,7 +34,8 @@ export class TrainersController {
         throw new ValidationError('speciesId must be a valid number');
       }
 
-      const save = await this.service.pickStarter(userId, speciesId);
+      const dto: PickStarterDto = { speciesId };
+      const save = await this.service.pickStarter(userId, dto);
       res.json({ success: true, data: save });
     } catch (err) {
       next(err);
@@ -65,7 +69,8 @@ export class TrainersController {
         throw new ValidationError('from and to slots are required');
       }
 
-      await this.service.swapSlots(userId, from, to);
+      const dto: SwapSlotsDto = { from, to };
+      await this.service.swapSlots(userId, dto);
       res.json({ success: true });
     } catch (err) {
       next(err);
@@ -93,7 +98,8 @@ export class TrainersController {
         throw new ValidationError('pokemonId and moves array are required');
       }
 
-      await this.service.changeMoves(userId, pokemonId, moves);
+      const dto: ChangeMovesDto = { moves };
+      await this.service.changeMoves(userId, pokemonId, dto);
       res.json({ success: true });
     } catch (err) {
       next(err);

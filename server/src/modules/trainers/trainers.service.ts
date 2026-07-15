@@ -1,5 +1,12 @@
 import { TrainersRepository } from './trainers.repository';
 import { ValidationError, NotFoundError } from '../../common/errors/AppError';
+import { TrainerMapper } from './dto/mapper';
+import type { TrainerSaveDto } from './dto/response/TrainerSaveDto';
+import type { OwnedPokemonDto } from './dto/response/OwnedPokemonDto';
+import type { MoveDto } from './dto/response/MoveDto';
+import type { PickStarterDto } from './dto/request/PickStarterDto';
+import type { SwapSlotsDto } from './dto/request/SwapSlotsDto';
+import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 
 // Allowed pseudo-legendaries
 const ALLOWED_STARTER_IDS = [147, 246, 371, 374, 443, 633, 704, 782, 885];
@@ -11,7 +18,7 @@ export class TrainersService {
     this.repo = new TrainersRepository();
   }
 
-  async getMySave(userId: string) {
+  async getMySave(userId: string): Promise<TrainerSaveDto> {
     let save = await this.repo.findByUserId(userId);
     
     // Automatically initialize save file for new users
@@ -28,49 +35,51 @@ export class TrainersService {
       }
     }
     
-    return save!;
+    return TrainerMapper.toTrainerSaveDto(save!);
   }
 
-  async pickStarter(userId: string, speciesId: number) {
-    const save = await this.getMySave(userId);
+  async pickStarter(userId: string, dto: PickStarterDto): Promise<TrainerSaveDto> {
+    const save = await this.repo.findByUserId(userId);
     
-    if (save.starterChosenAt) {
+    if (save?.starterChosenAt) {
       throw new ValidationError('You have already chosen a starter Pokémon.');
     }
 
-    if (!ALLOWED_STARTER_IDS.includes(speciesId)) {
+    if (!ALLOWED_STARTER_IDS.includes(dto.speciesId)) {
       throw new ValidationError('Invalid starter choice. Must be a Pseudo-Legendary baby form.');
     }
 
-    return await this.repo.setStarter(save.id, speciesId);
+    const updatedSave = await this.repo.setStarter(save!.id, dto.speciesId);
+    return TrainerMapper.toTrainerSaveDto(updatedSave);
   }
 
-  async getBox(userId: string, boxNumber: number) {
-    const save = await this.getMySave(userId);
-    return this.repo.getBox(save.id, boxNumber);
+  async getBox(userId: string, boxNumber: number): Promise<OwnedPokemonDto[]> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    const box = await this.repo.getBox(save.id, boxNumber);
+    return box.map(TrainerMapper.toOwnedPokemonDto);
   }
 
-  async swapSlots(
-    userId: string, 
-    from: { isParty: boolean; boxNumber: number | null; position: number },
-    to: { isParty: boolean; boxNumber: number | null; position: number }
-  ) {
-    const save = await this.getMySave(userId);
-    return this.repo.swapSlots(save.id, from, to);
+  async swapSlots(userId: string, dto: SwapSlotsDto): Promise<boolean> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    return this.repo.swapSlots(save.id, dto.from, dto.to);
   }
 
-  async getAllMoves() {
-    return this.repo.getAllMoves();
+  async getAllMoves(): Promise<MoveDto[]> {
+    const moves = await this.repo.getAllMoves();
+    return TrainerMapper.toMoveDtoList(moves);
   }
 
-  async changeMoves(userId: string, pokemonId: string, moveIds: number[]) {
-    const save = await this.getMySave(userId);
+  async changeMoves(userId: string, pokemonId: string, dto: ChangeMovesDto): Promise<boolean> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
     
-    if (!Array.isArray(moveIds) || moveIds.length > 4) {
+    if (!Array.isArray(dto.moves) || dto.moves.length > 4) {
       throw new ValidationError('Moves must be an array of at most 4 move IDs.');
     }
 
-    const result = await this.repo.changeMoves(save.id, pokemonId, moveIds);
+    const result = await this.repo.changeMoves(save.id, pokemonId, dto.moves as number[]);
     if (!result) {
       throw new NotFoundError('Pokemon not found or does not belong to you.');
     }
@@ -78,8 +87,9 @@ export class TrainersService {
     return result;
   }
 
-  async releasePokemon(userId: string, pokemonId: string) {
-    const save = await this.getMySave(userId);
+  async releasePokemon(userId: string, pokemonId: string): Promise<boolean> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
     
     // Prevent releasing if it's the last pokemon in the party
     const partyCount = save.party.length;
@@ -105,8 +115,9 @@ export class TrainersService {
     return true;
   }
 
-  async evolvePokemon(userId: string, pokemonId: string) {
-    const save = await this.getMySave(userId);
+  async evolvePokemon(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
     
     const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
     if (!pokemon) {
@@ -134,6 +145,9 @@ export class TrainersService {
     }
 
     const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, species.evolvesToId, itemIdToConsume);
-    return evolvedPokemon;
+    // Since evolvePokemon doesn't return the fully included entity, we should fetch it or map what we have.
+    // However, the previous implementation just returned evolvedPokemon which is the OwnedPokemon object.
+    const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    return TrainerMapper.toOwnedPokemonDto(fullyIncludedPokemon);
   }
 }

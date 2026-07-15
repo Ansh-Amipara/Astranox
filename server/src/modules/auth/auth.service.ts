@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import { AuthRepository } from './auth.repository';
-import type { RegisterInput, LoginInput, AuthResponse, UserPayload } from '@astranox/shared';
+import type { LoginDto } from './dto/request/LoginDto';
+import type { RegisterDto } from './dto/request/RegisterDto';
+import type { AuthResultDto } from './dto/response/LoginResponseDto';
+import { AuthMapper } from './dto/mapper';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../common/utils/jwt';
 import { ValidationError, UnauthorizedError } from '../../common/errors/AppError';
 
@@ -11,7 +14,7 @@ export class AuthService {
     this.repo = new AuthRepository();
   }
 
-  async register(input: RegisterInput): Promise<{ message: string }> {
+  async register(input: RegisterDto): Promise<{ message: string }> {
     const existingUser = await this.repo.findByUsername(input.username);
     if (existingUser) {
       throw new ValidationError('Username is already taken');
@@ -28,7 +31,7 @@ export class AuthService {
     return { message: 'User registered successfully' };
   }
 
-  async login(input: LoginInput): Promise<{ auth: AuthResponse, refreshToken: string }> {
+  async login(input: LoginDto): Promise<AuthResultDto> {
     const user = await this.repo.findByUsername(input.username);
     if (!user) {
       throw new UnauthorizedError('Invalid credentials');
@@ -39,26 +42,21 @@ export class AuthService {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const userPayload: UserPayload = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-    };
+    const userDto = AuthMapper.toUserDto(user);
 
-    const accessToken = generateAccessToken(userPayload);
+    const accessToken = generateAccessToken(userDto);
     const refreshToken = generateRefreshToken(user.id);
     const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
 
     await this.repo.updateRefreshToken(user.id, refreshTokenHash);
 
     return {
-      auth: { accessToken, user: userPayload },
+      auth: { accessToken, user: userDto },
       refreshToken,
     };
   }
 
-  async refresh(token: string): Promise<{ auth: AuthResponse, refreshToken: string }> {
+  async refresh(token: string): Promise<AuthResultDto> {
     try {
       const decoded = verifyRefreshToken(token);
       const user = await this.repo.findById(decoded.id);
@@ -72,21 +70,16 @@ export class AuthService {
         throw new UnauthorizedError('Invalid refresh token');
       }
 
-      const userPayload: UserPayload = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      };
+      const userDto = AuthMapper.toUserDto(user);
 
-      const accessToken = generateAccessToken(userPayload);
+      const accessToken = generateAccessToken(userDto);
       const newRefreshToken = generateRefreshToken(user.id);
       const refreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
 
       await this.repo.updateRefreshToken(user.id, refreshTokenHash);
 
       return {
-        auth: { accessToken, user: userPayload },
+        auth: { accessToken, user: userDto },
         refreshToken: newRefreshToken,
       };
     } catch (err) {

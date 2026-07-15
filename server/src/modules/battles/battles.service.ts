@@ -9,6 +9,13 @@ import { BattleStateMachine } from './services/state-machine/battle-state-machin
 import { StateMachineServices } from './services/state-machine/battle-state.interface';
 import { NotFoundError } from '../../common/errors/AppError';
 import { Prisma } from '@prisma/client';
+import { BattleMapper } from './dto/mapper';
+import type { StartCustomEncounterDto } from './dto/request/StartCustomEncounterDto';
+import type { SubmitTurnDto } from './dto/request/SubmitTurnDto';
+import type { AvailableSpeciesDto } from './dto/response/AvailableSpeciesDto';
+import type { BattleSessionDto } from './dto/response/BattleSessionDto';
+import type { StartEncounterResultDto } from './dto/response/StartEncounterResultDto';
+import type { TurnResultDto } from './dto/response/TurnResultDto';
 
 export class BattlesService {
   private sessionService = new BattleSessionService();
@@ -24,25 +31,30 @@ export class BattlesService {
 
   private stateMachine = new BattleStateMachine();
 
-  async getAvailableSpecies() {
-    return this.sessionService.getAvailableSpecies();
+  async getAvailableSpecies(): Promise<AvailableSpeciesDto[]> {
+    const species = await this.sessionService.getAvailableSpecies();
+    return BattleMapper.toAvailableSpeciesDtoList(species);
   }
 
-  async startCustomEncounter(userId: string, speciesId: number, level: number) {
-    return this.sessionService.startCustomEncounter(userId, speciesId, level);
+  async startCustomEncounter(userId: string, dto: StartCustomEncounterDto): Promise<StartEncounterResultDto> {
+    const result = await this.sessionService.startCustomEncounter(userId, dto.speciesId, dto.level);
+    return BattleMapper.toStartEncounterResultDto(result);
   }
 
-  async engageNpc(userId: string, npcTrainerId: string) {
-    return this.sessionService.engageNpc(userId, npcTrainerId);
+  async engageNpc(userId: string, npcTrainerId: string): Promise<StartEncounterResultDto> {
+    const result = await this.sessionService.engageNpc(userId, npcTrainerId);
+    return BattleMapper.toStartEncounterResultDto(result);
   }
 
-  async getActiveSession(userId: string) {
-    return this.sessionService.getActiveSession(userId);
+  async getActiveSession(userId: string): Promise<BattleSessionDto> {
+    const session = await this.sessionService.getActiveSession(userId);
+    return BattleMapper.toBattleSessionDto(session);
   }
 
-  async submitTurn(userId: string, action: string) {
-    this.stateMachineServices.validator.validateActionFormat(action);
-    return this.stateMachineServices.persistence.runTurnTransaction((tx) => this.submitTurnInTransaction(userId, action, tx));
+  async submitTurn(userId: string, dto: SubmitTurnDto): Promise<TurnResultDto> {
+    this.stateMachineServices.validator.validateActionFormat(dto.action);
+    const result = await this.stateMachineServices.persistence.runTurnTransaction((tx) => this.submitTurnInTransaction(userId, dto.action, tx));
+    return BattleMapper.toTurnResultDto(result);
   }
 
   private async submitTurnInTransaction(userId: string, action: string, tx: Prisma.TransactionClient) {

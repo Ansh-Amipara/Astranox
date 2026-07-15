@@ -1,10 +1,15 @@
 import { PrismaClient, TradeStatus } from '@prisma/client';
 import { NotFoundError, ValidationError, ForbiddenError } from '../../common/errors/AppError';
+import { TradeMapper } from './dto/mapper';
+import { TrainerMapper } from '../trainers/dto/mapper';
+import type { TradeRequestDto } from './dto/response/TradeRequestDto';
+import type { OwnedPokemonDto } from '../trainers/dto/response/OwnedPokemonDto';
+import type { RequestTradeDto } from './dto/request/RequestTradeDto';
 
 const prisma = new PrismaClient();
 
 export class TradesService {
-  async toggleForTrade(userId: string, pokemonId: string) {
+  async toggleForTrade(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
     const trainer = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!trainer) throw new NotFoundError('Trainer not found.');
 
@@ -15,13 +20,15 @@ export class TradesService {
     if (!pokemon) throw new NotFoundError('Pokemon not found.');
     if (pokemon.trainerId !== trainer.id) throw new ForbiddenError('You can only modify your own Pokemon.');
 
-    return prisma.ownedPokemon.update({
+    const updated = await prisma.ownedPokemon.update({
       where: { id: pokemonId },
-      data: { isForTrade: !pokemon.isForTrade }
+      data: { isForTrade: !pokemon.isForTrade },
+      include: { species: true }
     });
+    return TrainerMapper.toOwnedPokemonDto(updated);
   }
 
-  async getTradeablePokemon(targetUserId: string) {
+  async getTradeablePokemon(targetUserId: string): Promise<OwnedPokemonDto[]> {
     const targetTrainer = await prisma.trainerSave.findUnique({
       where: { userId: targetUserId }
     });
@@ -34,23 +41,24 @@ export class TradesService {
         isForTrade: true
       },
       include: {
-        species: true
+        species: { include: { type1: true, type2: true } }, moves: { include: { move: { include: { type: true } } } }
       },
       orderBy: { level: 'desc' }
     });
 
-    return pokemon;
+    return pokemon.map(TrainerMapper.toOwnedPokemonDto);
   }
 
-  async requestTrade(userId: string, targetUserId: string, offeredPokemonId: string, requestedPokemonId: string) {
+  async requestTrade(userId: string, dto: RequestTradeDto): Promise<TradeRequestDto> {
+    const { targetUserId, offeredPokemonId, requestedPokemonId } = dto;
     const initiatorTrainer = await prisma.trainerSave.findUnique({ where: { userId } });
     const targetTrainer = await prisma.trainerSave.findUnique({ where: { userId: targetUserId } });
 
     if (!initiatorTrainer || !targetTrainer) throw new NotFoundError('Trainer not found.');
     if (initiatorTrainer.id === targetTrainer.id) throw new ValidationError('You cannot trade with yourself.');
 
-    const offeredPokemon = await prisma.ownedPokemon.findUnique({ where: { id: offeredPokemonId } });
-    const requestedPokemon = await prisma.ownedPokemon.findUnique({ where: { id: requestedPokemonId } });
+    const offeredPokemon = await prisma.ownedPokemon.findUnique({ where: { id: dto.offeredPokemonId } });
+    const requestedPokemon = await prisma.ownedPokemon.findUnique({ where: { id: dto.requestedPokemonId } });
 
     if (!offeredPokemon || offeredPokemon.trainerId !== initiatorTrainer.id) {
       throw new ValidationError('Invalid offered Pokemon.');
@@ -76,7 +84,7 @@ export class TradesService {
 
     if (existing) throw new ValidationError('A trade request for these Pokemon already exists.');
 
-    return prisma.tradeRequest.create({
+    const trade = await prisma.tradeRequest.create({
       data: {
         initiatorId: initiatorTrainer.id,
         receiverId: targetTrainer.id,
@@ -91,9 +99,10 @@ export class TradesService {
         receiver: { include: { user: { select: { username: true } } } }
       }
     });
+    return TradeMapper.toTradeRequestDto(trade);
   }
 
-  async acceptTrade(userId: string, tradeId: string) {
+  async acceptTrade(userId: string, tradeId: string): Promise<{ success: boolean }> {
     const receiverTrainer = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!receiverTrainer) throw new NotFoundError('Trainer not found.');
 
@@ -158,7 +167,7 @@ export class TradesService {
     });
   }
 
-  async rejectTrade(userId: string, tradeId: string) {
+  async rejectTrade(userId: string, tradeId: string): Promise<TradeRequestDto> {
     const trainer = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!trainer) throw new NotFoundError('Trainer not found.');
 
@@ -173,39 +182,50 @@ export class TradesService {
 
     const newStatus = trade.initiatorId === trainer.id ? TradeStatus.CANCELLED : TradeStatus.REJECTED;
 
-    return prisma.tradeRequest.update({
+    const updated = await prisma.tradeRequest.update({
       where: { id: tradeId },
-      data: { status: newStatus }
+      data: { status: newStatus },
+      include: {
+        offeredPokemon: { include: { species: true } },
+        requestedPokemon: { include: { species: true } },
+        initiator: { include: { user: { select: { username: true } } } },
+        receiver: { include: { user: { select: { username: true } } } }
+      }
     });
+    return TradeMapper.toTradeRequestDto(updated);
   }
 
-  async getIncomingTrades(userId: string) {
+  async getIncomingTrades(userId: string): Promise<TradeRequestDto[]> {
     const trainer = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!trainer) return [];
 
-    return prisma.tradeRequest.findMany({
+    const trades = await prisma.tradeRequest.findMany({
       where: { receiverId: trainer.id, status: TradeStatus.PENDING },
       include: {
         offeredPokemon: { include: { species: true } },
         requestedPokemon: { include: { species: true } },
-        initiator: { include: { user: { select: { username: true } } } }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
-  }
-
-  async getOutgoingTrades(userId: string) {
-    const trainer = await prisma.trainerSave.findUnique({ where: { userId } });
-    if (!trainer) return [];
-
-    return prisma.tradeRequest.findMany({
-      where: { initiatorId: trainer.id, status: TradeStatus.PENDING },
-      include: {
-        offeredPokemon: { include: { species: true } },
-        requestedPokemon: { include: { species: true } },
+        initiator: { include: { user: { select: { username: true } } } },
         receiver: { include: { user: { select: { username: true } } } }
       },
       orderBy: { createdAt: 'desc' }
     });
+    return trades.map(TradeMapper.toTradeRequestDto);
+  }
+
+  async getOutgoingTrades(userId: string): Promise<TradeRequestDto[]> {
+    const trainer = await prisma.trainerSave.findUnique({ where: { userId } });
+    if (!trainer) return [];
+
+    const trades = await prisma.tradeRequest.findMany({
+      where: { initiatorId: trainer.id, status: TradeStatus.PENDING },
+      include: {
+        offeredPokemon: { include: { species: true } },
+        requestedPokemon: { include: { species: true } },
+        initiator: { include: { user: { select: { username: true } } } },
+        receiver: { include: { user: { select: { username: true } } } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return trades.map(TradeMapper.toTradeRequestDto);
   }
 }

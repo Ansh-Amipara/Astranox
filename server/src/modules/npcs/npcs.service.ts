@@ -1,8 +1,11 @@
 import { PrismaClient } from '@prisma/client';
+import { NpcMapper } from './dto/mapper';
+import type { NpcDto } from './dto/response/NpcDto';
+
 const prisma = new PrismaClient();
 
 export class NpcsService {
-  async listNpcs(userId: string) {
+  async listNpcs(userId: string): Promise<NpcDto[]> {
     const trainerSave = await prisma.trainerSave.findUnique({
       where: { userId },
       include: { defeatedNpcs: true }
@@ -10,10 +13,10 @@ export class NpcsService {
 
     const npcs = await prisma.npcTrainer.findMany({
       include: { party: true },
-      orderBy: { rewardMoney: 'asc' } // basic ordering
+      orderBy: { rewardMoney: 'asc' }
     });
 
-    return npcs.map(npc => ({
+    return npcs.map(npc => NpcMapper.toNpcDto({
       ...npc,
       isDefeated: trainerSave?.defeatedNpcs.some(d => d.npcTrainerId === npc.id) || false
     }));

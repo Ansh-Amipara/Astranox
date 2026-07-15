@@ -1,6 +1,15 @@
 import { AdminRepository } from './admin.repository';
 import { ValidationError, NotFoundError } from '../../common/errors/AppError';
 import { PrismaClient } from '@prisma/client';
+import { AdminMapper } from './dto/mapper';
+import type { AdminUserDto } from './dto/response/AdminUserDto';
+import type { AddMoneyDto } from './dto/request/AddMoneyDto';
+import type { AddPokemonDto } from './dto/request/AddPokemonDto';
+import { TrainerMapper } from '../trainers/dto/mapper';
+import type { TrainerSaveDto } from '../trainers/dto/response/TrainerSaveDto';
+import type { OwnedPokemonDto } from '../trainers/dto/response/OwnedPokemonDto';
+import { BattleMapper } from '../battles/dto/mapper';
+import type { AvailableSpeciesDto } from '../battles/dto/response/AvailableSpeciesDto';
 
 const prisma = new PrismaClient();
 
@@ -11,15 +20,16 @@ export class AdminService {
     this.repo = new AdminRepository();
   }
 
-  async getAllUsers() {
-    return this.repo.getAllUsers();
+  async getAllUsers(): Promise<AdminUserDto[]> {
+    const users = await this.repo.getAllUsers();
+    return AdminMapper.toAdminUserDtoList(users);
   }
 
-  async addMoney(adminId: string, userId: string, amount: number) {
-    if (amount <= 0) {
+  async addMoney(adminId: string, userId: string, dto: AddMoneyDto): Promise<TrainerSaveDto> {
+    if (dto.amount <= 0) {
       throw new ValidationError('Amount must be positive');
     }
-    const result = await this.repo.addMoney(userId, amount);
+    const result = await this.repo.addMoney(userId, dto.amount);
     if (!result) {
       throw new NotFoundError('Trainer save not found for this user');
     }
@@ -29,21 +39,24 @@ export class AdminService {
         action: 'ADD_MONEY',
         entityType: 'USER',
         entityId: userId,
-        afterValues: { amount }
+        afterValues: { amount: dto.amount }
       }
     });
-    return result;
+    return TrainerMapper.toTrainerSaveDto(result);
   }
 
-  async getAllSpecies() {
-    return this.repo.getAllSpecies();
+  async getAllSpecies(): Promise<AvailableSpeciesDto[]> {
+    const species = await this.repo.getAllSpecies();
+    return BattleMapper.toAvailableSpeciesDtoList(species);
   }
 
-  async getUserPokemon(userId: string) {
-    return this.repo.getUserPokemon(userId);
+  async getUserPokemon(userId: string): Promise<OwnedPokemonDto[]> {
+    const pokemon = await this.repo.getUserPokemon(userId);
+    return pokemon.map(TrainerMapper.toOwnedPokemonDto);
   }
 
-  async addPokemon(adminId: string, userId: string, speciesId: number, level: number, ivs?: { ivHp?: number, ivAttack?: number, ivDefense?: number, ivSpAtk?: number, ivSpDef?: number, ivSpeed?: number }) {
+  async addPokemon(adminId: string, userId: string, dto: AddPokemonDto): Promise<OwnedPokemonDto> {
+    const { speciesId, level, ivs } = dto;
     if (level < 1 || level > 100) {
       throw new ValidationError('Level must be between 1 and 100');
     }
@@ -67,6 +80,6 @@ export class AdminService {
         afterValues: { speciesId, level, ivs }
       }
     });
-    return result;
+    return TrainerMapper.toOwnedPokemonDto(result);
   }
 }

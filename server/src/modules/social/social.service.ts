@@ -1,10 +1,14 @@
 import { PrismaClient, FriendshipStatus } from '@prisma/client';
 import { NotFoundError, ValidationError, ForbiddenError } from '../../common/errors/AppError';
+import { SocialMapper } from './dto/mapper';
+import type { UserSearchResultDto } from './dto/response/UserSearchResultDto';
+import type { FriendshipDto, BaseFriendshipDto } from './dto/response/FriendshipDto';
+import type { SendFriendRequestDto } from './dto/request/SendFriendRequestDto';
 
 const prisma = new PrismaClient();
 
 export class SocialService {
-  async searchUsers(query: string, currentUserId: string) {
+  async searchUsers(query: string, currentUserId: string): Promise<UserSearchResultDto[]> {
     if (!query || query.length < 3) {
       return [];
     }
@@ -30,10 +34,10 @@ export class SocialService {
       take: 10
     });
 
-    return users;
+    return SocialMapper.toUserSearchResultDtoList(users);
   }
 
-  async getFriendsList(userId: string) {
+  async getFriendsList(userId: string): Promise<FriendshipDto[]> {
     const friendships = await prisma.friendship.findMany({
       where: {
         OR: [
@@ -48,26 +52,12 @@ export class SocialService {
       orderBy: { updatedAt: 'desc' }
     });
 
-    return friendships.map(f => {
-      const isInitiator = f.userAId === userId;
-      const otherUser = isInitiator ? f.userB : f.userA;
-      return {
-        friendshipId: f.id,
-        status: f.status,
-        isIncoming: !isInitiator && f.status === FriendshipStatus.PENDING,
-        friend: {
-          id: otherUser.id,
-          username: otherUser.username,
-          badges: otherUser.trainerSave?.badges || [],
-          memberSince: otherUser.trainerSave?.createdAt
-        }
-      };
-    });
+    return SocialMapper.toFriendshipDtoList(friendships, userId);
   }
 
-  async sendFriendRequest(userId: string, targetUsername: string) {
+  async sendFriendRequest(userId: string, dto: SendFriendRequestDto): Promise<BaseFriendshipDto> {
     const targetUser = await prisma.user.findUnique({
-      where: { username: targetUsername }
+      where: { username: dto.username }
     });
 
     if (!targetUser) throw new NotFoundError('User not found.');
@@ -84,19 +74,21 @@ export class SocialService {
     });
 
     if (existing) {
-      throw new ValidationError(`A friendship or pending request already exists with ${targetUsername}.`);
+      throw new ValidationError(`A friendship or pending request already exists with ${dto.username}.`);
     }
 
-    return prisma.friendship.create({
+    const friendship = await prisma.friendship.create({
       data: {
         userAId: userId,
         userBId: targetUser.id,
         status: FriendshipStatus.PENDING
       }
     });
+    
+    return SocialMapper.toBaseFriendshipDto(friendship);
   }
 
-  async acceptFriendRequest(userId: string, friendshipId: string) {
+  async acceptFriendRequest(userId: string, friendshipId: string): Promise<BaseFriendshipDto> {
     const friendship = await prisma.friendship.findUnique({
       where: { id: friendshipId }
     });
@@ -105,9 +97,11 @@ export class SocialService {
     if (friendship.userBId !== userId) throw new ForbiddenError('You can only accept requests sent to you.');
     if (friendship.status === FriendshipStatus.ACCEPTED) throw new ValidationError('Friendship is already accepted.');
 
-    return prisma.friendship.update({
+    const updated = await prisma.friendship.update({
       where: { id: friendshipId },
       data: { status: FriendshipStatus.ACCEPTED }
     });
+
+    return SocialMapper.toBaseFriendshipDto(updated);
   }
 }

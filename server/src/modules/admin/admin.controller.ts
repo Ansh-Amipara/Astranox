@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AdminService } from './admin.service';
+
 export class AdminController {
   private service: AdminService;
 
@@ -40,7 +41,7 @@ export class AdminController {
       const { id } = req.params;
       const { amount } = req.body;
 
-      const save = await this.service.addMoney(req.user!.id, id, amount);
+      const save = await this.service.addMoney(req.user!.id, id, { amount });
       res.json({ success: true, data: save });
     } catch (err) {
       next(err);
@@ -52,7 +53,7 @@ export class AdminController {
       const { id } = req.params;
       const { speciesId, level, ivs } = req.body;
 
-      const pokemon = await this.service.addPokemon(req.user!.id, id, speciesId, level, ivs);
+      const pokemon = await this.service.addPokemon(req.user!.id, id, { speciesId, level, ivs });
       res.json({ success: true, data: pokemon });
     } catch (err) {
       next(err);

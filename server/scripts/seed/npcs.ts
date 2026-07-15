@@ -49,7 +49,7 @@ async function main() {
         region: trainer.region,
         spriteUrl: `https://play.pokemonshowdown.com/sprites/trainers/${trainer.spriteId}.png`,
         trainerClass: trainer.trainerClass,
-        trainerType: trainer.trainerType,
+        trainerType: trainer.trainerType as any,
         rewardMoney: trainer.rewardMoney,
         badgeName: trainer.badgeName,
         party: {

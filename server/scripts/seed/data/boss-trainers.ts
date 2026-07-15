@@ -2,7 +2,7 @@ export interface BossTrainerData {
   name: string;
   region: string;
   trainerClass: string;
-  trainerType: 'GYM' | 'ELITE' | 'CHAMPION';
+  trainerType: string;
   spriteId: string;
   rewardMoney: number;
   badgeName?: string;

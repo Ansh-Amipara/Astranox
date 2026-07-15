@@ -41,7 +41,7 @@ describe('Navbar Component', () => {
 
     expect(screen.getByText('Pokémon')).toBeInTheDocument();
     expect(screen.getByText('Fight')).toBeInTheDocument();
-    expect(screen.getByText('Trainer')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Trainer' })).toBeInTheDocument();
     expect(screen.getByText('Pokémart')).toBeInTheDocument();
     expect(screen.getByText('Social')).toBeInTheDocument();
   });
