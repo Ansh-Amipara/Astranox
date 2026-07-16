@@ -37,7 +37,7 @@ export function Navbar() {
             <div className="ml-10 flex items-baseline space-x-4">
               <Link to="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link to="/fight" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Fight</Link>
-              
+
               {/* Trainer Dropdown */}
               <div className="relative" ref={trainerDropdownRef}>
                 <button
@@ -76,6 +76,7 @@ export function Navbar() {
 
               <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
               <Link to="/social" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Social</Link>
+              <Link to="/rank" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Rank</Link>
 
               {/* Pokemon Dropdown */}
               <div className="relative" ref={dropdownRef}>

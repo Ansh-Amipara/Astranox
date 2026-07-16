@@ -184,8 +184,8 @@ function normalizeName(name: string): string {
 }
 
 async function seed() {
-  const regionsDir = path.resolve(__dirname, '../../../docs/regions');
-  const eclipseDawnFile = path.resolve(__dirname, '../../../docs/ECLIPSE_DAWN.md');
+  const regionsDir = path.resolve(__dirname, '../../../docs/story/regions');
+  const eclipseDawnFile = path.resolve(__dirname, '../../../docs/story/evil organization/ECLIPSE_DAWN.md');
 
   const allTrainers: ParsedTrainer[] = [];
 
@@ -227,6 +227,25 @@ async function seed() {
       where: { name: trainer.name, trainerClass: trainer.trainerClass, region: trainer.region }
     });
 
+    let baseReward = 1000;
+    if (trainer.trainerType === 'GUARDIAN') baseReward = 2000;
+    else if (trainer.trainerType === 'ELDER') baseReward = 5000;
+    else if (trainer.trainerType === 'CHAMPION') baseReward = 10000;
+    else if (trainer.trainerClass === 'Operative' || trainer.trainerType === 'NORMAL') baseReward = 500;
+    else if (trainer.trainerClass === 'Cadre') baseReward = 1000;
+    else if (trainer.trainerClass === 'Captain') baseReward = 3000;
+    else if (trainer.trainerType === 'HUNTER') baseReward = 8000;
+    else if (trainer.trainerClass === 'Vice Leader' || trainer.trainerType === 'BOSS') baseReward = 12000;
+    else if (trainer.trainerClass === 'Leader' || trainer.trainerType === 'LEGENDARY') baseReward = 20000;
+
+    let maxLevel = 0;
+    for (const poke of trainer.pokemon) {
+      if (poke.level > maxLevel) maxLevel = poke.level;
+    }
+    
+    // Level scaling bonus = 1000 per level of their highest Pokémon
+    const calculatedReward = baseReward + (maxLevel * 1000);
+
     const npc = await prisma.npcTrainer.create({
       data: {
         name: trainer.name,
@@ -234,7 +253,7 @@ async function seed() {
         trainerType: trainer.trainerType,
         region: trainer.region,
         spriteUrl: `/sprites/trainers/${normalizeName(trainer.trainerClass)}.png`, // Placeholder
-        rewardMoney: trainer.pokemon.length * 1000 // Simple formula
+        rewardMoney: calculatedReward
       }
     });
 

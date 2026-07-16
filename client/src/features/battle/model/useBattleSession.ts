@@ -40,6 +40,10 @@ export function useBattleSession() {
           log: [...(old.log || []), { turn: updatedTurnData.turnNumber, events: updatedTurnData.events }]
         };
       });
+      const s = updatedTurnData.status;
+      if (s === 'ACTIVE' || s === 'WAITING_SWITCH' || s === 'WAITING_MOVE_LEARN') {
+        queryClient.invalidateQueries({ queryKey: ['activeBattle'] });
+      }
     }
   });
 

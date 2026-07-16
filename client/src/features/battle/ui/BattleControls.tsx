@@ -31,9 +31,9 @@ export const BattleControls = memo(function BattleControls({
   onOpenParty
 }: Props) {
   return (
-    <div className="bg-slate-100 dark:bg-slate-950 border-t border-slate-300 dark:border-slate-800 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20 transition-colors duration-200 shrink-0">
+    <div className="bg-white/10 dark:bg-slate-900/40 backdrop-blur-md border-t border-white/20 dark:border-slate-700/50 p-4 shadow-2xl z-20 transition-colors duration-200 shrink-0">
       <div className="w-full h-24">
-        <div className="h-full bg-slate-200 dark:bg-slate-900 rounded-xl p-4 flex flex-col transition-colors duration-200">
+        <div className="h-full bg-white/20 dark:bg-slate-900/50 rounded-xl p-4 flex flex-col transition-colors duration-200 shadow-inner">
           {(!isFinished || isWaitingSwitch || status === 'WAITING_MOVE_LEARN') && (
             <ActionMenu
               player={player}

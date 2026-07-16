@@ -38,14 +38,14 @@ export const ActionMenu = memo(function ActionMenu({
               key={i}
               onClick={() => onMoveSelect(`learn_move:${i}`)}
               disabled={isPending}
-              className="flex-1 bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-bold text-lg rounded-lg border-2 border-slate-300 dark:border-slate-600 capitalize shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+              className="flex-1 bg-white/40 hover:bg-white/60 dark:bg-slate-800/60 dark:hover:bg-slate-700/80 backdrop-blur-md text-slate-900 dark:text-white font-bold text-lg rounded-lg border-2 border-white/50 dark:border-slate-600/50 capitalize shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
             >
-              <span className="text-red-500 text-xs">Forget</span>
-              <span>{(move.name || move.move?.name || 'Unknown').replace('-', ' ')}</span>
+              <span className="text-red-600 dark:text-red-400 text-xs drop-shadow-sm">Forget</span>
+              <span className="drop-shadow-sm">{(move.name || move.move?.name || 'Unknown').replace('-', ' ')}</span>
             </button>
           ))}
-          <div className="w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
-          <button 
+          <div className="w-px bg-white/20 dark:bg-slate-700/50 mx-2"></div>
+          <button
             onClick={onSkipMove}
             disabled={isPending}
             className="w-32 bg-slate-400 hover:bg-slate-500 text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-sm transition-all"
@@ -66,38 +66,38 @@ export const ActionMenu = memo(function ActionMenu({
             key={i}
             onClick={() => onMoveSelect(`move:${move.moveId}`)}
             disabled={isPending}
-            className="flex-1 bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-bold text-lg rounded-lg border-2 border-slate-300 dark:border-slate-600 capitalize shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+            className="flex-1 bg-white/40 hover:bg-white/60 dark:bg-slate-800/60 dark:hover:bg-slate-700/80 backdrop-blur-md text-slate-900 dark:text-white font-bold text-lg rounded-lg border-2 border-white/50 dark:border-slate-600/50 capitalize shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1"
           >
-            <span>{(move.name || move.move?.name || 'Unknown').replace('-', ' ')}</span>
-            <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm ${typeColors[move.type?.toLowerCase()] || typeColors.normal}`}>
+            <span className="drop-shadow-sm">{(move.name || move.move?.name || 'Unknown').replace('-', ' ')}</span>
+            <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm shadow-sm ${typeColors[move.type?.toLowerCase()] || typeColors.normal}`}>
               {move.type || 'Normal'}
             </span>
           </button>
         ))}
         {/* Fill empty move slots */}
         {Array.from({ length: Math.max(0, 4 - (player.moves?.length || 0)) }).map((_, i) => (
-          <div key={`empty-${i}`} className="flex-1 bg-slate-300 dark:bg-slate-800 border-2 border-slate-400 dark:border-slate-700 rounded-lg"></div>
+          <div key={`empty-${i}`} className="flex-1 bg-white/10 dark:bg-slate-900/30 backdrop-blur-sm border-2 border-white/20 dark:border-slate-700/30 rounded-lg"></div>
         ))}
 
         {/* Divider */}
-        <div className="w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
+        <div className="w-px bg-white/20 dark:bg-slate-700/50 mx-2"></div>
 
         {/* Utility Icons */}
-        <button 
+        <button
           onClick={onOpenBag}
           title="Bag"
           className={`w-20 bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 ${battleType === 'NPC' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
         >
           Bag
         </button>
-        <button 
+        <button
           onClick={onOpenParty}
           title="Pokémon"
           className="w-20 bg-gradient-to-br from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5"
         >
           Pkmn
         </button>
-        <button 
+        <button
           onClick={onRun}
           disabled={isPending}
           title="Run"

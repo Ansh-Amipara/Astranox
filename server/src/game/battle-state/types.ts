@@ -12,6 +12,7 @@ export interface ActivePokemon {
   speciesId: number;
   speciesName: string;
   level: number;
+  potential: string;
   types: string[]; // ["fire", "flying"]
   moves: PokemonMove[];
   

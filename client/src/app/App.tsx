@@ -20,6 +20,7 @@ import { AdminLayout } from '../widgets/admin-layout/ui/AdminLayout';
 import { FightSetup } from '../pages/fight-setup/ui/FightSetup';
 import { SocialHub } from '../pages/social-hub/ui/SocialHub';
 import { TradeScreen } from '../pages/trade/ui/TradeScreen';
+import { RankPage } from '../pages/rank/ui/RankPage';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import { GlobalErrorFallback } from '../shared/ui/GlobalErrorFallback';
@@ -129,6 +130,14 @@ function App() {
               element={
                 <AuthGuard>
                   <TradeScreen />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/rank"
+              element={
+                <AuthGuard>
+                  <RankPage />
                 </AuthGuard>
               }
             />

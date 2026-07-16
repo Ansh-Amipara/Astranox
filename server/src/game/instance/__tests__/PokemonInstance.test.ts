@@ -7,6 +7,7 @@ describe('PokemonInstance Factory', () => {
     id: 'uuid-1234',
     nickname: 'Chomper',
     level: 50,
+    potential: 'LEGENDARY',
     ivs: {
       hp: 31,
       attack: 31,

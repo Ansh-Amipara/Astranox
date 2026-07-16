@@ -73,9 +73,29 @@ export class BattleRewardService {
     if (npcTrainer) {
       const hasBadge = trainerSave.badges.includes(npcTrainer.badgeName || '');
       const updateData: any = { money: { increment: npcTrainer.rewardMoney } };
+      
       if (npcTrainer.badgeName && !hasBadge) {
         updateData.badges = { push: npcTrainer.badgeName };
       }
+
+      // Check for Rank Promotion
+      if (npcTrainer.trainerClass === 'Examiner') {
+        const examinerRankMap: Record<string, string> = {
+          'Bronze Examiner': 'BRONZE',
+          'Silver Examiner': 'SILVER',
+          'Gold Examiner': 'GOLD',
+          'Platinum Examiner': 'PLATINUM',
+          'Diamond Examiner': 'DIAMOND',
+          'Epic Examiner': 'EPIC',
+          'Legendary Examiner': 'LEGENDARY',
+          'Mythical Examiner': 'MYTHICAL',
+        };
+        const promotedRank = examinerRankMap[npcTrainer.name];
+        if (promotedRank) {
+          updateData.rank = promotedRank;
+        }
+      }
+
       await tx.trainerSave.update({
         where: { id: trainerSave.id },
         data: updateData

@@ -14,73 +14,90 @@ interface Props {
 export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, battleType }: Props) {
   return (
     <div 
-      className="relative z-10 flex-1 flex flex-col justify-between p-4 bg-cover bg-center bg-no-repeat min-h-0 overflow-hidden"
+      className="relative z-10 flex-1 flex flex-col justify-between p-4 bg-cover bg-center bg-no-repeat min-h-0 overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.3)]"
       style={{ backgroundImage: "url('/battle-bg.png')" }}
     >
       <WeatherEffects weather={null} />
 
-      {/* Top Half: Wild Pokemon */}
-      <div className="flex justify-end w-full max-w-5xl mx-auto mt-2 relative shrink-0">
-        
-        {/* Wild Sprite */}
-        <PokemonSprite 
-          speciesId={wild.speciesId} 
-          speciesName={wild.speciesName} 
-          isPlayer={false} 
-          className="absolute right-[200px] top-12"
-        />
-
-        {/* Wild Info Card */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl w-80 mb-4 z-10">
-          <div className="flex justify-between items-end mb-2">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize tracking-wide">{wild.speciesName}</h2>
-            <span className="text-sm font-bold text-slate-500 dark:text-slate-300">Lv {wild.level}</span>
-          </div>
-          
-          {/* Enemy Party Indicators (NPC only) */}
-          {battleType === 'NPC' && opponentPartyData.length > 0 && (
-            <div className="flex gap-1 mb-2">
-              {opponentPartyData.map((p: any) => (
-                <div 
-                  key={p.id} 
-                  className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500' : 'bg-slate-400 dark:bg-slate-700'}`} 
-                  title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
-                ></div>
-              ))}
+      {/* Wild Info Card (Top Left) */}
+      <div className="absolute top-6 left-6 bg-slate-900/60 backdrop-blur-lg border border-white/10 rounded-2xl p-4 shadow-2xl w-80 z-20 text-white">
+        <div className="flex justify-between items-end mb-2 gap-2">
+          <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm truncate">{wild.speciesName}</h2>
+          <div className="flex flex-col items-end shrink-0">
+            {wild.potential && (
+              <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 rounded font-bold uppercase tracking-wider mb-0.5">
+                {wild.potential.replace('_', ' ')}
+              </span>
+            )}
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold text-slate-300 drop-shadow-sm">Lv {wild.level}</span>
+              {wild.potential && wild.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[wild.potential as string] || 200) && (
+                <span className="text-[10px] font-bold text-red-400 bg-red-900/50 border border-red-500/50 px-1 rounded uppercase">Capped</span>
+              )}
             </div>
-          )}
-          
-          <HealthBar currentHp={wild.currentHp} maxHp={wild.maxHp} />
-          <StatusIcons statusAilment={wild.statusAilment} />
+          </div>
         </div>
+
+        {/* Enemy Party Indicators (NPC only) */}
+        {battleType === 'NPC' && opponentPartyData.length > 0 && (
+          <div className="flex gap-1 mb-2">
+            {opponentPartyData.map((p: any) => (
+              <div
+                key={p.id}
+                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-500/50'}`}
+                title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
+              ></div>
+            ))}
+          </div>
+        )}
+
+        <HealthBar currentHp={wild.currentHp} maxHp={wild.maxHp} />
+        <StatusIcons statusAilment={wild.statusAilment} />
       </div>
 
-      {/* Spacer to push player to bottom */}
-      <div className="flex-1"></div>
-
-      {/* Bottom Half: Player Pokemon */}
-      <div className="flex justify-start w-full max-w-5xl mx-auto mb-2 shrink-0 z-10">
-        <PokemonSprite 
-          speciesId={player.speciesId} 
-          speciesName={player.speciesName} 
-          isPlayer={true} 
-          className="mt-4 ml-[200px] -translate-y-8"
+      {/* Wild Sprite (Top Right) */}
+      <div className="absolute top-12 right-16 z-10">
+        <PokemonSprite
+          speciesId={wild.speciesId}
+          speciesName={wild.speciesName}
+          isPlayer={false}
+          className=""
         />
-        
-        {/* Player Info Card */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl w-80 ml-12 self-end">
-          <div className="flex items-baseline gap-2 mb-1">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white capitalize tracking-wide drop-shadow-sm">
-              {player.nickname || player.speciesName}
-            </h3>
-            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
-              Lv{player.level}
-            </span>
+      </div>
+
+      {/* Player Sprite (Bottom Left) */}
+      <div className="absolute bottom-12 left-24 z-10">
+        <PokemonSprite
+          speciesId={player.speciesId}
+          speciesName={player.speciesName}
+          isPlayer={true}
+          className=""
+        />
+      </div>
+
+      {/* Player Info Card (Bottom Right) */}
+      <div className="absolute bottom-6 right-6 bg-slate-900/60 backdrop-blur-lg border border-white/10 rounded-2xl p-4 shadow-2xl w-80 z-20 text-white">
+        <div className="flex justify-between items-end mb-2 gap-2">
+          <h3 className="text-xl font-bold capitalize tracking-wide drop-shadow-sm truncate">
+            {player.nickname || player.speciesName}
+          </h3>
+          <div className="flex flex-col items-end shrink-0">
+            {player.potential && (
+              <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 rounded font-bold uppercase tracking-wider mb-0.5">
+                {player.potential.replace('_', ' ')}
+              </span>
+            )}
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold text-slate-300 drop-shadow-sm">Lv {player.level}</span>
+              {player.potential && player.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[player.potential as string] || 200) && (
+                <span className="text-[10px] font-bold text-red-400 bg-red-900/50 border border-red-500/50 px-1 rounded uppercase">Capped</span>
+              )}
+            </div>
           </div>
-          
-          <HealthBar currentHp={player.currentHp} maxHp={player.maxHp} />
-          <StatusIcons statusAilment={player.statusAilment} />
         </div>
+
+        <HealthBar currentHp={player.currentHp} maxHp={player.maxHp} />
+        <StatusIcons statusAilment={player.statusAilment} />
       </div>
     </div>
   );

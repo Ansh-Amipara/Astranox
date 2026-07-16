@@ -15,6 +15,7 @@ export interface TrainerSaveDto {
   readonly id: string;
   readonly userId: string;
   readonly money: number;
+  readonly rank: string;
   readonly starterChosenAt: Date | null;
   readonly createdAt: Date;
   readonly updatedAt: Date;

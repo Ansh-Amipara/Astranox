@@ -20,12 +20,23 @@ function generateWildIVs() {
   };
 }
 
+function getNpcPotential(level: number): string {
+  if (level <= 20) return 'BRONZE';
+  if (level <= 40) return 'SILVER';
+  if (level <= 60) return 'GOLD';
+  if (level <= 80) return 'PLATINUM';
+  if (level <= 90) return 'DIAMOND';
+  if (level <= 100) return 'EPIC';
+  return 'LEGENDARY';
+}
+
 function toActivePokemon(inst: any): ActivePokemon {
   return {
     id: inst.id,
     speciesId: inst.species.id,
     speciesName: inst.name,
     level: inst.level,
+    potential: inst.potential,
     types: inst.types,
     moves: inst.moves || [],
     maxHp: inst.maxHp,
@@ -86,6 +97,7 @@ export class BattleSessionService {
       id: crypto.randomUUID(),
       nickname: species.name,
       level: level,
+      potential: 'BLACK_IRON',
       ivs,
       species: {
         id: species.id,
@@ -208,6 +220,7 @@ export class BattleSessionService {
          id: p.id,
          nickname: species.name,
          level: p.level,
+         potential: getNpcPotential(p.level),
          ivs: { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed },
          species: {
            id: species.id,

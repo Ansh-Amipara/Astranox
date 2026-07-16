@@ -8,65 +8,25 @@ export const logRequest = (config: InternalAxiosRequestConfig) => {
     requestId: reqId
   };
 
-  if (import.meta.env.DEV) {
-    const method = config.method?.toUpperCase() || 'UNKNOWN';
-    const url = config.url ?? '';
-    console.groupCollapsed(`[API][${reqId}] Request: ${method} ${url}`);
-    console.table({
-      id: reqId,
-      method,
-      url
-    });
-    if (config.data) console.log('Payload:', config.data);
-    if (config.params) console.log('Params:', config.params);
-    console.groupEnd();
-  }
+  // Removed console.log to keep browser console clean
 };
 
-export const logResponse = (response: AxiosResponse) => {
-  if (import.meta.env.DEV) {
-    const config = response.config;
-    const reqId = config.metadata?.requestId || 'unknown';
-    const start = config.metadata?.start || performance.now();
-    const duration = (performance.now() - start).toFixed(2);
-    const method = config.method?.toUpperCase() || 'UNKNOWN';
-    const url = config.url ?? '';
-
-    console.groupCollapsed(`[API][${reqId}] Response: ${response.status} ${url} [${duration}ms]`);
-    console.table({
-      id: reqId,
-      method,
-      url,
-      status: response.status,
-      duration: `${duration}ms`
-    });
-    console.log('Data:', response.data);
-    console.groupEnd();
-  }
+export const logResponse = (_response: AxiosResponse) => {
+  // Removed console.log to keep browser console clean
 };
 
 export const logErrorAndToast = (error: AxiosError | any) => {
   const originalRequest = error.config as InternalAxiosRequestConfig | undefined;
   const url = originalRequest?.url ?? '';
   const status = error.response?.status;
-  const method = originalRequest?.method?.toUpperCase() || 'UNKNOWN';
 
   if (import.meta.env.DEV && originalRequest) {
     const reqId = originalRequest.metadata?.requestId || 'unknown';
     const start = originalRequest.metadata?.start || performance.now();
     const duration = (performance.now() - start).toFixed(2);
     
-    console.groupCollapsed(`[API][${reqId}] Error: ${status || 'Network Error'} ${url} [${duration}ms]`);
-    console.table({
-      id: reqId,
-      method,
-      url,
-      status: status || 'Network Error',
-      duration: `${duration}ms`
-    });
-    console.log('Error Data:', error.response?.data);
-    console.log('Message:', error.message);
-    console.groupEnd();
+    // We only log errors to keep the console clean
+    console.error(`[API][${reqId}] Error: ${status || 'Network Error'} ${url} [${duration}ms]`);
   }
 
   // Toast notifications

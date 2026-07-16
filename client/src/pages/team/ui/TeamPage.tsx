@@ -19,6 +19,7 @@ export function TeamPage() {
   const [detailsPkm, setDetailsPkm] = useState<any>(null);
   const [changeMovePkm, setChangeMovePkm] = useState<any>(null);
   const [evolutionPkm, setEvolutionPkm] = useState<any>(null);
+  const [boostPkm, setBoostPkm] = useState<any>(null);
   const [moveSearch, setMoveSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -76,6 +77,16 @@ export function TeamPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       setEvolutionPkm(null);
+    }
+  });
+
+  const boostMutation = useMutation({
+    mutationFn: async ({ pokemonId, itemId }: { pokemonId: string, itemId: string }) => {
+      await api.post(`/trainers/party/${pokemonId}/boost-potential`, { itemId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      setBoostPkm(null);
     }
   });
 
@@ -147,15 +158,24 @@ export function TeamPage() {
                             <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                               Lv. {pkm.level}
                             </span>
-                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-                              • {pkm.currentXp.toLocaleString()} XP
-                            </span>
+                            {pkm.potential && pkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[pkm.potential as string] || 200) ? (
+                              <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded uppercase tracking-wider">Capped</span>
+                            ) : (
+                              <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                                • {pkm.currentXp.toLocaleString()} XP
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
 
                       {/* Display simplified types/basic info on the card now instead of the massive stats grid */}
-                      <div className="mt-2 flex gap-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {pkm.potential && (
+                          <span className="text-xs px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300 capitalize">
+                            {pkm.potential.toLowerCase().replace('_', ' ')}
+                          </span>
+                        )}
                         <span className={`text-xs px-2 py-1 rounded font-bold border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 capitalize`}>
                           {pkm.species?.type1?.name}
                         </span>
@@ -207,7 +227,14 @@ export function TeamPage() {
               />
               <div>
                 <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
-                <p className="text-xs font-bold text-slate-500">Lv. {activeMenuPkm.level} <span className="font-medium text-slate-400 opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span></p>
+                <p className="text-xs font-bold text-slate-500">
+                  Lv. {activeMenuPkm.level} 
+                  {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[activeMenuPkm.potential as string] || 200) ? (
+                    <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
+                  ) : (
+                    <span className="font-medium text-slate-400 opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span>
+                  )}
+                </p>
               </div>
             </div>
 
@@ -257,6 +284,18 @@ export function TeamPage() {
                   🧬 Evolution
                 </button>
               )}
+
+              {activeMenuPkm.potential !== 'DIAMOND' && (
+                <button 
+                  onClick={() => { 
+                    setBoostPkm(activeMenuPkm);
+                    setActiveMenuPkm(null);
+                  }}
+                  className="w-full text-left px-4 py-3 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 dark:bg-yellow-900/50 dark:hover:bg-yellow-800 dark:text-yellow-300 rounded-xl font-bold transition-colors"
+                >
+                  💎 Boost Potential
+                </button>
+              )}
               
               <button 
                 onClick={() => {
@@ -299,8 +338,15 @@ export function TeamPage() {
                     <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-sm font-bold px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
                       Lv. {detailsPkm.level}
                     </span>
-
-                    <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">#{detailsPkm.species?.id}</span>
+                    {detailsPkm.potential && (
+                      <span className="text-xs px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300 capitalize">
+                        {detailsPkm.potential.toLowerCase().replace('_', ' ')}
+                      </span>
+                    )}
+                    {detailsPkm.potential && detailsPkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[detailsPkm.potential as string] || 200) && (
+                      <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded uppercase tracking-wider">Capped</span>
+                    )}
+                    <span className="text-slate-500 dark:text-slate-400 text-sm font-medium ml-auto">#{detailsPkm.species?.id}</span>
                   </div>
                 </div>
               </div>
@@ -583,6 +629,85 @@ export function TeamPage() {
           </div>
         </div>
       )}
+
+      {/* --- 5. Boost Potential Modal --- */}
+      {boostPkm && (() => {
+        const potentialMap: Record<string, { next: string, item: string, itemName: string }> = {
+          'BLACK_IRON': { next: 'BRONZE', item: 'bronze-crystal', itemName: 'Bronze Crystal' },
+          'BRONZE': { next: 'SILVER', item: 'silver-crystal', itemName: 'Silver Crystal' },
+          'SILVER': { next: 'GOLD', item: 'gold-crystal', itemName: 'Gold Crystal' },
+          'GOLD': { next: 'PLATINUM', item: 'platinum-crystal', itemName: 'Platinum Crystal' },
+          'PLATINUM': { next: 'DIAMOND', item: 'diamond-crystal', itemName: 'Diamond Crystal' },
+        };
+        const mapping = potentialMap[boostPkm.potential];
+        const ownedCrystal = save.inventory?.find((i: any) => i.itemId === mapping?.item);
+        const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>
+            <div className="bg-slate-900 border-2 border-yellow-500 rounded-3xl p-8 w-full max-w-md flex flex-col shadow-[0_0_50px_rgba(234,179,8,0.2)] relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-amber-900/20 pointer-events-none" />
+              
+              <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500 mb-6 relative z-10 tracking-widest uppercase">
+                Boost Potential
+              </h2>
+
+              <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-24 bg-slate-800/80 rounded-full flex items-center justify-center border border-slate-700 shadow-inner">
+                    <img src={getSpriteUrl(boostPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80 mix-blend-screen" />
+                  </div>
+                  <span className="mt-3 font-bold text-slate-300 capitalize text-sm">{boostPkm.nickname || boostPkm.species.name}</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/80 rounded-2xl p-5 mb-8 relative z-10 border border-slate-700 backdrop-blur-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex flex-col">
+                    <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Current Potential</span>
+                    <span className="text-lg font-black text-slate-300">{boostPkm.potential.replace('_', ' ')}</span>
+                  </div>
+                  <span className="text-2xl text-yellow-500">➡️</span>
+                  <div className="flex flex-col text-right">
+                    <span className="text-xs uppercase font-bold text-yellow-500 tracking-wider">Next Potential</span>
+                    <span className="text-lg font-black text-yellow-400">{mapping?.next.replace('_', ' ')}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-700 pt-4 mt-2">
+                  <h4 className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-3">Required Crystal</h4>
+                  <div className="flex flex-col items-center">
+                    <span className="text-xl font-black text-white">{mapping?.itemName}</span>
+                    <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-slate-900 ${hasCrystal ? 'text-green-400' : 'text-red-400'}`}>
+                      In Bag: {ownedCrystal?.quantity || 0}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4 relative z-10">
+                <button 
+                  onClick={() => setBoostPkm(null)}
+                  disabled={boostMutation.isPending}
+                  className="px-6 py-3 font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-xl transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                
+                {hasCrystal && (
+                  <button 
+                    onClick={() => boostMutation.mutate({ pokemonId: boostPkm.id, itemId: mapping.item })}
+                    disabled={boostMutation.isPending}
+                    className="px-8 py-3 font-black tracking-widest text-slate-900 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                  >
+                    {boostMutation.isPending ? 'BOOSTING...' : 'BOOST POTENTIAL!'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       <style>{`
         .pixelated { image-rendering: pixelated; }

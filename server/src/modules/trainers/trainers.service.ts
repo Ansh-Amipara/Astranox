@@ -7,6 +7,8 @@ import type { MoveDto } from './dto/response/MoveDto';
 import type { PickStarterDto } from './dto/request/PickStarterDto';
 import type { SwapSlotsDto } from './dto/request/SwapSlotsDto';
 import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
+import type { BoostPotentialDto } from './dto/request/BoostPotentialDto';
+import { PokemonPotential } from '@prisma/client';
 
 // Allowed pseudo-legendaries
 const ALLOWED_STARTER_IDS = [147, 246, 371, 374, 443, 633, 704, 782, 885];
@@ -149,5 +151,41 @@ export class TrainersService {
     // However, the previous implementation just returned evolvedPokemon which is the OwnedPokemon object.
     const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);
     return TrainerMapper.toOwnedPokemonDto(fullyIncludedPokemon);
+  }
+
+  async boostPotential(userId: string, pokemonId: string, dto: BoostPotentialDto): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    const { itemId } = dto;
+    const item = await this.repo.getInventoryItem(save.id, itemId);
+    if (!item || item.quantity <= 0) {
+      throw new ValidationError(`You do not have a ${itemId} to boost potential.`);
+    }
+
+    const validProgressions: Record<string, { current: PokemonPotential, next: PokemonPotential }> = {
+      'bronze-crystal': { current: PokemonPotential.BLACK_IRON, next: PokemonPotential.BRONZE },
+      'silver-crystal': { current: PokemonPotential.BRONZE, next: PokemonPotential.SILVER },
+      'gold-crystal': { current: PokemonPotential.SILVER, next: PokemonPotential.GOLD },
+      'platinum-crystal': { current: PokemonPotential.GOLD, next: PokemonPotential.PLATINUM },
+      'diamond-crystal': { current: PokemonPotential.PLATINUM, next: PokemonPotential.DIAMOND },
+    };
+
+    const progression = validProgressions[itemId];
+    if (!progression) {
+      throw new ValidationError('Invalid crystal type provided.');
+    }
+
+    if (pokemon.potential !== progression.current) {
+      throw new ValidationError(`This crystal can only be used on ${progression.current} potential Pokémon.`);
+    }
+
+    const updatedPokemon = await this.repo.boostPotential(save.id, pokemonId, progression.next, itemId);
+    return TrainerMapper.toOwnedPokemonDto(updatedPokemon);
   }
 }

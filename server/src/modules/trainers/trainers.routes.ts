@@ -16,3 +16,4 @@ trainersRoutes.get('/moves', controller.getAllMoves);
 trainersRoutes.patch('/party/:pokemonId/moves', gameplayLimiter, controller.changeMoves);
 trainersRoutes.delete('/:pokemonId', gameplayLimiter, controller.releasePokemon);
 trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, controller.evolvePokemon);
+trainersRoutes.post('/party/:pokemonId/boost-potential', gameplayLimiter, controller.boostPotential);

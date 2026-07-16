@@ -33,6 +33,7 @@ export interface PokemonInstancePayload {
   id: string; // e.g. UUID from the database
   nickname: string | null;
   level: number;
+  potential: string;
   currentXp?: number;
   ivs: {
     hp: number;
@@ -57,6 +58,7 @@ export interface PokemonInstance {
   id: string;
   name: string;
   level: number;
+  potential: string;
   currentXp: number;
   types: string[];
   

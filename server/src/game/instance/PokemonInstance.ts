@@ -1,6 +1,21 @@
 import { PokemonInstancePayload, PokemonInstance } from './types';
 import { calculateHP, calculateStat } from '../battle/stats';
 
+export function getMaxLevelForPotential(potential: string): number {
+  switch (potential) {
+    case 'BLACK_IRON': return 20;
+    case 'BRONZE': return 40;
+    case 'SILVER': return 60;
+    case 'GOLD': return 80;
+    case 'PLATINUM': return 90;
+    case 'DIAMOND': return 100;
+    case 'EPIC': return 120;
+    case 'LEGENDARY': return 150;
+    case 'MYTHICAL': return 200;
+    default: return 200;
+  }
+}
+
 /**
  * Validates and constructs a fully hydrated PokemonInstance from a payload.
  * Pure logic function that uses the Phase 5 mathematical engine.
@@ -14,9 +29,10 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     }
   }
 
-  // 2. Validate Level (1-200)
-  if (payload.level < 1 || payload.level > 200) {
-    throw new Error(`Invalid Level: ${payload.level}. Level must be strictly between 1 and 200.`);
+  // 2. Validate Level against Potential Cap
+  const maxLevel = getMaxLevelForPotential(payload.potential);
+  if (payload.level < 1 || payload.level > maxLevel) {
+    throw new Error(`Invalid Level: ${payload.level}. Level must be strictly between 1 and ${maxLevel} for potential ${payload.potential}.`);
   }
 
   // 3. Hydrate Stats via Gen V Engine
@@ -35,6 +51,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     id: payload.id,
     name: payload.nickname || payload.species.name,
     level: payload.level,
+    potential: payload.potential,
     currentXp: payload.currentXp || 0,
     types: payload.species.types,
     maxHp,

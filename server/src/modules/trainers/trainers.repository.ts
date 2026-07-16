@@ -1,6 +1,13 @@
-import { PrismaClient, TrainerSave } from '@prisma/client';
+import { PrismaClient, TrainerSave, PokemonPotential } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+function generateStarterPotential() {
+  const rand = Math.random();
+  if (rand < 0.10) return 'DIAMOND';
+  if (rand < 0.50) return 'PLATINUM'; // 40% chance (0.10 to 0.50)
+  return 'GOLD'; // 50% chance (0.50 to 1.0)
+}
 
 export class TrainersRepository {
   async findByUserId(userId: string): Promise<any> {
@@ -48,6 +55,8 @@ export class TrainersRepository {
           trainerId,
           speciesId,
           level: 5,
+          // @ts-ignore
+          potential: generateStarterPotential() as any,
           currentXp: 5000,
           isParty: true,
           position: 0,
@@ -243,5 +252,24 @@ export class TrainersRepository {
         data: { speciesId: evolvesToId }
       });
     });
+  }
+
+  async boostPotential(trainerSaveId: string, pokemonId: string, nextPotential: PokemonPotential, itemIdToConsume: string) {
+    const results = await prisma.$transaction([
+      prisma.ownedPokemon.update({
+        where: { id: pokemonId, trainerId: trainerSaveId },
+        // @ts-ignore
+        data: { potential: nextPotential },
+        include: {
+          species: { include: { type1: true, type2: true } },
+          moves: { include: { move: { include: { type: true } } } }
+        }
+      }),
+      prisma.inventoryItem.update({
+        where: { trainerId_itemId: { trainerId: trainerSaveId, itemId: itemIdToConsume } },
+        data: { quantity: { decrement: 1 } },
+      }),
+    ]);
+    return results[0];
   }
 }

@@ -12,6 +12,30 @@ enum Role {
   ADMIN
 }
 
+enum TrainerRank {
+  BLACK_IRON
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+  EPIC
+  LEGENDARY
+  MYTHICAL
+}
+
+enum PokemonPotential {
+  BLACK_IRON
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+  EPIC
+  LEGENDARY
+  MYTHICAL
+}
+
 model User {
   id               String   @id @default(uuid()) @db.Uuid
   username         String   @unique
@@ -35,6 +59,7 @@ model TrainerSave {
 
   starterChosenAt DateTime?
   money           Int       @default(3000)
+  rank            TrainerRank @default(BLACK_IRON)
 
   badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
 
@@ -68,6 +93,7 @@ model OwnedPokemon {
 
   nickname String?
   level    Int     @default(5)
+  potential PokemonPotential @default(BLACK_IRON)
 
   // Location Tracking
   isParty   Boolean @default(false)
@@ -284,6 +310,7 @@ model NpcTrainerPokemon {
 
   speciesId Int
   level     Int @default(5)
+  potential PokemonPotential @default(BLACK_IRON)
   position  Int @default(0)
 
   // IVs

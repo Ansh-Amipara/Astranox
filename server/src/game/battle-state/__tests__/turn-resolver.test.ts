@@ -8,6 +8,7 @@ describe('Turn Resolver Engine', () => {
     speciesId: 1,
     speciesName: 'MockMon',
     level,
+    potential: 'LEGENDARY',
     types,
     maxHp: 100,
     currentHp: 100,

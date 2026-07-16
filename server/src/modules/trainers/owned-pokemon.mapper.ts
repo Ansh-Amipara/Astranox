@@ -44,6 +44,8 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
     id: dbModel.id,
     nickname: dbModel.nickname,
     level: dbModel.level,
+    // @ts-ignore
+    potential: dbModel.potential,
     currentXp: dbModel.currentXp,
     ivs: {
       hp: dbModel.ivHp,
