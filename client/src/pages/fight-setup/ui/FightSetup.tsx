@@ -73,8 +73,8 @@ export function FightSetup() {
     }
 
     const levelNum = parseInt(level, 10);
-    if (isNaN(levelNum) || levelNum < 1 || levelNum > 100) {
-      setError('Please enter a valid level between 1 and 100.');
+    if (isNaN(levelNum) || levelNum < 1 || levelNum > 200) {
+      setError('Please enter a valid level between 1 and 200.');
       return;
     }
 
@@ -158,7 +158,7 @@ export function FightSetup() {
 
           <div>
             <label htmlFor="level" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Level (1-100)
+              Level (1-200)
             </label>
             <input
               type="text"

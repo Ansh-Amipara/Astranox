@@ -21,6 +21,7 @@ import { FightSetup } from '../pages/fight-setup/ui/FightSetup';
 import { SocialHub } from '../pages/social-hub/ui/SocialHub';
 import { TradeScreen } from '../pages/trade/ui/TradeScreen';
 import { RankPage } from '../pages/rank/ui/RankPage';
+import { RealmsPage } from '../pages/realms/ui/RealmsPage';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import { GlobalErrorFallback } from '../shared/ui/GlobalErrorFallback';
@@ -138,6 +139,14 @@ function App() {
               element={
                 <AuthGuard>
                   <RankPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/realms"
+              element={
+                <AuthGuard>
+                  <RealmsPage />
                 </AuthGuard>
               }
             />

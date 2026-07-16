@@ -13,6 +13,7 @@ import { npcsRoutes } from './modules/npcs/npcs.routes';
 import { socialRoutes } from './modules/social/social.routes';
 import { tradesRoutes } from './modules/trades/trades.routes';
 import { rankRoutes } from './modules/rank/rank.routes';
+import realmsRoutes from './modules/realms/realms.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
@@ -43,6 +44,7 @@ app.use('/npcs', npcsRoutes);
 app.use('/social', socialRoutes);
 app.use('/trades', tradesRoutes);
 app.use('/rank', rankRoutes);
+app.use('/realms', realmsRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {

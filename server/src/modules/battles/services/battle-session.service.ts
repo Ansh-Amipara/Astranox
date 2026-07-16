@@ -169,6 +169,100 @@ export class BattleSessionService {
     };
   }
 
+  async startSecretRealmEncounter(userId: string, speciesId: number, level: number, potential: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) throw new NotFoundError('Trainer save not found');
+
+    const active = await this.repository.getActiveBattleByTrainer(trainerSave.id);
+    if (active) throw new ValidationError('You are already in a battle.');
+
+    const species = await prisma.species.findUnique({
+      where: { id: speciesId },
+      include: { type1: true, type2: true }
+    });
+
+    if (!species) throw new NotFoundError('Species not found.');
+
+    const ivs = generateWildIVs();
+
+    const types = [species.type1.name];
+    if (species.type2) types.push(species.type2.name);
+    
+    const wildInstance = createPokemonInstance({
+      id: crypto.randomUUID(),
+      nickname: species.name,
+      level: level,
+      potential: potential, // Dynamic potential from our realm rules
+      ivs,
+      species: {
+        id: species.id,
+        name: species.name,
+        types,
+        baseStats: {
+          hp: species.hp,
+          attack: species.attack,
+          defense: species.defense,
+          spAtk: species.spAtk,
+          spDef: species.spDef,
+          speed: species.speed
+        }
+      },
+      moves: []
+    });
+
+    const learnset = await prisma.learnset.findMany({
+      where: { speciesId: species.id, level: { lte: level } },
+      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+      include: { move: { include: { type: true } } }
+    });
+
+    const uniqueMoves: any[] = [];
+    const seen = new Set();
+    for (let i = learnset.length - 1; i >= 0; i--) {
+      if (!seen.has(learnset[i].moveId)) {
+        seen.add(learnset[i].moveId);
+        uniqueMoves.unshift(learnset[i]);
+      }
+    }
+
+    const latestMoves = uniqueMoves.slice(-4);
+    wildInstance.moves = latestMoves.map((m: any, i: number) => ({
+      moveId: m.moveId,
+      currentSlot: i,
+      name: m.move.name,
+      type: m.move.type.name
+    }));
+
+    const wildActive = toActivePokemon(wildInstance);
+
+    if (trainerSave.party.length === 0) {
+      throw new ValidationError('You have no Pokemon to battle with!');
+    }
+    const lead = trainerSave.party[0];
+    const playerInstance = mapOwnedPokemonToInstance(lead as any);
+    const playerActive = toActivePokemon(playerInstance);
+
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
+    const session = await this.repository.createBattleSession({
+      trainerId: trainerSave.id,
+      playerActivePokemonId: playerActive.id,
+      opponentPokemonData: wildActive,
+      playerPokemonData: playerActive,
+      playerPartyData,
+      battleType: 'SECRET_REALM' // Use the new battle type!
+    });
+
+    return {
+      encounter: {
+        species: species,
+        level: level,
+        potential: potential
+      },
+      battleSession: session
+    };
+  }
+
   async engageNpc(userId: string, npcTrainerId: string) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
     if (!trainerSave) throw new NotFoundError('Trainer profile not found.');

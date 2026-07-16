@@ -110,3 +110,14 @@ export const worldApi = {
     return data.data;
   }
 };
+
+export const realmsApi = {
+  getRealms: async () => {
+    const { data } = await api.get('/realms');
+    return data.data;
+  },
+  exploreRealm: async (realmId: string) => {
+    const { data } = await api.post(`/realms/${realmId}/explore`);
+    return data.data;
+  }
+};

@@ -27,8 +27,8 @@ export class BattleValidatorService {
   }
 
   validateItem(itemId: string, inventory: any[], battleType: string) {
-    if (battleType !== 'WILD') {
-      throw new ValidationError('Items cannot be used to catch an NPC trainer\'s Pokemon.');
+    if (battleType !== 'SECRET_REALM') {
+      throw new ValidationError('Items can only be used to catch Pokemon in Secret Realms.');
     }
 
     const inventoryItem = inventory.find((i: any) => i.itemId === itemId);

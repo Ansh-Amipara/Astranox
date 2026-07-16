@@ -2,13 +2,27 @@ import { Prisma, BattleStatus } from '@prisma/client';
 
 export class BattleRewardService {
   async processFaintRewards(result: any, wildPokemon: any, tx: Prisma.TransactionClient): Promise<{ newStatus?: BattleStatus }> {
-    const { getExpYield, getLevelFromXp } = require('../../../game/battle/level-math');
+    const { getExpYield, getLevelFromXp, getXpForLevel } = require('../../../game/battle/level-math');
+    const { getMaxLevelForPotential } = require('../../../game/instance/PokemonInstance');
     let newStatus: BattleStatus | undefined = undefined;
 
+    const maxLevel = getMaxLevelForPotential(result.p1State.potential);
+    const maxXpForPotential = getXpForLevel(maxLevel + 1) - 1;
+
     const xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
+    let actualYield = xpYield;
+
+    if (result.p1State.currentXp + xpYield > maxXpForPotential) {
+      actualYield = Math.max(0, maxXpForPotential - result.p1State.currentXp);
+    }
     
-    result.p1State.currentXp += xpYield;
-    result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: xpYield });
+    result.p1State.currentXp += actualYield;
+    
+    if (actualYield > 0) {
+      result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: actualYield });
+    } else {
+      result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: 0 }); // Show 0 if capped
+    }
 
     const oldLevel = result.p1State.level;
     const newLevel = getLevelFromXp(result.p1State.currentXp);

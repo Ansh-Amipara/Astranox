@@ -250,6 +250,7 @@ enum BattleStatus {
 enum BattleType {
   WILD
   NPC
+  SECRET_REALM
 }
 
 model BattleSession {
