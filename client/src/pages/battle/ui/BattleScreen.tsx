@@ -1,5 +1,6 @@
+'use client';
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useBattleSession } from '../../../features/battle/model/useBattleSession';
 import { BattleArena } from '../../../features/battle/ui/BattleArena';
 import { BattleControls } from '../../../features/battle/ui/BattleControls';
@@ -7,8 +8,8 @@ import { BattleLog } from '../../../features/battle/ui/BattleLog';
 import { BattleResultModal } from '../../../features/battle/ui/BattleResultModal';
 
 export function BattleScreen() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
   const [menu, setMenu] = useState<'main' | 'fight' | 'bag' | 'party'>('main');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
@@ -64,15 +65,16 @@ export function BattleScreen() {
     setMenu('party');
   }, []);
 
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams?.get('returnUrl') || '/';
+
   if (isLoading) return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
-  
-  const returnUrl = location.state?.returnUrl || '/';
 
   if (error || !battleRes) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
         <p>No active battle found.</p>
-        <button onClick={() => navigate(returnUrl)} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors">Return</button>
+        <button onClick={() => router.push(returnUrl)} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors">Return</button>
       </div>
     );
   }

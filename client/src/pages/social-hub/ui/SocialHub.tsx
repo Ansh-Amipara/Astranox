@@ -1,13 +1,14 @@
+'use client';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 export function SocialHub() {
   const [activeTab, setActiveTab] = useState<'friends' | 'trades'>('friends');
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Queries
   const { data: friendsData } = useQuery({
@@ -96,7 +97,7 @@ export function SocialHub() {
         {/* Header & Tabs */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
           <div>
-            <button onClick={() => navigate('/')} className="text-slate-500 hover:text-blue-500 mb-2 flex items-center font-bold uppercase tracking-wider text-sm transition-colors">
+            <button onClick={() => router.push('/')} className="text-slate-500 hover:text-blue-500 mb-2 flex items-center font-bold uppercase tracking-wider text-sm transition-colors">
               ◀ Back to Map
             </button>
             <h1 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Social Hub</h1>
@@ -166,7 +167,7 @@ export function SocialHub() {
                           <p className="text-sm text-slate-500">Badges: {f.friend.badges.length}</p>
                         </div>
                         <button 
-                          onClick={() => navigate(`/trade/${f.friend.id}`)}
+                          onClick={() => router.push(`/trade/${f.friend.id}`)}
                           className="bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-800/50 text-purple-600 dark:text-purple-400 p-3 rounded-xl transition-colors group relative"
                           title="Propose Trade"
                         >

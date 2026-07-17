@@ -30,3 +30,6 @@ dist-ssr
 .agents/AGENTS.md
 
 docs/
+
+# Next.js
+.next

@@ -1,7 +1,8 @@
+'use client';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../shared/store/auth.store';
-import { api } from '../../../shared/api/api';
+import { apiClient } from '../../../shared/api/api-client';
 
 export function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -9,7 +10,7 @@ export function AdminLogin() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const navigate = useNavigate();
+  const router = useRouter();
   const setAuth = useAuthStore(state => state.setAuth);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,14 +19,14 @@ export function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const { data } = await api.post('/auth/login', { username, password });
+      const { data } = await apiClient.post('/auth/login', { username, password });
       
       if (data.data.user.role !== 'ADMIN') {
         throw new Error('This account does not have admin privileges.');
       }
       
       setAuth(data.data.accessToken, data.data.user);
-      navigate('/admin/dashboard');
+      router.push('/admin/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || err.message || 'Failed to login');
     } finally {

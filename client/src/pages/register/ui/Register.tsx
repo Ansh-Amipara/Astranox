@@ -1,6 +1,8 @@
+'use client';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { api } from '../../../shared/api/api';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { apiClient } from '../../../shared/api/api-client';
 import { Loader2 } from 'lucide-react';
 
 export function Register() {
@@ -11,7 +13,7 @@ export function Register() {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,10 +21,10 @@ export function Register() {
     setIsLoading(true);
 
     try {
-      await api.post('/auth/register', { username, email, password });
+      await apiClient.post('/auth/register', { username, email, password });
       setSuccess(true);
       setTimeout(() => {
-        navigate('/login', { replace: true });
+        router.replace('/login');
       }, 2000);
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Registration failed');
@@ -112,7 +114,7 @@ export function Register() {
             
             <p className="text-center text-sm text-slate-600 dark:text-slate-400">
               Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+              <Link href="/login" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                 Sign in
               </Link>
             </p>

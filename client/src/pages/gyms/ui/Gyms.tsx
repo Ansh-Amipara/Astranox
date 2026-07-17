@@ -1,5 +1,6 @@
+'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { api } from '../../../shared/api/api';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -8,13 +9,13 @@ const REGIONS = [
 ];
 
 export function Gyms() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [selectedRegion, setSelectedRegion] = useState(REGIONS[0]);
 
-  const typeParam = searchParams.get('type') || 'guardian';
+  const typeParam = searchParams?.get('type') || 'guardian';
 
   const { data: npcs, isLoading } = useQuery({
     queryKey: ['npcs'],
@@ -33,7 +34,7 @@ export function Gyms() {
       // Invalidate active session and navigate to battle
       queryClient.invalidateQueries({ queryKey: ['activeBattle'] });
       const returnUrl = location.pathname + location.search;
-      navigate('/battle', { state: { returnUrl } });
+      router.push('/battle');
     },
     onError: (err: any) => {
       alert(err.response?.data?.error?.message || 'Failed to start battle');

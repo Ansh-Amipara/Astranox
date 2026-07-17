@@ -1,5 +1,6 @@
+'use client';
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 
@@ -11,8 +12,8 @@ interface Species {
 }
 
 export function FightSetup() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
   const [speciesId, setSpeciesId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -46,7 +47,7 @@ export function FightSetup() {
     mutationFn: (data: { speciesId: number; level: number }) => api.post('/battles/engage-custom', data),
     onSuccess: () => {
       const returnUrl = location.pathname + location.search;
-      navigate('/battle', { state: { returnUrl } });
+      router.push('/battle');
     },
     onError: (err: any) => {
       setError(err.response?.data?.error?.message || 'Failed to start battle');

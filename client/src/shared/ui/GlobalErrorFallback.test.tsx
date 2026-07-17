@@ -1,7 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GlobalErrorFallback } from './GlobalErrorFallback';
-import { BrowserRouter } from 'react-router-dom';
-import { vi } from 'vitest';
+import { vi, describe, beforeEach, it, expect } from 'vitest';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
 
 describe('GlobalErrorFallback', () => {
   const mockReset = vi.fn();
@@ -12,9 +17,7 @@ describe('GlobalErrorFallback', () => {
 
   const renderComponent = (error: Error) => {
     return render(
-      <BrowserRouter>
-        <GlobalErrorFallback error={error} resetErrorBoundary={mockReset} />
-      </BrowserRouter>
+      <GlobalErrorFallback error={error} resetErrorBoundary={mockReset} />
     );
   };
 

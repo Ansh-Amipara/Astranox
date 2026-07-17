@@ -1,22 +1,27 @@
+'use client';
 import { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useErrorBoundary } from 'react-error-boundary';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '../../../shared/store/auth.store';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isInitialized, initialize } = useAuthStore();
-  const location = useLocation();
-  const { showBoundary } = useErrorBoundary();
+  const router = useRouter();
+  const pathname = usePathname();
   const [initStarted, setInitStarted] = useState(false);
+  const [initError, setInitError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!isInitialized && !initStarted) {
       setInitStarted(true);
       initialize().catch((error) => {
-        showBoundary(error);
+        setInitError(error);
       });
     }
-  }, [isInitialized, initialize, initStarted, showBoundary]);
+  }, [isInitialized, initialize, initStarted]);
+
+  if (initError) {
+    throw initError;
+  }
 
   // Premium loading state while checking auth
   if (!isInitialized) {
@@ -33,7 +38,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // Redirect to login if unauthenticated
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    if (typeof window !== 'undefined') {
+      router.replace(`/login?from=${pathname}`);
+    }
+    return null;
   }
 
   // Render children if authenticated

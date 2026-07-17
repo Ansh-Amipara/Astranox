@@ -1,18 +1,19 @@
+'use client';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../shared/store/auth.store';
-import { api, getSpriteUrl } from '../../../shared/api/api';
+import { apiClient, getSpriteUrl } from '../../../shared/api/api-client';
 import { StarterSelection } from '../../starter-selection/ui/StarterSelection';
 import { FiTrendingUp, FiCrosshair, FiBox, FiMap, FiAward, FiShoppingCart } from 'react-icons/fi';
 
 export function Home() {
   const { user } = useAuthStore();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const { data: save, isLoading: isSaveLoading } = useQuery({
     queryKey: ['trainerSave'],
     queryFn: async () => {
-      const { data } = await api.get('/trainers/me');
+      const { data } = await apiClient.get('/trainers/me');
       return data.data;
     },
   });
@@ -69,10 +70,10 @@ export function Home() {
               <FiCrosshair className="text-blue-500" /> Active Party
             </h2>
             <div className="flex gap-4">
-              <button onClick={() => navigate('/box')} className="text-purple-600 dark:text-purple-400 font-bold hover:underline text-sm flex items-center gap-1">
+              <button onClick={() => router.push('/box')} className="text-purple-600 dark:text-purple-400 font-bold hover:underline text-sm flex items-center gap-1">
                 PC Box &rarr;
               </button>
-              <button onClick={() => navigate('/team')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-sm flex items-center gap-1">
+              <button onClick={() => router.push('/team')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-sm flex items-center gap-1">
                 Manage Team &rarr;
               </button>
             </div>
@@ -125,7 +126,7 @@ export function Home() {
           
           {/* Actions (Left 2 Columns) */}
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <button onClick={() => navigate('/fight')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
+            <button onClick={() => router.push('/fight')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
                 <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Enter Battle</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Quick match</p>
@@ -135,7 +136,7 @@ export function Home() {
               </div>
             </button>
 
-            <button onClick={() => navigate('/realms')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
+            <button onClick={() => router.push('/realms')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
                 <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Explore Wild</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Find and catch new Pokémon</p>
@@ -145,7 +146,7 @@ export function Home() {
               </div>
             </button>
 
-            <button onClick={() => navigate('/trainers/league')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
+            <button onClick={() => router.push('/trainers/league')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
                 <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Challenge League</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Defeat Examiners to rank up</p>
@@ -155,7 +156,7 @@ export function Home() {
               </div>
             </button>
 
-            <button onClick={() => navigate('/shop')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
+            <button onClick={() => router.push('/shop')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
                 <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Poké Mart</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Buy items and Pokéballs</p>
@@ -190,7 +191,7 @@ export function Home() {
               </div>
 
               <div className="mt-4">
-                <button onClick={() => navigate('/bag')} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
+                <button onClick={() => router.push('/bag')} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
                   <FiBox /> Open Bag
                 </button>
               </div>

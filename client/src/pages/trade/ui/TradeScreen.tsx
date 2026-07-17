@@ -1,11 +1,12 @@
+'use client';
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
 
 export function TradeScreen() {
   const { friendId } = useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [mySelected, setMySelected] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export function TradeScreen() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outgoingTrades'] });
-      navigate('/social');
+      router.push('/social');
     }
   });
 
@@ -57,7 +58,7 @@ export function TradeScreen() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
           <div>
-            <button onClick={() => navigate('/social')} className="text-slate-500 hover:text-blue-500 mb-2 flex items-center font-bold uppercase tracking-wider text-sm transition-colors">
+            <button onClick={() => router.push('/social')} className="text-slate-500 hover:text-blue-500 mb-2 flex items-center font-bold uppercase tracking-wider text-sm transition-colors">
               ◀ Back to Social Hub
             </button>
             <h1 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-4">

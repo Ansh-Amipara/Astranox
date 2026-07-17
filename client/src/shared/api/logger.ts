@@ -20,7 +20,7 @@ export const logErrorAndToast = (error: AxiosError | any) => {
   const url = originalRequest?.url ?? '';
   const status = error.response?.status;
 
-  if (import.meta.env.DEV && originalRequest) {
+  if (process.env.NODE_ENV === 'development' && originalRequest) {
     const reqId = originalRequest.metadata?.requestId || 'unknown';
     const start = originalRequest.metadata?.start || performance.now();
     const duration = (performance.now() - start).toFixed(2);

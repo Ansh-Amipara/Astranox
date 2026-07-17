@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { describe, it, expect, vi } from 'vitest';
 import { useAuthStore } from '../../../shared/store/auth.store';
@@ -18,9 +17,7 @@ describe('Navbar Component', () => {
     });
 
     render(
-      <BrowserRouter>
-        <Navbar />
-      </BrowserRouter>
+      <Navbar />
     );
 
     // Verify the brand name (alt text of the image)
@@ -34,9 +31,7 @@ describe('Navbar Component', () => {
     });
 
     render(
-      <BrowserRouter>
-        <Navbar />
-      </BrowserRouter>
+      <Navbar />
     );
 
     expect(screen.getByText('Pokémon')).toBeInTheDocument();

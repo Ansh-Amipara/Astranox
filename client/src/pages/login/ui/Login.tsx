@@ -1,6 +1,8 @@
+'use client';
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { api } from '../../../shared/api/api';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { apiClient } from '../../../shared/api/api-client';
 import { useAuthStore } from '../../../shared/store/auth.store';
 import { Loader2 } from 'lucide-react';
 
@@ -10,11 +12,11 @@ export function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const from = location.state?.from?.pathname || '/';
+  const from = searchParams?.get('from') || '/team';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,11 +24,11 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { username, password });
+      const response = await apiClient.post('/auth/login', { username, password });
       const { accessToken, user } = response.data.data;
 
       setAuth(accessToken, user);
-      navigate(from, { replace: true });
+      router.replace(from);
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Invalid credentials');
     } finally {
@@ -96,7 +98,7 @@ export function Login() {
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           New trainer?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+          <Link href="/register" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
             Create an account
           </Link>
         </p>

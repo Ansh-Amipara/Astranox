@@ -1,13 +1,14 @@
+'use client';
 import type { FallbackProps } from 'react-error-boundary';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 
 export function GlobalErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleReset = () => {
     resetErrorBoundary();
-    navigate('/');
+    router.push('/');
   };
 
   return (

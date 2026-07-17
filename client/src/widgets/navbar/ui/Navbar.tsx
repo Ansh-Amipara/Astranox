@@ -1,5 +1,6 @@
+'use client';
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useAuthStore } from '../../../shared/store/auth.store';
 import { useThemeStore } from '../../../shared/store/theme.store';
 import { ChevronDown, Sun, Moon, LogOut } from 'lucide-react';
@@ -31,13 +32,13 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3 text-xl font-extrabold text-red-500 tracking-wider">
+            <Link href="/" className="flex items-center space-x-3 text-xl font-extrabold text-red-500 tracking-wider">
               <img src="/logo.png" alt="Astranox Logo" className="w-8 h-8 object-contain" />
             </Link>
 
             <div className="ml-10 flex items-baseline space-x-4">
-              <Link to="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
-              <Link to="/fight" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Fight</Link>
+              <Link href="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
+              <Link href="/fight" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Fight</Link>
 
               {/* Trainer Dropdown */}
               <div className="relative" ref={trainerDropdownRef}>
@@ -53,7 +54,7 @@ export function Navbar() {
                   <div className="absolute left-0 mt-2 w-48 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-black ring-opacity-20 focus:outline-none overflow-hidden origin-top-left transition-all z-[100]">
                     <div className="py-1 flex flex-col" role="menu" aria-orientation="vertical">
                       <Link
-                        to="/trainers/league"
+                        href="/trainers/league"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
@@ -61,7 +62,7 @@ export function Navbar() {
                         League
                       </Link>
                       <Link
-                        to="/trainers/dawn"
+                        href="/trainers/dawn"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-orange-500 dark:hover:text-orange-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
@@ -69,7 +70,7 @@ export function Navbar() {
                         Dawn
                       </Link>
                       <Link
-                        to="/trainers/zoadics"
+                        href="/trainers/zoadics"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-500 dark:hover:text-purple-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
@@ -77,7 +78,7 @@ export function Navbar() {
                         Zoadics
                       </Link>
                       <Link
-                        to="/trainers/thrones"
+                        href="/trainers/thrones"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
@@ -89,10 +90,10 @@ export function Navbar() {
                 )}
               </div>
 
-              <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
-              <Link to="/social" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Social</Link>
-              <Link to="/rank" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Rank</Link>
-              <Link to="/realms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Realms</Link>
+              <Link href="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
+              <Link href="/social" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Social</Link>
+              <Link href="/rank" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Rank</Link>
+              <Link href="/realms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Realms</Link>
 
               {/* Pokemon Dropdown */}
               <div className="relative" ref={dropdownRef}>
@@ -108,7 +109,7 @@ export function Navbar() {
                   <div className="absolute left-0 mt-2 w-48 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-black ring-opacity-20 focus:outline-none overflow-hidden origin-top-left transition-all z-[100]">
                     <div className="py-1 flex flex-col" role="menu" aria-orientation="vertical">
                       <Link
-                        to="/team"
+                        href="/team"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsPokemonOpen(false)}
@@ -116,7 +117,7 @@ export function Navbar() {
                         Team
                       </Link>
                       <Link
-                        to="/box"
+                        href="/box"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsPokemonOpen(false)}
@@ -124,7 +125,7 @@ export function Navbar() {
                         Box
                       </Link>
                       <Link
-                        to="/bag"
+                        href="/bag"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                         role="menuitem"
                         onClick={() => setIsPokemonOpen(false)}
@@ -165,7 +166,7 @@ export function Navbar() {
                 </button>
                 {user.role === 'ADMIN' && (
                   <Link
-                    to="/admin/dashboard"
+                    href="/admin/dashboard"
                     className="px-3 py-1.5 rounded-lg font-bold text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 transition-colors ml-2"
                   >
                     Admin

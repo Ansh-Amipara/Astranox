@@ -1,6 +1,7 @@
+'use client';
 import { memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 interface Props {
   isFinished: boolean;
@@ -18,12 +19,13 @@ export const BattleResultModal = memo(function BattleResultModal({
   wildSpeciesName,
 }: Props) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   if (!isFinished) return null;
   
-  const returnUrl = location.state?.returnUrl || '/';
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams?.get('returnUrl') || '/';
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -58,7 +60,7 @@ export const BattleResultModal = memo(function BattleResultModal({
         <button 
           onClick={() => {
             queryClient.setQueryData(['activeBattle'], null);
-            navigate(returnUrl);
+            router.push(returnUrl);
           }} 
           className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
