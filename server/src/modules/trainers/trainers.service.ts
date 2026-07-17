@@ -8,6 +8,7 @@ import type { PickStarterDto } from './dto/request/PickStarterDto';
 import type { SwapSlotsDto } from './dto/request/SwapSlotsDto';
 import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 import type { BoostPotentialDto } from './dto/request/BoostPotentialDto';
+import type { BoostIvDto } from './dto/request/BoostIvDto';
 import { PokemonPotential } from '@prisma/client';
 
 // Allowed pseudo-legendaries
@@ -188,4 +189,49 @@ export class TrainersService {
     const updatedPokemon = await this.repo.boostPotential(save.id, pokemonId, progression.next, itemId);
     return TrainerMapper.toOwnedPokemonDto(updatedPokemon);
   }
+
+  async boostIv(userId: string, pokemonId: string, dto: BoostIvDto): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    const { itemId, stat } = dto;
+    const item = await this.repo.getInventoryItem(save.id, itemId);
+    if (!item || item.quantity <= 0) {
+      throw new ValidationError(`You do not have a ${itemId} to boost IVs.`);
+    }
+
+    // Determine current stat value
+    const currentValue = pokemon[stat] as number;
+
+    const validProgressions: Record<string, { min: number, max: number, next: number }> = {
+      'black-iron-iv-crystal': { min: 0, max: 5, next: 6 },
+      'bronze-iv-crystal': { min: 6, max: 10, next: 11 },
+      'silver-iv-crystal': { min: 11, max: 15, next: 16 },
+      'gold-iv-crystal': { min: 16, max: 20, next: 21 },
+      'platinum-iv-crystal': { min: 21, max: 25, next: 26 },
+      'diamond-iv-crystal': { min: 26, max: 30, next: 31 },
+    };
+
+    const progression = validProgressions[itemId];
+    if (!progression) {
+      throw new ValidationError('Invalid crystal type provided.');
+    }
+
+    if (currentValue < progression.min || currentValue > progression.max) {
+      throw new ValidationError(`This crystal can only be used when the stat is between ${progression.min} and ${progression.max}. Current value is ${currentValue}.`);
+    }
+
+    if (currentValue >= 31) {
+      throw new ValidationError('This stat is already maxed out (31).');
+    }
+
+    const updatedPokemon = await this.repo.boostIv(save.id, pokemonId, stat, progression.next, itemId);
+    return TrainerMapper.toOwnedPokemonDto(updatedPokemon);
+  }
 }
+

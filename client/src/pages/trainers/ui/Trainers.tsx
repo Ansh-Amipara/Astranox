@@ -65,7 +65,7 @@ export function Trainers() {
   }
 
   const filteredNpcs = showRegionFilter 
-    ? (npcs?.filter((npc: any) => npc.region === selectedRegion) || [])
+    ? (npcs?.filter((npc: any) => npc.region === selectedRegion && ['GUARDIAN', 'ELDER', 'CHAMPION'].includes(npc.trainerType)) || [])
     : (npcs || []);
 
   let pageTitle = "League Challenges";
@@ -81,16 +81,26 @@ export function Trainers() {
 
     const champions = filteredNpcs.filter((n: any) => n.trainerType === 'CHAMPION');
     if (champions.length > 0) displayedSections.push({ title: "Champions", data: champions });
-  } else if (normalizedMode === 'evil') {
-    pageTitle = "Evil Teams";
-    const hunters = filteredNpcs.filter((n: any) => n.trainerType === 'HUNTER');
+  } else if (normalizedMode === 'dawn') {
+    pageTitle = "Eclipse Dawn";
+    const dawnNpcs = npcs?.filter((n: any) => ['Hunter', 'Vice Leader', 'Leader'].includes(n.trainerClass)) || [];
+    
+    const hunters = dawnNpcs.filter((n: any) => n.trainerClass === 'Hunter');
     if (hunters.length > 0) displayedSections.push({ title: "Hunters", data: hunters });
 
-    const viceLeaders = filteredNpcs.filter((n: any) => n.trainerType === 'BOSS');
+    const viceLeaders = dawnNpcs.filter((n: any) => n.trainerClass === 'Vice Leader');
     if (viceLeaders.length > 0) displayedSections.push({ title: "Vice Leaders", data: viceLeaders });
 
-    const leaders = filteredNpcs.filter((n: any) => n.trainerType === 'LEGENDARY');
+    const leaders = dawnNpcs.filter((n: any) => n.trainerClass === 'Leader');
     if (leaders.length > 0) displayedSections.push({ title: "Leaders", data: leaders });
+  } else if (normalizedMode === 'zoadics' || normalizedMode === 'zodiacs') {
+    pageTitle = "Zodiac Council";
+    const zodiacs = npcs?.filter((n: any) => n.trainerClass === 'Zodiac Council') || [];
+    if (zodiacs.length > 0) displayedSections.push({ title: "Council Members", data: zodiacs });
+  } else if (normalizedMode === 'thrones') {
+    pageTitle = "Nine Thrones";
+    const thrones = npcs?.filter((n: any) => n.trainerClass === 'Nine Thrones') || [];
+    if (thrones.length > 0) displayedSections.push({ title: "Throne Members", data: thrones });
   } else {
     pageTitle = "Trainers";
   }

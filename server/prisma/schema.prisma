@@ -301,7 +301,7 @@ model NpcTrainer {
   rewardMoney  Int         @default(0)
   badgeName    String?
   trainerType  TrainerType @default(NORMAL)
-  region       String      @default("Kanto")
+  region       String      @default("Lunaris")
 
   party      NpcTrainerPokemon[]
   defeatedBy TrainerDefeatedNpc[]

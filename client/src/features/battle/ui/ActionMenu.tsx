@@ -1,5 +1,8 @@
 import { memo } from 'react';
 import { typeColors } from '../lib/utils';
+import { TbPokeball } from "react-icons/tb";
+import { GiBackpack } from "react-icons/gi";
+import { FaRunning } from "react-icons/fa";
 
 interface Props {
   player: any;
@@ -86,24 +89,24 @@ export const ActionMenu = memo(function ActionMenu({
         <button
           onClick={onOpenBag}
           title="Bag"
-          className={`w-20 bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 ${battleType === 'NPC' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          className={`w-20 bg-white hover:bg-slate-100 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 border border-slate-200 dark:border-slate-700 ${battleType === 'NPC' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
         >
-          Bag
+          <GiBackpack size={28} />
         </button>
         <button
           onClick={onOpenParty}
           title="Pokémon"
-          className="w-20 bg-gradient-to-br from-green-500 to-green-700 hover:from-green-400 hover:to-green-600 text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5"
+          className="w-20 bg-white hover:bg-slate-100 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 border border-slate-200 dark:border-slate-700"
         >
-          Pkmn
+          <TbPokeball size={28} />
         </button>
         <button
           onClick={onRun}
           disabled={isPending}
           title="Run"
-          className="w-20 bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50"
+          className="w-20 bg-white hover:bg-slate-100 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 border border-slate-200 dark:border-slate-700"
         >
-          Run
+          <FaRunning size={28} />
         </button>
       </div>
     </div>

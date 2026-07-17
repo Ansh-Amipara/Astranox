@@ -20,6 +20,8 @@ export function TeamPage() {
   const [changeMovePkm, setChangeMovePkm] = useState<any>(null);
   const [evolutionPkm, setEvolutionPkm] = useState<any>(null);
   const [boostPkm, setBoostPkm] = useState<any>(null);
+  const [boostIvPkm, setBoostIvPkm] = useState<any>(null);
+  const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
   const [moveSearch, setMoveSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -87,6 +89,16 @@ export function TeamPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       setBoostPkm(null);
+    }
+  });
+
+  const boostIvMutation = useMutation({
+    mutationFn: async ({ pokemonId, itemId, stat }: { pokemonId: string, itemId: string, stat: string }) => {
+      await api.post(`/trainers/party/${pokemonId}/boost-ivs`, { itemId, stat });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      setBoostIvPkm(null);
     }
   });
 
@@ -305,6 +317,16 @@ export function TeamPage() {
               
               <button 
                 onClick={() => {
+                  setBoostIvPkm(activeMenuPkm);
+                  setActiveMenuPkm(null);
+                }}
+                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+              >
+                Enhance IVs
+              </button>
+
+              <button 
+                onClick={() => {
                   if (window.confirm(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`)) {
                     releaseMutation.mutate(activeMenuPkm.id);
                   }
@@ -366,15 +388,18 @@ export function TeamPage() {
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">Stats</h3>
                 <div className="space-y-2">
                   {[
-                    { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level) },
-                    { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level) },
-                    { label: 'Defense', stat: calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level) },
-                    { label: 'Sp. Atk', stat: calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level) },
-                    { label: 'Sp. Def', stat: calculateStat(detailsPkm.species.spDef, detailsPkm.ivSpDef || 0, detailsPkm.level) },
-                    { label: 'Speed', stat: calculateStat(detailsPkm.species.speed, detailsPkm.ivSpeed || 0, detailsPkm.level) },
+                    { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level), iv: detailsPkm.ivHp || 0 },
+                    { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level), iv: detailsPkm.ivAttack || 0 },
+                    { label: 'Defense', stat: calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level), iv: detailsPkm.ivDefense || 0 },
+                    { label: 'Sp. Atk', stat: calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level), iv: detailsPkm.ivSpAtk || 0 },
+                    { label: 'Sp. Def', stat: calculateStat(detailsPkm.species.spDef, detailsPkm.ivSpDef || 0, detailsPkm.level), iv: detailsPkm.ivSpDef || 0 },
+                    { label: 'Speed', stat: calculateStat(detailsPkm.species.speed, detailsPkm.ivSpeed || 0, detailsPkm.level), iv: detailsPkm.ivSpeed || 0 },
                   ].map(s => (
                     <div key={s.label} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-                      <span className="w-20 font-bold text-slate-500 text-sm">{s.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="w-20 font-bold text-slate-500 text-sm">{s.label}</span>
+                        <span className="text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 px-1.5 py-0.5 rounded font-bold">IV: {s.iv}</span>
+                      </div>
                       <span className="font-black text-slate-900 dark:text-white text-lg">{s.stat}</span>
                     </div>
                   ))}
@@ -707,6 +732,113 @@ export function TeamPage() {
                     className="px-8 py-3 font-black tracking-widest text-slate-900 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
                   >
                     {boostMutation.isPending ? 'BOOSTING...' : 'BOOST POTENTIAL!'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* --- 6. Enhance IVs Modal --- */}
+      {boostIvPkm && (() => {
+        const statValue = boostIvPkm[selectedIvStat] as number;
+        let requiredItemId = '';
+        let requiredItemName = '';
+        let nextValue = statValue + 1;
+        
+        if (statValue <= 5) { requiredItemId = 'black-iron-iv-crystal'; requiredItemName = 'Black Iron IV Crystal'; nextValue = 6; }
+        else if (statValue <= 10) { requiredItemId = 'bronze-iv-crystal'; requiredItemName = 'Bronze IV Crystal'; nextValue = 11; }
+        else if (statValue <= 15) { requiredItemId = 'silver-iv-crystal'; requiredItemName = 'Silver IV Crystal'; nextValue = 16; }
+        else if (statValue <= 20) { requiredItemId = 'gold-iv-crystal'; requiredItemName = 'Gold IV Crystal'; nextValue = 21; }
+        else if (statValue <= 25) { requiredItemId = 'platinum-iv-crystal'; requiredItemName = 'Platinum IV Crystal'; nextValue = 26; }
+        else if (statValue <= 30) { requiredItemId = 'diamond-iv-crystal'; requiredItemName = 'Diamond IV Crystal'; nextValue = 31; }
+
+        const ownedCrystal = save.inventory?.find((i: any) => i.itemId === requiredItemId);
+        const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
+        const isMaxed = statValue >= 31;
+
+        const statOptions = [
+          { key: 'ivHp', label: 'HP' },
+          { key: 'ivAttack', label: 'Attack' },
+          { key: 'ivDefense', label: 'Defense' },
+          { key: 'ivSpAtk', label: 'Sp. Atk' },
+          { key: 'ivSpDef', label: 'Sp. Def' },
+          { key: 'ivSpeed', label: 'Speed' }
+        ];
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
+            <div className="bg-slate-900 border-2 border-blue-500 rounded-3xl p-8 w-full max-w-md flex flex-col shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-indigo-900/20 pointer-events-none" />
+              
+              <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 mb-6 relative z-10 tracking-widest uppercase">
+                Enhance IVs
+              </h2>
+
+              <div className="flex items-center justify-center gap-8 mb-6 relative z-10">
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-24 bg-slate-800/80 rounded-full flex items-center justify-center border border-slate-700 shadow-inner">
+                    <img src={getSpriteUrl(boostIvPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80 mix-blend-screen" />
+                  </div>
+                  <span className="mt-3 font-bold text-slate-300 capitalize text-sm">{boostIvPkm.nickname || boostIvPkm.species.name}</span>
+                </div>
+              </div>
+
+              <div className="relative z-10 mb-6 flex justify-center flex-wrap gap-2">
+                {statOptions.map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setSelectedIvStat(opt.key)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-blue-500 text-white border-blue-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'}`}
+                  >
+                    {opt.label}: {boostIvPkm[opt.key]}
+                  </button>
+                ))}
+              </div>
+
+              <div className="bg-slate-800/80 rounded-2xl p-5 mb-8 relative z-10 border border-slate-700 backdrop-blur-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex flex-col">
+                    <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Current IV</span>
+                    <span className="text-lg font-black text-slate-300">{statValue}</span>
+                  </div>
+                  <span className="text-2xl text-blue-500">➡️</span>
+                  <div className="flex flex-col text-right">
+                    <span className="text-xs uppercase font-bold text-blue-500 tracking-wider">Next Tier</span>
+                    <span className="text-lg font-black text-blue-400">{isMaxed ? 'MAX' : nextValue}</span>
+                  </div>
+                </div>
+
+                {!isMaxed && (
+                  <div className="border-t border-slate-700 pt-4 mt-2">
+                    <h4 className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-3">Required Crystal</h4>
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-white">{requiredItemName}</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-slate-900 ${hasCrystal ? 'text-green-400' : 'text-red-400'}`}>
+                        In Bag: {ownedCrystal?.quantity || 0}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-center gap-4 relative z-10">
+                <button 
+                  onClick={() => setBoostIvPkm(null)}
+                  disabled={boostIvMutation.isPending}
+                  className="px-6 py-3 font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 rounded-xl transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                
+                {!isMaxed && hasCrystal && (
+                  <button 
+                    onClick={() => boostIvMutation.mutate({ pokemonId: boostIvPkm.id, itemId: requiredItemId, stat: selectedIvStat })}
+                    disabled={boostIvMutation.isPending}
+                    className="px-8 py-3 font-black tracking-widest text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                  >
+                    {boostIvMutation.isPending ? 'ENHANCING...' : 'ENHANCE IV!'}
                   </button>
                 )}
               </div>

@@ -17,3 +17,4 @@ trainersRoutes.patch('/party/:pokemonId/moves', gameplayLimiter, controller.chan
 trainersRoutes.delete('/:pokemonId', gameplayLimiter, controller.releasePokemon);
 trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, controller.evolvePokemon);
 trainersRoutes.post('/party/:pokemonId/boost-potential', gameplayLimiter, controller.boostPotential);
+trainersRoutes.post('/party/:pokemonId/boost-ivs', gameplayLimiter, controller.boostIv);

@@ -58,7 +58,14 @@ export async function seedMythicals(prisma: PrismaClient) {
     const fullTeam = [...trainerData.team, trainerData.ace];
 
     for (let i = 0; i < fullTeam.length; i++) {
-      const speciesName = fullTeam[i].toLowerCase().replace(/[^a-z0-9]/g, '');
+      let speciesName = fullTeam[i].toLowerCase().replace(/[^a-z0-9-]/g, '');
+      if (speciesName === 'pyroar') speciesName = 'pyroar-male';
+      if (speciesName === 'shaymin') speciesName = 'shaymin-land';
+      if (speciesName === 'toxtricity') speciesName = 'toxtricity-amped';
+      if (speciesName === 'deoxys') speciesName = 'deoxys-normal';
+      if (speciesName === 'zygarde') speciesName = 'zygarde-50';
+      if (speciesName === 'giratina') speciesName = 'giratina-altered';
+
       const species = await prisma.species.findFirst({
         where: { name: { equals: speciesName, mode: 'insensitive' } }
       });

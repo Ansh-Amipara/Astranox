@@ -5,6 +5,7 @@ import type { PickStarterDto } from './dto/request/PickStarterDto';
 import type { SwapSlotsDto } from './dto/request/SwapSlotsDto';
 import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 import type { BoostPotentialDto } from './dto/request/BoostPotentialDto';
+import type { BoostIvDto } from './dto/request/BoostIvDto';
 
 export class TrainersController {
   private service: TrainersService;
@@ -156,4 +157,25 @@ export class TrainersController {
       next(err);
     }
   };
+
+  boostIv = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+
+      const { pokemonId } = req.params;
+      const { itemId, stat } = req.body;
+      
+      if (!pokemonId || !itemId || !stat) {
+        throw new ValidationError('Pokemon ID, Item ID, and Stat are required');
+      }
+
+      const dto: BoostIvDto = { itemId, stat };
+      const boostedPokemon = await this.service.boostIv(userId, pokemonId, dto);
+      res.json({ success: true, data: boostedPokemon });
+    } catch (err) {
+      next(err);
+    }
+  };
 }
+

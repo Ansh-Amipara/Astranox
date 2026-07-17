@@ -91,6 +91,7 @@ export type TurnEvent =
   | { type: 'learned_move'; pokemonId: string; moveName: string }
   | { type: 'prompt_learn_move'; pokemonId: string; moveId: number; moveName: string }
   | { type: 'skipped_move'; pokemonId: string }
+  | { type: 'text'; text: string }
   | { type: 'fled'; pokemonId: string };
 
 export interface TurnResult {

@@ -8,10 +8,11 @@ interface Props {
   wild: any;
   player: any;
   opponentPartyData: any[];
+  playerPartyData: any[];
   battleType: string;
 }
 
-export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, battleType }: Props) {
+export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, playerPartyData, battleType }: Props) {
   return (
     <div 
       className="relative z-10 flex-1 flex flex-col justify-between p-4 bg-cover bg-center bg-no-repeat min-h-0 overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.3)]"
@@ -87,6 +88,19 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
             </div>
           </div>
         </div>
+
+        {/* Player Party Indicators */}
+        {playerPartyData && playerPartyData.length > 0 && (
+          <div className="flex gap-1 mb-2 justify-end">
+            {playerPartyData.map((p: any) => (
+              <div
+                key={p.id}
+                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-500/50'}`}
+                title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
+              ></div>
+            ))}
+          </div>
+        )}
 
         <HealthBar currentHp={player.currentHp} maxHp={player.maxHp} />
         <StatusIcons statusAilment={player.statusAilment} />

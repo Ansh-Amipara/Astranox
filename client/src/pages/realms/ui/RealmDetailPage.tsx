@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { realmsApi, battleApi } from '../../../shared/api/api';
 import { toast } from 'sonner';
@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 export function RealmDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [encounterData, setEncounterData] = useState<any>(null);
 
@@ -176,7 +177,7 @@ export function RealmDetailPage() {
                 Run
               </button>
               <button
-                onClick={() => navigate('/battle')}
+                onClick={() => navigate('/battle', { state: { returnUrl: location.pathname } })}
                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
               >
                 Fight!

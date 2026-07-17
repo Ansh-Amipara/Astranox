@@ -101,6 +101,7 @@ export function BattleScreen() {
           wild={wild}
           player={player}
           opponentPartyData={opponentPartyData}
+          playerPartyData={playerPartyData}
           battleType={battleType}
         />
 

@@ -61,12 +61,28 @@ export function Navbar() {
                         League
                       </Link>
                       <Link
-                        to="/trainers/evil"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                        to="/trainers/dawn"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-orange-500 dark:hover:text-orange-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsTrainerOpen(false)}
                       >
-                        Evil Teams
+                        Dawn
+                      </Link>
+                      <Link
+                        to="/trainers/zoadics"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-500 dark:hover:text-purple-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                        role="menuitem"
+                        onClick={() => setIsTrainerOpen(false)}
+                      >
+                        Zoadics
+                      </Link>
+                      <Link
+                        to="/trainers/thrones"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors"
+                        role="menuitem"
+                        onClick={() => setIsTrainerOpen(false)}
+                      >
+                        Thrones
                       </Link>
                     </div>
                   </div>

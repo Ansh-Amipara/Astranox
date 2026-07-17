@@ -120,6 +120,9 @@ export class BattleRewardService {
          create: { trainerId: trainerSave.id, npcTrainerId: npcTrainer.id },
          update: {}
       });
+
+      return { moneyGained: npcTrainer.rewardMoney };
     }
+    return { moneyGained: 0 };
   }
 }

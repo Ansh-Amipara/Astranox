@@ -4,7 +4,6 @@ import { api } from '../../../shared/api/api';
 import { useState, useEffect, useMemo } from 'react';
 
 const REGIONS = [
-  'Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea',
   'Aurelia', 'Vespera', 'Solara', 'Noctara', 'Verdantis', 'Crythos', 'Lumina', 'Dravora', 'Elyndor', 'Zephyria', 'Eclipse Dawn Base'
 ];
 

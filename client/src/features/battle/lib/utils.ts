@@ -32,6 +32,7 @@ export const getEventMessage = (ev: any, player: any, wild: any) => {
     case 'xp_gain': return `${name} gained ${ev.amount} Exp. Points!`;
     case 'level_up': return `${name} grew to Lv. ${ev.level}!`;
     case 'fled': return "Got away safely!";
+    case 'text': return ev.text;
     case 'catch_attempt': 
       if (ev.success) {
         return `Gotcha! ${wild.speciesName} was caught!`;
