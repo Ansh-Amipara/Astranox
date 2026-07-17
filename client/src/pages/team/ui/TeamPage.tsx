@@ -154,26 +154,14 @@ export function TeamPage() {
                           <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate">
                             {pkm.nickname || pkm.species?.name}
                           </h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                              Lv. {pkm.level}
-                            </span>
-                            {pkm.potential && pkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[pkm.potential as string] || 200) ? (
-                              <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded uppercase tracking-wider">Capped</span>
-                            ) : (
-                              <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-                                • {pkm.currentXp.toLocaleString()} XP
-                              </span>
-                            )}
-                          </div>
                         </div>
                       </div>
 
-                      {/* Display simplified types/basic info on the card now instead of the massive stats grid */}
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      {/* Display Type and Potential */}
+                      <div className="mt-1 flex flex-wrap gap-2">
                         {pkm.potential && (
-                          <span className="text-xs px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300 capitalize">
-                            {pkm.potential.toLowerCase().replace('_', ' ')}
+                          <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300">
+                            {pkm.potential.replace('_', ' ')}
                           </span>
                         )}
                         <span className={`text-xs px-2 py-1 rounded font-bold border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 capitalize`}>
@@ -185,6 +173,24 @@ export function TeamPage() {
                           </span>
                         )}
                       </div>
+
+                      {/* Level and XP */}
+                      <div className="mt-3 flex items-center gap-3">
+                        <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded border border-blue-100 dark:border-blue-900/50">
+                          <span className="text-xs font-bold uppercase mr-1 opacity-70">Lv.</span>
+                          <span className="text-sm font-black">{pkm.level}</span>
+                        </div>
+                        {pkm.potential && pkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[pkm.potential as string] || 200) ? (
+                          <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
+                            <span className="text-xs font-bold uppercase mr-1 opacity-70">XP</span>
+                            <span className="text-sm font-bold">{(pkm.currentXp || 0).toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
                       
                       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
                         {[0, 1, 2, 3].map(i => {
@@ -194,7 +200,7 @@ export function TeamPage() {
                               {move ? (
                                 <>
                                   <span className="font-bold text-slate-700 dark:text-slate-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
-                                  <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mt-0.5 tracking-wider">{move.type?.name}</span>
+                                  <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mt-0.5 tracking-wider">{move.type}</span>
                                 </>
                               ) : (
                                 <span className="text-slate-400 dark:text-slate-500 italic text-xs">- Empty -</span>
@@ -268,7 +274,7 @@ export function TeamPage() {
                   setMoveSearch('');
                   setActiveMenuPkm(null);
                 }}
-                className="w-full text-left px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/50 dark:hover:bg-blue-800 dark:text-blue-300 rounded-xl font-bold transition-colors"
+                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
               >
                 Change Moves
               </button>
@@ -279,9 +285,9 @@ export function TeamPage() {
                     setEvolutionPkm(activeMenuPkm);
                     setActiveMenuPkm(null);
                   }}
-                  className="w-full text-left px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 dark:bg-purple-900/50 dark:hover:bg-purple-800 dark:text-purple-300 rounded-xl font-bold transition-colors"
+                  className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
                 >
-                  🧬 Evolution
+                  Evolution
                 </button>
               )}
 
@@ -291,9 +297,9 @@ export function TeamPage() {
                     setBoostPkm(activeMenuPkm);
                     setActiveMenuPkm(null);
                   }}
-                  className="w-full text-left px-4 py-3 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 dark:bg-yellow-900/50 dark:hover:bg-yellow-800 dark:text-yellow-300 rounded-xl font-bold transition-colors"
+                  className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
                 >
-                  💎 Boost Potential
+                  Boost Potential
                 </button>
               )}
               
@@ -304,7 +310,7 @@ export function TeamPage() {
                   }
                 }}
                 disabled={party.length <= 1 || releaseMutation.isPending}
-                className="w-full text-left px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/50 dark:hover:bg-red-800 dark:text-red-300 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
               </button>
@@ -471,7 +477,7 @@ export function TeamPage() {
                       className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-xs disabled:opacity-50"
                     >
                       <option value="all">All Types</option>
-                      {Array.from(new Set(allMoves?.map((m: any) => m.type.name) || [])).sort().map((type: any) => (
+                      {Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).sort().map((type: any) => (
                         <option key={type} value={type} className="capitalize">{type}</option>
                       ))}
                     </select>
@@ -489,9 +495,9 @@ export function TeamPage() {
                 </div>
                 {changeMovePkm.editingSlot !== undefined && allMoves
                   ?.filter((move: any) => 
-                    (typeFilter === 'all' || move.type.name === typeFilter) &&
+                    (typeFilter === 'all' || move.type === typeFilter) &&
                     (move.name.toLowerCase().includes(moveSearch.toLowerCase()) || 
-                     move.type.name.toLowerCase().includes(moveSearch.toLowerCase()) ||
+                     move.type.toLowerCase().includes(moveSearch.toLowerCase()) ||
                      move.damageClass.toLowerCase().includes(moveSearch.toLowerCase()))
                   )
                   .sort((a: any, b: any) => {
@@ -518,7 +524,7 @@ export function TeamPage() {
                     <div className="flex justify-between items-center w-full mb-1">
                       <span className="font-bold capitalize text-slate-900 dark:text-white">{move.name.replace('-', ' ')}</span>
                       <span className={`text-[10px] uppercase px-2 py-0.5 rounded font-bold border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400`}>
-                        {move.type.name}
+                        {move.type}
                       </span>
                     </div>
                     <div className="flex gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">

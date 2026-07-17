@@ -75,6 +75,7 @@ model TrainerSave {
   inventory    InventoryItem[]
   battles      BattleSession[]
   defeatedNpcs TrainerDefeatedNpc[]
+  astralRealmCompletions AstralRealmCompletion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -202,6 +203,8 @@ model Species {
 
   catchRate Int @default(255)
   baseExp   Int @default(100)
+  isLegendary Boolean @default(false)
+  isMythical  Boolean @default(false)
 
   type1Id Int
   type1   Type  @relation("SpeciesType1", fields: [type1Id], references: [id])
@@ -415,4 +418,34 @@ model TradeRequest {
 
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------
+// ASTRAL REALMS
+// ----------------------------------------------------------------------
+
+model AstralRealm {
+  id              String      @id @default(uuid()) @db.Uuid
+  name            String
+  tier            Int         // 1 to 8
+  requiredRank    TrainerRank
+  minLevel        Int
+  maxLevel        Int
+  bossSpeciesId   Int?        
+  bossSpeciesName String      // e.g. "Phione"
+  types           String[]    // Array of elemental types e.g. ["fire", "flying"]
+
+  completions     AstralRealmCompletion[]
+}
+
+model AstralRealmCompletion {
+  id              String      @id @default(uuid()) @db.Uuid
+  trainerId       String      @db.Uuid
+  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  realmId         String      @db.Uuid
+  realm           AstralRealm @relation(fields: [realmId], references: [id], onDelete: Cascade)
+  
+  completedAt     DateTime    @default(now())
+  
+  @@unique([trainerId, realmId])
 }

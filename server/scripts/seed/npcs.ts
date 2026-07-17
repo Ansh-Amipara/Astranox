@@ -166,17 +166,64 @@ function parseMarkdownFile(filePath: string, defaultRegion: string): ParsedTrain
   return trainers;
 }
 
-function parseIvString(ivs: string): number {
-  if (!ivs || ivs === '0') return 0;
+function parseIvProfile(ivs: string, trainerClass: string): number[] {
+  // Returns [hp, atk, def, spa, spd, spe]
+  if (!ivs || ivs === '0') return [0, 0, 0, 0, 0, 0];
+  
+  if (ivs === '6V' || ivs === '31') {
+    return [31, 31, 31, 31, 31, 31];
+  }
+  
+  if (ivs === '5V') {
+    const profile = [31, 31, 31, 31, 31, 31];
+    const randIndex = Math.floor(Math.random() * 6);
+    if (trainerClass === 'Elder') {
+      profile[randIndex] = 30; // Elders get strictly 30 for the remaining stat
+    } else {
+      profile[randIndex] = 25 + Math.floor(Math.random() * 6); // Guardians/others get 25-30
+    }
+    return profile;
+  }
+
+  if (ivs === '4V') {
+    const profile = [25, 25, 25, 25, 25, 25].map(v => v + Math.floor(Math.random() * 6));
+    const indices = [0, 1, 2, 3, 4, 5];
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    profile[indices[0]] = 31;
+    profile[indices[1]] = 31;
+    profile[indices[2]] = 31;
+    profile[indices[3]] = 31;
+    return profile;
+  }
+
+  if (ivs === '3V') {
+    // 3 stats at 31, 3 random stats at 15-25 (Legacy for non-Guardians)
+    const profile = [15, 15, 15, 15, 15, 15].map(v => v + Math.floor(Math.random() * 11));
+    // Pick 3 unique indices to set to 31
+    const indices = [0, 1, 2, 3, 4, 5];
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    profile[indices[0]] = 31;
+    profile[indices[1]] = 31;
+    profile[indices[2]] = 31;
+    return profile;
+  }
+  
+  // Legacy support for "30-31" or basic strings
+  let val = 0;
   if (ivs.includes('–')) {
-    const parts = ivs.split('–');
-    return parseInt(parts[1], 10); // take the upper bound
+    val = parseInt(ivs.split('–')[1], 10);
+  } else if (ivs.includes('-')) {
+    val = parseInt(ivs.split('-')[1], 10);
+  } else {
+    val = parseInt(ivs, 10) || 0;
   }
-  if (ivs.includes('-')) {
-    const parts = ivs.split('-');
-    return parseInt(parts[1], 10);
-  }
-  return parseInt(ivs, 10) || 0;
+  return [val, val, val, val, val, val];
 }
 
 function normalizeName(name: string): string {
@@ -268,7 +315,7 @@ async function seed() {
         speciesId = 1; 
       }
 
-      const ivValue = parseIvString(poke.ivs);
+      const [ivHp, ivAttack, ivDefense, ivSpAtk, ivSpDef, ivSpeed] = parseIvProfile(poke.ivs, trainer.trainerClass);
 
       const createdPoke = await prisma.npcTrainerPokemon.create({
         data: {
@@ -276,12 +323,12 @@ async function seed() {
           speciesId,
           level: poke.level,
           position: pos,
-          ivHp: ivValue,
-          ivAttack: ivValue,
-          ivDefense: ivValue,
-          ivSpAtk: ivValue,
-          ivSpDef: ivValue,
-          ivSpeed: ivValue
+          ivHp,
+          ivAttack,
+          ivDefense,
+          ivSpAtk,
+          ivSpDef,
+          ivSpeed
         }
       });
 

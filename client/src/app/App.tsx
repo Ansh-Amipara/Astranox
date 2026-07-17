@@ -22,6 +22,7 @@ import { SocialHub } from '../pages/social-hub/ui/SocialHub';
 import { TradeScreen } from '../pages/trade/ui/TradeScreen';
 import { RankPage } from '../pages/rank/ui/RankPage';
 import { RealmsPage } from '../pages/realms/ui/RealmsPage';
+import { RealmDetailPage } from '../pages/realms/ui/RealmDetailPage';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import { GlobalErrorFallback } from '../shared/ui/GlobalErrorFallback';
@@ -81,7 +82,7 @@ function App() {
                 </AuthGuard>
               }
             />
-  
+
             <Route
               path="/trainers"
               element={<Navigate to="/trainers/league" replace />}
@@ -150,8 +151,16 @@ function App() {
                 </AuthGuard>
               }
             />
+            <Route
+              path="/realms/:id"
+              element={
+                <AuthGuard>
+                  <RealmDetailPage />
+                </AuthGuard>
+              }
+            />
             <Route path="/admin/login" element={<AdminLogin />} />
-  
+
             {/* Admin Routes with Layout */}
             <Route path="/admin" element={
               <AdminGuard>

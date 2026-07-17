@@ -559,7 +559,7 @@
           }
         },
         {
-          "name": "Get Zones",
+          "name": "Get Admin Species",
           "request": {
             "method": "GET",
             "header": [
@@ -569,98 +569,45 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/admin/zones",
+              "raw": "{{baseUrl}}/admin/species",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "zones"
+                "species"
               ]
             }
           }
         },
         {
-          "name": "Add Encounter to Zone",
+          "name": "Get User Pokemon",
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{accessToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"speciesId\": 1,\n  \"encounterRate\": 10,\n  \"minIv\": 0,\n  \"maxIv\": 31\n}"
-            },
             "url": {
-              "raw": "{{baseUrl}}/admin/zones/1/encounters",
+              "raw": "{{baseUrl}}/admin/users/1/pokemon",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "zones",
+                "users",
                 "1",
-                "encounters"
+                "pokemon"
               ]
             }
           }
         },
         {
-          "name": "Delete Encounter",
+          "name": "Edit Pokemon",
           "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/encounters/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "encounters",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get All Maps",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/maps",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "maps"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Add Map Spawn",
-          "request": {
-            "method": "POST",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -673,41 +620,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"speciesId\": 1,\n  \"minLevel\": 3,\n  \"maxLevel\": 5,\n  \"spawnRate\": 10\n}"
+              "raw": "{\n  \"potential\": \"DIAMOND\",\n  \"addXp\": 500,\n  \"ivs\": {\"hp\": 31, \"attack\": 31, \"defense\": 31, \"spAtk\": 31, \"spDef\": 31, \"speed\": 31}\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/maps/00000000-0000-0000-0000-000000000000/spawns",
+              "raw": "{{baseUrl}}/admin/users/1/pokemon/uuid-here",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "maps",
-                "00000000-0000-0000-0000-000000000000",
-                "spawns"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Remove Map Spawn",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/spawns/00000000-0000-0000-0000-000000000000",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "spawns",
-                "00000000-0000-0000-0000-000000000000"
+                "users",
+                "1",
+                "pokemon",
+                "uuid-here"
               ]
             }
           }
@@ -715,58 +640,48 @@
       ]
     },
     {
-      "name": "World",
+      "name": "Realms",
       "item": [
         {
-          "name": "Get Continents",
+          "name": "Get All Realms",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/world/continents",
+              "raw": "{{baseUrl}}/realms",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "world",
-                "continents"
+                "realms"
               ]
             }
           }
         },
         {
-          "name": "Get Areas By Region",
+          "name": "Explore Realm",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/world/regions/00000000-0000-0000-0000-000000000000/areas",
+              "raw": "{{baseUrl}}/realms/realm-id-here/explore",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "world",
-                "regions",
-                "00000000-0000-0000-0000-000000000000",
-                "areas"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Map Detail",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/world/maps/00000000-0000-0000-0000-000000000000",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "world",
-                "maps",
-                "00000000-0000-0000-0000-000000000000"
+                "realms",
+                "realm-id-here",
+                "explore"
               ]
             }
           }

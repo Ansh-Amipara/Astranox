@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PokemonPotential } from '@prisma/client';
 
 export const addMoneySchema = z.object({
   body: z.object({
@@ -10,6 +11,7 @@ export const addPokemonSchema = z.object({
   body: z.object({
     speciesId: z.number().int().positive(),
     level: z.number().int().min(1).max(200),
+    potential: z.nativeEnum(PokemonPotential),
     ivs: z.object({
       ivHp: z.number().int().min(0).max(31).optional(),
       ivAttack: z.number().int().min(0).max(31).optional(),
@@ -23,6 +25,7 @@ export const addPokemonSchema = z.object({
 
 export const editPokemonSchema = z.object({
   body: z.object({
+    potential: z.nativeEnum(PokemonPotential).optional(),
     addXp: z.number().int().positive().optional(),
     ivs: z.object({
       ivHp: z.number().int().min(0).max(31).optional(),

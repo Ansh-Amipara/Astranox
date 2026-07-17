@@ -54,6 +54,13 @@ export class TrainerMapper {
       ivSpeed: entity.ivSpeed,
       moves: Array.isArray(entity.moves) ? entity.moves.map(TrainerMapper.toOwnedPokemonMoveDto) : [],
       species: {
+        id: entity.species?.id,
+        name: entity.species?.name,
+        type1: entity.species?.type1 ? { name: entity.species.type1.name } : undefined,
+        type2: entity.species?.type2 ? { name: entity.species.type2.name } : undefined,
+        evolvesToId: entity.species?.evolvesToId,
+        evolutionLevel: entity.species?.evolutionLevel,
+        evolutionItem: entity.species?.evolutionItem,
         hp: entity.species?.hp || 0,
         attack: entity.species?.attack || 0,
         defense: entity.species?.defense || 0,

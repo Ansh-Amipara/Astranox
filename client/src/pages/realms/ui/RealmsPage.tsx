@@ -1,23 +1,24 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { realmsApi } from '../../../shared/api/api';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface Realm {
   id: string;
   name: string;
   tier: number;
-  unlockRank: string;
+  requiredRank: string;
   isUnlocked: boolean;
-  pokemon: string[];
-  types?: string[];
+  minLevel: number;
+  maxLevel: number;
+  bossSpeciesId: number;
+  bossSpeciesName: string;
+  types: string[];
 }
 
 export function RealmsPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedRealm, setSelectedRealm] = useState<Realm | null>(null);
   const [selectedTier, setSelectedTier] = useState<number | 'all'>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
 
@@ -26,42 +27,20 @@ export function RealmsPage() {
     queryFn: realmsApi.getRealms,
   });
 
-  const exploreMutation = useMutation({
-    mutationFn: realmsApi.exploreRealm,
-    onSuccess: (data) => {
-      if (data.event === 'battle') {
-        toast.success(`A wild Pokémon appeared!`);
-        const returnUrl = location.pathname + location.search;
-        navigate('/battle', { state: { returnUrl } });
-      } else if (data.event === 'item') {
-        toast.success(`You found a ${data.item.name}!`);
-        setSelectedRealm(null);
-      } else if (data.event === 'money') {
-        toast.success(`You found ${data.amount} ₽!`);
-        setSelectedRealm(null);
-      } else {
-        toast.info(`You explored the realm but found nothing...`);
-        setSelectedRealm(null);
-      }
-    },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to explore realm.');
-    }
-  });
-
   if (isLoading) {
     return <div className="p-8 text-center text-slate-500">Connecting to the Astral Realms...</div>;
   }
 
   const getTierColor = (tier: number) => {
     switch (tier) {
-      case 1: return 'from-stone-300/20 to-orange-600/20 border-orange-500/50'; // Bronze
-      case 2: return 'from-slate-300/20 to-slate-500/20 border-slate-400/50'; // Silver
-      case 3: return 'from-yellow-400/20 to-yellow-600/20 border-yellow-500/50'; // Gold
-      case 4: return 'from-cyan-400/20 to-blue-600/20 border-cyan-500/50'; // Platinum
-      case 5: return 'from-purple-400/20 to-indigo-600/20 border-purple-500/50'; // Diamond
-      case 6: return 'from-rose-400/20 to-red-600/20 border-rose-500/50'; // Epic
-      case 7: return 'from-amber-300/30 via-orange-500/30 to-red-600/30 border-amber-400'; // Legendary
+      case 1: return 'from-stone-300/20 to-orange-600/20 border-orange-500/50'; // Black Iron
+      case 2: return 'from-amber-700/20 to-orange-800/20 border-orange-900/50'; // Bronze
+      case 3: return 'from-slate-300/20 to-slate-500/20 border-slate-400/50'; // Silver
+      case 4: return 'from-yellow-400/20 to-yellow-600/20 border-yellow-500/50'; // Gold
+      case 5: return 'from-cyan-400/20 to-blue-600/20 border-cyan-500/50'; // Platinum
+      case 6: return 'from-purple-400/20 to-indigo-600/20 border-purple-500/50'; // Diamond
+      case 7: return 'from-rose-400/20 to-red-600/20 border-rose-500/50'; // Epic
+      case 8: return 'from-amber-300/30 via-orange-500/30 to-red-600/30 border-amber-400'; // Legendary
       default: return 'from-slate-400/20 to-slate-600/20 border-slate-500/50';
     }
   };
@@ -92,7 +71,7 @@ export function RealmsPage() {
           >
             All Tiers
           </button>
-          {[1, 2, 3, 4, 5, 6, 7].map(tier => (
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(tier => (
             <button
               key={tier}
               onClick={() => setSelectedTier(tier)}
@@ -138,9 +117,9 @@ export function RealmsPage() {
               }`}
             onClick={() => {
               if (realm.isUnlocked) {
-                setSelectedRealm(realm);
+                navigate(`/realms/${realm.id}`);
               } else {
-                toast.error(`Requires ${realm.unlockRank.replace('_', ' ')} Rank`);
+                toast.error(`Requires ${realm.requiredRank.replace('_', ' ')} Rank`);
               }
             }}
           >
@@ -158,23 +137,27 @@ export function RealmsPage() {
               {!realm.isUnlocked ? (
                 <div className="mt-4 flex items-center justify-center p-4 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg">
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Requires {realm.unlockRank.replace('_', ' ')} Rank
+                    Requires {realm.requiredRank.replace('_', ' ')} Rank
                   </span>
                 </div>
               ) : (
-                <div className="mt-4">
-                  <p className="text-sm text-slate-700 dark:text-slate-300 mb-2 font-medium">Known Inhabitants:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {realm.pokemon.slice(0, 4).map(p => (
-                      <span key={p} className="text-xs px-2 py-1 bg-white/40 dark:bg-black/40 rounded border border-white/20 dark:border-black/20 capitalize">
-                        {p}
-                      </span>
-                    ))}
-                    {realm.pokemon.length > 4 && (
-                      <span className="text-xs px-2 py-1 bg-white/20 dark:bg-black/20 rounded">
-                        +{realm.pokemon.length - 4} more
-                      </span>
-                    )}
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-bold">Wild Lv. {realm.minLevel} - {realm.maxLevel}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {realm.types.map(t => (
+                        <span key={t} className="text-xs px-2 py-1 bg-white/60 dark:bg-black/40 rounded-full border border-white/20 dark:border-black/20 font-bold capitalize">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Boss Sprite */}
+                  <div className="relative w-16 h-16 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/50 flex flex-col items-center justify-center p-1 shadow-sm shrink-0 ml-4 group-hover:scale-110 transition-transform">
+                    <span className="absolute -top-2 bg-red-600 text-white text-[7px] font-black uppercase tracking-widest px-1 py-0.5 rounded shadow-sm z-10">Alpha</span>
+                    <img src={`http://localhost:3000/sprites/${realm.bossSpeciesId}.png`} alt={realm.bossSpeciesName} className="w-10 h-10 object-contain pixelated drop-shadow mb-0.5" />
+                    <span className="text-[8px] font-bold text-red-900 dark:text-red-400 capitalize truncate w-full text-center">{realm.bossSpeciesName}</span>
                   </div>
                 </div>
               )}
@@ -182,35 +165,6 @@ export function RealmsPage() {
           </div>
         ))}
       </div>
-
-      {selectedRealm && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-              Enter {selectedRealm.name}?
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
-              You are about to explore this realm. You may encounter wild Pokémon, find rare items, or uncover hidden wealth. Are you prepared?
-            </p>
-            <div className="flex gap-4 justify-end">
-              <button
-                onClick={() => setSelectedRealm(null)}
-                className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
-                disabled={exploreMutation.isPending}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => exploreMutation.mutate(selectedRealm.id)}
-                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-bold hover:from-purple-600 hover:to-indigo-700 transition-all flex items-center gap-2"
-                disabled={exploreMutation.isPending}
-              >
-                {exploreMutation.isPending ? 'Exploring...' : 'Explore'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

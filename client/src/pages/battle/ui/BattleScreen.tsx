@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useBattleSession } from '../../../features/battle/model/useBattleSession';
 import { BattleArena } from '../../../features/battle/ui/BattleArena';
@@ -28,6 +28,12 @@ export function BattleScreen() {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3000);
   }, []);
+
+  useEffect(() => {
+    if (isWaitingSwitch && !isFinished) {
+      setMenu('party');
+    }
+  }, [isWaitingSwitch, isFinished]);
 
   const battleType = battleRes?.battleType || 'WILD';
 

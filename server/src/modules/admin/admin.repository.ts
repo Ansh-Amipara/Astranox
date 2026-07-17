@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PokemonPotential } from '@prisma/client';
+import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 
 const prisma = new PrismaClient();
 
@@ -62,7 +63,7 @@ export class AdminRepository {
   }
 
 
-  async addPokemon(userId: string, speciesId: number, level: number, ivs?: { ivHp?: number, ivAttack?: number, ivDefense?: number, ivSpAtk?: number, ivSpDef?: number, ivSpeed?: number }) {
+  async addPokemon(userId: string, speciesId: number, level: number, potential: PokemonPotential, ivs?: { ivHp?: number, ivAttack?: number, ivDefense?: number, ivSpAtk?: number, ivSpDef?: number, ivSpeed?: number }) {
     const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) return null;
 
@@ -96,6 +97,7 @@ export class AdminRepository {
           trainerId: save.id,
           speciesId,
           level,
+          potential,
           currentXp: level * 1000,
           isParty,
           boxNumber,
@@ -143,17 +145,24 @@ export class AdminRepository {
     });
   }
 
-  async editPokemon(pokemonId: string, addXp?: number, ivs?: any) {
+  async editPokemon(pokemonId: string, potential?: PokemonPotential, addXp?: number, ivs?: any) {
     const pokemon = await prisma.ownedPokemon.findUnique({ where: { id: pokemonId } });
     if (!pokemon) return null;
 
     const data: any = {};
+    const finalPotential = potential || pokemon.potential;
+    if (potential) {
+      data.potential = potential;
+    }
+    
     if (addXp) {
       const newXp = pokemon.currentXp + addXp;
-      const newLevel = Math.min(200, Math.max(1, Math.floor(newXp / 1000)));
+      const maxLevel = getMaxLevelForPotential(finalPotential);
+      const newLevel = Math.min(maxLevel, Math.max(1, Math.floor(newXp / 1000)));
       data.currentXp = newXp;
       data.level = newLevel;
     }
+    
     if (ivs) {
       if (ivs.ivHp !== undefined) data.ivHp = ivs.ivHp;
       if (ivs.ivAttack !== undefined) data.ivAttack = ivs.ivAttack;

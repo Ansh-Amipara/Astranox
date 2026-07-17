@@ -61,13 +61,17 @@ export async function seedSpecies() {
       
       const baseExperience = data.base_experience || 0;
 
-      // Fetch species data for catch rate
+      // Fetch species data for catch rate and legendary status
       let catchRate = 255;
+      let isLegendary = false;
+      let isMythical = false;
       try {
         const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
         if (speciesRes.ok) {
           const speciesData = await speciesRes.json();
           catchRate = speciesData.capture_rate || 255;
+          isLegendary = speciesData.is_legendary || false;
+          isMythical = speciesData.is_mythical || false;
         }
       } catch (err) {
         console.error(`Failed to fetch species data for ${id}, defaulting catchRate to 255`, err);
@@ -85,6 +89,8 @@ export async function seedSpecies() {
           hp, attack, defense, spAtk, spDef, speed,
           catchRate,
           baseExp: baseExperience,
+          isLegendary,
+          isMythical,
           type1Id, type2Id,
         },
         create: {
@@ -94,6 +100,8 @@ export async function seedSpecies() {
           hp, attack, defense, spAtk, spDef, speed,
           catchRate,
           baseExp: baseExperience,
+          isLegendary,
+          isMythical,
           type1Id, type2Id,
         },
       });

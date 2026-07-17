@@ -17,6 +17,16 @@ export class RealmsController {
     }
   };
 
+  getRealm = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const realm = await this.service.getRealmById(req.user!.id, id);
+      res.json({ success: true, data: realm });
+    } catch (e) {
+      next(e);
+    }
+  };
+
   exploreRealm = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;

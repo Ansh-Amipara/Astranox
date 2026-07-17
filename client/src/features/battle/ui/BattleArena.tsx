@@ -24,16 +24,8 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
         <div className="flex justify-between items-end mb-2 gap-2">
           <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm truncate">{wild.speciesName}</h2>
           <div className="flex flex-col items-end shrink-0">
-            {wild.potential && (
-              <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 rounded font-bold uppercase tracking-wider mb-0.5">
-                {wild.potential.replace('_', ' ')}
-              </span>
-            )}
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold text-slate-300 drop-shadow-sm">Lv {wild.level}</span>
-              {wild.potential && wild.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[wild.potential as string] || 200) && (
-                <span className="text-[10px] font-bold text-red-400 bg-red-900/50 border border-red-500/50 px-1 rounded uppercase">Capped</span>
-              )}
             </div>
           </div>
         </div>

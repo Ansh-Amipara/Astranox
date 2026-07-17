@@ -1,9 +1,31 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Banknote, Gift, Pencil, X } from 'lucide-react';
 import { api } from '../../../shared/api/api';
 
 export function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [modalMode, setModalMode] = useState<'currency' | 'sendPokemon' | 'editPokemon' | null>(null);
+  
+  const POTENTIALS = ['BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'EPIC', 'LEGENDARY', 'MYTHICAL'];
+  const [pokemonPotential, setPokemonPotential] = useState<string>('BLACK_IRON');
+  const [editPotential, setEditPotential] = useState<string>('');
+  
+  function getMaxLevelForPotential(potential: string) {
+    switch (potential) {
+      case 'BLACK_IRON': return 20;
+      case 'BRONZE': return 40;
+      case 'SILVER': return 60;
+      case 'GOLD': return 80;
+      case 'PLATINUM': return 90;
+      case 'DIAMOND': return 100;
+      case 'EPIC': return 120;
+      case 'LEGENDARY': return 150;
+      case 'MYTHICAL': return 200;
+      default: return 200;
+    }
+  }
   const [moneyAmount, setMoneyAmount] = useState<number>(1000);
   const [speciesId, setSpeciesId] = useState<number>(1);
   const [pokemonLevel, setPokemonLevel] = useState<number>(5);
@@ -41,23 +63,23 @@ export function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
-      alert('Money added successfully!');
+      toast.success('Money added successfully!');
     },
     onError: (err: any) => {
-      alert(`Error: ${err.response?.data?.error?.message || err.message}`);
+      toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
     }
   });
 
   const addPokemonMutation = useMutation({
-    mutationFn: async ({ userId, speciesId, level, customIvs }: { userId: string, speciesId: number, level: number, customIvs?: any }) => {
-      await api.post(`/admin/users/${userId}/pokemon`, { speciesId, level, ivs: customIvs });
+    mutationFn: async ({ userId, speciesId, level, potential, customIvs }: { userId: string, speciesId: number, level: number, potential: string, customIvs?: any }) => {
+      await api.post(`/admin/users/${userId}/pokemon`, { speciesId, level, potential, ivs: customIvs });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
-      alert('Pokémon added successfully!');
+      toast.success('Pokémon added successfully!');
     },
     onError: (err: any) => {
-      alert(`Error: ${err.response?.data?.error?.message || err.message}`);
+      toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
     }
   });
 
@@ -72,18 +94,18 @@ export function AdminDashboard() {
   });
 
   const editPokemonMutation = useMutation({
-    mutationFn: async ({ userId, pokemonId, addXp, ivs }: { userId: string, pokemonId: string, addXp?: number, ivs?: any }) => {
-      await api.put(`/admin/users/${userId}/pokemon/${pokemonId}`, { addXp, ivs });
+    mutationFn: async ({ userId, pokemonId, potential, addXp, ivs }: { userId: string, pokemonId: string, potential?: string, addXp?: number, ivs?: any }) => {
+      await api.put(`/admin/users/${userId}/pokemon/${pokemonId}`, { potential, addXp, ivs });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUserPokemon', selectedUser?.id] });
-      alert('Pokémon edited successfully!');
+      toast.success('Pokémon edited successfully!');
       setSelectedPokemonToEdit(null);
       setEditXp(0);
       setUseEditIvs(false);
     },
     onError: (err: any) => {
-      alert(`Error: ${err.response?.data?.error?.message || err.message}`);
+      toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
     }
   });
 
@@ -129,16 +151,27 @@ export function AdminDashboard() {
                       <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">{user.email}</td>
                       <td className="p-4 text-emerald-600 dark:text-emerald-400 font-bold">₽ {user.trainerSave?.money ?? 0}</td>
                       <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</td>
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right flex justify-end gap-2">
+                        <button
+                          className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('currency'); }}
+                          title="Inject Currency"
+                        >
+                          <Banknote className="w-5 h-5" />
+                        </button>
                         <button
                           className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); }}
-                          title="Manage User"
+                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('sendPokemon'); }}
+                          title="Send Pokémon"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                            <circle cx="12" cy="12" r="3" />
-                          </svg>
+                          <Gift className="w-5 h-5" />
+                        </button>
+                        <button
+                          className="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('editPokemon'); }}
+                          title="Edit Pokémon"
+                        >
+                          <Pencil className="w-5 h-5" />
                         </button>
                       </td>
                     </tr>
@@ -150,21 +183,25 @@ export function AdminDashboard() {
 
           {/* Management Modal */}
           {selectedUser && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => setSelectedUser(null)}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => { setSelectedUser(null); setModalMode(null); }}>
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => setSelectedUser(null)}
+                  onClick={() => { setSelectedUser(null); setModalMode(null); }}
                   className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-full p-1"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                  <X className="w-5 h-5" />
                 </button>
                 <div className="mb-6 pb-6 border-b border-slate-200 dark:border-slate-800 pr-8">
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1">Manage {selectedUser.username}</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Select actions below to modify this account.</p>
+                  <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1">
+                    {modalMode === 'currency' && `Inject Currency to ${selectedUser.username}`}
+                    {modalMode === 'sendPokemon' && `Send Pokémon to ${selectedUser.username}`}
+                    {modalMode === 'editPokemon' && `Edit ${selectedUser.username}'s Pokémon`}
+                  </h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Fill out the details below.</p>
                 </div>
 
-                <div className="space-y-8">
-                  {/* Add Money Form */}
+                <div className="space-y-4">
+                  {modalMode === "currency" && (<>
                   <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
                     <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                       Inject Currency
@@ -189,7 +226,7 @@ export function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Add Pokemon Form */}
+                  </>)}{modalMode === "sendPokemon" && (<>
                   <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
                     <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                       Give Pokémon
@@ -230,13 +267,26 @@ export function AdminDashboard() {
                         )}
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Level (1-100)</label>
+                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Potential</label>
+                        <select
+                          value={pokemonPotential}
+                          onChange={(e) => {
+                            setPokemonPotential(e.target.value);
+                            setPokemonLevel(Math.min(pokemonLevel, getMaxLevelForPotential(e.target.value)));
+                          }}
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                        >
+                          {POTENTIALS.map(p => <option key={p} value={p}>{p.replace('_', ' ')}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Level (1-{getMaxLevelForPotential(pokemonPotential)})</label>
                         <input
                           type="text"
                           value={pokemonLevel || ''}
                           onChange={(e) => {
                             const val = e.target.value.replace(/\D/g, '');
-                            setPokemonLevel(val ? Math.min(100, Number(val)) : 0);
+                            setPokemonLevel(val ? Math.min(getMaxLevelForPotential(pokemonPotential), Number(val)) : 0);
                           }}
                           className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
                         />
@@ -281,6 +331,7 @@ export function AdminDashboard() {
                             userId: selectedUser.id, 
                             speciesId, 
                             level: pokemonLevel,
+                            potential: pokemonPotential,
                             customIvs: useCustomIvs ? customIvs : undefined 
                           });
                         }}
@@ -292,7 +343,7 @@ export function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Edit Pokemon Form */}
+                  </>)}{modalMode === "editPokemon" && (<>
                   <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
                     <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                       Edit Existing Pokémon
@@ -304,6 +355,7 @@ export function AdminDashboard() {
                             key={p.id} 
                             onClick={() => {
                               setSelectedPokemonToEdit(p);
+                              setEditPotential(p.potential);
                               setEditIvs({ ivHp: p.ivHp, ivAttack: p.ivAttack, ivDefense: p.ivDefense, ivSpAtk: p.ivSpAtk, ivSpDef: p.ivSpDef, ivSpeed: p.ivSpeed });
                             }}
                             className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -325,7 +377,29 @@ export function AdminDashboard() {
                         </div>
                         
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Add XP</label>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Potential</label>
+                          <select
+                            value={editPotential}
+                            onChange={(e) => setEditPotential(e.target.value)}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors mb-3"
+                          >
+                            {POTENTIALS.map(p => <option key={p} value={p}>{p.replace('_', ' ')}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-end mb-1">
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Add XP</label>
+                            <button
+                              onClick={() => {
+                                const maxLevel = getMaxLevelForPotential(editPotential);
+                                const requiredXp = (maxLevel * 1000) - (selectedPokemonToEdit.currentXp || 0);
+                                setEditXp(Math.max(0, requiredXp));
+                              }}
+                              className="text-[10px] font-bold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 uppercase px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded"
+                            >
+                              Max
+                            </button>
+                          </div>
                           <input
                             type="text"
                             value={editXp || ''}
@@ -375,6 +449,7 @@ export function AdminDashboard() {
                             editPokemonMutation.mutate({ 
                               userId: selectedUser.id, 
                               pokemonId: selectedPokemonToEdit.id,
+                              potential: editPotential !== selectedPokemonToEdit.potential ? editPotential : undefined,
                               addXp: editXp > 0 ? editXp : undefined,
                               ivs: useEditIvs ? editIvs : undefined 
                             });
@@ -387,9 +462,10 @@ export function AdminDashboard() {
                       </div>
                     )}
                   </div>
+                  </>)}
+                  </div>
                 </div>
               </div>
-            </div>
           )}
         </div>
       </div>

@@ -1,6 +1,9 @@
+import { PokemonPotential } from '@prisma/client';
+
 export type AddPokemonDto = Readonly<{
   speciesId: number;
   level: number;
+  potential: PokemonPotential;
   ivs?: {
     ivHp?: number;
     ivAttack?: number;

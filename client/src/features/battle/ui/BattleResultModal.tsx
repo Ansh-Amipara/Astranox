@@ -52,7 +52,7 @@ export const BattleResultModal = memo(function BattleResultModal({
         }`}>
           {status === 'WON' ? (battleType === 'NPC' ? 'You defeated the opposing Trainer!' : `You defeated the wild ${wildSpeciesName}!`) : 
            status === 'CAUGHT' ? `Gotcha! ${wildSpeciesName} was caught!` :
-           status === 'FLED' ? 'Got away safely!' : 'Better luck next time!'}
+           status === 'FLED' ? 'Got away safely!' : 'Defeated! Better luck next time!'}
         </div>
 
         <button 

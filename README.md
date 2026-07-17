@@ -11,6 +11,7 @@ Astranox is a feature-rich, browser-based Pokémon game built with a modern web 
   - Manage a party of 6 Pokémon and 32 fully-featured PC Boxes.
   - Backpack inventory for managing your Pokéballs and currency.
 - **World Map Hierarchy**: Explore a massive world with Continents, Regions, Areas, and GameMaps populated by real Pokémon encounters.
+- **Astral Realms**: Delve into 42 unique tiered mystical dimensions that scale with your Trainer Rank, offering chances to encounter extremely powerful wild Pokémon, discover rare items, and find wealth.
 - **Pokémart**: Purchase items and Pokéballs using in-game currency.
 - **Modern UI & UX**: Clean, responsive design featuring seamless Light and Dark modes, strict digitized numeric inputs, intuitive smart-search dropdowns, and global React Error Boundaries.
 

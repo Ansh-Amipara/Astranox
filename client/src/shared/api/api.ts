@@ -116,8 +116,19 @@ export const realmsApi = {
     const { data } = await api.get('/realms');
     return data.data;
   },
+  getRealmById: async (id: string) => {
+    const { data } = await api.get(`/realms/${id}`);
+    return data.data;
+  },
   exploreRealm: async (realmId: string) => {
     const { data } = await api.post(`/realms/${realmId}/explore`);
+    return data.data;
+  }
+};
+
+export const battleApi = {
+  runFromBattle: async () => {
+    const { data } = await api.post('/battles/turn', { action: 'run' });
     return data.data;
   }
 };

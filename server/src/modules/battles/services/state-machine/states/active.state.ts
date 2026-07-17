@@ -15,7 +15,7 @@ export class ActiveState implements IBattleState {
     const { validator, turn, reward, persistence, event, log } = services;
 
     if (action === 'run') {
-      if (session.battleType !== 'WILD') {
+      if (session.battleType === 'NPC') {
         throw new ValidationError('You cannot run from an NPC battle.');
       }
 

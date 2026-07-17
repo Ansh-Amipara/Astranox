@@ -97,7 +97,7 @@ export class BattleSessionService {
       id: crypto.randomUUID(),
       nickname: species.name,
       level: level,
-      potential: 'BLACK_IRON',
+      potential: getNpcPotential(level),
       ivs,
       species: {
         id: species.id,
@@ -157,7 +157,8 @@ export class BattleSessionService {
       playerActivePokemonId: playerActive.id,
       opponentPokemonData: wildActive,
       playerPokemonData: playerActive,
-      playerPartyData
+      playerPartyData,
+      battleType: 'NPC' // Custom encounters shouldn't be capturable
     });
 
     return {
@@ -169,7 +170,7 @@ export class BattleSessionService {
     };
   }
 
-  async startSecretRealmEncounter(userId: string, speciesId: number, level: number, potential: string) {
+  async startSecretRealmEncounter(userId: string, speciesId: number, level: number, potential: string, isBoss: boolean = false) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
     if (!trainerSave) throw new NotFoundError('Trainer save not found');
 
@@ -190,7 +191,7 @@ export class BattleSessionService {
     
     const wildInstance = createPokemonInstance({
       id: crypto.randomUUID(),
-      nickname: species.name,
+      nickname: isBoss ? `Alpha ${species.name}` : species.name,
       level: level,
       potential: potential, // Dynamic potential from our realm rules
       ivs,
@@ -209,6 +210,11 @@ export class BattleSessionService {
       },
       moves: []
     });
+
+    if (isBoss) {
+      wildInstance.maxHp *= 2;
+      wildInstance.currentHp = wildInstance.maxHp;
+    }
 
     const learnset = await prisma.learnset.findMany({
       where: { speciesId: species.id, level: { lte: level } },
@@ -250,7 +256,7 @@ export class BattleSessionService {
       opponentPokemonData: wildActive,
       playerPokemonData: playerActive,
       playerPartyData,
-      battleType: 'SECRET_REALM' // Use the new battle type!
+      battleType: isBoss ? 'NPC' : 'SECRET_REALM' // Use NPC for boss to prevent catching
     });
 
     return {

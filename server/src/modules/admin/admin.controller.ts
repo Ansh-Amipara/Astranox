@@ -51,9 +51,9 @@ export class AdminController {
   addPokemon = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const { speciesId, level, ivs } = req.body;
+      const { speciesId, level, potential, ivs } = req.body;
 
-      const pokemon = await this.service.addPokemon(req.user!.id, id, { speciesId, level, ivs });
+      const pokemon = await this.service.addPokemon(req.user!.id, id, { speciesId, level, potential, ivs });
       res.json({ success: true, data: pokemon });
     } catch (err) {
       next(err);
@@ -63,9 +63,9 @@ export class AdminController {
   editPokemon = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id, pokemonId } = req.params;
-      const { addXp, ivs } = req.body;
+      const { potential, addXp, ivs } = req.body;
 
-      const pokemon = await this.service.editPokemon(req.user!.id, pokemonId, { addXp, ivs });
+      const pokemon = await this.service.editPokemon(req.user!.id, pokemonId, { potential, addXp, ivs });
       res.json({ success: true, data: pokemon });
     } catch (err) {
       next(err);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 export function RankPage() {
   const navigate = useNavigate();
@@ -52,9 +53,7 @@ export function RankPage() {
             <span className="text-4xl font-black text-slate-800 dark:text-white">{currentRank.replace('_', ' ')}</span>
           </div>
           <div className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded-full mx-4">
-            <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
+            <ArrowRight className="w-6 h-6 text-slate-400" />
           </div>
           <div className="flex flex-col items-center flex-1">
             <span className="text-sm font-bold text-blue-500 uppercase tracking-widest mb-2">Next Rank</span>
