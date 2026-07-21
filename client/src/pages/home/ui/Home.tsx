@@ -27,6 +27,7 @@ export function Home() {
   }
 
   const party = save?.party || [];
+  const teamCp = party.reduce((sum: number, p: any) => sum + (p.cp || 0), 0);
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
@@ -56,6 +57,15 @@ export function Home() {
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trainer Rank</p>
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize">{save.rank.replace('_', ' ')}</p>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden md:flex">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black">
+                CP
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Player CP</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{teamCp.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -108,6 +118,9 @@ export function Home() {
                           </span>
                         )}
                       </div>
+                      <div className="mt-2 text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded w-full border border-indigo-100 dark:border-indigo-800/50 truncate">
+                        CP {pkm.cp?.toLocaleString() || 0}
+                      </div>
                     </>
                   ) : (
                     <div className="w-16 h-16 border-2 border-slate-300 dark:border-slate-600 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 font-black mb-2">
@@ -117,6 +130,11 @@ export function Home() {
                 </div>
               );
             })}
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center relative z-10">
+            <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Team CP</span>
+            <span className="text-xl font-black text-blue-600 dark:text-blue-400">{teamCp.toLocaleString()}</span>
           </div>
         </div>
 

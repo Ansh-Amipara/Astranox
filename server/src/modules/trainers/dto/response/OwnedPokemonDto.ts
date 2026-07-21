@@ -6,6 +6,7 @@ export interface OwnedPokemonDto {
   readonly speciesName: string;
   readonly types: ReadonlyArray<string>;
   readonly level: number;
+  readonly cp: number;
   readonly potential?: string;
   readonly currentXp: number;
   readonly isParty: boolean;
@@ -40,6 +41,7 @@ export interface PokemonSummaryDto {
   readonly speciesId: number;
   readonly speciesName: string;
   readonly level: number;
+  readonly cp: number;
   readonly potential?: string;
   readonly types: ReadonlyArray<string>;
   readonly isParty: boolean;

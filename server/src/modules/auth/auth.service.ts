@@ -90,4 +90,24 @@ export class AuthService {
   async logout(userId: string): Promise<void> {
     await this.repo.updateRefreshToken(userId, null);
   }
+
+  async updateProfile(userId: string, input: { username: string }): Promise<{ accessToken: string, user: any }> {
+    const existing = await this.repo.findByUsername(input.username);
+    if (existing && existing.id !== userId) {
+      throw new ValidationError('Username is already taken');
+    }
+    
+    try {
+      const updatedUser = await this.repo.updateProfile(userId, input);
+      const userDto = AuthMapper.toUserDto(updatedUser);
+      const accessToken = generateAccessToken(userDto);
+      
+      return { accessToken, user: userDto };
+    } catch (err: any) {
+      if (err.code === 'P2002') { // Prisma unique constraint violation
+        throw new ValidationError('Username is already taken');
+      }
+      throw err;
+    }
+  }
 }

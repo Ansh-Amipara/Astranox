@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
+import { useAuthStore } from '../../../shared/store/auth.store';
 
 
 interface Species {
@@ -14,6 +15,7 @@ interface Species {
 export function FightSetup() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuthStore();
   const [speciesId, setSpeciesId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -38,7 +40,8 @@ export function FightSetup() {
     queryFn: async () => {
       const { data } = await api.get('/battles/available-species');
       return data;
-    }
+    },
+    enabled: !!user,
   });
 
   const speciesList = speciesData?.data || [];

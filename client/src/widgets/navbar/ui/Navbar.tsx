@@ -2,14 +2,13 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '../../../shared/store/auth.store';
-import { useThemeStore } from '../../../shared/store/theme.store';
-import { ChevronDown, Sun, Moon, LogOut } from 'lucide-react';
+
+import { ChevronDown, User as UserIcon, LogOut } from 'lucide-react';
 
 export function Navbar() {
   const [isPokemonOpen, setIsPokemonOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -81,22 +80,17 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </button>
+
             {user && (
               <>
-                <span className="text-sm text-slate-500 dark:text-slate-400 hidden sm:inline-block mr-2">
-                  Trainer <span className="font-semibold text-slate-800 dark:text-slate-200">{user.username}</span>
-                </span>
+                <Link
+                  href="/profile"
+                  className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Profile"
+                  title="Profile"
+                >
+                  <UserIcon className="w-5 h-5" />
+                </Link>
                 <button
                   onClick={logout}
                   className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"

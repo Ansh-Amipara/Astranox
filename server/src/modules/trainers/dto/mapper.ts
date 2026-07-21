@@ -1,6 +1,7 @@
 import type { TrainerSaveDto, InventoryItemDto } from './response/TrainerSaveDto';
 import type { OwnedPokemonDto, PokemonSummaryDto } from './response/OwnedPokemonDto';
 import type { MoveDto, OwnedPokemonMoveDto } from './response/MoveDto';
+import { calculatePokemonCP } from '../../../game/instance/cp';
 
 export class TrainerMapper {
   static toTrainerSaveDto(entity: any): TrainerSaveDto {
@@ -35,12 +36,34 @@ export class TrainerMapper {
     if (entity.species?.type1?.name) types.push(entity.species.type1.name);
     if (entity.species?.type2?.name) types.push(entity.species.type2.name);
 
+    const cp = calculatePokemonCP(
+      {
+        hp: entity.species?.hp || 0,
+        attack: entity.species?.attack || 0,
+        defense: entity.species?.defense || 0,
+        spAtk: entity.species?.spAtk || 0,
+        spDef: entity.species?.spDef || 0,
+        speed: entity.species?.speed || 0,
+      },
+      {
+        hp: entity.ivHp || 0,
+        attack: entity.ivAttack || 0,
+        defense: entity.ivDefense || 0,
+        spAtk: entity.ivSpAtk || 0,
+        spDef: entity.ivSpDef || 0,
+        speed: entity.ivSpeed || 0,
+      },
+      entity.level || 1,
+      entity.potential || 'BLACK_IRON'
+    );
+
     return {
       id: entity.id,
       speciesId: entity.speciesId,
       speciesName: entity.species?.name || 'Unknown',
       types,
       level: entity.level,
+      cp,
       potential: entity.potential,
       currentXp: entity.currentXp,
       isParty: entity.isParty,
@@ -76,11 +99,33 @@ export class TrainerMapper {
     if (entity.species?.type1?.name) types.push(entity.species.type1.name);
     if (entity.species?.type2?.name) types.push(entity.species.type2.name);
 
+    const cp = calculatePokemonCP(
+      {
+        hp: entity.species?.hp || 0,
+        attack: entity.species?.attack || 0,
+        defense: entity.species?.defense || 0,
+        spAtk: entity.species?.spAtk || 0,
+        spDef: entity.species?.spDef || 0,
+        speed: entity.species?.speed || 0,
+      },
+      {
+        hp: entity.ivHp || 0,
+        attack: entity.ivAttack || 0,
+        defense: entity.ivDefense || 0,
+        spAtk: entity.ivSpAtk || 0,
+        spDef: entity.ivSpDef || 0,
+        speed: entity.ivSpeed || 0,
+      },
+      entity.level || 1,
+      entity.potential || 'BLACK_IRON'
+    );
+
     return {
       id: entity.id,
       speciesId: entity.speciesId,
       speciesName: entity.species?.name || 'Unknown',
       level: entity.level,
+      cp,
       potential: entity.potential,
       types,
       isParty: entity.isParty,

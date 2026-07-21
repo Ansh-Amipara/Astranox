@@ -61,6 +61,7 @@ export interface PokemonInstance {
   potential: string;
   currentXp: number;
   types: string[];
+  cp: number;
   
   // Combat Stats
   maxHp: number;

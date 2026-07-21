@@ -139,10 +139,13 @@ export function PokemonManagement() {
                       <img src={getSpriteUrl(p.speciesId)} alt={p.name || p.speciesName} className="w-full h-full object-contain drop-shadow-md" style={{ imageRendering: 'pixelated' }} />
                     </div>
                     <h3 className="font-extrabold text-xl capitalize text-slate-900 dark:text-white truncate w-full text-center">{p.name || p.speciesName}</h3>
-                    <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 flex items-center justify-center gap-1">
+                    <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center justify-center gap-1">
                       <span>Lv. {p.level}</span>
                       <span className="text-amber-500">★</span>
                       <span className={p.potential === 'DIAMOND' ? 'text-cyan-500' : p.potential === 'PLATINUM' ? 'text-slate-400' : p.potential === 'GOLD' ? 'text-amber-500' : 'text-slate-500'}>{p.potential}</span>
+                    </div>
+                    <div className="mb-2 text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wider">
+                      CP {p.cp?.toLocaleString() || 0}
                     </div>
                     <div className="grid grid-cols-2 gap-1 w-full mt-2 px-2">
                       {[0, 1, 2, 3].map(slot => {

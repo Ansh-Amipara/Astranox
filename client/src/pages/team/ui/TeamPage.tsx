@@ -180,8 +180,11 @@ export function TeamPage() {
                         </div>
                       </div>
 
-                      {/* Display Type and Potential */}
+                      {/* Display Type, Potential, and CP */}
                       <div className="mt-1 flex flex-wrap gap-2">
+                        <span className={`text-xs px-2 py-1 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider`}>
+                          CP {pkm.cp?.toLocaleString() || 0}
+                        </span>
                         {pkm.potential && (
                           <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300">
                             {pkm.potential.replace('_', ' ')}

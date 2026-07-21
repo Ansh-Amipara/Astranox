@@ -1,5 +1,6 @@
 import { PokemonInstancePayload, PokemonInstance } from './types';
 import { calculateHP, calculateStat } from '../battle/stats';
+import { calculatePokemonCP } from './cp';
 
 export function getMaxLevelForPotential(potential: string): number {
   switch (potential) {
@@ -55,7 +56,15 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     speed: calculateStat(payload.species.baseStats.speed, payload.ivs.speed, payload.level),
   };
 
-  // 4. Return Combat Entity
+  // 4. Calculate CP
+  const cp = calculatePokemonCP(
+    payload.species.baseStats,
+    payload.ivs,
+    payload.level,
+    payload.potential
+  );
+
+  // 5. Return Combat Entity
   return {
     id: payload.id,
     name: payload.nickname || payload.species.name,
@@ -63,6 +72,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     potential: payload.potential,
     currentXp: payload.currentXp || 0,
     types: payload.species.types,
+    cp,
     maxHp,
     currentHp: maxHp, // Fresh instances spawn at full health
     stats,

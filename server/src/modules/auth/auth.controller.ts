@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service';
 import { registerSchema, loginSchema } from '@astranox/shared';
-import { ValidationError } from '../../common/errors/AppError';
+import { ValidationError, UnauthorizedError } from '../../common/errors/AppError';
 
 export class AuthController {
   private service: AuthService;
@@ -77,6 +77,26 @@ export class AuthController {
       }
       res.clearCookie('refreshToken');
       res.json({ success: true, data: { message: 'Logged out successfully' } });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw new UnauthorizedError('Not authenticated');
+      }
+
+      const { updateProfileSchema } = await import('@astranox/shared');
+      const parsed = updateProfileSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new ValidationError(parsed.error.errors[0].message);
+      }
+
+      const result = await this.service.updateProfile(userId, parsed.data);
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }

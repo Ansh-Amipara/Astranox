@@ -22,5 +22,12 @@ export class AuthRepository {
       data: { refreshTokenHash },
     });
   }
+
+  async updateProfile(id: string, data: { username: string }): Promise<User> {
+    return prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
 }
 
