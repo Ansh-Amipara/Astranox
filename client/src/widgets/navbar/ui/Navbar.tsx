@@ -7,9 +7,7 @@ import { ChevronDown, Sun, Moon, LogOut } from 'lucide-react';
 
 export function Navbar() {
   const [isPokemonOpen, setIsPokemonOpen] = useState(false);
-  const [isTrainerOpen, setIsTrainerOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const trainerDropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
 
@@ -19,9 +17,6 @@ export function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsPokemonOpen(false);
       }
-      if (trainerDropdownRef.current && !trainerDropdownRef.current.contains(event.target as Node)) {
-        setIsTrainerOpen(false);
-      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -29,7 +24,7 @@ export function Navbar() {
 
   return (
     <nav className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-md relative z-[60] transition-colors duration-200 border-b border-slate-200 dark:border-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 text-xl font-extrabold text-red-500 tracking-wider">
@@ -37,64 +32,10 @@ export function Navbar() {
             </Link>
 
             <div className="ml-10 flex items-baseline space-x-4">
-              <Link href="/" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link href="/fight" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Fight</Link>
-
-              {/* Trainer Dropdown */}
-              <div className="relative" ref={trainerDropdownRef}>
-                <button
-                  onClick={() => setIsTrainerOpen(!isTrainerOpen)}
-                  className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium focus:outline-none flex items-center"
-                >
-                  Trainer
-                  <ChevronDown className={`ml-1 w-4 h-4 transition-transform ${isTrainerOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isTrainerOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-black ring-opacity-20 focus:outline-none overflow-hidden origin-top-left transition-all z-[100]">
-                    <div className="py-1 flex flex-col" role="menu" aria-orientation="vertical">
-                      <Link
-                        href="/trainers/league"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsTrainerOpen(false)}
-                      >
-                        League
-                      </Link>
-                      <Link
-                        href="/trainers/dawn"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-orange-500 dark:hover:text-orange-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsTrainerOpen(false)}
-                      >
-                        Dawn
-                      </Link>
-                      <Link
-                        href="/trainers/zoadics"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-500 dark:hover:text-purple-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsTrainerOpen(false)}
-                      >
-                        Zoadics
-                      </Link>
-                      <Link
-                        href="/trainers/thrones"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors"
-                        role="menuitem"
-                        onClick={() => setIsTrainerOpen(false)}
-                      >
-                        Thrones
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               <Link href="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
-              <Link href="/social" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Social</Link>
               <Link href="/rank" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Rank</Link>
               <Link href="/realms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium text-black-600 dark:text-black-400">Realms</Link>
-
               {/* Pokemon Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -117,20 +58,20 @@ export function Navbar() {
                         Team
                       </Link>
                       <Link
-                        href="/box"
+                        href="/pokemon"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
                         role="menuitem"
                         onClick={() => setIsPokemonOpen(false)}
                       >
-                        Box
+                        Pokémon
                       </Link>
                       <Link
-                        href="/bag"
+                        href="/inventory"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                         role="menuitem"
                         onClick={() => setIsPokemonOpen(false)}
                       >
-                        Bag
+                        Inventory
                       </Link>
                     </div>
                   </div>

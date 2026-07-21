@@ -63,6 +63,28 @@ export class TrainersService {
     return box.map(TrainerMapper.toOwnedPokemonDto);
   }
 
+  async getAllPokemon(userId: string, page: number, limit: number): Promise<{ data: OwnedPokemonDto[], total: number }> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    const result = await this.repo.getAllPokemon(save.id, page, limit);
+    return {
+      data: result.data.map(TrainerMapper.toOwnedPokemonDto),
+      total: result.total
+    };
+  }
+
+  async removeFromParty(userId: string, pokemonId: string): Promise<void> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    await this.repo.removeFromParty(save.id, pokemonId);
+  }
+
+  async addToParty(userId: string, pokemonId: string, position: number): Promise<void> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    await this.repo.addToParty(save.id, pokemonId, position);
+  }
+
   async swapSlots(userId: string, dto: SwapSlotsDto): Promise<boolean> {
     const save = await this.repo.findByUserId(userId);
     if (!save) throw new NotFoundError('Save not found');
@@ -174,7 +196,19 @@ export class TrainersService {
       'silver-crystal': { current: PokemonPotential.BRONZE, next: PokemonPotential.SILVER },
       'gold-crystal': { current: PokemonPotential.SILVER, next: PokemonPotential.GOLD },
       'platinum-crystal': { current: PokemonPotential.GOLD, next: PokemonPotential.PLATINUM },
-      'diamond-crystal': { current: PokemonPotential.PLATINUM, next: PokemonPotential.DIAMOND },
+      'adamantite-crystal': { current: PokemonPotential.PLATINUM, next: PokemonPotential.ADAMANTITE },
+      'diamond-crystal': { current: PokemonPotential.ADAMANTITE, next: PokemonPotential.DIAMOND },
+      'crystal-crystal': { current: PokemonPotential.DIAMOND, next: PokemonPotential.CRYSTAL },
+      'epic-crystal': { current: PokemonPotential.CRYSTAL, next: PokemonPotential.EPIC },
+      'heroic-crystal': { current: PokemonPotential.EPIC, next: PokemonPotential.HEROIC },
+      'sovereign-crystal': { current: PokemonPotential.HEROIC, next: PokemonPotential.SOVEREIGN },
+      'legendary-crystal': { current: PokemonPotential.SOVEREIGN, next: PokemonPotential.LEGENDARY },
+      'divine-crystal': { current: PokemonPotential.LEGENDARY, next: PokemonPotential.DIVINE },
+      'celestial-crystal': { current: PokemonPotential.DIVINE, next: PokemonPotential.CELESTIAL },
+      'primordial-crystal': { current: PokemonPotential.CELESTIAL, next: PokemonPotential.PRIMORDIAL },
+      'mythical-crystal': { current: PokemonPotential.PRIMORDIAL, next: PokemonPotential.MYTHICAL },
+      'infinity-crystal': { current: PokemonPotential.MYTHICAL, next: PokemonPotential.INFINITY },
+      'eternal-crystal': { current: PokemonPotential.INFINITY, next: PokemonPotential.ETERNAL },
     };
 
     const progression = validProgressions[itemId];

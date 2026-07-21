@@ -4,12 +4,10 @@ import type { NextRequest } from 'next/server';
 // Add paths that require authentication
 const protectedRoutes = [
   '/team',
-  '/bag',
-  '/gyms',
+  '/inventory',
   '/pokemart',
   '/fight',
-  '/home',
-  '/trainers'
+  '/home'
 ];
 
 export function middleware(request: NextRequest) {

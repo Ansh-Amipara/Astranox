@@ -61,6 +61,53 @@ export class TrainersController {
     }
   };
 
+  getAllPokemon = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+      
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await this.service.getAllPokemon(userId, page, limit);
+      res.json({ success: true, data: result.data, meta: { total: result.total, page, limit } });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  removeFromParty = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+      
+      const pokemonId = req.params.pokemonId;
+      await this.service.removeFromParty(userId, pokemonId);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  addToParty = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+      
+      const pokemonId = req.params.pokemonId;
+      const position = req.body.position;
+      
+      if (typeof position !== 'number' || position < 0 || position > 5) {
+        throw new ValidationError('Valid party position (0-5) is required');
+      }
+
+      await this.service.addToParty(userId, pokemonId, position);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   swapSlots = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;

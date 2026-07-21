@@ -1,30 +1,32 @@
 /**
  * Pure mathematical functions for Experience and Leveling.
- * House Rule: Flat experience curve. 1,000 XP = 1 Level.
+ * House Rule: XP needed to level up from L to L+1 is L * 100.
+ * This results in Total XP = 50 * L * (L - 1).
  */
 
 /**
  * Calculates the total XP required to reach a specific level.
- * Using House Rule: XP = Level * 1000
  */
 export function getXpForLevel(level: number): number {
-  if (level <= 1) return 1000;
-  return level * 1000;
+  if (level <= 1) return 0;
+  return 50 * level * (level - 1);
 }
 
 /**
  * Calculates the current level based on total XP.
- * Using House Rule: Level = Math.floor(XP / 1000)
+ * Solves the quadratic equation: XP = 50 * L^2 - 50 * L
  */
 export function getLevelFromXp(xp: number): number {
-  if (xp < 1000) return 1;
-  return Math.min(200, Math.floor(xp / 1000));
+  if (xp <= 0) return 1;
+  const x = xp / 50;
+  const level = Math.floor((1 + Math.sqrt(1 + 4 * x)) / 2);
+  return Math.min(200, Math.max(1, level));
 }
 
 /**
  * Calculates the XP yield from defeating a wild Pokemon.
- * Gen 5+ simplified formula: (BaseExp * Level) / 7
+ * Using BaseExp * Level / 5 for a balanced curve.
  */
 export function getExpYield(baseExp: number, level: number): number {
-  return Math.floor((baseExp * level) / 7);
+  return Math.floor((baseExp * level) / 5);
 }

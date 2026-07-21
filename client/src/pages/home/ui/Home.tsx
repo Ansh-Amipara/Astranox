@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../shared/store/auth.store';
 import { apiClient, getSpriteUrl } from '../../../shared/api/api-client';
 import { StarterSelection } from '../../starter-selection/ui/StarterSelection';
-import { FiTrendingUp, FiCrosshair, FiBox, FiMap, FiAward, FiShoppingCart } from 'react-icons/fi';
+import { FiBox, FiMap, FiAward, FiShoppingCart } from 'react-icons/fi';
 
 export function Home() {
   const { user } = useAuthStore();
@@ -29,7 +29,7 @@ export function Home() {
   const party = save?.party || [];
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-center">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header Section */}
@@ -38,7 +38,6 @@ export function Home() {
             <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent mb-2">
               Welcome back, {user?.username}!
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium">Ready for your next adventure?</p>
           </div>
           <div className="flex gap-4">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
@@ -67,10 +66,10 @@ export function Home() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-blue-500/10 transition-colors"></div>
           <div className="flex justify-between items-center mb-6 relative z-10">
             <h2 className="text-2xl font-bold flex items-center gap-2">
-              <FiCrosshair className="text-blue-500" /> Active Party
+              Active Party
             </h2>
             <div className="flex gap-4">
-              <button onClick={() => router.push('/box')} className="text-purple-600 dark:text-purple-400 font-bold hover:underline text-sm flex items-center gap-1">
+              <button onClick={() => router.push('/pokemon')} className="text-purple-600 dark:text-purple-400 font-bold hover:underline text-sm flex items-center gap-1">
                 PC Box &rarr;
               </button>
               <button onClick={() => router.push('/team')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-sm flex items-center gap-1">
@@ -85,8 +84,8 @@ export function Home() {
                 <div
                   key={i}
                   className={`relative rounded-2xl p-4 border flex flex-col items-center text-center transition-all ${pkm
-                      ? 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md'
-                      : 'border-dashed border-slate-300 dark:border-slate-700 bg-transparent opacity-50'
+                    ? 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md'
+                    : 'border-dashed border-slate-300 dark:border-slate-700 bg-transparent opacity-50'
                     }`}
                 >
                   {pkm ? (
@@ -123,16 +122,13 @@ export function Home() {
 
         {/* Bottom Layout (Actions + Inventory) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          
+
           {/* Actions (Left 2 Columns) */}
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <button onClick={() => router.push('/fight')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
                 <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Enter Battle</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Quick match</p>
-              </div>
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-2xl group-hover:scale-110 transition-transform">
-                <FiCrosshair className="text-2xl text-blue-500 dark:text-blue-400" />
               </div>
             </button>
 
@@ -146,15 +142,7 @@ export function Home() {
               </div>
             </button>
 
-            <button onClick={() => router.push('/trainers/league')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
-              <div>
-                <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Challenge League</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Defeat Examiners to rank up</p>
-              </div>
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-2xl group-hover:scale-110 transition-transform">
-                <FiTrendingUp className="text-2xl text-blue-500 dark:text-blue-400" />
-              </div>
-            </button>
+
 
             <button onClick={() => router.push('/shop')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
@@ -191,8 +179,8 @@ export function Home() {
               </div>
 
               <div className="mt-4">
-                <button onClick={() => router.push('/bag')} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
-                  <FiBox /> Open Bag
+                <button onClick={() => router.push('/inventory')} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
+                  <FiBox /> Open Inventory
                 </button>
               </div>
             </div>

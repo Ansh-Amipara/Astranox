@@ -4,15 +4,24 @@ import { AppError } from '../../common/errors/AppError';
 const prisma = new PrismaClient();
 
 const RANK_REQUIREMENTS: Record<string, any> = {
-  'BLACK_IRON': { minLevel: 5, count1: 1 },
-  'BRONZE': { minLevel: 21, count1: 2, minLevelFallback: 41, countFallback: 1 },
-  'SILVER': { minLevel: 41, count1: 3, minLevelFallback: 61, countFallback: 1 },
-  'GOLD': { minLevel: 61, count1: 3, minLevelFallback: 81, countFallback: 1 },
-  'PLATINUM': { minLevel: 81, count1: 3, minLevelFallback: 91, countFallback: 1 },
-  'DIAMOND': { minLevel: 91, count1: 3, minLevelFallback: 100, countFallback: 1 },
-  'EPIC': { minLevel: 100, count1: 3, requiresLegendary: true },
-  'LEGENDARY': { minLevel: 120, count1: 3, requiresLegendary: true },
-  'MYTHICAL': { minLevel: 151, count1: 3, requiresLegendary: true },
+  'BLACK_IRON': { minLevel: 1, count1: 1 },
+  'BRONZE': { minLevel: 31, count1: 2 },
+  'SILVER': { minLevel: 61, count1: 3 },
+  'GOLD': { minLevel: 91, count1: 3 },
+  'PLATINUM': { minLevel: 121, count1: 3 },
+  'ADAMANTITE': { minLevel: 151, count1: 3 },
+  'DIAMOND': { minLevel: 201, count1: 3 },
+  'CRYSTAL': { minLevel: 301, count1: 3 },
+  'EPIC': { minLevel: 401, count1: 3 },
+  'HEROIC': { minLevel: 501, count1: 3 },
+  'SOVEREIGN': { minLevel: 601, count1: 3 },
+  'LEGENDARY': { minLevel: 701, count1: 3 },
+  'DIVINE': { minLevel: 801, count1: 3 },
+  'CELESTIAL': { minLevel: 901, count1: 3 },
+  'PRIMORDIAL': { minLevel: 1001, count1: 3 },
+  'MYTHICAL': { minLevel: 1201, count1: 3 },
+  'INFINITY': { minLevel: 1401, count1: 3 },
+  'ETERNAL': { minLevel: 1701, count1: 3 },
 };
 
 const RANK_ORDER = [
@@ -21,10 +30,19 @@ const RANK_ORDER = [
   'SILVER',
   'GOLD',
   'PLATINUM',
+  'ADAMANTITE',
   'DIAMOND',
+  'CRYSTAL',
   'EPIC',
+  'HEROIC',
+  'SOVEREIGN',
   'LEGENDARY',
-  'MYTHICAL'
+  'DIVINE',
+  'CELESTIAL',
+  'PRIMORDIAL',
+  'MYTHICAL',
+  'INFINITY',
+  'ETERNAL'
 ];
 
 export class RankService {

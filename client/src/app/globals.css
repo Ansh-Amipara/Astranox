@@ -1,10 +1,69 @@
 @import "tailwindcss";
 
+@theme {
+  /* Core Ink Wash Palette */
+  --color-ink-dark: #4A4A4A;
+  --color-ink-light: #CBCBCB;
+  --color-ink-paper: #FFFFE3;
+  --color-ink-blue: #6D8196;
+
+  /* Override standard neutral (slate) with ink scale */
+  --color-slate-50: #FFFFFF; /* White */
+  --color-slate-100: #FFFFE3; /* Paper */
+  --color-slate-200: #CBCBCB; /* Light */
+  --color-slate-300: #CBCBCB; /* Light */
+  --color-slate-400: #6D8196; /* Blue */
+  --color-slate-500: #6D8196; /* Blue */
+  --color-slate-600: #4A4A4A; /* Dark */
+  --color-slate-700: #4A4A4A; /* Dark */
+  --color-slate-800: #4A4A4A; /* Dark */
+  --color-slate-900: #4A4A4A; /* Dark */
+  --color-slate-950: #4A4A4A; /* Dark */
+
+  /* Map primary brand colors (blue, purple, indigo) to the ink blue/dark scale */
+  --color-blue-50: #FFFFFF;
+  --color-blue-100: #FFFFE3;
+  --color-blue-200: #CBCBCB;
+  --color-blue-300: #CBCBCB;
+  --color-blue-400: #6D8196;
+  --color-blue-500: #6D8196;
+  --color-blue-600: #4A4A4A;
+  --color-blue-700: #4A4A4A;
+  --color-blue-800: #4A4A4A;
+  --color-blue-900: #4A4A4A;
+  --color-blue-950: #4A4A4A;
+
+  --color-indigo-50: #FFFFFF;
+  --color-indigo-100: #FFFFE3;
+  --color-indigo-200: #CBCBCB;
+  --color-indigo-300: #CBCBCB;
+  --color-indigo-400: #6D8196;
+  --color-indigo-500: #6D8196;
+  --color-indigo-600: #4A4A4A;
+  --color-indigo-700: #4A4A4A;
+  --color-indigo-800: #4A4A4A;
+  --color-indigo-900: #4A4A4A;
+  --color-indigo-950: #4A4A4A;
+
+  --color-purple-50: #FFFFFF;
+  --color-purple-100: #FFFFE3;
+  --color-purple-200: #CBCBCB;
+  --color-purple-300: #CBCBCB;
+  --color-purple-400: #6D8196;
+  --color-purple-500: #6D8196;
+  --color-purple-600: #4A4A4A;
+  --color-purple-700: #4A4A4A;
+  --color-purple-800: #4A4A4A;
+  --color-purple-900: #4A4A4A;
+  --color-purple-950: #4A4A4A;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased;
+    /* bg-slate-100 maps to #FFFFE3 (Paper), text-slate-900 maps to #4A4A4A (Dark) */
+    @apply bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased;
   }
 }
 

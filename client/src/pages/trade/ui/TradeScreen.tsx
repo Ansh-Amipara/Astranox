@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
 
 export function TradeScreen() {
-  const { friendId } = useParams();
+  const params = useParams();
+  const friendId = params?.friendId as string;
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -48,7 +49,7 @@ export function TradeScreen() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outgoingTrades'] });
-      router.push('/social');
+      router.push('/home');
     }
   });
 
@@ -58,8 +59,8 @@ export function TradeScreen() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
           <div>
-            <button onClick={() => router.push('/social')} className="text-slate-500 hover:text-blue-500 mb-2 flex items-center font-bold uppercase tracking-wider text-sm transition-colors">
-              ◀ Back to Social Hub
+            <button onClick={() => router.push('/home')} className="text-slate-500 hover:text-blue-500 mb-2 flex items-center font-bold uppercase tracking-wider text-sm transition-colors">
+              ◀ Back to Home
             </button>
             <h1 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-4">
               Trade Proposal 🔄

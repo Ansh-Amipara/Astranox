@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -8,22 +9,31 @@ export function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalMode, setModalMode] = useState<'currency' | 'sendPokemon' | 'editPokemon' | null>(null);
   
-  const POTENTIALS = ['BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'EPIC', 'LEGENDARY', 'MYTHICAL'];
+  const POTENTIALS = ['BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'ADAMANTITE', 'DIAMOND', 'CRYSTAL', 'EPIC', 'HEROIC', 'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL', 'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'];
   const [pokemonPotential, setPokemonPotential] = useState<string>('BLACK_IRON');
   const [editPotential, setEditPotential] = useState<string>('');
   
   function getMaxLevelForPotential(potential: string) {
     switch (potential) {
-      case 'BLACK_IRON': return 20;
-      case 'BRONZE': return 40;
-      case 'SILVER': return 60;
-      case 'GOLD': return 80;
-      case 'PLATINUM': return 90;
-      case 'DIAMOND': return 100;
-      case 'EPIC': return 120;
-      case 'LEGENDARY': return 150;
-      case 'MYTHICAL': return 200;
-      default: return 200;
+      case 'BLACK_IRON': return 30;
+      case 'BRONZE': return 60;
+      case 'SILVER': return 90;
+      case 'GOLD': return 120;
+      case 'PLATINUM': return 150;
+      case 'ADAMANTITE': return 200;
+      case 'DIAMOND': return 300;
+      case 'CRYSTAL': return 400;
+      case 'EPIC': return 500;
+      case 'HEROIC': return 600;
+      case 'SOVEREIGN': return 700;
+      case 'LEGENDARY': return 800;
+      case 'DIVINE': return 900;
+      case 'CELESTIAL': return 1000;
+      case 'PRIMORDIAL': return 1200;
+      case 'MYTHICAL': return 1400;
+      case 'INFINITY': return 1700;
+      case 'ETERNAL': return 2000;
+      default: return 2000;
     }
   }
   const [moneyAmount, setMoneyAmount] = useState<number>(1000);
@@ -114,8 +124,8 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-8 text-slate-900 dark:text-slate-100 font-sans">
-      <div className="max-w-7xl mx-auto w-full">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header */}
         <div className="mb-8">
@@ -472,3 +482,4 @@ export function AdminDashboard() {
     </div>
   );
 }
+

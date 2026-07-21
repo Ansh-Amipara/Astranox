@@ -75,7 +75,8 @@ export function Pokemart() {
   const filteredItems = items?.filter(item => selectedCategory === 'all' || item.category === selectedCategory);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6">
       {/* Header and Controls section */}
       <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
         
@@ -232,6 +233,7 @@ export function Pokemart() {
           </table>
         </div>
       </div>
+    </div>
     </div>
   );
 }

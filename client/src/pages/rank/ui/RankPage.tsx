@@ -36,7 +36,8 @@ export function RankPage() {
   const { currentRank, nextRank, requirementMet, requirements, progress, message } = statusResponse.data;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative min-h-screen">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6">
       <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Trainer Rank</h1>
       </div>
@@ -126,6 +127,7 @@ export function RankPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

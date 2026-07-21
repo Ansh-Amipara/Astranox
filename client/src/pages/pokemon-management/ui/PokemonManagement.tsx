@@ -1,17 +1,19 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { PokemonModalsRef } from '../../../features/pokemon/ui/PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
-
-type Slot = { isParty: boolean; boxNumber: number | null; position: number };
+import { toast } from 'sonner';
+import { PokemonActionModals } from '../../../features/pokemon/ui/PokemonActionModals';
 
 export function PokemonManagement() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [selectedForTeam, setSelectedForTeam] = useState<string | null>(null);
+  const [activeMenuPkm, setActiveMenuPkm] = useState<any>(null);
+  const modalsRef = useRef<PokemonModalsRef>(null);
 
-  const [currentBox, setCurrentBox] = useState<number>(0);
-  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
-
-  const { data: save, isLoading: isSaveLoading } = useQuery({
+  const { data: save } = useQuery({
     queryKey: ['trainerSave'],
     queryFn: async () => {
       const { data } = await api.get('/trainers/me');
@@ -19,23 +21,49 @@ export function PokemonManagement() {
     },
   });
 
-  const { data: boxPokemon, isLoading: isBoxLoading } = useQuery({
-    queryKey: ['pcBox', currentBox],
+  const { data: pokemonData, isLoading } = useQuery({
+    queryKey: ['allPokemon', page],
     queryFn: async () => {
-      const { data } = await api.get(`/trainers/box/${currentBox}`);
-      return data.data; // array of OwnedPokemon
+      const { data } = await api.get(`/trainers/pokemon?page=${page}&limit=20`);
+      return data;
     },
   });
 
-  const swapMutation = useMutation({
-    mutationFn: async (payload: { from: Slot; to: Slot }) => {
-      await api.post('/trainers/swap', payload);
+  const { data: allMoves } = useQuery({
+    queryKey: ['allMoves'],
+    queryFn: async () => {
+      const { data } = await api.get('/trainers/moves');
+      return data.data;
+    }
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async (pokemonId: string) => {
+      await api.post(`/trainers/party/${pokemonId}/remove`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      queryClient.invalidateQueries({ queryKey: ['pcBox', currentBox] });
-      setSelectedSlot(null);
+      queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
+      toast.success('Removed from team!');
     },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error?.message || 'Failed to remove from team');
+    }
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async ({ pokemonId, position }: { pokemonId: string, position: number }) => {
+      await api.post(`/trainers/party/${pokemonId}/add`, { position });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
+      setSelectedForTeam(null);
+      toast.success('Added to team!');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error?.message || 'Failed to add to team');
+    }
   });
 
   const releaseMutation = useMutation({
@@ -44,215 +72,202 @@ export function PokemonManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      queryClient.invalidateQueries({ queryKey: ['pcBox', currentBox] });
-      setSelectedSlot(null);
+      queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
+      toast.success('Pokémon released!');
     }
   });
 
-  const toggleTradeMutation = useMutation({
-    mutationFn: async (pokemonId: string) => {
-      await api.post(`/trades/pokemon/${pokemonId}/toggle-trade`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      queryClient.invalidateQueries({ queryKey: ['pcBox', currentBox] });
-    }
-  });
-
-  const handleSlotClick = (slot: Slot) => {
-    if (swapMutation.isPending) return;
-
-    if (!selectedSlot) {
-      setSelectedSlot(slot);
-    } else {
-      if (
-        selectedSlot.isParty === slot.isParty &&
-        selectedSlot.boxNumber === slot.boxNumber &&
-        selectedSlot.position === slot.position
-      ) {
-        setSelectedSlot(null); // deselect
-      } else {
-        swapMutation.mutate({ from: selectedSlot, to: slot });
-      }
-    }
-  };
-
-  if (isSaveLoading) {
-    return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Trainer Data...</div>;
-  }
-
-  // Create lookup maps for easy rendering
-  const partyMap = new Map(save?.party?.map((p: any) => [p.position, p]) || []);
-  const boxMap = new Map((boxPokemon || []).map((p: any) => [p.position, p]));
-
-  const renderSlot = (isParty: boolean, position: number, pkm: any) => {
-    const boxNum = isParty ? null : currentBox;
-    const isSelected =
-      selectedSlot?.isParty === isParty &&
-      selectedSlot?.boxNumber === boxNum &&
-      selectedSlot?.position === position;
-
+  if (isLoading) {
     return (
-      <div
-        key={`${isParty ? 'party' : 'box'}-${position}`}
-        onClick={() => handleSlotClick({ isParty, boxNumber: boxNum, position })}
-        className={`relative flex items-center justify-center cursor-pointer transition-all duration-200 border rounded-xl overflow-hidden
-          ${isParty ? 'h-24 p-4' : 'h-16 w-16 p-2 mx-auto'} 
-          ${
-            isSelected
-              ? 'border-blue-400 bg-blue-100 dark:bg-blue-900/40 shadow-md dark:shadow-[0_0_15px_rgba(96,165,250,0.5)] scale-105 z-10'
-              : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800'
-          }
-        `}
-      >
-        {pkm ? (
-          <div className={`flex items-center w-full ${isParty ? 'gap-4' : 'justify-center'}`}>
-            <img
-              src={getSpriteUrl(pkm.speciesId)}
-              alt={pkm.species.name}
-              className={`${isParty ? 'h-16 w-16' : 'h-12 w-12'} object-contain`}
-              style={{ imageRendering: 'pixelated' }}
-            />
-            {isParty && (
-              <div className="flex-1 min-w-0">
-                <div className="mt-2 text-center w-full">
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize truncate">
-                    {pkm.nickname || pkm.species.name}
-                  </h3>
-                  <div className="flex items-center justify-center gap-1 mt-1 flex-wrap">
-                    <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Lv. {pkm.level}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {pkm.isForTrade && (
-              <div className="absolute top-1 right-1">
-                <span title="For Trade" className="flex h-3 w-3 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-slate-400 dark:text-slate-700 font-medium text-xs uppercase tracking-wider">Empty</div>
-        )}
-        
-        {/* Selection overlay border for pending swaps */}
-        {selectedSlot && !isSelected && (
-          <div className="absolute inset-0 border border-transparent hover:border-blue-500/50 rounded-xl transition-colors pointer-events-none"></div>
-        )}
+      <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
       </div>
     );
-  };
+  }
+
+  const allPokemon = pokemonData?.data || [];
+  const total = pokemonData?.meta?.total || 0;
+  const totalPages = Math.ceil(total / 20) || 1;
+
+  const activePartyIds = new Set(save?.party?.map((p: any) => p.id) || []);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex-1 transition-colors duration-200">
-      <main className="p-8 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Team Management</h1>
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+          <h1 className="text-3xl font-black tracking-tight">My Pokémon</h1>
+          
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl disabled:opacity-50 font-bold"
+            >
+              Prev
+            </button>
+            <span className="font-bold">Page {page} of {totalPages}</span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl disabled:opacity-50 font-bold"
+            >
+              Next
+            </button>
           </div>
-          {swapMutation.isPending && (
-            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20 px-4 py-2 rounded-full border border-blue-200 dark:border-blue-900/50">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-              </span>
-              Swapping...
-            </div>
-          )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Party Section */}
-          <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Active Party</h2>
-              <span className="text-xs font-bold text-slate-500">{save?.party?.length || 0} / 6</span>
-            </div>
-            <div className="flex flex-col gap-3">
-              {Array.from({ length: 6 }).map((_, i) => renderSlot(true, i, partyMap.get(i)))}
-            </div>
+        
+        {allPokemon.length === 0 ? (
+          <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+            <p className="text-slate-500">You don't have any Pokémon yet.</p>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+            {allPokemon.map((p: any) => {
+              const inParty = activePartyIds.has(p.id) || p.isParty;
+              return (
+                <div key={p.id} className={`relative bg-white dark:bg-slate-900 border ${inParty ? 'border-blue-500 shadow-blue-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl p-4 shadow-sm hover:shadow-md transition-all flex flex-row`}>
+                  
+                  {inParty && (
+                    <div className="absolute top-3 left-3 bg-blue-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
+                      In Party
+                    </div>
+                  )}
 
-          {/* PC Box Section */}
-          <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">PC Storage System</h2>
-              
-              <div className="flex items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-1">
-                <button 
-                  disabled={currentBox === 0}
-                  onClick={() => setCurrentBox(c => c - 1)}
-                  className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 transition-colors"
-                >
-                  ◀
-                </button>
-                <span className="font-bold text-sm min-w-[80px] text-center">BOX {currentBox + 1}</span>
-                <button 
-                  disabled={currentBox === 31}
-                  onClick={() => setCurrentBox(c => c + 1)}
-                  className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 transition-colors"
-                >
-                  ▶
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 min-h-[400px]">
-              {isBoxLoading ? (
-                <div className="h-full flex items-center justify-center text-slate-500">Accessing Box Data...</div>
-              ) : (
-                <div className="grid grid-cols-6 gap-3">
-                  {Array.from({ length: 30 }).map((_, i) => renderSlot(false, i, boxMap.get(i)))}
-                </div>
-              )}
-            </div>
-            
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-              <div className="flex-1 rounded-xl border border-blue-200 dark:border-blue-900/30 bg-blue-50 dark:bg-blue-900/10 p-4 text-sm text-blue-700 dark:text-blue-400/80">
-                <span className="font-bold">Tip:</span> Click any Pokémon in your Party or Box to select it, then click an empty slot or another Pokémon to swap their positions.
-              </div>
-              
-              {(() => {
-                if (!selectedSlot) return null;
-                const pkm = (selectedSlot.isParty ? partyMap.get(selectedSlot.position) : boxMap.get(selectedSlot.position)) as any;
-                if (!pkm) return null;
-                return (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col items-center justify-center flex-1 min-w-0 pr-4 border-r border-slate-200 dark:border-slate-700">
+                    <div className="w-24 h-24 relative mb-2">
+                      <img src={getSpriteUrl(p.speciesId)} alt={p.name || p.speciesName} className="w-full h-full object-contain drop-shadow-md" style={{ imageRendering: 'pixelated' }} />
+                    </div>
+                    <h3 className="font-extrabold text-xl capitalize text-slate-900 dark:text-white truncate w-full text-center">{p.name || p.speciesName}</h3>
+                    <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 flex items-center justify-center gap-1">
+                      <span>Lv. {p.level}</span>
+                      <span className="text-amber-500">★</span>
+                      <span className={p.potential === 'DIAMOND' ? 'text-cyan-500' : p.potential === 'PLATINUM' ? 'text-slate-400' : p.potential === 'GOLD' ? 'text-amber-500' : 'text-slate-500'}>{p.potential}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 w-full mt-2 px-2">
+                      {[0, 1, 2, 3].map(slot => {
+                        const m = p.moves?.find((mv: any) => mv.slot === slot)?.move?.name;
+                        return (
+                          <div key={slot} className="text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/80 px-1.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-600 dark:text-slate-300 truncate capitalize">
+                            {m ? m.replace('-', ' ') : '-'}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                                <div className="flex flex-col gap-1.5 w-48 shrink-0 pl-4 justify-center">
                     <button
-                      onClick={() => toggleTradeMutation.mutate(pkm.id)}
-                      disabled={toggleTradeMutation.isPending}
-                      className={`px-6 py-4 rounded-xl font-bold transition-colors shadow-sm ${
-                        pkm.isForTrade
-                          ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:hover:bg-purple-800/60'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                      }`}
+                      onClick={() => modalsRef.current?.openDetails(p)}
+                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
                     >
-                      {toggleTradeMutation.isPending ? 'Toggling...' : (pkm.isForTrade ? '🔒 Remove from Trade' : '🔄 Mark for Trade')}
+                      View Details
                     </button>
+                    
+                    <button
+                      onClick={() => modalsRef.current?.openMoves(p)}
+                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
+                    >
+                      Change Moves
+                    </button>
+
+                    <button
+                      onClick={() => modalsRef.current?.openEvolve(p)}
+                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
+                    >
+                      Evolution
+                    </button>
+
+                    <button
+                      onClick={() => modalsRef.current?.openBoost(p)}
+                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
+                    >
+                      Boost Potential
+                    </button>
+
+                    <button
+                      onClick={() => modalsRef.current?.openIVs(p)}
+                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
+                    >
+                      Enhance IVs
+                    </button>
+
+                    {inParty ? (
+                      <button
+                        disabled={removeMutation.isPending}
+                        onClick={() => removeMutation.mutate(p.id)}
+                        className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors disabled:opacity-50 text-center"
+                      >
+                        Remove from Team
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedForTeam(p.id)}
+                        className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
+                      >
+                        Add to Team
+                      </button>
+                    )}
+                    
                     <button
                       onClick={() => {
-                        if (window.confirm(`Are you sure you want to release ${pkm.nickname || pkm.species?.name}? This cannot be undone.`)) {
-                          releaseMutation.mutate(pkm.id);
+                        if(confirm('Are you sure you want to release this Pokémon?')) {
+                          releaseMutation.mutate(p.id);
                         }
                       }}
-                      disabled={releaseMutation.isPending || (selectedSlot.isParty && save?.party?.length <= 1)}
-                      className="px-6 py-4 rounded-xl font-bold bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-800/60 transition-colors disabled:opacity-50"
+                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
                     >
-                      {releaseMutation.isPending ? 'Releasing...' : '🗑️ Release Selected'}
+                      Release
                     </button>
                   </div>
-                );
-              })()}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+
+        <PokemonActionModals 
+          ref={modalsRef}
+          activeMenuPkm={activeMenuPkm}
+          setActiveMenuPkm={setActiveMenuPkm}
+          save={save}
+          allMoves={allMoves}
+        />
+
+        {/* Slot Selection Modal */}
+        {selectedForTeam && (
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800">
+              <h2 className="text-2xl font-black mb-2">Select Team Slot</h2>
+              <p className="text-slate-500 dark:text-slate-400 mb-6">Which slot should this Pokémon take? (1-6)</p>
+              
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {[0, 1, 2, 3, 4, 5].map(slot => (
+                  <button
+                    key={slot}
+                    onClick={() => addMutation.mutate({ pokemonId: selectedForTeam, position: slot })}
+                    className="py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 font-bold rounded-xl transition-colors flex items-center justify-between"
+                  >
+                    <span>Slot {slot + 1}</span>
+                    {save?.party?.find((p: any) => p.position === slot) ? (
+                      <span className="text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded">Replace</span>
+                    ) : (
+                      <span className="text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">Empty</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setSelectedForTeam(null)}
+                className="w-full py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 font-bold rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
             </div>
           </div>
-
-        </div>
-      </main>
+        )}
+      </div>
     </div>
   );
 }

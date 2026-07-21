@@ -3,16 +3,25 @@ import { calculateHP, calculateStat } from '../battle/stats';
 
 export function getMaxLevelForPotential(potential: string): number {
   switch (potential) {
-    case 'BLACK_IRON': return 20;
-    case 'BRONZE': return 40;
-    case 'SILVER': return 60;
-    case 'GOLD': return 80;
-    case 'PLATINUM': return 90;
-    case 'DIAMOND': return 100;
-    case 'EPIC': return 120;
-    case 'LEGENDARY': return 150;
-    case 'MYTHICAL': return 200;
-    default: return 200;
+    case 'BLACK_IRON': return 30;
+    case 'BRONZE': return 60;
+    case 'SILVER': return 90;
+    case 'GOLD': return 120;
+    case 'PLATINUM': return 150;
+    case 'ADAMANTITE': return 200;
+    case 'DIAMOND': return 300;
+    case 'CRYSTAL': return 400;
+    case 'EPIC': return 500;
+    case 'HEROIC': return 600;
+    case 'SOVEREIGN': return 700;
+    case 'LEGENDARY': return 800;
+    case 'DIVINE': return 900;
+    case 'CELESTIAL': return 1000;
+    case 'PRIMORDIAL': return 1200;
+    case 'MYTHICAL': return 1400;
+    case 'INFINITY': return 1700;
+    case 'ETERNAL': return 2000;
+    default: return 2000;
   }
 }
 

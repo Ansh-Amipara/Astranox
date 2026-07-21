@@ -47,7 +47,8 @@ export function RealmsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-4">
           Astral Realms
@@ -166,6 +167,7 @@ export function RealmsPage() {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

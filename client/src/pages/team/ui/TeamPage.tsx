@@ -53,6 +53,16 @@ export function TeamPage() {
     }
   });
 
+  const removeMutation = useMutation({
+    mutationFn: async (pokemonId: string) => {
+      await api.post(`/trainers/party/${pokemonId}/remove`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      setActiveMenuPkm(null);
+    }
+  });
+
   const swapMutation = useMutation({
     mutationFn: async ({ from, to }: { from: any, to: any }) => {
       await api.post('/trainers/swap', { from, to });
@@ -128,8 +138,8 @@ export function TeamPage() {
   };
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-8 text-slate-900 dark:text-slate-100 transition-colors duration-200 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6">
         <div className="flex items-center justify-between mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Team</h1>
@@ -193,7 +203,7 @@ export function TeamPage() {
                           <span className="text-xs font-bold uppercase mr-1 opacity-70">Lv.</span>
                           <span className="text-sm font-black">{pkm.level}</span>
                         </div>
-                        {pkm.potential && pkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[pkm.potential as string] || 200) ? (
+                        {pkm.potential && pkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[pkm.potential as string] || 2000) ? (
                           <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
                             <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                           </div>
@@ -248,7 +258,7 @@ export function TeamPage() {
                 <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
                 <p className="text-xs font-bold text-slate-500">
                   Lv. {activeMenuPkm.level} 
-                  {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[activeMenuPkm.potential as string] || 200) ? (
+                  {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[activeMenuPkm.potential as string] || 2000) ? (
                     <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
                   ) : (
                     <span className="font-medium text-slate-400 opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span>
@@ -304,7 +314,7 @@ export function TeamPage() {
                 </button>
               )}
 
-              {activeMenuPkm.potential !== 'DIAMOND' && (
+              {activeMenuPkm.potential !== 'ETERNAL' && (
                 <button 
                   onClick={() => { 
                     setBoostPkm(activeMenuPkm);
@@ -372,7 +382,7 @@ export function TeamPage() {
                         {detailsPkm.potential.toLowerCase().replace('_', ' ')}
                       </span>
                     )}
-                    {detailsPkm.potential && detailsPkm.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[detailsPkm.potential as string] || 200) && (
+                    {detailsPkm.potential && detailsPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[detailsPkm.potential as string] || 2000) && (
                       <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded uppercase tracking-wider">Capped</span>
                     )}
                     <span className="text-slate-500 dark:text-slate-400 text-sm font-medium ml-auto">#{detailsPkm.species?.id}</span>
@@ -434,6 +444,14 @@ export function TeamPage() {
                   className="mt-4 w-full bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:hover:bg-blue-800/60 dark:text-blue-300 font-bold py-3 rounded-xl transition-colors"
                 >
                   Change Moves
+                </button>
+
+                <button 
+                  onClick={() => removeMutation.mutate(activeMenuPkm.id)}
+                  disabled={party.length <= 1 || removeMutation.isPending}
+                  className="w-full text-left px-4 py-3 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 rounded-xl font-bold transition-colors text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {removeMutation.isPending ? 'Removing...' : 'Remove from Team'}
                 </button>
               </div>
 
@@ -669,7 +687,19 @@ export function TeamPage() {
           'BRONZE': { next: 'SILVER', item: 'silver-crystal', itemName: 'Silver Crystal' },
           'SILVER': { next: 'GOLD', item: 'gold-crystal', itemName: 'Gold Crystal' },
           'GOLD': { next: 'PLATINUM', item: 'platinum-crystal', itemName: 'Platinum Crystal' },
-          'PLATINUM': { next: 'DIAMOND', item: 'diamond-crystal', itemName: 'Diamond Crystal' },
+          'PLATINUM': { next: 'ADAMANTITE', item: 'adamantite-crystal', itemName: 'Adamantite Crystal' },
+          'ADAMANTITE': { next: 'DIAMOND', item: 'diamond-crystal', itemName: 'Diamond Crystal' },
+          'DIAMOND': { next: 'CRYSTAL', item: 'crystal-crystal', itemName: 'Crystal Crystal' },
+          'CRYSTAL': { next: 'EPIC', item: 'epic-crystal', itemName: 'Epic Crystal' },
+          'EPIC': { next: 'HEROIC', item: 'heroic-crystal', itemName: 'Heroic Crystal' },
+          'HEROIC': { next: 'SOVEREIGN', item: 'sovereign-crystal', itemName: 'Sovereign Crystal' },
+          'SOVEREIGN': { next: 'LEGENDARY', item: 'legendary-crystal', itemName: 'Legendary Crystal' },
+          'LEGENDARY': { next: 'DIVINE', item: 'divine-crystal', itemName: 'Divine Crystal' },
+          'DIVINE': { next: 'CELESTIAL', item: 'celestial-crystal', itemName: 'Celestial Crystal' },
+          'CELESTIAL': { next: 'PRIMORDIAL', item: 'primordial-crystal', itemName: 'Primordial Crystal' },
+          'PRIMORDIAL': { next: 'MYTHICAL', item: 'mythical-crystal', itemName: 'Mythical Crystal' },
+          'MYTHICAL': { next: 'INFINITY', item: 'infinity-crystal', itemName: 'Infinity Crystal' },
+          'INFINITY': { next: 'ETERNAL', item: 'eternal-crystal', itemName: 'Eternal Crystal' },
         };
         const mapping = potentialMap[boostPkm.potential];
         const ownedCrystal = save.inventory?.find((i: any) => i.itemId === mapping?.item);

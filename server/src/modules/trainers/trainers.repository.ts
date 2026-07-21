@@ -132,6 +132,85 @@ export class TrainersRepository {
     });
   }
 
+  async getAllPokemon(trainerId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      prisma.ownedPokemon.findMany({
+        where: { trainerId },
+        orderBy: [{ isParty: 'desc' }, { level: 'desc' }],
+        skip,
+        take: limit,
+        include: { 
+          species: { include: { type1: true, type2: true } },
+          moves: { include: { move: { include: { type: true } } } }
+        }
+      }),
+      prisma.ownedPokemon.count({ where: { trainerId } })
+    ]);
+    return { data, total };
+  }
+
+  async removeFromParty(trainerId: string, pokemonId: string) {
+    return prisma.$transaction(async (tx) => {
+      const pokemon = await tx.ownedPokemon.findFirst({
+        where: { id: pokemonId, trainerId, isParty: true }
+      });
+      if (!pokemon) throw new Error('Pokemon not found in party');
+
+      const boxed = await tx.ownedPokemon.findMany({
+        where: { trainerId, isParty: false },
+        select: { boxNumber: true, position: true }
+      });
+      
+      const occupied = new Set(boxed.map(p => `${p.boxNumber}-${p.position}`));
+      let targetBox = null;
+      let targetPos = null;
+      
+      for (let b = 0; b < 32; b++) {
+        for (let p = 0; p < 30; p++) {
+          if (!occupied.has(`${b}-${p}`)) {
+            targetBox = b;
+            targetPos = p;
+            break;
+          }
+        }
+        if (targetBox !== null) break;
+      }
+      
+      if (targetBox === null) throw new Error('No PC Box space available');
+      
+      await tx.ownedPokemon.update({
+        where: { id: pokemonId },
+        data: { isParty: false, boxNumber: targetBox, position: targetPos }
+      });
+    });
+  }
+
+  async addToParty(trainerId: string, pokemonId: string, targetPosition: number) {
+    return prisma.$transaction(async (tx) => {
+      const fromPokemon = await tx.ownedPokemon.findFirst({
+        where: { id: pokemonId, trainerId, isParty: false }
+      });
+      if (!fromPokemon) throw new Error('Pokemon not found in PC');
+
+      const existingPartyPokemon = await tx.ownedPokemon.findFirst({
+        where: { trainerId, isParty: true, position: targetPosition }
+      });
+
+      if (existingPartyPokemon) {
+        await tx.ownedPokemon.update({
+          where: { id: existingPartyPokemon.id },
+          data: { isParty: false, boxNumber: fromPokemon.boxNumber as number, position: fromPokemon.position }
+        });
+      }
+
+      await tx.ownedPokemon.update({
+        where: { id: pokemonId },
+        data: { isParty: true, boxNumber: null, position: targetPosition }
+      });
+    });
+  }
+
   async swapSlots(
     trainerId: string,
     from: { isParty: boolean; boxNumber: number | null; position: number },

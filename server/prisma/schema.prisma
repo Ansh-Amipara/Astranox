@@ -18,10 +18,19 @@ enum TrainerRank {
   SILVER
   GOLD
   PLATINUM
+  ADAMANTITE
   DIAMOND
+  CRYSTAL
   EPIC
+  HEROIC
+  SOVEREIGN
   LEGENDARY
+  DIVINE
+  CELESTIAL
+  PRIMORDIAL
   MYTHICAL
+  INFINITY
+  ETERNAL
 }
 
 enum PokemonPotential {
@@ -30,10 +39,19 @@ enum PokemonPotential {
   SILVER
   GOLD
   PLATINUM
+  ADAMANTITE
   DIAMOND
+  CRYSTAL
   EPIC
+  HEROIC
+  SOVEREIGN
   LEGENDARY
+  DIVINE
+  CELESTIAL
+  PRIMORDIAL
   MYTHICAL
+  INFINITY
+  ETERNAL
 }
 
 model User {
@@ -48,8 +66,6 @@ model User {
 
   trainerSave TrainerSave?
 
-  friendshipsInitiated Friendship[] @relation("FriendshipsInitiated")
-  friendshipsReceived  Friendship[] @relation("FriendshipsReceived")
 }
 
 model TrainerSave {
@@ -367,29 +383,8 @@ model AuditLog {
 }
 
 // ----------------------------------------------------------------------
-// SOCIAL & TRADING (Phase 22)
+// TRADING (Phase 22)
 // ----------------------------------------------------------------------
-
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-}
-
-model Friendship {
-  id        String @id @default(uuid()) @db.Uuid
-  userAId   String @db.Uuid
-  userBId   String @db.Uuid
-
-  status    FriendshipStatus @default(PENDING)
-  
-  userA     User @relation("FriendshipsInitiated", fields: [userAId], references: [id], onDelete: Cascade)
-  userB     User @relation("FriendshipsReceived", fields: [userBId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userAId, userBId])
-}
 
 enum TradeStatus {
   PENDING

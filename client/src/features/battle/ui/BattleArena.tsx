@@ -82,7 +82,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
             )}
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold text-slate-300 drop-shadow-sm">Lv {player.level}</span>
-              {player.potential && player.level >= ({ BLACK_IRON: 20, BRONZE: 40, SILVER: 60, GOLD: 80, PLATINUM: 90, DIAMOND: 100, EPIC: 120, LEGENDARY: 150, MYTHICAL: 200 }[player.potential as string] || 200) && (
+              {player.potential && player.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[player.potential as string] || 2000) && (
                 <span className="text-[10px] font-bold text-red-400 bg-red-900/50 border border-red-500/50 px-1 rounded uppercase">Capped</span>
               )}
             </div>

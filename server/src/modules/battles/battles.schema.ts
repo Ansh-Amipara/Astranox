@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const engageCustomSchema = z.object({
   body: z.object({
     speciesId: z.number().positive(),
-    level: z.number().min(1).max(200),
+    level: z.number().min(1).max(2000),
   })
 });
 

@@ -74,8 +74,8 @@ export function FightSetup() {
     }
 
     const levelNum = parseInt(level, 10);
-    if (isNaN(levelNum) || levelNum < 1 || levelNum > 200) {
-      setError('Please enter a valid level between 1 and 200.');
+    if (isNaN(levelNum) || levelNum < 1 || levelNum > 2000) {
+      setError('Please enter a valid level between 1 and 2000.');
       return;
     }
 
@@ -97,7 +97,8 @@ export function FightSetup() {
   const filteredSpecies = speciesList.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-4 md:space-y-6 flex flex-col items-center">
       <div className="w-full mb-8 text-center">
         <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Custom Battle</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2">Select a Pokémon and level to fight against.</p>
@@ -159,13 +160,19 @@ export function FightSetup() {
 
           <div>
             <label htmlFor="level" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Level (1-200)
+              Level (1-2000)
             </label>
             <input
               type="text"
               id="level"
               value={level}
-              onChange={(e) => setLevel(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => {
+                let val = e.target.value.replace(/\D/g, '');
+                if (val && parseInt(val, 10) > 2000) {
+                  val = '2000';
+                }
+                setLevel(val);
+              }}
               className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all font-mono"
             />
           </div>
@@ -192,6 +199,7 @@ export function FightSetup() {
             {engageMutation.isPending ? 'Starting...' : 'Battle!'}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );
