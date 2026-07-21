@@ -2,6 +2,8 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
+import { getTypeSpriteUrl } from '../../../shared/api/axios';
+import { TypeSelect } from '../../../components/ui/TypeSelect';
 
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number): number {
@@ -313,7 +315,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 3. Move Management Modal (Unchanged structurally, just uses new state) --- */}
       {changeMovePkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setChangeMovePkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
                 Change {changeMovePkm.nickname || changeMovePkm.species?.name}'s Moves
@@ -364,17 +366,14 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                   />
                   <div className="flex gap-2">
-                    <select
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value)}
-                      disabled={changeMovePkm.editingSlot === undefined}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-xs disabled:opacity-50"
-                    >
-                      <option value="all">All Types</option>
-                      {Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).sort().map((type: any) => (
-                        <option key={type} value={type} className="capitalize">{type}</option>
-                      ))}
-                    </select>
+                    <div className="flex-1">
+                      <TypeSelect
+                        value={typeFilter === 'all' ? '' : typeFilter}
+                        onChange={(val) => setTypeFilter(val || 'all')}
+                        types={Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).sort() as string[]}
+                        disabled={changeMovePkm.editingSlot === undefined}
+                      />
+                    </div>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
@@ -415,11 +414,9 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     }}
                     className="flex flex-col p-3 rounded-lg border border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-blue-400 bg-white dark:bg-slate-800/50 text-left transition-colors"
                   >
-                    <div className="flex justify-between items-center w-full mb-1">
-                      <span className="font-bold capitalize text-slate-900 dark:text-white">{move.name.replace('-', ' ')}</span>
-                      <span className={`text-[10px] uppercase px-2 py-0.5 rounded font-bold border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400`}>
-                        {move.type}
-                      </span>
+                    <div className="flex justify-start gap-2 items-center w-full mb-1">
+                      <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
+                      <span className="font-bold capitalize text-slate-900 dark:text-white truncate">{move.name.replace('-', ' ')}</span>
                     </div>
                     <div className="flex gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
                       <span>PWR: {move.power || '-'}</span>

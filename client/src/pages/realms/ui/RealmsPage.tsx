@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { realmsApi } from '../../../shared/api/api';
+import { getSpriteUrl, getTypeSpriteUrl } from '../../../shared/api/axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -148,17 +149,14 @@ export function RealmsPage() {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-bold">Wild Lv. {realm.minLevel} - {realm.maxLevel}</p>
                     <div className="flex flex-wrap gap-2">
                       {realm.types.map(t => (
-                        <span key={t} className="text-xs px-2 py-1 bg-white/60 dark:bg-black/40 rounded-full border border-white/20 dark:border-black/20 font-bold capitalize">
-                          {t}
-                        </span>
+                        <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-5 object-contain drop-shadow-sm" />
                       ))}
                     </div>
                   </div>
                   
-                  {/* Boss Sprite */}
                   <div className="relative w-16 h-16 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/50 flex flex-col items-center justify-center p-1 shadow-sm shrink-0 ml-4 group-hover:scale-110 transition-transform">
                     <span className="absolute -top-2 bg-red-600 text-white text-[7px] font-black uppercase tracking-widest px-1 py-0.5 rounded shadow-sm z-10">Alpha</span>
-                    <img src={`http://localhost:3000/sprites/${realm.bossSpeciesId}.png`} alt={realm.bossSpeciesName} className="w-10 h-10 object-contain pixelated drop-shadow mb-0.5" />
+                    <img src={getSpriteUrl(realm.bossSpeciesId)} alt={realm.bossSpeciesName} className="w-10 h-10 object-contain pixelated drop-shadow mb-0.5" />
                     <span className="text-[8px] font-bold text-red-900 dark:text-red-400 capitalize truncate w-full text-center">{realm.bossSpeciesName}</span>
                   </div>
                 </div>

@@ -5,6 +5,9 @@ import { useAuthStore } from '../../../shared/store/auth.store';
 import { apiClient, getSpriteUrl } from '../../../shared/api/api-client';
 import { StarterSelection } from '../../starter-selection/ui/StarterSelection';
 import { FiBox, FiMap, FiAward, FiShoppingCart } from 'react-icons/fi';
+import { TowerCurrencyIcon } from '../../../shared/ui/TowerCurrencyIcon';
+import { DungeonCurrencyIcon } from '../../../shared/ui/DungeonCurrencyIcon';
+import { NormalCurrencyIcon } from '../../../shared/ui/NormalCurrencyIcon';
 
 export function Home() {
   const { user } = useAuthStore();
@@ -34,23 +37,44 @@ export function Home() {
       <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
           <div>
             <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent mb-2">
               Welcome back, {user?.username}!
             </h1>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
-                <span className="font-black text-xl">₽</span>
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <NormalCurrencyIcon className="w-8 h-8" />
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Balance</p>
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.money.toLocaleString()}</p>
               </div>
             </div>
+
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <TowerCurrencyIcon className="w-8 h-8" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tower Coins</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200">0</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center">
+                <DungeonCurrencyIcon className="w-8 h-8" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dungeon Coins</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200">0</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden md:flex">
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <FiAward className="text-xl" />
               </div>
@@ -59,7 +83,8 @@ export function Home() {
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize">{save.rank.replace('_', ' ')}</p>
               </div>
             </div>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden md:flex">
+            
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden lg:flex">
               <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black">
                 CP
               </div>

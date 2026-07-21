@@ -1,4 +1,5 @@
 import { PrismaClient, TrainerType } from '@prisma/client';
+import { env } from '../../src/config/env';
 
 const prisma = new PrismaClient();
 
@@ -9,8 +10,9 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 133, level: 25 }, // Eevee
-      { speciesId: 25, level: 25 },  // Pikachu
+      { speciesId: 133, level: 20 }, // Eevee
+      { speciesId: 25, level: 20 },  // Pikachu
+      { speciesId: 52, level: 20 },  // Meowth
     ]
   },
   {
@@ -19,9 +21,9 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 197, level: 45 }, // Umbreon
-      { speciesId: 196, level: 45 }, // Espeon
-      { speciesId: 448, level: 45 }, // Lucario
+      { speciesId: 197, level: 40 }, // Umbreon
+      { speciesId: 196, level: 40 }, // Espeon
+      { speciesId: 448, level: 40 }, // Lucario
     ]
   },
   {
@@ -30,9 +32,9 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 3, level: 65 },   // Venusaur
-      { speciesId: 6, level: 65 },   // Charizard
-      { speciesId: 9, level: 65 },   // Blastoise
+      { speciesId: 3, level: 60 },   // Venusaur
+      { speciesId: 6, level: 60 },   // Charizard
+      { speciesId: 9, level: 60 },   // Blastoise
     ]
   },
   {
@@ -41,9 +43,20 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 130, level: 85 }, // Gyarados
-      { speciesId: 143, level: 85 }, // Snorlax
-      { speciesId: 376, level: 85 }, // Metagross
+      { speciesId: 130, level: 80 }, // Gyarados
+      { speciesId: 143, level: 80 }, // Snorlax
+      { speciesId: 376, level: 80 }, // Metagross
+    ]
+  },
+  {
+    name: 'Adamantite Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 248, level: 100 }, // Tyranitar
+      { speciesId: 373, level: 100 }, // Salamence
+      { speciesId: 149, level: 100 }, // Dragonite
     ]
   },
   {
@@ -52,9 +65,20 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 445, level: 95 }, // Garchomp
-      { speciesId: 635, level: 95 }, // Hydreigon
-      { speciesId: 612, level: 95 }, // Haxorus
+      { speciesId: 445, level: 120 }, // Garchomp
+      { speciesId: 635, level: 120 }, // Hydreigon
+      { speciesId: 612, level: 120 }, // Haxorus
+    ]
+  },
+  {
+    name: 'Crystal Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 468, level: 140 }, // Togekiss
+      { speciesId: 350, level: 140 }, // Milotic
+      { speciesId: 637, level: 140 }, // Volcarona
     ]
   },
   {
@@ -63,9 +87,31 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 144, level: 105 }, // Articuno
-      { speciesId: 145, level: 105 }, // Zapdos
-      { speciesId: 146, level: 105 }, // Moltres
+      { speciesId: 144, level: 160 }, // Articuno
+      { speciesId: 145, level: 160 }, // Zapdos
+      { speciesId: 146, level: 160 }, // Moltres
+    ]
+  },
+  {
+    name: 'Heroic Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 243, level: 180 }, // Raikou
+      { speciesId: 244, level: 180 }, // Entei
+      { speciesId: 245, level: 180 }, // Suicune
+    ]
+  },
+  {
+    name: 'Sovereign Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 377, level: 200 }, // Regirock
+      { speciesId: 378, level: 200 }, // Regice
+      { speciesId: 379, level: 200 }, // Registeel
     ]
   },
   {
@@ -74,9 +120,42 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 243, level: 125 }, // Raikou
-      { speciesId: 244, level: 125 }, // Entei
-      { speciesId: 245, level: 125 }, // Suicune
+      { speciesId: 249, level: 250 }, // Lugia
+      { speciesId: 250, level: 250 }, // Ho-Oh
+      { speciesId: 251, level: 250 }, // Celebi
+    ]
+  },
+  {
+    name: 'Divine Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 483, level: 300 }, // Dialga
+      { speciesId: 484, level: 300 }, // Palkia
+      { speciesId: 487, level: 300 }, // Giratina
+    ]
+  },
+  {
+    name: 'Celestial Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 643, level: 350 }, // Reshiram
+      { speciesId: 644, level: 350 }, // Zekrom
+      { speciesId: 646, level: 350 }, // Kyurem
+    ]
+  },
+  {
+    name: 'Primordial Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 383, level: 400 }, // Groudon
+      { speciesId: 382, level: 400 }, // Kyogre
+      { speciesId: 384, level: 400 }, // Rayquaza
     ]
   },
   {
@@ -85,15 +164,43 @@ const EXAMINERS = [
     trainerType: TrainerType.NORMAL,
     region: 'Global',
     pokemon: [
-      { speciesId: 382, level: 160 }, // Kyogre
-      { speciesId: 383, level: 160 }, // Groudon
-      { speciesId: 384, level: 160 }, // Rayquaza
+      { speciesId: 150, level: 500 }, // Mewtwo
+      { speciesId: 151, level: 500 }, // Mew
+      { speciesId: 386, level: 500 }, // Deoxys
+    ]
+  },
+  {
+    name: 'Infinity Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 716, level: 750 }, // Xerneas
+      { speciesId: 717, level: 750 }, // Yveltal
+      { speciesId: 718, level: 750 }, // Zygarde
+    ]
+  },
+  {
+    name: 'Eternal Examiner',
+    trainerClass: 'Examiner',
+    trainerType: TrainerType.NORMAL,
+    region: 'Global',
+    pokemon: [
+      { speciesId: 888, level: 1000 }, // Zacian
+      { speciesId: 889, level: 1000 }, // Zamazenta
+      { speciesId: 890, level: 1000 }, // Eternatus
     ]
   }
 ];
 
 async function seedRankExaminers() {
-  console.log('Seeding Rank Examiners...');
+  if (!env.CLOUDINARY_CLOUD_NAME) throw new Error('CLOUDINARY_CLOUD_NAME is required in .env');
+  console.log('Seeding Rank Examiners (Cloudinary sprites)...');
+  
+  // Clear old examiners to avoid duplicates or orphaned levels
+  await prisma.npcTrainer.deleteMany({
+    where: { trainerClass: 'Examiner' }
+  });
   
   for (const ex of EXAMINERS) {
     let trainer = await prisma.npcTrainer.findFirst({
@@ -107,7 +214,7 @@ async function seedRankExaminers() {
           trainerClass: ex.trainerClass,
           trainerType: ex.trainerType,
           region: ex.region,
-          spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/veteran.png',
+          spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/trainers/veteran.png`,
           rewardMoney: 10000,
         }
       });

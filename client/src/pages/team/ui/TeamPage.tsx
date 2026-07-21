@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
+import { getTypeSpriteUrl } from '../../../shared/api/axios';
+import { TypeSelect } from '../../../components/ui/TypeSelect';
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number): number {
   if (base === 1) return 1;
@@ -180,24 +182,26 @@ export function TeamPage() {
                         </div>
                       </div>
 
-                      {/* Display Type, Potential, and CP */}
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        <span className={`text-xs px-2 py-1 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider`}>
-                          CP {pkm.cp?.toLocaleString() || 0}
-                        </span>
+                      {/* 2nd Row: Type */}
+                      <div className="mt-2 flex gap-1">
+                        {pkm.species?.type1 && (
+                          <img src={getTypeSpriteUrl(pkm.species.type1.name, false)} alt={pkm.species.type1.name} title={pkm.species.type1.name} className="h-6 w-auto object-contain drop-shadow-sm" />
+                        )}
+                        {pkm.species?.type2 && (
+                          <img src={getTypeSpriteUrl(pkm.species.type2.name, false)} alt={pkm.species.type2.name} title={pkm.species.type2.name} className="h-6 w-auto object-contain drop-shadow-sm" />
+                        )}
+                      </div>
+
+                      {/* 3rd Row: Potential and CP */}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         {pkm.potential && (
                           <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300">
                             {pkm.potential.replace('_', ' ')}
                           </span>
                         )}
-                        <span className={`text-xs px-2 py-1 rounded font-bold border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 capitalize`}>
-                          {pkm.species?.type1?.name}
+                        <span className={`text-xs px-2 py-1 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider`}>
+                          CP {pkm.cp?.toLocaleString() || 0}
                         </span>
-                        {pkm.species?.type2 && (
-                          <span className={`text-xs px-2 py-1 rounded font-bold border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 capitalize`}>
-                            {pkm.species?.type2?.name}
-                          </span>
-                        )}
                       </div>
 
                       {/* Level and XP */}
@@ -222,11 +226,11 @@ export function TeamPage() {
                         {[0, 1, 2, 3].map(i => {
                           const move = pkm.moves?.find((m: any) => m.slot === i)?.move;
                           return (
-                            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex flex-col items-start justify-center overflow-hidden">
+                            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
                               {move ? (
                                 <>
+                                  <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
                                   <span className="font-bold text-slate-700 dark:text-slate-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
-                                  <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mt-0.5 tracking-wider">{move.type}</span>
                                 </>
                               ) : (
                                 <span className="text-slate-400 dark:text-slate-500 italic text-xs">- Empty -</span>
@@ -517,17 +521,14 @@ export function TeamPage() {
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                   />
                   <div className="flex gap-2">
-                    <select
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value)}
-                      disabled={changeMovePkm.editingSlot === undefined}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-xs disabled:opacity-50"
-                    >
-                      <option value="all">All Types</option>
-                      {Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).sort().map((type: any) => (
-                        <option key={type} value={type} className="capitalize">{type}</option>
-                      ))}
-                    </select>
+                    <div className="flex-1">
+                      <TypeSelect
+                        value={typeFilter === 'all' ? '' : typeFilter}
+                        onChange={(val) => setTypeFilter(val || 'all')}
+                        types={Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).sort() as string[]}
+                        disabled={changeMovePkm.editingSlot === undefined}
+                      />
+                    </div>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
@@ -568,11 +569,9 @@ export function TeamPage() {
                     }}
                     className="flex flex-col p-3 rounded-lg border border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-blue-400 bg-white dark:bg-slate-800/50 text-left transition-colors"
                   >
-                    <div className="flex justify-between items-center w-full mb-1">
-                      <span className="font-bold capitalize text-slate-900 dark:text-white">{move.name.replace('-', ' ')}</span>
-                      <span className={`text-[10px] uppercase px-2 py-0.5 rounded font-bold border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400`}>
-                        {move.type}
-                      </span>
+                    <div className="flex justify-start gap-2 items-center w-full mb-1">
+                      <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
+                      <span className="font-bold capitalize text-slate-900 dark:text-white truncate">{move.name.replace('-', ' ')}</span>
                     </div>
                     <div className="flex gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
                       <span>PWR: {move.power || '-'}</span>

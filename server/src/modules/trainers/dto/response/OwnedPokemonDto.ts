@@ -22,6 +22,7 @@ export interface OwnedPokemonDto {
   readonly species: {
     readonly id: number;
     readonly name: string;
+    readonly spriteUrl: string | null;
     readonly type1?: { name: string };
     readonly type2?: { name: string };
     readonly evolvesToId: number | null;
@@ -40,6 +41,7 @@ export interface PokemonSummaryDto {
   readonly id: string;
   readonly speciesId: number;
   readonly speciesName: string;
+  readonly spriteUrl: string | null;
   readonly level: number;
   readonly cp: number;
   readonly potential?: string;

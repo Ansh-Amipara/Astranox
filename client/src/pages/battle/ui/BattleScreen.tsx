@@ -6,6 +6,8 @@ import { BattleArena } from '../../../features/battle/ui/BattleArena';
 import { BattleControls } from '../../../features/battle/ui/BattleControls';
 import { BattleLog } from '../../../features/battle/ui/BattleLog';
 import { BattleResultModal } from '../../../features/battle/ui/BattleResultModal';
+import { getSpriteUrl } from '../../../shared/api/api';
+import { getTypeSpriteUrl } from '../../../shared/api/axios';
 
 export function BattleScreen() {
   const router = useRouter();
@@ -68,13 +70,13 @@ export function BattleScreen() {
   const searchParams = useSearchParams();
   const returnUrl = searchParams?.get('returnUrl') || '/';
 
-  if (isLoading) return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
+  if (isLoading) return <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
 
   if (error || !battleRes) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
         <p>No active battle found.</p>
-        <button onClick={() => router.push(returnUrl)} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition-colors">Return</button>
+        <button onClick={() => router.push(returnUrl)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold transition-colors">Return</button>
       </div>
     );
   }
@@ -88,25 +90,37 @@ export function BattleScreen() {
 
 
   return (
-    <div className="relative h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 transition-colors duration-200 flex flex-row overflow-hidden">
-      {/* Left Column: Arena and Action Menu */}
-      <div className="flex-1 flex flex-col min-w-0 h-full">
+    <div className="relative h-[calc(100vh-64px)] bg-slate-100 dark:bg-slate-950 transition-colors duration-200 flex flex-col overflow-hidden">
+      
+      {/* Top Row: Arena and Battle Log */}
+      <div className="flex-1 flex flex-row min-h-0">
         
-        {/* Toast */}
-        {toastMsg && (
-          <div className="fixed top-10 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white px-6 py-3 rounded-lg border border-slate-200 dark:border-slate-700 z-[100] shadow-xl">
-            {toastMsg}
-          </div>
-        )}
+        {/* Left Column: Arena */}
+        <div className="flex-1 flex flex-col min-w-0 h-full relative">
+          {/* Toast */}
+          {toastMsg && (
+            <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white px-6 py-3 rounded-lg border border-slate-200 dark:border-slate-700 z-[100] shadow-xl">
+              {toastMsg}
+            </div>
+          )}
 
-        <BattleArena 
-          wild={wild}
-          player={player}
-          opponentPartyData={opponentPartyData}
-          playerPartyData={playerPartyData}
-          battleType={battleType}
+          <BattleArena 
+            wild={wild}
+            player={player}
+            opponentPartyData={opponentPartyData}
+            playerPartyData={playerPartyData}
+            battleType={battleType}
+          />
+        </div>
+
+        <BattleLog 
+          lastTurnEvents={lastTurnEvents}
+          status={status}
         />
+      </div>
 
+      {/* Bottom Row: Action Menu (Full Width) */}
+      <div className="w-full shrink-0">
         <BattleControls 
           player={player}
           status={status}
@@ -123,11 +137,6 @@ export function BattleScreen() {
         />
       </div>
 
-      <BattleLog 
-        lastTurnEvents={lastTurnEvents}
-        status={status}
-      />
-
       {/* Modal Overlays for Bag & Party */}
       {(menu === 'bag' || menu === 'party') && (
         <div 
@@ -138,8 +147,8 @@ export function BattleScreen() {
             }
           }}
         >
-          <div className="bg-slate-100 dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-slate-300 dark:border-slate-700 flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-slate-300 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-950">
+          <div className="bg-slate-50 dark:bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden border border-slate-300 dark:border-slate-700 flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-300 dark:border-slate-800 flex justify-between items-center bg-slate-100 dark:bg-slate-950">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-wider">{menu === 'bag' ? 'Bag' : 'Pokémon Party'}</h2>
               {!isWaitingSwitch && (
                 <button onClick={() => setMenu('main')} className="text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors px-2 text-3xl leading-none">&times;</button>
@@ -156,7 +165,7 @@ export function BattleScreen() {
                           key={inv.itemId}
                           onClick={() => { turnMutation.mutate(`item:${inv.itemId}`); setMenu('main'); }}
                           disabled={turnMutation.isPending}
-                          className="bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 flex items-center gap-3 p-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                          className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center gap-3 p-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
                         >
                           {inv.item.spriteUrl && <img src={inv.item.spriteUrl} alt={inv.item.name} className="w-10 h-10 object-contain drop-shadow" />}
                           <div className="flex flex-col items-start">
@@ -174,7 +183,7 @@ export function BattleScreen() {
               )}
 
               {menu === 'party' && (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {playerPartyData.map((p: any) => {
                     const isActive = p.id === player.id;
                     const isFainted = p.currentHp <= 0;
@@ -194,11 +203,26 @@ export function BattleScreen() {
                           setMenu('main');
                         }}
                         disabled={turnMutation.isPending || isActive || isFainted}
-                        className={`flex flex-col items-start p-4 rounded-xl border-2 shadow-sm transition-all text-left ${isActive ? 'bg-blue-100 border-blue-400 dark:bg-blue-900 dark:border-blue-600' : isFainted ? 'bg-slate-200 border-slate-300 opacity-50 dark:bg-slate-800 dark:border-slate-700' : 'bg-white hover:bg-slate-50 border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:hover:bg-slate-600 hover:-translate-y-0.5'}`}
+                        className={`flex flex-col items-start p-4 rounded-xl border-2 shadow-sm transition-all text-left ${isActive ? 'bg-slate-200 border-slate-400 dark:bg-slate-800 dark:border-slate-600' : isFainted ? 'bg-slate-300 border-slate-400 opacity-50 dark:bg-slate-800 dark:border-slate-700' : 'bg-slate-100 hover:bg-slate-200 border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5'}`}
                       >
-                        <div className="flex items-center gap-3 mb-2 w-full justify-between">
-                          <span className="font-bold text-slate-900 dark:text-white capitalize text-lg">{p.name || p.speciesName}</span>
-                          <span className="text-sm font-black text-slate-500 dark:text-slate-300">Lv {p.level}</span>
+                        <div className="flex flex-row gap-3 w-full items-center mb-3">
+                          <img 
+                            src={getSpriteUrl(p.speciesId)} 
+                            alt={p.speciesName} 
+                            className="w-16 h-16 object-contain drop-shadow"
+                            style={{ imageRendering: 'pixelated' }}
+                          />
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="font-bold text-slate-900 dark:text-white capitalize text-lg truncate">{p.name || p.speciesName}</span>
+                              <span className="text-sm font-black text-slate-500 dark:text-slate-300 shrink-0">Lv {p.level}</span>
+                            </div>
+                            <div className="flex gap-1 mt-1">
+                              {p.types?.map((type: string) => (
+                                <img key={type} src={getTypeSpriteUrl(type)} alt={type} className="h-5 object-contain drop-shadow-sm" />
+                              ))}
+                            </div>
+                          </div>
                         </div>
                         <div className="w-full bg-slate-300 dark:bg-slate-950 rounded-full h-3 overflow-hidden relative border border-slate-400 dark:border-slate-900">
                           <div 

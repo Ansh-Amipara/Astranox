@@ -1,46 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 import { runInBatches } from './utils';
-import fs from 'fs';
-import path from 'path';
+import { env } from '../../../src/config/env';
 
 const prisma = new PrismaClient();
-const SPRITE_DIR = path.join(__dirname, '../../../../server/public/sprites');
-
-// Ensure directory exists
-if (!fs.existsSync(SPRITE_DIR)) {
-  fs.mkdirSync(SPRITE_DIR, { recursive: true });
-}
-
-async function downloadSprite(url: string, id: number): Promise<string> {
-  const spriteName = `${id}.png`;
-  const spritePath = path.join(SPRITE_DIR, spriteName);
-  
-  if (fs.existsSync(spritePath)) {
-    return `/sprites/${spriteName}`; // Already downloaded
-  }
-
-  if (!url) return ''; // Some pokemon might lack sprites
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to fetch sprite for ${id}`);
-    
-    const arrayBuffer = await res.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    fs.writeFileSync(spritePath, buffer);
-    
-    return `/sprites/${spriteName}`;
-  } catch (err) {
-    console.error(`Error downloading sprite for ${id}:`, err);
-    return '';
-  }
-}
-
 export async function seedSpecies() {
-  console.log('Seeding 1025 Pokemon Species & Sprites... (this will take a few minutes)');
+  if (!env.CLOUDINARY_CLOUD_NAME) throw new Error('CLOUDINARY_CLOUD_NAME is required in .env');
+  console.log('Seeding 1025 Pokemon Species (Cloudinary sprites)... (this will take a few minutes)');
   
   // Create an array from 1 to 1025 (Gen 1-9 species)
-  const ids = Array.from({ length: 1025 }, (_, i) => i + 1);
+  const baseIds = Array.from({ length: 1025 }, (_, i) => i + 1);
+  const megaIds = [
+    10033, 10034, 10035, 10036, 10037, 10038, 10039, 10040, 10041, 10042, 10043, 10044, 10045, 10046, 10047, 10048, 10049, 10050, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060, 10062, 10063, 10064, 10065, 10066, 10067, 10068, 10069, 10070, 10071, 10072, 10073, 10074, 10075, 10076, 10079, 10087, 10088, 10089, 10090
+  ];
+  const gmaxIds = [
+    10195, 10196, 10197, 10198, 10199, 10200, 10201, 10202, 10203, 10204, 10205, 10206, 10207, 10208, 10209, 10210, 10211, 10212, 10213, 10214, 10215, 10216, 10217, 10218, 10219, 10220, 10221, 10222, 10223, 10224, 10225, 10226, 10227, 10228
+  ];
+  const ids = [...megaIds, ...gmaxIds];
 
   await runInBatches(ids, 20, async (id: number) => {
     try {
@@ -66,20 +41,22 @@ export async function seedSpecies() {
       let isLegendary = false;
       let isMythical = false;
       try {
-        const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
-        if (speciesRes.ok) {
-          const speciesData = await speciesRes.json();
+        const speciesUrl = data.species?.url;
+        if (speciesUrl) {
+          const speciesRes = await fetch(speciesUrl);
+          if (speciesRes.ok) {
+            const speciesData = await speciesRes.json();
           catchRate = speciesData.capture_rate || 255;
           isLegendary = speciesData.is_legendary || false;
           isMythical = speciesData.is_mythical || false;
+        }
         }
       } catch (err) {
         console.error(`Failed to fetch species data for ${id}, defaulting catchRate to 255`, err);
       }
 
-      // Download sprite locally
-      const remoteSpriteUrl = data.sprites?.front_default;
-      const localSpriteUrl = await downloadSprite(remoteSpriteUrl, id);
+      // Use Cloudinary URL
+      const localSpriteUrl = `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/pokemon/${id}.png`;
 
       await prisma.species.upsert({
         where: { id },
@@ -161,5 +138,5 @@ export async function seedSpecies() {
     }
   });
 
-  console.log('Successfully seeded 1025 species and downloaded sprites.');
+  console.log('Successfully seeded 1025 species with Cloudinary sprites.');
 }

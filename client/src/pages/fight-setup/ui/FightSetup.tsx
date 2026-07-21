@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 import { useAuthStore } from '../../../shared/store/auth.store';
 
@@ -15,6 +15,7 @@ interface Species {
 export function FightSetup() {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [speciesId, setSpeciesId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -49,6 +50,7 @@ export function FightSetup() {
   const engageMutation = useMutation({
     mutationFn: (data: { speciesId: number; level: number }) => api.post('/battles/engage-custom', data),
     onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ['activeBattle'] });
       const returnUrl = location.pathname + location.search;
       router.push('/battle');
     },

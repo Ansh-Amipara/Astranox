@@ -1,14 +1,17 @@
 'use client';
 import { useState } from 'react';
 import { useRouter, usePathname, useParams } from 'next/navigation';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { realmsApi, battleApi } from '../../../shared/api/api';
+import { getSpriteUrl, getTypeSpriteUrl } from '../../../shared/api/axios';
 import { toast } from 'sonner';
 
 export function RealmDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
 
   const [encounterData, setEncounterData] = useState<any>(null);
 
@@ -22,6 +25,7 @@ export function RealmDetailPage() {
     mutationFn: () => realmsApi.exploreRealm(id!),
     onSuccess: (data) => {
       if (data.event === 'battle') {
+        queryClient.removeQueries({ queryKey: ['activeBattle'] });
         setEncounterData(data.encounter);
       } else if (data.event === 'item') {
         toast.success(`Found ${data.item.quantity}x ${data.item.name}!`);
@@ -95,9 +99,7 @@ export function RealmDetailPage() {
                 </p>
                 <div className="flex flex-row gap-2 justify-center md:justify-start">
                   {realm.types.map((t: string) => (
-                    <span key={t} className="px-3 py-1 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 text-sm font-bold capitalize text-slate-600 dark:text-slate-300 shadow-sm">
-                      {t}
-                    </span>
+                    <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-6 object-contain drop-shadow-sm" />
                   ))}
                 </div>
               </div>
@@ -107,7 +109,7 @@ export function RealmDetailPage() {
             <div className="flex flex-col items-center justify-center shrink-0">
               <div className="relative w-36 h-auto min-h-[9rem] py-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border-4 border-red-200 dark:border-red-900/50 flex flex-col items-center justify-center shadow-lg hover:-translate-y-2 transition-transform z-10 scale-110">
                 <span className="absolute -top-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded shadow-sm z-10">Alpha Boss</span>
-                <img src={`http://localhost:3000/sprites/${realm.bossSpeciesId}.png`} alt={realm.bossSpeciesName} className="w-24 h-24 object-contain pixelated drop-shadow-md mb-2" />
+                <img src={getSpriteUrl(realm.bossSpeciesId)} alt={realm.bossSpeciesName} className="w-24 h-24 object-contain pixelated drop-shadow-md mb-2" />
                 <span className="text-sm font-bold text-red-900 dark:text-red-400 capitalize truncate w-full text-center px-1">{realm.bossSpeciesName}</span>
               </div>
             </div>
@@ -120,7 +122,7 @@ export function RealmDetailPage() {
               {/* Wild Inhabitants List */}
               {realm.inhabitants?.map((sp: any) => (
                 <div key={sp.id} className="relative w-24 h-24 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-2 shadow-sm hover:border-blue-400 dark:hover:border-blue-600 hover:-translate-y-1 transition-all shrink-0">
-                  <img src={`http://localhost:3000${sp.spriteUrl}`} alt={sp.name} className="w-12 h-12 object-contain pixelated drop-shadow mb-1" />
+                  <img src={getSpriteUrl(sp.id)} alt={sp.name} className="w-12 h-12 object-contain pixelated drop-shadow mb-1" />
                   <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 capitalize truncate w-full text-center">{sp.name.replace('-', ' ')}</span>
                 </div>
               ))}
@@ -155,7 +157,7 @@ export function RealmDetailPage() {
             </h2>
             <div className="w-32 h-32 mb-6">
               <img
-                src={`http://localhost:3000/sprites/${encounterData.species.id}.png`}
+                src={getSpriteUrl(encounterData.species.id)}
                 alt={encounterData.species.name}
                 className="w-full h-full object-contain pixelated drop-shadow-md"
               />

@@ -13,6 +13,7 @@ import { npcsRoutes } from './modules/npcs/npcs.routes';
 import { tradesRoutes } from './modules/trades/trades.routes';
 import { rankRoutes } from './modules/rank/rank.routes';
 import realmsRoutes from './modules/realms/realms.routes';
+import pokedexRoutes from './modules/pokedex/pokedex.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
@@ -27,8 +28,7 @@ app.use(httpLogger);
 app.use(express.json());
 app.use(cookieParser());
 
-// Serve sprites publicly so the frontend can display them!
-app.use(express.static('public'));
+// Sprites are now served from Cloudinary
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', version: ASTRANOX_VERSION });
@@ -43,6 +43,7 @@ app.use('/npcs', npcsRoutes);
 app.use('/trades', tradesRoutes);
 app.use('/rank', rankRoutes);
 app.use('/realms', realmsRoutes);
+app.use('/pokedex', pokedexRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {

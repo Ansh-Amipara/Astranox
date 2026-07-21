@@ -20,7 +20,8 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-export const getSpriteUrl = (id: string | number) => `${api.defaults.baseURL}/sprites/${id}.png`;
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
+export const getSpriteUrl = (id: string | number) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/pokemon/${id}.png`;
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
@@ -133,4 +134,14 @@ export const battleApi = {
     const { data } = await api.post('/battles/turn', { action: 'run' });
     return data.data;
   }
+};
+export const pokedexApi = {
+  getAllSpecies: async (page = 1, limit = 24, type?: string, category?: string) => {
+    const res = await api.get('/pokedex', { params: { page, limit, type, category } });
+    return res.data;
+  },
+  getSpeciesById: async (id: number) => {
+    const res = await api.get(`/pokedex/${id}`);
+    return res.data;
+  },
 };

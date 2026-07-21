@@ -65,6 +65,14 @@ export function Navbar() {
                         Pokémon
                       </Link>
                       <Link
+                        href="/pokedex"
+                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
+                        role="menuitem"
+                        onClick={() => setIsPokemonOpen(false)}
+                      >
+                        Pokédex
+                      </Link>
+                      <Link
                         href="/inventory"
                         className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                         role="menuitem"

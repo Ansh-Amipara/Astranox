@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { PokemonModalsRef } from '../../../features/pokemon/ui/PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
+import { getTypeSpriteUrl } from '../../../shared/api/axios';
 import { toast } from 'sonner';
 import { PokemonActionModals } from '../../../features/pokemon/ui/PokemonActionModals';
 
@@ -136,23 +137,68 @@ export function PokemonManagement() {
 
                   <div className="flex flex-col items-center justify-center flex-1 min-w-0 pr-4 border-r border-slate-200 dark:border-slate-700">
                     <div className="w-24 h-24 relative mb-2">
-                      <img src={getSpriteUrl(p.speciesId)} alt={p.name || p.speciesName} className="w-full h-full object-contain drop-shadow-md" style={{ imageRendering: 'pixelated' }} />
+                      <img src={p.species?.spriteUrl || p.spriteUrl || getSpriteUrl(p.speciesId)} alt={p.name || p.speciesName} className="w-full h-full object-contain drop-shadow-md" style={{ imageRendering: 'pixelated' }} />
                     </div>
+                    {/* Row 1: Name */}
                     <h3 className="font-extrabold text-xl capitalize text-slate-900 dark:text-white truncate w-full text-center">{p.name || p.speciesName}</h3>
-                    <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center justify-center gap-1">
-                      <span>Lv. {p.level}</span>
-                      <span className="text-amber-500">★</span>
-                      <span className={p.potential === 'DIAMOND' ? 'text-cyan-500' : p.potential === 'PLATINUM' ? 'text-slate-400' : p.potential === 'GOLD' ? 'text-amber-500' : 'text-slate-500'}>{p.potential}</span>
+                    
+                    {/* Row 2: Type */}
+                    <div className="mt-1 flex items-center justify-center gap-1 mb-2">
+                      {p.species?.type1 && (
+                        <img src={getTypeSpriteUrl(p.species.type1.name, false)} alt={p.species.type1.name} title={p.species.type1.name} className="h-5 w-auto object-contain drop-shadow-sm" />
+                      )}
+                      {p.species?.type2 && (
+                        <img src={getTypeSpriteUrl(p.species.type2.name, false)} alt={p.species.type2.name} title={p.species.type2.name} className="h-5 w-auto object-contain drop-shadow-sm" />
+                      )}
                     </div>
-                    <div className="mb-2 text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wider">
-                      CP {p.cp?.toLocaleString() || 0}
+
+                    {/* Row 3: Potential and CP */}
+                    <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
+                      <span className={
+                        'text-[10px] font-bold uppercase px-2 py-0.5 rounded border tracking-wider ' + 
+                        (p.potential === 'DIAMOND' ? 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800' : 
+                         p.potential === 'PLATINUM' ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700' : 
+                         p.potential === 'GOLD' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' : 
+                         'bg-slate-50 dark:bg-slate-800/50 text-slate-500 border-slate-200 dark:border-slate-700')
+                      }>
+                        ★ {p.potential}
+                      </span>
+                      <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wider">
+                        CP {p.cp?.toLocaleString() || 0}
+                      </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-1 w-full mt-2 px-2">
+
+                    {/* Row 4: Level and XP */}
+                    <div className="flex items-center justify-center gap-2 mb-2 w-full">
+                      <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-900/50">
+                        <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
+                        <span className="text-xs font-black">{p.level}</span>
+                      </div>
+                      {p.potential && p.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[p.potential as string] || 2000) ? (
+                        <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-0.5 rounded border border-red-100 dark:border-red-900/50">
+                          <span className="text-[9px] font-bold uppercase tracking-widest">Capped</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                          <span className="text-[10px] font-bold uppercase mr-1 opacity-70">XP</span>
+                          <span className="text-xs font-bold">{(p.currentXp || 0).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1 w-full mt-1 px-2">
                       {[0, 1, 2, 3].map(slot => {
-                        const m = p.moves?.find((mv: any) => mv.slot === slot)?.move?.name;
+                        const mv = p.moves?.find((m: any) => m.slot === slot)?.move;
                         return (
-                          <div key={slot} className="text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/80 px-1.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-600 dark:text-slate-300 truncate capitalize">
-                            {m ? m.replace('-', ' ') : '-'}
+                          <div key={slot} className="flex items-center justify-start gap-1 text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/80 px-1.5 py-1 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            {mv ? (
+                              <>
+                                <img src={getTypeSpriteUrl(mv.type, true)} alt={mv.type} title={mv.type} className="h-3.5 w-auto object-contain shrink-0" />
+                                <span className="font-bold text-slate-600 dark:text-slate-300 truncate capitalize">{mv.name.replace('-', ' ')}</span>
+                              </>
+                            ) : (
+                              <span className="text-center w-full text-slate-400 dark:text-slate-500 font-bold">-</span>
+                            )}
                           </div>
                         );
                       })}

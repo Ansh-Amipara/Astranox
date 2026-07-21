@@ -79,6 +79,7 @@ export class TrainerMapper {
       species: {
         id: entity.species?.id,
         name: entity.species?.name,
+        spriteUrl: entity.species?.spriteUrl || null,
         type1: entity.species?.type1 ? { name: entity.species.type1.name } : undefined,
         type2: entity.species?.type2 ? { name: entity.species.type2.name } : undefined,
         evolvesToId: entity.species?.evolvesToId,
@@ -124,6 +125,7 @@ export class TrainerMapper {
       id: entity.id,
       speciesId: entity.speciesId,
       speciesName: entity.species?.name || 'Unknown',
+      spriteUrl: entity.species?.spriteUrl || null,
       level: entity.level,
       cp,
       potential: entity.potential,

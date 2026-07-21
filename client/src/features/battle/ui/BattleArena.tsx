@@ -3,6 +3,7 @@ import { PokemonSprite } from '../../../entities/pokemon/ui/PokemonSprite';
 import { HealthBar } from '../../../shared/ui/HealthBar';
 import { StatusIcons } from '../../../shared/ui/StatusIcons';
 import { WeatherEffects } from './WeatherEffects';
+import { getTypeSpriteUrl } from '../../../shared/api/axios';
 
 interface Props {
   wild: any;
@@ -15,18 +16,26 @@ interface Props {
 export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, playerPartyData, battleType }: Props) {
   return (
     <div 
-      className="relative z-10 flex-1 flex flex-col justify-between p-4 bg-cover bg-center bg-no-repeat min-h-0 overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.3)]"
-      style={{ backgroundImage: "url('/battle-bg.png')" }}
+      className="relative z-10 flex-1 flex flex-col justify-between p-4 bg-white dark:bg-slate-900 min-h-0 overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.1)] transition-colors"
     >
       <WeatherEffects weather={null} />
 
       {/* Wild Info Card (Top Left) */}
-      <div className="absolute top-6 left-6 bg-slate-900/60 backdrop-blur-lg border border-white/10 rounded-2xl p-4 shadow-2xl w-80 z-20 text-white">
+      <div className="absolute top-6 left-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-80 z-20 text-slate-900 dark:text-slate-100">
         <div className="flex justify-between items-end mb-2 gap-2">
-          <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm truncate">{wild.speciesName}</h2>
+          <div className="flex flex-col gap-1 min-w-0">
+            <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm truncate">{wild.speciesName}</h2>
+            {wild.types && (
+              <div className="flex gap-1 mt-1">
+                {wild.types.map((t: string) => (
+                  <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-5 object-contain drop-shadow" />
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex flex-col items-end shrink-0">
             <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-slate-300 drop-shadow-sm">Lv {wild.level}</span>
+              <span className="text-sm font-bold text-slate-500 dark:text-slate-400 drop-shadow-sm">Lv {wild.level}</span>
             </div>
           </div>
         </div>
@@ -37,7 +46,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
             {opponentPartyData.map((p: any) => (
               <div
                 key={p.id}
-                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-500/50'}`}
+                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'}`}
                 title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
               ></div>
             ))}
@@ -69,21 +78,30 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       </div>
 
       {/* Player Info Card (Bottom Right) */}
-      <div className="absolute bottom-6 right-6 bg-slate-900/60 backdrop-blur-lg border border-white/10 rounded-2xl p-4 shadow-2xl w-80 z-20 text-white">
+      <div className="absolute bottom-6 right-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-80 z-20 text-slate-900 dark:text-slate-100">
         <div className="flex justify-between items-end mb-2 gap-2">
-          <h3 className="text-xl font-bold capitalize tracking-wide drop-shadow-sm truncate">
-            {player.nickname || player.speciesName}
-          </h3>
+          <div className="flex flex-col gap-1 min-w-0">
+            <h3 className="text-xl font-bold capitalize tracking-wide drop-shadow-sm truncate">
+              {player.nickname || player.speciesName}
+            </h3>
+            {player.types && (
+              <div className="flex gap-1 mt-1">
+                {player.types.map((t: string) => (
+                  <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-5 object-contain drop-shadow" />
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex flex-col items-end shrink-0">
             {player.potential && (
-              <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 rounded font-bold uppercase tracking-wider mb-0.5">
+              <span className="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-400 dark:border-slate-600 rounded font-bold uppercase tracking-wider mb-0.5">
                 {player.potential.replace('_', ' ')}
               </span>
             )}
             <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-slate-300 drop-shadow-sm">Lv {player.level}</span>
+              <span className="text-sm font-bold text-slate-500 dark:text-slate-400 drop-shadow-sm">Lv {player.level}</span>
               {player.potential && player.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[player.potential as string] || 2000) && (
-                <span className="text-[10px] font-bold text-red-400 bg-red-900/50 border border-red-500/50 px-1 rounded uppercase">Capped</span>
+                <span className="text-[10px] font-bold text-slate-100 bg-slate-900/50 border border-slate-700/50 px-1 rounded uppercase">Capped</span>
               )}
             </div>
           </div>
@@ -95,7 +113,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
             {playerPartyData.map((p: any) => (
               <div
                 key={p.id}
-                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-500/50'}`}
+                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'}`}
                 title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
               ></div>
             ))}

@@ -45,7 +45,7 @@ describe('Turn Resolver Engine', () => {
     
     const result = resolveTurn(p1, createMockAction('p1'), p2, createMockAction('p2'));
     
-    expect(result.events[0].pokemonId).toBe('p1'); // p1 moves first
+    expect((result.events[0] as any).pokemonId).toBe('p1'); // p1 moves first
     expect(result.events[0].type).toBe('move');
   });
 
@@ -56,7 +56,7 @@ describe('Turn Resolver Engine', () => {
     // p2 uses Quick Attack (priority 1)
     const result = resolveTurn(p1, createMockAction('p1', 0), p2, createMockAction('p2', 1));
     
-    expect(result.events[0].pokemonId).toBe('p2'); // p2 moves first despite being slower
+    expect((result.events[0] as any).pokemonId).toBe('p2'); // p2 moves first despite being slower
   });
 
   it('applies scaling only to a turn and does not persist the penalty', () => {

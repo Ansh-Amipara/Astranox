@@ -60,7 +60,7 @@ export class TrainersRepository {
           currentXp: 5000,
           isParty: true,
           position: 0,
-          boxNumber: null,
+          boxNumber: null as any,
           ivHp: Math.floor(Math.random() * 32),
           ivAttack: Math.floor(Math.random() * 32),
           ivDefense: Math.floor(Math.random() * 32),
@@ -181,7 +181,7 @@ export class TrainersRepository {
       
       await tx.ownedPokemon.update({
         where: { id: pokemonId },
-        data: { isParty: false, boxNumber: targetBox, position: targetPos }
+        data: { isParty: false, boxNumber: targetBox as any, position: targetPos as number }
       });
     });
   }
@@ -200,13 +200,13 @@ export class TrainersRepository {
       if (existingPartyPokemon) {
         await tx.ownedPokemon.update({
           where: { id: existingPartyPokemon.id },
-          data: { isParty: false, boxNumber: fromPokemon.boxNumber as number, position: fromPokemon.position }
+          data: { isParty: false, boxNumber: fromPokemon.boxNumber as any, position: fromPokemon.position }
         });
       }
 
       await tx.ownedPokemon.update({
         where: { id: pokemonId },
-        data: { isParty: true, boxNumber: null, position: targetPosition }
+        data: { isParty: true, boxNumber: null as any, position: targetPosition }
       });
     });
   }
@@ -228,14 +228,14 @@ export class TrainersRepository {
       if (fromPokemon) {
         await tx.ownedPokemon.update({
           where: { id: fromPokemon.id },
-          data: { isParty: to.isParty, boxNumber: to.boxNumber, position: to.position }
+          data: { isParty: to.isParty, boxNumber: to.boxNumber as any, position: to.position }
         });
       }
 
       if (toPokemon) {
         await tx.ownedPokemon.update({
           where: { id: toPokemon.id },
-          data: { isParty: from.isParty, boxNumber: from.boxNumber, position: from.position }
+          data: { isParty: from.isParty, boxNumber: from.boxNumber as any, position: from.position }
         });
       }
 
