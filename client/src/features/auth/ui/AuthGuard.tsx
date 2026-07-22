@@ -19,6 +19,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isInitialized, initialize, initStarted]);
 
+  useEffect(() => {
+    if (isInitialized && !user) {
+      router.replace(`/login?from=${pathname}`);
+    }
+  }, [isInitialized, user, router, pathname]);
+
   if (initError) {
     throw initError;
   }
@@ -36,11 +42,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
+
   // Redirect to login if unauthenticated
   if (!user) {
-    if (typeof window !== 'undefined') {
-      router.replace(`/login?from=${pathname}`);
-    }
     return null;
   }
 

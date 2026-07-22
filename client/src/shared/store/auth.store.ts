@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: async () => {
     try {
-      const { data } = await api.post('/auth/refresh');
+      const { data } = await api.post('/auth/refresh', undefined, { silent: true });
       set({ 
         accessToken: data.data.accessToken, 
         user: data.data.user,

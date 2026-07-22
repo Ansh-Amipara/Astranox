@@ -42,7 +42,7 @@ export function setupInterceptors() {
       ) {
         originalRequest._retry = true;
         try {
-          const { data } = await apiClient.post('/auth/refresh');
+          const { data } = await apiClient.post('/auth/refresh', undefined, { silent: true });
           useAuthStore.getState().setAuth(data.data.accessToken, data.data.user);
           originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
           return apiClient(originalRequest);

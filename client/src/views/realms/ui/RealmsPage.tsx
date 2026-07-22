@@ -19,9 +19,14 @@ interface Realm {
   types: string[];
 }
 
+const RANKS = [
+  'F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK', 
+  'S_RANK', 'S_PLUS_RANK', 'SS_RANK', 'SS_PLUS_RANK', 'SSS_RANK', 'SSS_PLUS_RANK'
+];
+
 export function RealmsPage() {
   const router = useRouter();
-  const [selectedTier, setSelectedTier] = useState<number | 'all'>('all');
+  const [selectedRank, setSelectedRank] = useState<string | 'all'>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
 
   const { data: realms, isLoading } = useQuery({
@@ -62,29 +67,29 @@ export function RealmsPage() {
       {/* Filters */}
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         
-        {/* Tier Filter */}
+        {/* Rank Filter */}
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg overflow-x-auto w-full md:w-auto">
           <button
-            onClick={() => setSelectedTier('all')}
+            onClick={() => setSelectedRank('all')}
             className={`px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${
-              selectedTier === 'all'
+              selectedRank === 'all'
                 ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
             }`}
           >
-            All Tiers
+            All Ranks
           </button>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(tier => (
+          {RANKS.map(rank => (
             <button
-              key={tier}
-              onClick={() => setSelectedTier(tier)}
+              key={rank}
+              onClick={() => setSelectedRank(rank)}
               className={`px-4 py-2 rounded-md text-sm font-bold whitespace-nowrap transition-colors ${
-                selectedTier === tier
+                selectedRank === rank
                   ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
-              Tier {tier}
+              {rank.replace('_PLUS', '+').replace('_RANK', '')}
             </button>
           ))}
         </div>
@@ -108,10 +113,14 @@ export function RealmsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {realms?.filter((r: Realm) => {
-          if (selectedTier !== 'all' && r.tier !== selectedTier) return false;
+          if (selectedRank !== 'all' && r.requiredRank !== selectedRank) return false;
           if (selectedType !== 'all' && !(r.types || []).includes(selectedType)) return false;
           return true;
-        }).map((realm: Realm) => (
+        })
+        .sort((a: Realm, b: Realm) => {
+          return RANKS.indexOf(a.requiredRank) - RANKS.indexOf(b.requiredRank);
+        })
+        .map((realm: Realm) => (
           <div
             key={realm.id}
             className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${realm.isUnlocked
@@ -133,7 +142,7 @@ export function RealmsPage() {
                 </h3>
                 <span className={`px-3 py-1 text-xs font-bold rounded-full ${realm.isUnlocked ? 'bg-white/50 dark:bg-black/30 text-slate-900 dark:text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
                   }`}>
-                  Tier {realm.tier}
+                  {realm.requiredRank.replace('_PLUS', '+').replace('_RANK', '')} Rank
                 </span>
               </div>
 

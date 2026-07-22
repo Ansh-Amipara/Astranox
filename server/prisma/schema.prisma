@@ -13,24 +13,18 @@ enum Role {
 }
 
 enum TrainerRank {
-  BLACK_IRON
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
-  ADAMANTITE
-  DIAMOND
-  CRYSTAL
-  EPIC
-  HEROIC
-  SOVEREIGN
-  LEGENDARY
-  DIVINE
-  CELESTIAL
-  PRIMORDIAL
-  MYTHICAL
-  INFINITY
-  ETERNAL
+  F_RANK
+  E_RANK
+  D_RANK
+  C_RANK
+  B_RANK
+  A_RANK
+  S_RANK
+  S_PLUS_RANK
+  SS_RANK
+  SS_PLUS_RANK
+  SSS_RANK
+  SSS_PLUS_RANK
 }
 
 enum PokemonPotential {
@@ -75,7 +69,7 @@ model TrainerSave {
 
   starterChosenAt DateTime?
   money           Int       @default(3000)
-  rank            TrainerRank @default(BLACK_IRON)
+  rank            TrainerRank @default(F_RANK)
 
   badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
 
@@ -221,6 +215,13 @@ model Species {
   baseExp   Int @default(100)
   isLegendary Boolean @default(false)
   isMythical  Boolean @default(false)
+
+  // Forms support
+  formName      String?
+  isMega        Boolean @default(false)
+  isGmax        Boolean @default(false)
+  baseSpeciesId Int?
+  pokedexNumber Int?
 
   type1Id Int
   type1   Type  @relation("SpeciesType1", fields: [type1Id], references: [id])
@@ -444,3 +445,5 @@ model AstralRealmCompletion {
   
   @@unique([trainerId, realmId])
 }
+
+

@@ -6,7 +6,7 @@ export const apiClient = axios.create({
 });
 
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
-const getCloudinaryUrl = (path: string) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/${path}`;
+const getCloudinaryUrl = (path: string) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/astranox/${path}`;
 
 export const getSpriteUrl = (id: string | number) => getCloudinaryUrl(`pokemon/${id}.png`);
 export const getItemSpriteUrl = (name: string) => getCloudinaryUrl(`items/${name}.png`);

@@ -8,14 +8,13 @@ export async function seedSpecies() {
   console.log('Seeding 1025 Pokemon Species (Cloudinary sprites)... (this will take a few minutes)');
   
   // Create an array from 1 to 1025 (Gen 1-9 species)
-  const baseIds = Array.from({ length: 1025 }, (_, i) => i + 1);
-  const megaIds = [
-    10033, 10034, 10035, 10036, 10037, 10038, 10039, 10040, 10041, 10042, 10043, 10044, 10045, 10046, 10047, 10048, 10049, 10050, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060, 10062, 10063, 10064, 10065, 10066, 10067, 10068, 10069, 10070, 10071, 10072, 10073, 10074, 10075, 10076, 10079, 10087, 10088, 10089, 10090
-  ];
-  const gmaxIds = [
-    10195, 10196, 10197, 10198, 10199, 10200, 10201, 10202, 10203, 10204, 10205, 10206, 10207, 10208, 10209, 10210, 10211, 10212, 10213, 10214, 10215, 10216, 10217, 10218, 10219, 10220, 10221, 10222, 10223, 10224, 10225, 10226, 10227, 10228
-  ];
-  const ids = [...megaIds, ...gmaxIds];
+  // Fetch ALL available Pokemon IDs directly from PokeAPI to ensure we don't miss any forms
+  const allPokemonRes = await fetch('https://pokeapi.co/api/v2/pokemon?limit=2000');
+  const allPokemonData = await allPokemonRes.json();
+  const ids = allPokemonData.results.map((p: any) => {
+    const urlParts = p.url.split('/').filter(Boolean);
+    return parseInt(urlParts[urlParts.length - 1]);
+  });
 
   await runInBatches(ids, 20, async (id: number) => {
     try {
@@ -55,6 +54,18 @@ export async function seedSpecies() {
         console.error(`Failed to fetch species data for ${id}, defaulting catchRate to 255`, err);
       }
 
+      // Extract form details
+      let baseSpeciesId = id <= 1025 ? id : null;
+      let pokedexNumber = id <= 1025 ? id : null;
+      if (id > 1025 && data.species?.url) {
+        const urlParts = data.species.url.split('/').filter(Boolean);
+        baseSpeciesId = parseInt(urlParts[urlParts.length - 1]);
+        pokedexNumber = baseSpeciesId;
+      }
+      const isMega = data.name.includes('-mega');
+      const isGmax = data.name.includes('-gmax');
+      const formName = data.name;
+
       // Use Cloudinary URL
       const localSpriteUrl = `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/pokemon/${id}.png`;
 
@@ -69,6 +80,11 @@ export async function seedSpecies() {
           isLegendary,
           isMythical,
           type1Id, type2Id,
+          baseSpeciesId,
+          pokedexNumber,
+          isMega,
+          isGmax,
+          formName,
         },
         create: {
           id,
@@ -80,6 +96,11 @@ export async function seedSpecies() {
           isLegendary,
           isMythical,
           type1Id, type2Id,
+          baseSpeciesId,
+          pokedexNumber,
+          isMega,
+          isGmax,
+          formName,
         },
       });
 

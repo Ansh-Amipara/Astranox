@@ -1,2 +1,2 @@
-import { RankPage } from '@/pages/rank/ui/RankPage';
+import { RankPage } from '@/views/rank/ui/RankPage';
 export default function Page() { return <RankPage />; }

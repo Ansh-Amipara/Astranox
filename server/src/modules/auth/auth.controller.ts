@@ -101,4 +101,15 @@ export class AuthController {
       next(err);
     }
   };
+
+  getProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError('Not authenticated');
+      }
+      res.json({ success: true, data: req.user });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

@@ -1,2 +1,2 @@
-import { Bag } from '@/pages/bag/ui/Bag';
+import { Bag } from '@/views/bag/ui/Bag';
 export default function Page() { return <Bag />; }

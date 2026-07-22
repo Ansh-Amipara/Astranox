@@ -1,2 +1,2 @@
-import { RealmDetailPage } from '@/pages/realms/ui/RealmDetailPage';
+import { RealmDetailPage } from '@/views/realms/ui/RealmDetailPage';
 export default function Page() { return <RealmDetailPage />; }

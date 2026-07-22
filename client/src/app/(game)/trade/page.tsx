@@ -1,2 +1,2 @@
-import { TradeScreen } from '@/pages/trade/ui/TradeScreen';
+import { TradeScreen } from '@/views/trade/ui/TradeScreen';
 export default function Page() { return <TradeScreen />; }

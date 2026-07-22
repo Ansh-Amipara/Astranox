@@ -55,20 +55,24 @@ export async function seedItems() {
         (entry: any) => entry.language.name === 'en'
       )?.text?.replace(/\n|\f/g, ' ') || 'A tool for catching wild Pokémon.';
 
+      const category = itemName.includes('ball') ? 'pokeball' : itemName.includes('stone') ? 'evolution' : 'misc';
+
       await prisma.item.upsert({
         where: { id: itemName },
         update: {
           name: data.names.find((n: any) => n.language.name === 'en')?.name || data.name,
           cost: data.cost * 10,
           description: enFlavorText,
-          spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/${data.name}.png`,
+          spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/${category}/${data.name}.png`,
+          category,
         },
         create: {
           id: itemName,
           name: data.names.find((n: any) => n.language.name === 'en')?.name || data.name,
           cost: data.cost * 10,
           description: enFlavorText,
-          spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/${data.name}.png`,
+          spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/${category}/${data.name}.png`,
+          category,
         }
       });
       console.log(`Seeded item: ${itemName}`);
@@ -82,7 +86,7 @@ export async function seedItems() {
     try {
       const crystalWithSprite = {
         ...crystal,
-        spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/${crystal.id}.png`
+        spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/misc/${crystal.id}.png`
       };
       await prisma.item.upsert({
         where: { id: crystal.id },
@@ -99,7 +103,7 @@ export async function seedItems() {
     try {
       const crystalWithSprite = {
         ...crystal,
-        spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/${crystal.id}.png`
+        spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/items/misc/${crystal.id}.png`
       };
       await prisma.item.upsert({
         where: { id: crystal.id },

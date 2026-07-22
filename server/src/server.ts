@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { ASTRANOX_VERSION } from '@astranox/shared';
+import { createServer } from 'http';
+import { initSocket } from './socket';
 
 import { authRoutes } from './modules/auth/auth.routes';
 import { trainersRoutes } from './modules/trainers/trainers.routes';
@@ -58,6 +60,9 @@ app.use('*', (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(port, () => {
+const httpServer = createServer(app);
+initSocket(httpServer);
+
+httpServer.listen(port, () => {
   logger.info(`Server running on port ${port}`);
 });

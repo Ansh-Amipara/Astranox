@@ -71,7 +71,7 @@ export function StarterSelection() {
                     src={getSpriteUrl(pkm.id)}
                     alt={pkm.name}
                     className="h-32 w-32 object-contain transition-transform duration-500 group-hover:scale-110"
-                    style={{ imageRendering: 'pixelated' }}
+                    style={{ imageRendering: 'auto' }}
                   />
                   <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white capitalize">{pkm.name}</h3>
                   <span className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400">{pkm.type}</span>
@@ -85,11 +85,13 @@ export function StarterSelection() {
         <div className={`fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/80 backdrop-blur-md p-6 transform transition-transform duration-300 z-50 ${selectedId ? 'translate-y-0' : 'translate-y-full'}`}>
           <div className="max-w-5xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img
-                src={selectedId ? getSpriteUrl(selectedId) : ''}
-                className="h-16 w-16"
-                style={{ imageRendering: 'pixelated' }}
-              />
+              {selectedId && (
+                <img
+                  src={getSpriteUrl(selectedId)}
+                  className="h-16 w-16"
+                  style={{ imageRendering: 'auto' }}
+                />
+              )}
               <div>
                 <p className="text-sm text-slate-600 dark:text-slate-400">Selected Partner</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">

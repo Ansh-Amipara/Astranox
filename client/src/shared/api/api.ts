@@ -21,7 +21,7 @@ export const api = axios.create({
 });
 
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
-export const getSpriteUrl = (id: string | number) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/pokemon/${id}.png`;
+export const getSpriteUrl = (id: string | number) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/astranox/pokemon/${id}.png`;
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
@@ -53,7 +53,7 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
         useAuthStore.getState().setAuth(data.data.accessToken, data.data.user);
-        
+
         originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
         return api(originalRequest);
       } catch (err) {
@@ -68,7 +68,7 @@ api.interceptors.response.use(
     const customError = new Error(
       error.response?.data?.error?.message || error.message || 'An unexpected error occurred'
     ) as Error & { code?: string; status?: number; data?: any };
-    
+
     customError.code = error.response?.data?.error?.code || 'UNKNOWN_ERROR';
     customError.status = error.response?.status;
     customError.data = error.response?.data;

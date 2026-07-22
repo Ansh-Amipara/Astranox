@@ -6,15 +6,18 @@ import { BattleSessionService } from '../battles/services/battle-session.service
 const prisma = new PrismaClient();
 
 const RANK_ORDER: TrainerRank[] = [
-  TrainerRank.BLACK_IRON,
-  TrainerRank.BRONZE,
-  TrainerRank.SILVER,
-  TrainerRank.GOLD,
-  TrainerRank.PLATINUM,
-  TrainerRank.DIAMOND,
-  TrainerRank.EPIC,
-  TrainerRank.LEGENDARY,
-  TrainerRank.MYTHICAL
+  TrainerRank.F_RANK,
+  TrainerRank.E_RANK,
+  TrainerRank.D_RANK,
+  TrainerRank.C_RANK,
+  TrainerRank.B_RANK,
+  TrainerRank.A_RANK,
+  TrainerRank.S_RANK,
+  TrainerRank.S_PLUS_RANK,
+  TrainerRank.SS_RANK,
+  TrainerRank.SS_PLUS_RANK,
+  TrainerRank.SSS_RANK,
+  TrainerRank.SSS_PLUS_RANK
 ];
 
 const POTENTIAL_ORDER: PokemonPotential[] = [
@@ -75,7 +78,7 @@ export class RealmsService {
     const types = await prisma.type.findMany({ where: { name: { in: typesToSearch } } });
     const typeIds = types.map((t: any) => t.id);
 
-    const isEpicOrHigher = realm.requiredRank === TrainerRank.EPIC || realm.requiredRank === TrainerRank.LEGENDARY || realm.requiredRank === TrainerRank.MYTHICAL;
+    const isEpicOrHigher = getRankIndex(realm.requiredRank) >= getRankIndex(TrainerRank.B_RANK);
 
     let possibleSpecies = await prisma.species.findMany({
       where: {
@@ -177,7 +180,7 @@ export class RealmsService {
     const types = await prisma.type.findMany({ where: { name: { in: typesToSearch } } });
     const typeIds = types.map((t: any) => t.id);
 
-    const isEpicOrHigher = realm.requiredRank === TrainerRank.EPIC || realm.requiredRank === TrainerRank.LEGENDARY || realm.requiredRank === TrainerRank.MYTHICAL;
+    const isEpicOrHigher = getRankIndex(realm.requiredRank) >= getRankIndex(TrainerRank.B_RANK);
 
     let possibleSpecies = await prisma.species.findMany({
       where: {

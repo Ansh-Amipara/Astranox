@@ -1,0 +1,30 @@
+Password must be at least 8 characters with uppercase, lowercase, number, and special character
+Maximum 5 failed attempts before 15-minute lockout
+JWT tokens with 30-minute inactivity timeout
+"Remember Me" extends session to 30 days
+add option in admin panel to ban player
+CAPTCHA after 3 failed attempts
+Account lockout after 5 failed attempts (15 minutes)
+
+https://github.com/PokeAPI/sprites
+
+| Realm Tier | Required Rank | Trainer Level Range |
+| ---------- | ------------- | ------------------- |
+| Tier 1     | Black Iron    | Lv. 1–30            |
+| Tier 2     | Bronze        | Lv. 31–60           |
+| Tier 3     | Silver        | Lv. 61–90           |
+| Tier 4     | Gold          | Lv. 91–120          |
+| Tier 5     | Platinum      | Lv. 121–150         |
+| Tier 6     | Adamantite    | Lv. 151–200         |
+| Tier 7     | Diamond       | Lv. 201–300         |
+| Tier 8     | Crystal       | Lv. 301–400         |
+| Tier 9     | Epic          | Lv. 401–500         |
+| Tier 10    | Heroic        | Lv. 501–700         |
+| Tier 11    | Sovereign     | Lv. 701–900         |
+| Tier 12    | Legendary     | Lv. 901–1100        |
+| Tier 13    | Divine        | Lv. 1101–1400       |
+| Tier 14    | Celestial     | Lv. 1401–1700       |
+| Tier 15    | Primordial    | Lv. 1701–2000       |
+| Tier 16    | Mythical      | Lv. 2001–3000       |
+| Tier 17    | Infinity      | Lv. 3001–4000       |
+| Tier 18    | Eternal       | Lv. 4001–5000       |

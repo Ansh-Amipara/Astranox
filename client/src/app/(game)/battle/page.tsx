@@ -1,2 +1,2 @@
-import { BattleScreen } from '@/pages/battle/ui/BattleScreen';
+import { BattleScreen } from '@/views/battle/ui/BattleScreen';
 export default function Page() { return <BattleScreen />; }
