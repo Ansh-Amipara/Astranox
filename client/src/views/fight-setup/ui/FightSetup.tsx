@@ -22,7 +22,17 @@ export function FightSetup() {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [level, setLevel] = useState<string>('5');
   const [error, setError] = useState('');
+  const [lastBattle, setLastBattle] = useState<{speciesId: string, level: string} | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('lastCustomBattle');
+    if (saved) {
+      try {
+        setLastBattle(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -52,7 +62,7 @@ export function FightSetup() {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ['activeBattle'] });
       const returnUrl = location.pathname + location.search;
-      router.push('/battle');
+      router.push(`/battle?returnUrl=${encodeURIComponent(returnUrl)}`);
     },
     onError: (err: any) => {
       setError(err.response?.data?.error?.message || 'Failed to start battle');
@@ -84,9 +94,22 @@ export function FightSetup() {
       return;
     }
 
+    const finalSpeciesId = resolvedId;
+    const finalLevel = levelNum;
+
+    localStorage.setItem('lastCustomBattle', JSON.stringify({ speciesId: finalSpeciesId, level: finalLevel.toString() }));
+
     engageMutation.mutate({
-      speciesId: parseInt(resolvedId, 10),
-      level: levelNum
+      speciesId: parseInt(finalSpeciesId, 10),
+      level: finalLevel
+    });
+  };
+
+  const handleBattleAgain = () => {
+    if (!lastBattle) return;
+    engageMutation.mutate({
+      speciesId: parseInt(lastBattle.speciesId, 10),
+      level: parseInt(lastBattle.level, 10)
     });
   };
 
@@ -196,13 +219,29 @@ export function FightSetup() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={engageMutation.isPending || (!speciesId && !searchTerm) || !level}
-            className="w-full bg-red-500 hover:bg-red-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-colors text-lg shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center gap-2"
-          >
-            {engageMutation.isPending ? 'Starting...' : 'Battle!'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <button
+              type="submit"
+              disabled={engageMutation.isPending || (!speciesId && !searchTerm) || !level}
+              className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-colors text-lg shadow-md hover:shadow-lg disabled:shadow-none flex items-center justify-center gap-2"
+            >
+              {engageMutation.isPending && (!lastBattle || speciesId !== lastBattle.speciesId) ? 'Starting...' : 'Battle!'}
+            </button>
+            
+            {lastBattle && (
+              <button
+                type="button"
+                onClick={handleBattleAgain}
+                disabled={engageMutation.isPending}
+                className="flex-1 bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-md hover:shadow-lg disabled:shadow-none flex flex-col items-center justify-center gap-1"
+              >
+                <span className="text-lg">Battle Again</span>
+                <span className="text-xs font-normal opacity-90 text-center">
+                  ({speciesList.find(s => s.id.toString() === lastBattle.speciesId)?.name || 'Unknown'} Lvl {lastBattle.level})
+                </span>
+              </button>
+            )}
+          </div>
         </form>
       </div>
       </div>

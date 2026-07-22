@@ -2,6 +2,7 @@
 import { memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { api } from '../../../shared/api/api';
 
 interface Props {
   isFinished: boolean;
@@ -57,15 +58,36 @@ export const BattleResultModal = memo(function BattleResultModal({
            status === 'FLED' ? 'Got away safely!' : 'Defeated! Better luck next time!'}
         </div>
 
-        <button 
-          onClick={() => {
-            queryClient.setQueryData(['activeBattle'], null);
-            router.push(returnUrl);
-          }} 
-          className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
-        >
-          Return
-        </button>
+        <div className="flex gap-4 w-full">
+          {returnUrl.includes('/fight') && (
+            <button 
+              onClick={() => {
+                const saved = localStorage.getItem('lastCustomBattle');
+                if (saved) {
+                  try {
+                    const { speciesId, level } = JSON.parse(saved);
+                    api.post('/battles/engage-custom', { speciesId: parseInt(speciesId, 10), level: parseInt(level, 10) }).then(() => {
+                      queryClient.setQueryData(['activeBattle'], null);
+                      window.location.reload();
+                    });
+                  } catch (e) {}
+                }
+              }}
+              className="w-1/2 py-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            >
+              Battle Again
+            </button>
+          )}
+          <button 
+            onClick={() => {
+              queryClient.setQueryData(['activeBattle'], null);
+              router.push(returnUrl);
+            }} 
+            className={`${returnUrl.includes('/fight') ? 'w-1/2' : 'w-full'} py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all`}
+          >
+            Return
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, AlertCircle } from 'lucide-react';
 import { shopApi, api } from '../../../shared/api/api';
+import { TowerCurrencyIcon } from '../../../shared/ui/TowerCurrencyIcon';
+import { DungeonCurrencyIcon } from '../../../shared/ui/DungeonCurrencyIcon';
+import { NormalCurrencyIcon } from '../../../shared/ui/NormalCurrencyIcon';
 
 interface Item {
   id: string;
@@ -18,6 +21,7 @@ export function Pokemart() {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [multiplier, setMultiplier] = useState<number>(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [storeType, setStoreType] = useState<'astral' | 'infinity' | 'void'>('astral');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const { data: save } = useQuery({
@@ -71,8 +75,28 @@ export function Pokemart() {
     );
   }
 
-  const categories = ['all', ...Array.from(new Set(items?.map(i => i.category) || []))].sort();
-  const filteredItems = items?.filter(item => selectedCategory === 'all' || item.category === selectedCategory);
+  const storeItems = items?.filter(item => {
+    if (storeType === 'infinity') return item.category === 'potential';
+    if (storeType === 'void') return item.category === 'iv';
+    return item.category !== 'potential' && item.category !== 'iv';
+  }) || [];
+
+  const categories = ['all', ...Array.from(new Set(storeItems.map(i => i.category)))].sort();
+  const activeCategory = categories.includes(selectedCategory) ? selectedCategory : 'all';
+  const filteredItems = storeItems.filter(item => activeCategory === 'all' || item.category === activeCategory);
+
+  const getStoreCurrency = () => {
+    switch (storeType) {
+      case 'infinity':
+        return { name: 'Infinity Coins', amount: 0, icon: <TowerCurrencyIcon className="w-5 h-5" />, symbol: <TowerCurrencyIcon className="w-4 h-4" /> };
+      case 'void':
+        return { name: 'Void Coins', amount: 0, icon: <DungeonCurrencyIcon className="w-5 h-5" />, symbol: <DungeonCurrencyIcon className="w-4 h-4" /> };
+      case 'astral':
+      default:
+        return { name: 'Astral Coins', amount: save?.money || 0, icon: <NormalCurrencyIcon className="w-5 h-5" />, symbol: <NormalCurrencyIcon className="w-4 h-4" /> };
+    }
+  };
+  const storeCurrency = getStoreCurrency();
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
@@ -94,7 +118,7 @@ export function Pokemart() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${selectedCategory === cat
+                    className={`px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${activeCategory === cat
                         ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
                         : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                       }`}
@@ -105,12 +129,38 @@ export function Pokemart() {
               </div>
             </div>
 
-            {/* Right Side: Money & Quantity */}
+            {/* Right Side: Tabs & Money */}
             <div className="flex flex-col items-start md:items-end gap-3 w-full md:w-auto">
+              
+              {/* Store Type Tabs */}
+              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg w-max">
+                <button
+                  onClick={() => setStoreType('astral')}
+                  className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'astral' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  Astral
+                </button>
+                <button
+                  onClick={() => setStoreType('infinity')}
+                  className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'infinity' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  Infinity
+                </button>
+                <button
+                  onClick={() => setStoreType('void')}
+                  className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'void' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  Void
+                </button>
+              </div>
+
               {/* Money */}
-              <div className="bg-yellow-100 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 px-4 py-2 rounded-xl flex items-center justify-between md:justify-start w-full md:w-auto gap-3 shadow-sm shrink-0">
-                <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-wider">Your Money</span>
-                <span className="text-xl font-black text-yellow-700 dark:text-yellow-400">₽ {save?.money || 0}</span>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl flex items-center justify-between md:justify-start w-full md:w-auto gap-3 shadow-sm shrink-0">
+                <div className="flex items-center gap-2">
+                  {storeCurrency.icon}
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{storeCurrency.name}</span>
+                </div>
+                <span className="text-xl font-black text-slate-800 dark:text-slate-200">{storeCurrency.amount.toLocaleString()}</span>
               </div>
             </div>
 
@@ -149,7 +199,7 @@ export function Pokemart() {
                 {filteredItems?.map((item) => {
                   const qty = quantities[item.id] || 1;
                   const cost = item.cost * qty;
-                  const canAfford = (save?.money || 0) >= cost;
+                  const canAfford = storeCurrency.amount >= cost;
 
                   return (
                     <tr key={item.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -166,7 +216,12 @@ export function Pokemart() {
                         </div>
                       </td>
                       <td className="p-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs">{item.description}</td>
-                      <td className="p-4 font-bold text-slate-700 dark:text-slate-300">₽ {item.cost}</td>
+                      <td className="p-4 font-bold text-slate-700 dark:text-slate-300">
+                        <div className="flex items-center gap-1.5">
+                          {storeCurrency.symbol}
+                          <span>{item.cost.toLocaleString()}</span>
+                        </div>
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 w-max">
                           <button
@@ -192,7 +247,12 @@ export function Pokemart() {
                           </button>
                         </div>
                       </td>
-                      <td className={`p-4 font-bold ${canAfford ? 'text-red-500' : 'text-slate-400 dark:text-slate-600'}`}>₽ {cost}</td>
+                      <td className={`p-4 font-bold ${canAfford ? 'text-red-500' : 'text-slate-400 dark:text-slate-600'}`}>
+                        <div className="flex items-center gap-1.5">
+                          {storeCurrency.symbol}
+                          <span>{cost.toLocaleString()}</span>
+                        </div>
+                      </td>
                       <td className="p-4 text-center">
                         <button
                           onClick={() => handleBuy(item)}

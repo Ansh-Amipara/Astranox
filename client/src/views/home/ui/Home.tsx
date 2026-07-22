@@ -49,7 +49,7 @@ export function Home() {
                 <NormalCurrencyIcon className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Balance</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Astral Coins</p>
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.money.toLocaleString()}</p>
               </div>
             </div>
@@ -59,7 +59,7 @@ export function Home() {
                 <TowerCurrencyIcon className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tower Coins</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Infinity Coins</p>
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200">0</p>
               </div>
             </div>
@@ -69,7 +69,7 @@ export function Home() {
                 <DungeonCurrencyIcon className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dungeon Coins</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Void Coins</p>
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200">0</p>
               </div>
             </div>
@@ -83,7 +83,7 @@ export function Home() {
                 <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize">{save.rank.replace('_', ' ')}</p>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden lg:flex">
               <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black">
                 CP
@@ -156,7 +156,7 @@ export function Home() {
               );
             })}
           </div>
-          
+
           <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center relative z-10">
             <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Team CP</span>
             <span className="text-xl font-black text-blue-600 dark:text-blue-400">{teamCp.toLocaleString()}</span>
