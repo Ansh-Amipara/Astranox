@@ -41,6 +41,11 @@ export class BattlesService {
     return BattleMapper.toStartEncounterResultDto(result);
   }
 
+  async startRealmEncounter(userId: string, realmId: string): Promise<StartEncounterResultDto> {
+    const result = await this.sessionService.startRealmEncounter(userId, realmId);
+    return BattleMapper.toStartEncounterResultDto(result);
+  }
+
   async engageNpc(userId: string, npcTrainerId: string): Promise<StartEncounterResultDto> {
     const result = await this.sessionService.engageNpc(userId, npcTrainerId);
     return BattleMapper.toStartEncounterResultDto(result);

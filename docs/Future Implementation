@@ -45,3 +45,7 @@ https://github.com/PokeAPI/sprites
 | **SS+**        | Mythical             | 3000          |
 | **SSS**        | Infinity             | 4000          |
 | **SSS+**       | Eternal              | 5000          |
+
+
+in http://localhost:3001/realms/6a61d54e562932be95c5bdf2 display habitats pokemon 
+Failed to load resource: the server responded with a status of 400 (Bad Request)

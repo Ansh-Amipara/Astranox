@@ -16,6 +16,9 @@ interface Realm {
   bossSpeciesId: number;
   bossSpeciesName: string;
   types: string[];
+  environment?: string;
+  habitats?: string[];
+  legendarySpawns?: any[];
 }
 
 const RANKS = [
@@ -172,13 +175,18 @@ export function RealmsPage() {
                   </span>
                 </div>
               ) : (
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-bold">Wild Lv. {getRealmLevelRange(realm.requiredRank).min} - {getRealmLevelRange(realm.requiredRank).max}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {realm.types.map(t => (
-                        <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-5 object-contain drop-shadow-sm" />
-                      ))}
+                <div className="mt-4 flex flex-col gap-3">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 italic line-clamp-2">
+                    {realm.environment}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-bold">Wild Lv. {getRealmLevelRange(realm.requiredRank).min} - {getRealmLevelRange(realm.requiredRank).max}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {realm.types.map(t => (
+                          <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-5 object-contain drop-shadow-sm" />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

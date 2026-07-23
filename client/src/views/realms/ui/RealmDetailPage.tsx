@@ -112,10 +112,15 @@ export function RealmDetailPage() {
               <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight text-center md:text-left">
                 <span><span className="text-slate-400 dark:text-slate-500">{realm.requiredRank.replace('_PLUS', '+').replace('_RANK', '')} Rank :</span> {realm.name}</span>
               </p>
-                <p className="text-xl sm:text-2xl font-bold text-slate-600 dark:text-slate-400 tracking-tight text-center md:text-left mb-3">
-                  <span className="text-slate-400 dark:text-slate-500 mr-2">Wild Inhabitants :</span> Levels {getRealmLevelRange(realm.requiredRank).min} - {getRealmLevelRange(realm.requiredRank).max}
-                </p>
-                <div className="flex flex-row gap-2 justify-center md:justify-start">
+              
+              <p className="text-sm md:text-base italic text-slate-500 dark:text-slate-400 max-w-lg text-center md:text-left">
+                {realm.environment}
+              </p>
+
+              <p className="text-xl sm:text-2xl font-bold text-slate-600 dark:text-slate-400 tracking-tight text-center md:text-left mb-1 mt-2">
+                <span className="text-slate-400 dark:text-slate-500 mr-2">Wild Levels:</span> {getRealmLevelRange(realm.requiredRank).min} - {getRealmLevelRange(realm.requiredRank).max}
+              </p>
+              <div className="flex flex-row gap-2 justify-center md:justify-start">
                   {realm.types.map((t: string) => (
                     <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-6 object-contain drop-shadow-sm" />
                   ))}
@@ -124,14 +129,36 @@ export function RealmDetailPage() {
 
           </div>
 
+          {/* Legendary Section */}
+          {realm.legendarySpeciesData && realm.legendarySpeciesData.length > 0 && (
+            <div className="w-full mb-10">
+              <h3 className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500 mb-6 text-center uppercase tracking-wider flex items-center justify-center gap-2">
+                <span>✨ Ultra-Rare Encounters</span>
+              </h3>
+              <div className="flex flex-wrap gap-4 justify-center w-full">
+                {realm.legendarySpeciesData.map((sp: any) => {
+                  const legData = (realm.legendarySpawns || []).find((l: any) => l.name === sp.name);
+                  const chanceStr = legData ? (legData.chance * 100).toFixed(3) : '0.001';
+                  return (
+                    <div key={sp.id} className="relative w-28 h-32 bg-gradient-to-b from-amber-50/10 to-orange-50/30 dark:from-amber-950/20 dark:to-orange-900/10 rounded-xl border border-amber-200/50 dark:border-amber-700/50 flex flex-col items-center justify-center p-2 shadow-sm hover:border-amber-400 dark:hover:border-amber-500 hover:-translate-y-1 transition-all shrink-0">
+                      <img src={getSpriteUrl(sp.id)} alt={sp.name} className="w-14 h-14 object-contain pixelated drop-shadow-md mb-2" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 capitalize truncate w-full text-center">{sp.name.replace('-', ' ')}</span>
+                      <span className="text-[10px] font-bold text-orange-500 dark:text-orange-400 capitalize truncate w-full text-center">{chanceStr}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Inhabitants Section */}
-          <div className="w-full mb-8">
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center uppercase tracking-wider">Known Inhabitants</h3>
-            <div className="flex flex-wrap gap-4 justify-center w-full">
+          <div className="w-full mb-10">
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-6 text-center uppercase tracking-wider">Wild Habitat</h3>
+            <div className="flex flex-wrap gap-3 justify-center w-full">
               {/* Wild Inhabitants List */}
               {realm.inhabitants?.map((sp: any) => (
-                <div key={sp.id} className="relative w-24 h-24 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-2 shadow-sm hover:border-blue-400 dark:hover:border-blue-600 hover:-translate-y-1 transition-all shrink-0">
-                  <img src={getSpriteUrl(sp.id)} alt={sp.name} className="w-12 h-12 object-contain pixelated drop-shadow mb-1" />
+                <div key={sp.id} className="relative w-20 h-24 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-2 shadow-sm hover:border-blue-400 dark:hover:border-blue-600 hover:-translate-y-1 transition-all shrink-0">
+                  <img src={getSpriteUrl(sp.id)} alt={sp.name} className="w-10 h-10 object-contain pixelated drop-shadow mb-1" />
                   <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 capitalize truncate w-full text-center">{sp.name.replace('-', ' ')}</span>
                 </div>
               ))}

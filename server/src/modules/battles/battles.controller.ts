@@ -27,6 +27,22 @@ export class BattlesController {
     }
   };
 
+  startRealmEncounter = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { realmId } = req.body;
+      const userId = (req as any).user.id;
+
+      const session = await this.service.startRealmEncounter(userId, realmId);
+
+      res.json({
+        success: true,
+        data: session
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getAvailableSpecies = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const species = await this.service.getAvailableSpecies();

@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function seedSpecies() {
   if (!env.CLOUDINARY_CLOUD_NAME) throw new Error('CLOUDINARY_CLOUD_NAME is required in .env');
   console.log('Seeding 1025 Pokemon Species (Cloudinary sprites)... (this will take a few minutes)');
-  
+
   // Create an array from 1 to 1025 (Gen 1-9 species)
   // Fetch ALL available Pokemon IDs directly from PokeAPI to ensure we don't miss any forms
   const allPokemonRes = await fetch('https://pokeapi.co/api/v2/pokemon?limit=2000');
@@ -21,18 +21,18 @@ export async function seedSpecies() {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
       if (!res.ok) return; // Skip if missing for some reason
       const data = await res.json();
-      
+
       const hp = data.stats.find((s: any) => s.stat.name === 'hp')?.base_stat || 0;
       const attack = data.stats.find((s: any) => s.stat.name === 'attack')?.base_stat || 0;
       const defense = data.stats.find((s: any) => s.stat.name === 'defense')?.base_stat || 0;
       const spAtk = data.stats.find((s: any) => s.stat.name === 'special-attack')?.base_stat || 0;
       const spDef = data.stats.find((s: any) => s.stat.name === 'special-defense')?.base_stat || 0;
       const speed = data.stats.find((s: any) => s.stat.name === 'speed')?.base_stat || 0;
-      
+
       const type1Id = parseInt(data.types.find((t: any) => t.slot === 1).type.url.split('/').filter(Boolean).pop()!);
       const type2Info = data.types.find((t: any) => t.slot === 2);
       const type2Id = type2Info ? parseInt(type2Info.type.url.split('/').filter(Boolean).pop()!) : null;
-      
+
       const baseExperience = data.base_experience || 0;
 
       // Fetch species data for catch rate and legendary status
@@ -45,10 +45,10 @@ export async function seedSpecies() {
           const speciesRes = await fetch(speciesUrl);
           if (speciesRes.ok) {
             const speciesData = await speciesRes.json();
-          catchRate = speciesData.capture_rate || 255;
-          isLegendary = speciesData.is_legendary || false;
-          isMythical = speciesData.is_mythical || false;
-        }
+            catchRate = speciesData.capture_rate || 255;
+            isLegendary = speciesData.is_legendary || false;
+            isMythical = speciesData.is_mythical || false;
+          }
         }
       } catch (err) {
         console.error(`Failed to fetch species data for ${id}, defaulting catchRate to 255`, err);
@@ -108,7 +108,7 @@ export async function seedSpecies() {
       const learnsetEntries: any[] = [];
       for (const moveData of data.moves) {
         const moveId = parseInt(moveData.move.url.split('/').filter(Boolean).pop()!);
-        
+
         // Find Gen 9 or fallback
         const vgDetails = moveData.version_group_details;
         let targetDetail = vgDetails.find((d: any) => d.version_group.name === 'scarlet-violet' && d.move_learn_method.name === 'level-up');
@@ -127,7 +127,7 @@ export async function seedSpecies() {
 
       // Sort by level ASC, then assign learnOrder
       learnsetEntries.sort((a, b) => a.level - b.level);
-      
+
       const uniqueMoves = new Set();
       const finalLearnset = [];
       let currentOrder = 1;
@@ -149,8 +149,7 @@ export async function seedSpecies() {
         // We delete existing learnsets for this species to ensure idempotency
         await prisma.learnset.deleteMany({ where: { speciesId: id } });
         await prisma.learnset.createMany({
-          data: finalLearnset,
-          skipDuplicates: true
+          data: finalLearnset
         });
       }
 

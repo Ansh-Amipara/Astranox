@@ -424,10 +424,14 @@ model TradeRequest {
 
 model AstralRealm {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  tier            Int         // 1 to 8
+  name            String      @unique
+  tier            Int         // 1 to 14
   requiredRank    TrainerRank
   types           String[]    // Array of elemental types e.g. ["fire", "flying"]
+  
+  environment     String      @default("")
+  habitats        String[]    @default([]) // Array of species names
+  legendarySpawns Json?       // Array of { name: string, chance: number, tier: number }
 
   completions     AstralRealmCompletion[]
 }

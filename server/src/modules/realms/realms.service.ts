@@ -104,53 +104,25 @@ export class RealmsService {
     const userRankIdx = getRankIndex(trainerSave.rank);
     const unlockIdx = getRankIndex(realm.requiredRank);
 
-    // Get possible inhabitants
-    const typesToSearch = realm.types && realm.types.length > 0 ? realm.types : ['normal'];
-    const types = await prisma.type.findMany({ where: { name: { in: typesToSearch } } });
-    const typeIds = types.map((t: any) => t.id);
+    // Get possible inhabitants based on realm.habitats and realm.legendarySpawns
+    const habitatNames = realm.habitats || [];
+    const legendaryNames = (realm.legendarySpawns as any[])?.map((l: any) => l.name) || [];
+    const allSpeciesNames = [...habitatNames, ...legendaryNames].map(n => n.toLowerCase());
 
-    const isEpicOrHigher = getRankIndex(realm.requiredRank) >= getRankIndex(TrainerRank.B_RANK);
-
-    let possibleSpecies = await prisma.species.findMany({
+    const possibleSpecies = await prisma.species.findMany({
       where: {
-        OR: [
-          { type1Id: { in: typeIds } },
-          { type2Id: { in: typeIds } }
-        ],
-        ...(isEpicOrHigher ? {} : { isLegendary: false, isMythical: false })
+        name: { in: allSpeciesNames }
       },
-      select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true },
-      orderBy: { id: 'asc' }
+      select: { id: true, name: true, spriteUrl: true },
     });
 
-    // Pseudo-random but stable slice based on realm id length/chars
-    const realmSeed = realm.id.charCodeAt(0) + realm.id.charCodeAt(realm.id.length - 1);
-    const startIdx = realmSeed % Math.max(1, possibleSpecies.length - 18);
-    let inhabitants = possibleSpecies.slice(startIdx, startIdx + 18);
-
-    // Apply auto-evolve visually so the user sees the evolved forms if minLevel guarantees evolution
-    inhabitants = await Promise.all(inhabitants.map(async (sp) => {
-      let currentId = sp.id;
-      let finalSp = sp;
-      for (let i = 0; i < 2; i++) {
-        const fullSp = await prisma.species.findUnique({ where: { id: currentId }, select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true } });
-        if (fullSp?.evolutionLevel && getRealmLevelRange(realm.requiredRank).min >= fullSp.evolutionLevel && fullSp.evolvesToId) {
-          currentId = fullSp.evolvesToId;
-          const evolvedSp = await prisma.species.findUnique({ where: { id: currentId }, select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true } });
-          if (evolvedSp) finalSp = evolvedSp;
-        } else {
-          break;
-        }
-      }
-      return finalSp;
-    }));
-
-    // Deduplicate inhabitants in case evolutions overlap
-    const uniqueInhabitants = Array.from(new Map(inhabitants.map(item => [item.id, item])).values());
+    const inhabitants = possibleSpecies.filter(sp => habitatNames.map((n: string) => n.toLowerCase()).includes(sp.name));
+    const legendaries = possibleSpecies.filter(sp => legendaryNames.map((n: string) => n.toLowerCase()).includes(sp.name));
 
     return {
       ...realm,
-      inhabitants: uniqueInhabitants,
+      inhabitants,
+      legendarySpeciesData: legendaries,
       isUnlocked: userRankIdx >= unlockIdx
     };
   }
@@ -206,102 +178,7 @@ export class RealmsService {
   }
 
   private async triggerRealmEncounter(trainerSave: TrainerSave, realm: AstralRealm) {
-    // 1. Pick random species based on realm element types
-    const typesToSearch = realm.types && realm.types.length > 0 ? realm.types : ['normal'];
-    const types = await prisma.type.findMany({ where: { name: { in: typesToSearch } } });
-    const typeIds = types.map((t: any) => t.id);
-
-    const isEpicOrHigher = getRankIndex(realm.requiredRank) >= getRankIndex(TrainerRank.B_RANK);
-
-    let possibleSpecies = await prisma.species.findMany({
-      where: {
-        OR: [
-          { type1Id: { in: typeIds } },
-          { type2Id: { in: typeIds } }
-        ],
-        ...(isEpicOrHigher ? {} : { isLegendary: false, isMythical: false })
-      },
-      select: { id: true }
-    });
-
-    if (possibleSpecies.length === 0) {
-      throw new ValidationError(`No species found for types ${typesToSearch.join(', ')}`);
-    }
-
-    // Pseudo-random but stable slice for encounters, matching getRealmById
-    const realmSeed = realm.id.charCodeAt(0) + realm.id.charCodeAt(realm.id.length - 1);
-    const startIdx = realmSeed % Math.max(1, possibleSpecies.length - 18);
-    const inhabitantsList = possibleSpecies.slice(startIdx, startIdx + 18);
-
-    let selectedSpeciesId = inhabitantsList[Math.floor(Math.random() * inhabitantsList.length)].id;
-
-    // 2. Generate custom potential based on realm base rank exactly matching requirements
-    const baseIdx = getRankIndex(realm.requiredRank as TrainerRank);
-
-    let potential: PokemonPotential = PokemonPotential.BLACK_IRON;
-    const pRoll = Math.random();
-
-    switch (realm.requiredRank) {
-      case TrainerRank.F_RANK:
-        potential = pRoll < 0.5 ? PokemonPotential.BLACK_IRON : pRoll < 0.9 ? PokemonPotential.BRONZE : PokemonPotential.SILVER;
-        break;
-      case TrainerRank.E_RANK:
-        potential = pRoll < 0.2 ? PokemonPotential.BRONZE : pRoll < 0.6 ? PokemonPotential.SILVER : pRoll < 0.9 ? PokemonPotential.GOLD : PokemonPotential.PLATINUM;
-        break;
-      case TrainerRank.D_RANK:
-        potential = pRoll < 0.2 ? PokemonPotential.GOLD : pRoll < 0.6 ? PokemonPotential.PLATINUM : pRoll < 0.9 ? PokemonPotential.ADAMANTITE : PokemonPotential.DIAMOND;
-        break;
-      case TrainerRank.C_RANK:
-        potential = pRoll < 0.2 ? PokemonPotential.ADAMANTITE : pRoll < 0.6 ? PokemonPotential.DIAMOND : pRoll < 0.9 ? PokemonPotential.CRYSTAL : PokemonPotential.EPIC;
-        break;
-      case TrainerRank.B_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.CRYSTAL : pRoll < 0.9 ? PokemonPotential.EPIC : PokemonPotential.HEROIC;
-        break;
-      case TrainerRank.A_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.EPIC : pRoll < 0.9 ? PokemonPotential.HEROIC : PokemonPotential.SOVEREIGN;
-        break;
-      case TrainerRank.AA_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.HEROIC : pRoll < 0.9 ? PokemonPotential.SOVEREIGN : PokemonPotential.LEGENDARY;
-        break;
-      case TrainerRank.AAA_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.SOVEREIGN : pRoll < 0.9 ? PokemonPotential.LEGENDARY : PokemonPotential.DIVINE;
-        break;
-      case TrainerRank.S_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.LEGENDARY : pRoll < 0.9 ? PokemonPotential.DIVINE : PokemonPotential.CELESTIAL;
-        break;
-      case TrainerRank.S_PLUS_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.DIVINE : pRoll < 0.9 ? PokemonPotential.CELESTIAL : PokemonPotential.PRIMORDIAL;
-        break;
-      case TrainerRank.SS_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.CELESTIAL : pRoll < 0.9 ? PokemonPotential.PRIMORDIAL : PokemonPotential.MYTHICAL;
-        break;
-      case TrainerRank.SS_PLUS_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.PRIMORDIAL : pRoll < 0.9 ? PokemonPotential.MYTHICAL : PokemonPotential.INFINITY;
-        break;
-      case TrainerRank.SSS_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.MYTHICAL : pRoll < 0.9 ? PokemonPotential.INFINITY : PokemonPotential.ETERNAL;
-        break;
-      case TrainerRank.SSS_PLUS_RANK:
-        potential = pRoll < 0.4 ? PokemonPotential.INFINITY : PokemonPotential.ETERNAL; // No potential higher than Eternal
-        break;
-    }
-
-    // 3. Determine level based on the rank's min/max range
-    const levelRange = getRealmLevelRange(realm.requiredRank);
-    const level = Math.floor(Math.random() * (levelRange.max - levelRange.min + 1)) + levelRange.min;
-
-    // Auto-evolve
-    for (let i = 0; i < 2; i++) {
-      const currentSpecies = await prisma.species.findUnique({ where: { id: selectedSpeciesId }, select: { evolutionLevel: true, evolvesToId: true } });
-      if (currentSpecies?.evolutionLevel && level >= currentSpecies.evolutionLevel && currentSpecies.evolvesToId) {
-        selectedSpeciesId = currentSpecies.evolvesToId;
-      } else {
-        break;
-      }
-    }
-
-    // 4. Delegate to BattleSessionService
-    const sessionRes = await this.battleService.startSecretRealmEncounter(trainerSave.userId, selectedSpeciesId, level, potential, false);
+    const sessionRes = await this.battleService.startRealmEncounter(trainerSave.userId, realm.id);
 
     return {
       event: 'battle',

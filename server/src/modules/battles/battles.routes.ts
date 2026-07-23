@@ -11,6 +11,7 @@ const controller = new BattlesController();
 battlesRoutes.use(requireAuth);
 
 battlesRoutes.post('/engage-custom', battleActionLimiter, validate(engageCustomSchema), controller.engageCustom);
+battlesRoutes.post('/realm-encounter', battleActionLimiter, controller.startRealmEncounter);
 battlesRoutes.get('/available-species', controller.getAvailableSpecies);
 battlesRoutes.get('/active', controller.getActive);
 battlesRoutes.post('/turn', battleActionLimiter, validate(submitTurnSchema), controller.submitTurn);

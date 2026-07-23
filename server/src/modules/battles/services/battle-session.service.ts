@@ -20,6 +20,23 @@ function generateWildIVs() {
   };
 }
 
+const RANK_LEVEL_BOUNDS: Record<string, { min: number, max: number }> = {
+  F_RANK: { min: 1, max: 60 },
+  E_RANK: { min: 61, max: 120 },
+  D_RANK: { min: 121, max: 200 },
+  C_RANK: { min: 201, max: 400 },
+  B_RANK: { min: 401, max: 500 },
+  A_RANK: { min: 501, max: 700 },
+  AA_RANK: { min: 701, max: 900 },
+  AAA_RANK: { min: 901, max: 1100 },
+  S_RANK: { min: 1101, max: 1400 },
+  S_PLUS_RANK: { min: 1401, max: 1700 },
+  SS_RANK: { min: 1701, max: 2000 },
+  SS_PLUS_RANK: { min: 2001, max: 3000 },
+  SSS_RANK: { min: 3001, max: 4000 },
+  SSS_PLUS_RANK: { min: 4001, max: 5000 },
+};
+
 function getNpcPotential(level: number): string {
   if (level <= 20) return 'BRONZE';
   if (level <= 40) return 'SILVER';
@@ -145,7 +162,7 @@ export class BattleSessionService {
     if (trainerSave.party.length === 0) {
       throw new ValidationError('You have no Pokemon to battle with!');
     }
-    const lead = trainerSave.party[0]; // Already ordered by position
+    const lead = trainerSave.party[0]; 
     const playerInstance = mapOwnedPokemonToInstance(lead as any);
     const playerActive = toActivePokemon(playerInstance);
 
@@ -164,7 +181,150 @@ export class BattleSessionService {
     return {
       encounter: {
         species: species,
-        level: level
+        level: level,
+        potential: getNpcPotential(level)
+      },
+      battleSession: session
+    };
+  }
+
+  async startRealmEncounter(userId: string, realmId: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) {
+      throw new NotFoundError('Trainer save not found');
+    }
+    const trainerId = trainerSave.id;
+
+    const active = await this.repository.getActiveBattleByTrainer(trainerId);
+    if (active) {
+      throw new ValidationError('You are already in a battle.');
+    }
+
+    const realm = await prisma.astralRealm.findUnique({ where: { id: realmId } });
+    if (!realm) {
+      throw new NotFoundError('Realm not found.');
+    }
+
+    // 1. Determine encountered species
+    let encounteredSpeciesName = '';
+    
+    // Roll for legendary
+    const legendaries = realm.legendarySpawns as any[];
+    if (legendaries && legendaries.length > 0) {
+      const roll = Math.random();
+      // Calculate total legendary chance. E.g. multiple legendaries of same tier.
+      // Wait, the prompt says "chance to hit the Tier 3 pool, followed by 50/50". 
+      // But our legendarySpawns already maps individual chances. We can just roll once against the sum.
+      let cumulativeChance = 0;
+      for (const leg of legendaries) {
+        cumulativeChance += leg.chance;
+        if (roll <= cumulativeChance) {
+          encounteredSpeciesName = leg.name;
+          break;
+        }
+      }
+    }
+
+    // If no legendary rolled, pick from standard habitat
+    if (!encounteredSpeciesName && realm.habitats && realm.habitats.length > 0) {
+      const randomIndex = Math.floor(Math.random() * realm.habitats.length);
+      encounteredSpeciesName = realm.habitats[randomIndex];
+    } else if (!encounteredSpeciesName) {
+      // Fallback if realm has no habitat yet
+      encounteredSpeciesName = 'pikachu';
+    }
+
+    const species = await prisma.species.findUnique({
+      where: { name: encounteredSpeciesName.toLowerCase() },
+      include: { type1: true, type2: true }
+    });
+
+    if (!species) {
+      throw new NotFoundError(`Species ${encounteredSpeciesName} not found in database.`);
+    }
+
+    // 2. Determine Level and Potential based on realm's requiredRank
+    const rankBounds = (RANK_LEVEL_BOUNDS as any)[realm.requiredRank] || { min: 1, max: 5 };
+    const level = Math.floor(Math.random() * (rankBounds.max - rankBounds.min + 1)) + rankBounds.min;
+
+    const ivs = generateWildIVs();
+
+    const types = [species.type1.name];
+    if (species.type2) types.push(species.type2.name);
+    
+    const wildInstance = createPokemonInstance({
+      id: crypto.randomUUID(),
+      nickname: species.name,
+      level: level,
+      potential: getNpcPotential(level),
+      ivs,
+      species: {
+        id: species.id,
+        name: species.name,
+        types,
+        baseStats: {
+          hp: species.hp,
+          attack: species.attack,
+          defense: species.defense,
+          spAtk: species.spAtk,
+          spDef: species.spDef,
+          speed: species.speed
+        }
+      },
+      moves: []
+    });
+
+    // Populate moves dynamically from Learnset
+    const learnset = await prisma.learnset.findMany({
+      where: { speciesId: species.id, level: { lte: level } },
+      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+      include: { move: { include: { type: true } } }
+    });
+
+    const uniqueMoves: any[] = [];
+    const seen = new Set();
+    for (let i = learnset.length - 1; i >= 0; i--) {
+      if (!seen.has(learnset[i].moveId)) {
+        seen.add(learnset[i].moveId);
+        uniqueMoves.unshift(learnset[i]);
+      }
+    }
+
+    const latestMoves = uniqueMoves.slice(-4);
+    wildInstance.moves = latestMoves.map((m: any, i: number) => ({
+      moveId: m.moveId,
+      currentSlot: i,
+      name: m.move.name,
+      type: m.move.type.name
+    }));
+
+    const wildActive = toActivePokemon(wildInstance);
+
+    // 3. Get player lead Pokemon
+    if (trainerSave.party.length === 0) {
+      throw new ValidationError('You have no Pokemon to battle with!');
+    }
+    const lead = trainerSave.party[0]; 
+    const playerInstance = mapOwnedPokemonToInstance(lead as any);
+    const playerActive = toActivePokemon(playerInstance);
+
+    // 4. Create BattleSession
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
+    const session = await this.repository.createBattleSession({
+      trainerId,
+      playerActivePokemonId: playerActive.id,
+      opponentPokemonData: wildActive,
+      playerPokemonData: playerActive,
+      playerPartyData,
+      battleType: 'WILD' // Realm encounters are wild
+    });
+
+    return {
+      encounter: {
+        species: species,
+        level: level,
+        potential: getNpcPotential(level)
       },
       battleSession: session
     };
