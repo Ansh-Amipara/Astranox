@@ -12,8 +12,10 @@ function main() {
   console.log('Running Admin seed...');
   execSync('npx tsx scripts/seed/admin.ts', { stdio: 'inherit' });
 
-  console.log('Running Astral Realms seed...');
-  execSync('npx tsx scripts/seed/astral-realms.ts', { stdio: 'inherit' });
+
+
+  console.log('Running Rank Examiners seed...');
+  execSync('npx tsx scripts/seed/rank-examiners.ts', { stdio: 'inherit' });
 }
 
 main();

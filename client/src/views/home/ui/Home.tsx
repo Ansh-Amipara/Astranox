@@ -44,32 +44,32 @@ export function Home() {
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <NormalCurrencyIcon className="w-8 h-8" />
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center p-1">
+                <img src="/astral.png" alt="Astral Coins" className="w-full h-full object-contain" />
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Astral Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.money.toLocaleString()}</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.astralCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <TowerCurrencyIcon className="w-8 h-8" />
+              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center p-1">
+                <img src="/infinity.png" alt="Infinity Coins" className="w-full h-full object-contain" />
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Infinity Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">0</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.infinityCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center">
-                <DungeonCurrencyIcon className="w-8 h-8" />
+              <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center p-1">
+                <img src="/void.png" alt="Void Coins" className="w-full h-full object-contain" />
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Void Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">0</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.voidCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
@@ -167,18 +167,6 @@ export function Home() {
 
           {/* Actions (Left 2 Columns) */}
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <button onClick={() => navigate('/realms')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
-              <div>
-                <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Explore Wild</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Find and catch new Pokémon</p>
-              </div>
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-2xl group-hover:scale-110 transition-transform">
-                <FiMap className="text-2xl text-blue-500 dark:text-blue-400" />
-              </div>
-            </button>
-
-
-
             <button onClick={() => navigate('/shop')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm text-left flex items-start justify-between group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md">
               <div>
                 <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">Poké Mart</h3>

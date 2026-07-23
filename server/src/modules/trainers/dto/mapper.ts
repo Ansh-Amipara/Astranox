@@ -8,7 +8,9 @@ export class TrainerMapper {
     return {
       id: entity.id,
       userId: entity.userId,
-      money: entity.money,
+      astralCoins: entity.astralCoins,
+      infinityCoins: entity.infinityCoins,
+      voidCoins: entity.voidCoins,
       rank: entity.rank,
       starterChosenAt: entity.starterChosenAt,
       createdAt: entity.createdAt,

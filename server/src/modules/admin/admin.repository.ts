@@ -1,4 +1,5 @@
 import { PrismaClient, PokemonPotential } from '@prisma/client';
+import { AppError } from '../../common/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 
 const prisma = new PrismaClient();
@@ -28,15 +29,17 @@ export class AdminRepository {
     });
   }
 
-  async addMoney(userId: string, amount: number) {
-    const save = await prisma.trainerSave.findUnique({ where: { userId } });
-    if (!save) return null;
+  async addMoney(userId: string, amount: number, currencyType: 'astralCoins' | 'infinityCoins' | 'voidCoins') {
+    return prisma.$transaction(async (tx) => {
+      const save = await tx.trainerSave.findUnique({ where: { userId } });
+      if (!save) throw new AppError('User has no save file.', 404);
 
-    return prisma.trainerSave.update({
-      where: { id: save.id },
-      data: {
-        money: { increment: amount }
-      }
+      return tx.trainerSave.update({
+        where: { userId },
+        data: {
+          [currencyType]: { increment: amount }
+        }
+      });
     });
   }
 

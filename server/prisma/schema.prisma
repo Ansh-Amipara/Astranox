@@ -19,12 +19,13 @@ enum TrainerRank {
   C_RANK
   B_RANK
   A_RANK
-  AA_RANK
-  AAA_RANK
+  S_MINUS_RANK
   S_RANK
   S_PLUS_RANK
+  SS_MINUS_RANK
   SS_RANK
   SS_PLUS_RANK
+  SSS_MINUS_RANK
   SSS_RANK
   SSS_PLUS_RANK
 }
@@ -70,24 +71,17 @@ model TrainerSave {
   user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   starterChosenAt DateTime?
-  money           Int       @default(3000)
+  astralCoins     Int       @default(3000)
+  infinityCoins   Int       @default(0)
+  voidCoins       Int       @default(0)
   rank            TrainerRank @default(F_RANK)
 
   badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
-
-  // Location
-  continentId String? @db.ObjectId
-  regionId    String? @db.ObjectId
-  areaId      String? @db.ObjectId
-  positionX   Int     @default(0)
-  positionY   Int     @default(0)
-  facing      String  @default("DOWN")
 
   party        OwnedPokemon[]
   inventory    InventoryItem[]
   battles      BattleSession[]
   defeatedNpcs TrainerDefeatedNpc[]
-  astralRealmCompletions AstralRealmCompletion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -272,7 +266,6 @@ enum BattleStatus {
 enum BattleType {
   WILD
   NPC
-  SECRET_REALM
 }
 
 model BattleSession {
@@ -317,7 +310,9 @@ model NpcTrainer {
   name         String
   spriteUrl    String
   trainerClass String
-  rewardMoney  Int         @default(0)
+  rewardAstralCoins Int    @default(0)
+  rewardInfinityCoins Int  @default(0)
+  rewardVoidCoins Int      @default(0)
   badgeName    String?
   trainerType  TrainerType @default(NORMAL)
   region       String      @default("Lunaris")
@@ -418,34 +413,6 @@ model TradeRequest {
   updatedAt          DateTime @updatedAt
 }
 
-// ----------------------------------------------------------------------
-// ASTRAL REALMS
-// ----------------------------------------------------------------------
 
-model AstralRealm {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name            String      @unique
-  tier            Int         // 1 to 14
-  requiredRank    TrainerRank
-  types           String[]    // Array of elemental types e.g. ["fire", "flying"]
-  
-  environment     String      @default("")
-  habitats        String[]    @default([]) // Array of species names
-  legendarySpawns Json?       // Array of { name: string, chance: number, tier: number }
-
-  completions     AstralRealmCompletion[]
-}
-
-model AstralRealmCompletion {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  trainerId       String      @db.ObjectId
-  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  realmId         String      @db.ObjectId
-  realm           AstralRealm @relation(fields: [realmId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  
-  completedAt     DateTime    @default(now())
-  
-  @@unique([trainerId, realmId])
-}
 
 

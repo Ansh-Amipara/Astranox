@@ -13,16 +13,16 @@ export function getMaxLevelForPotential(potential: string): number {
     case 'DIAMOND': return 300;
     case 'CRYSTAL': return 400;
     case 'EPIC': return 500;
-    case 'HEROIC': return 600;
-    case 'SOVEREIGN': return 700;
-    case 'LEGENDARY': return 800;
-    case 'DIVINE': return 900;
-    case 'CELESTIAL': return 1000;
-    case 'PRIMORDIAL': return 1200;
-    case 'MYTHICAL': return 1400;
-    case 'INFINITY': return 1700;
-    case 'ETERNAL': return 2000;
-    default: return 2000;
+    case 'HEROIC': return 700;
+    case 'SOVEREIGN': return 900;
+    case 'LEGENDARY': return 1100;
+    case 'DIVINE': return 1400;
+    case 'CELESTIAL': return 1700;
+    case 'PRIMORDIAL': return 2000;
+    case 'MYTHICAL': return 3000;
+    case 'INFINITY': return 4000;
+    case 'ETERNAL': return 5000;
+    default: return 5000;
   }
 }
 
@@ -47,7 +47,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
 
   // 3. Hydrate Stats via Gen V Engine
   const maxHp = calculateHP(payload.species.baseStats.hp, payload.ivs.hp, payload.level);
-  
+
   const stats = {
     attack: calculateStat(payload.species.baseStats.attack, payload.ivs.attack, payload.level),
     defense: calculateStat(payload.species.baseStats.defense, payload.ivs.defense, payload.level),

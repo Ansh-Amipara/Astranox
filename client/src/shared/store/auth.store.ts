@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { UserPayload } from '@astranox/shared';
 import { api } from '../api/api';
+import { getQueryClient } from '../api/query-client';
 
 interface AuthState {
   accessToken: string | null;
@@ -25,6 +26,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Ignore network errors on logout
     } finally {
       set({ accessToken: null, user: null, isInitialized: true });
+      getQueryClient().clear();
     }
   },
 

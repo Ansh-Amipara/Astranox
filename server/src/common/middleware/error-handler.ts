@@ -33,6 +33,7 @@ export const errorHandler = (
   }
 
   logger.error(err);
+  require('fs').appendFileSync('error.log', (err.stack || err.message) + '\\n');
   return res.status((err as any).status || 500).json({
     success: false,
     error: {

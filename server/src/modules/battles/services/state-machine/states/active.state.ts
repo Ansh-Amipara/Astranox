@@ -167,8 +167,10 @@ export class ActiveState implements IBattleState {
 
     if (newStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
        const rewardRes = await reward.processNpcVictory(trainerSave, session.npcTrainerId, tx);
-       if (rewardRes && rewardRes.moneyGained > 0) {
-         result.events.push({ type: 'text', text: `You won ${rewardRes.moneyGained} Pokedollars for winning!` });
+       if (rewardRes) {
+         if (rewardRes.astralCoinsGained > 0) result.events.push({ type: 'text', text: `You won ${rewardRes.astralCoinsGained} Astral Coins for winning!` });
+         if (rewardRes.infinityCoinsGained > 0) result.events.push({ type: 'text', text: `You won ${rewardRes.infinityCoinsGained} Infinity Coins for winning!` });
+         if (rewardRes.voidCoinsGained > 0) result.events.push({ type: 'text', text: `You won ${rewardRes.voidCoinsGained} Void Coins for winning!` });
        }
     }
 

@@ -369,5 +369,30 @@ export class TrainersRepository {
     ]);
     return results[0];
   }
+
+  async boostAllIvs(trainerSaveId: string, pokemonId: string, itemIdToConsume: string) {
+    const results = await prisma.$transaction([
+      prisma.ownedPokemon.update({
+        where: { id: pokemonId, trainerId: trainerSaveId },
+        data: { 
+          ivHp: 31,
+          ivAttack: 31,
+          ivDefense: 31,
+          ivSpAtk: 31,
+          ivSpDef: 31,
+          ivSpeed: 31
+        },
+        include: {
+          species: { include: { type1: true, type2: true } },
+          moves: { include: { move: { include: { type: true } } } }
+        }
+      }),
+      prisma.inventoryItem.update({
+        where: { trainerId_itemId: { trainerId: trainerSaveId, itemId: itemIdToConsume } },
+        data: { quantity: { decrement: 1 } },
+      }),
+    ]);
+    return results[0];
+  }
 }
 

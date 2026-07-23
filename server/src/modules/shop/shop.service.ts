@@ -46,8 +46,8 @@ export class ShopService {
 
     const totalCost = item.cost * quantity;
 
-    if (trainer.money < totalCost) {
-      throw new AppError('Not enough money.', 400);
+    if (trainer.astralCoins < totalCost) {
+      throw new AppError('Not enough Astral Coins.', 400);
     }
 
     // Execute in transaction
@@ -55,7 +55,7 @@ export class ShopService {
       prisma.trainerSave.update({
         where: { id: trainer.id },
         data: {
-          money: { decrement: totalCost },
+          astralCoins: { decrement: totalCost },
         },
       }),
       prisma.inventoryItem.upsert({

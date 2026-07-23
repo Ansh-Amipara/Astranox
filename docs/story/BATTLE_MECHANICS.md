@@ -29,26 +29,23 @@ The world of **Astranox** is divided into **4 Continents** which are diveded int
 
 A Pokémon's **Potential** (or Rank) dictates the absolute maximum level it can reach through training.
 
-| Potential (Rank) | Maximum Level |
-| ---------------- | ------------- |
-| **Black Iron**   | 30            |
-| **Bronze**       | 60            |
-| **Silver**       | 90            |
-| **Gold**         | 120           |
-| **Platinum**     | 150           |
-| **Adamantite**   | 200           |
-| **Diamond**      | 300           |
-| **Crystal**      | 400           |
-| **Epic**         | 500           |
-| **Heroic**       | 700           |
-| **Sovereign**    | 900           |
-| **Legendary**    | 1100          |
-| **Divine**       | 1400          |
-| **Celestial**    | 1700          |
-| **Primordial**   | 2000          |
-| **Mythical**     | 3000          |
-| **Infinity**     | 4000          |
-| **Eternal**      | 5000          |
+| trainer Rank   | Pokemon Potential    | Maximum Level |
+| -------------- | -------------------- | ------------- |
+| **F**          | Black Iron, Bronze   | 60            |
+| **E**          | Silver, Gold         | 120           |
+| **D**          | Platinum, Adamantite | 200           |
+| **C**          | Diamond              | 300           |
+| **B**          | Crystal              | 400           |
+| **A**          | Epic                 | 500           |
+| **S-**         | Heroic               | 700           |
+| **S**          | Sovereign            | 900           |
+| **S+**         | Legendary            | 1100          |
+| **SS-**        | Divine               | 1400          |
+| **SS**         | Celestial            | 1700          |
+| **SS+**        | Primordial           | 2000          |
+| **SSS-**       | Mythical             | 3000          |
+| **SSS**        | Infinity             | 4000          |
+| **SSS+**       | Eternal              | 5000          |
 
 
 

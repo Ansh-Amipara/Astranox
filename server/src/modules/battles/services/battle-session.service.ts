@@ -24,27 +24,39 @@ const RANK_LEVEL_BOUNDS: Record<string, { min: number, max: number }> = {
   F_RANK: { min: 1, max: 60 },
   E_RANK: { min: 61, max: 120 },
   D_RANK: { min: 121, max: 200 },
-  C_RANK: { min: 201, max: 400 },
-  B_RANK: { min: 401, max: 500 },
-  A_RANK: { min: 501, max: 700 },
-  AA_RANK: { min: 701, max: 900 },
-  AAA_RANK: { min: 901, max: 1100 },
-  S_RANK: { min: 1101, max: 1400 },
-  S_PLUS_RANK: { min: 1401, max: 1700 },
-  SS_RANK: { min: 1701, max: 2000 },
-  SS_PLUS_RANK: { min: 2001, max: 3000 },
+  C_RANK: { min: 201, max: 300 },
+  B_RANK: { min: 301, max: 400 },
+  A_RANK: { min: 401, max: 500 },
+  S_MINUS_RANK: { min: 501, max: 700 },
+  S_RANK: { min: 701, max: 900 },
+  S_PLUS_RANK: { min: 901, max: 1100 },
+  SS_MINUS_RANK: { min: 1101, max: 1400 },
+  SS_RANK: { min: 1401, max: 1700 },
+  SS_PLUS_RANK: { min: 1701, max: 2000 },
+  SSS_MINUS_RANK: { min: 2001, max: 3000 },
   SSS_RANK: { min: 3001, max: 4000 },
   SSS_PLUS_RANK: { min: 4001, max: 5000 },
 };
 
 function getNpcPotential(level: number): string {
-  if (level <= 20) return 'BRONZE';
-  if (level <= 40) return 'SILVER';
-  if (level <= 60) return 'GOLD';
-  if (level <= 80) return 'PLATINUM';
-  if (level <= 90) return 'DIAMOND';
-  if (level <= 100) return 'EPIC';
-  return 'LEGENDARY';
+  if (level <= 30) return 'BLACK_IRON';
+  if (level <= 60) return 'BRONZE';
+  if (level <= 90) return 'SILVER';
+  if (level <= 120) return 'GOLD';
+  if (level <= 160) return 'PLATINUM';
+  if (level <= 200) return 'ADAMANTITE';
+  if (level <= 300) return 'DIAMOND';
+  if (level <= 400) return 'CRYSTAL';
+  if (level <= 500) return 'EPIC';
+  if (level <= 700) return 'HEROIC';
+  if (level <= 900) return 'SOVEREIGN';
+  if (level <= 1100) return 'LEGENDARY';
+  if (level <= 1400) return 'DIVINE';
+  if (level <= 1700) return 'CELESTIAL';
+  if (level <= 2000) return 'PRIMORDIAL';
+  if (level <= 3000) return 'MYTHICAL';
+  if (level <= 4000) return 'INFINITY';
+  return 'ETERNAL';
 }
 
 function toActivePokemon(inst: any): ActivePokemon {
@@ -416,7 +428,7 @@ export class BattleSessionService {
       opponentPokemonData: wildActive,
       playerPokemonData: playerActive,
       playerPartyData,
-      battleType: isBoss ? 'NPC' : 'SECRET_REALM' // Use NPC for boss to prevent catching
+      battleType: isBoss ? 'NPC' : 'WILD' // Use NPC for boss to prevent catching
     });
 
     return {

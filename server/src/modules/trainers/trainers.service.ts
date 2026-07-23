@@ -192,6 +192,15 @@ export class TrainersService {
     }
 
     const validProgressions: Record<string, { current: PokemonPotential, next: PokemonPotential }> = {
+      'bronze-pearl': { current: PokemonPotential.BLACK_IRON, next: PokemonPotential.BRONZE },
+      'silver-pearl': { current: PokemonPotential.BRONZE, next: PokemonPotential.SILVER },
+      'gold-pearl': { current: PokemonPotential.SILVER, next: PokemonPotential.GOLD },
+      'platinum-pearl': { current: PokemonPotential.GOLD, next: PokemonPotential.PLATINUM },
+      'adamantite-pearl': { current: PokemonPotential.PLATINUM, next: PokemonPotential.ADAMANTITE },
+      'diamond-pearl': { current: PokemonPotential.ADAMANTITE, next: PokemonPotential.DIAMOND },
+      'crystal-pearl': { current: PokemonPotential.DIAMOND, next: PokemonPotential.CRYSTAL },
+      'epic-pearl': { current: PokemonPotential.CRYSTAL, next: PokemonPotential.EPIC },
+      // Legacy crystals
       'bronze-crystal': { current: PokemonPotential.BLACK_IRON, next: PokemonPotential.BRONZE },
       'silver-crystal': { current: PokemonPotential.BRONZE, next: PokemonPotential.SILVER },
       'gold-crystal': { current: PokemonPotential.SILVER, next: PokemonPotential.GOLD },
@@ -242,30 +251,21 @@ export class TrainersService {
     // Determine current stat value
     const currentValue = pokemon[stat] as number;
 
-    const validProgressions: Record<string, { min: number, max: number, next: number }> = {
-      'black-iron-iv-crystal': { min: 0, max: 5, next: 6 },
-      'bronze-iv-crystal': { min: 6, max: 10, next: 11 },
-      'silver-iv-crystal': { min: 11, max: 15, next: 16 },
-      'gold-iv-crystal': { min: 16, max: 20, next: 21 },
-      'platinum-iv-crystal': { min: 21, max: 25, next: 26 },
-      'diamond-iv-crystal': { min: 26, max: 30, next: 31 },
-    };
-
-    const progression = validProgressions[itemId];
-    if (!progression) {
-      throw new ValidationError('Invalid crystal type provided.');
+    // Handle bottle caps
+    if (itemId === 'gold-bottle-cap') {
+      const updatedPokemon = await this.repo.boostAllIvs(save.id, pokemonId, itemId);
+      return TrainerMapper.toOwnedPokemonDto(updatedPokemon);
     }
 
-    if (currentValue < progression.min || currentValue > progression.max) {
-      throw new ValidationError(`This crystal can only be used when the stat is between ${progression.min} and ${progression.max}. Current value is ${currentValue}.`);
+    if (itemId === 'bottle-cap') {
+      if (currentValue >= 31) {
+        throw new ValidationError('This stat is already maxed out (31).');
+      }
+      const updatedPokemon = await this.repo.boostIv(save.id, pokemonId, stat, 31, itemId);
+      return TrainerMapper.toOwnedPokemonDto(updatedPokemon);
     }
 
-    if (currentValue >= 31) {
-      throw new ValidationError('This stat is already maxed out (31).');
-    }
-
-    const updatedPokemon = await this.repo.boostIv(save.id, pokemonId, stat, progression.next, itemId);
-    return TrainerMapper.toOwnedPokemonDto(updatedPokemon);
+    throw new ValidationError('Invalid item type provided for IV boost.');
   }
 }
 

@@ -3,7 +3,9 @@ export interface NpcDto {
   readonly name: string;
   readonly spriteUrl: string | null;
   readonly trainerClass: string | null;
-  readonly rewardMoney: number;
+  readonly rewardAstralCoins: number;
+  readonly rewardInfinityCoins: number;
+  readonly rewardVoidCoins: number;
   readonly isDefeated: boolean;
   readonly region: string;
   readonly trainerType: string;

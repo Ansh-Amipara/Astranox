@@ -36,6 +36,7 @@ export function AdminDashboard() {
     }
   }
   const [moneyAmount, setMoneyAmount] = useState<number>(1000);
+  const [currencyType, setCurrencyType] = useState<'astralCoins' | 'infinityCoins' | 'voidCoins'>('astralCoins');
   const [speciesId, setSpeciesId] = useState<number>(1);
   const [pokemonLevel, setPokemonLevel] = useState<number>(5);
   const [speciesSearch, setSpeciesSearch] = useState('');
@@ -67,12 +68,12 @@ export function AdminDashboard() {
   });
 
   const addMoneyMutation = useMutation({
-    mutationFn: async ({ userId, amount }: { userId: string, amount: number }) => {
-      await api.post(`/admin/users/${userId}/money`, { amount });
+    mutationFn: async ({ userId, amount, currencyType }: { userId: string, amount: number, currencyType: string }) => {
+      await api.post(`/admin/users/${userId}/money`, { amount, currencyType });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
-      toast.success('Money added successfully!');
+      toast.success('Currency added successfully!');
     },
     onError: (err: any) => {
       toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
@@ -144,7 +145,9 @@ export function AdminDashboard() {
                   <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm">
                     <th className="p-4 font-bold">Username</th>
                     <th className="p-4 font-bold">Email</th>
-                    <th className="p-4 font-bold">Money</th>
+                    <th className="p-4 font-bold">Astral Coins</th>
+                    <th className="p-4 font-bold">Infinity Coins</th>
+                    <th className="p-4 font-bold">Void Coins</th>
                     <th className="p-4 font-bold">Party Size</th>
                     <th className="p-4 font-bold text-right">Actions</th>
                   </tr>
@@ -158,7 +161,9 @@ export function AdminDashboard() {
                     >
                       <td className="p-4 font-bold text-slate-900 dark:text-white">{user.username} {user.role === 'ADMIN' && <span className="ml-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase">Admin</span>}</td>
                       <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">{user.email}</td>
-                      <td className="p-4 text-emerald-600 dark:text-emerald-400 font-bold">₽ {user.trainerSave?.money ?? 0}</td>
+                      <td className="p-4 text-amber-500 font-bold">{user.trainerSave?.astralCoins ?? 0}</td>
+                      <td className="p-4 text-purple-500 font-bold">{user.trainerSave?.infinityCoins ?? 0}</td>
+                      <td className="p-4 text-stone-500 font-bold">{user.trainerSave?.voidCoins ?? 0}</td>
                       <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</td>
                       <td className="p-4 text-right flex justify-end gap-2">
                         <button
@@ -225,8 +230,17 @@ export function AdminDashboard() {
                         }}
                         className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 transition-colors"
                       />
+                      <select 
+                        value={currencyType} 
+                        onChange={(e) => setCurrencyType(e.target.value as any)}
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-800 dark:text-slate-200 font-bold"
+                      >
+                        <option value="astralCoins">Astral</option>
+                        <option value="infinityCoins">Infinity</option>
+                        <option value="voidCoins">Void</option>
+                      </select>
                       <button
-                        onClick={() => addMoneyMutation.mutate({ userId: selectedUser.id, amount: moneyAmount })}
+                        onClick={() => addMoneyMutation.mutate({ userId: selectedUser.id, amount: moneyAmount, currencyType })}
                         disabled={addMoneyMutation.isPending || !selectedUser.trainerSave}
                         className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50"
                       >

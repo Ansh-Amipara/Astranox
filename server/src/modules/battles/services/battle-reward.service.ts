@@ -86,7 +86,11 @@ export class BattleRewardService {
     const npcTrainer = await tx.npcTrainer.findUnique({ where: { id: npcTrainerId } });
     if (npcTrainer) {
       const hasBadge = trainerSave.badges.includes(npcTrainer.badgeName || '');
-      const updateData: any = { money: { increment: npcTrainer.rewardMoney } };
+      const updateData: any = {
+        astralCoins: { increment: npcTrainer.rewardAstralCoins },
+        infinityCoins: { increment: npcTrainer.rewardInfinityCoins },
+        voidCoins: { increment: npcTrainer.rewardVoidCoins }
+      };
       
       if (npcTrainer.badgeName && !hasBadge) {
         updateData.badges = { push: npcTrainer.badgeName };
@@ -94,19 +98,15 @@ export class BattleRewardService {
 
       // Check for Rank Promotion
       if (npcTrainer.trainerClass === 'Examiner') {
-        const examinerRankMap: Record<string, string> = {
-          'Bronze Examiner': 'BRONZE',
-          'Silver Examiner': 'SILVER',
-          'Gold Examiner': 'GOLD',
-          'Platinum Examiner': 'PLATINUM',
-          'Diamond Examiner': 'DIAMOND',
-          'Epic Examiner': 'EPIC',
-          'Legendary Examiner': 'LEGENDARY',
-          'Mythical Examiner': 'MYTHICAL',
-        };
-        const promotedRank = examinerRankMap[npcTrainer.name];
-        if (promotedRank) {
-          updateData.rank = promotedRank;
+        try {
+          const { RankService } = require('../../rank/rank.service');
+          const rankService = new RankService();
+          const status = await rankService.getRankStatus(trainerSave.userId);
+          if (status && status.nextRank) {
+            updateData.rank = status.nextRank;
+          }
+        } catch (e) {
+          console.error('Failed to promote rank:', e);
         }
       }
 
@@ -121,8 +121,12 @@ export class BattleRewardService {
          update: {}
       });
 
-      return { moneyGained: npcTrainer.rewardMoney };
+      return {
+        astralCoinsGained: npcTrainer.rewardAstralCoins,
+        infinityCoinsGained: npcTrainer.rewardInfinityCoins,
+        voidCoinsGained: npcTrainer.rewardVoidCoins
+      };
     }
-    return { moneyGained: 0 };
+    return { astralCoinsGained: 0, infinityCoinsGained: 0, voidCoinsGained: 0 };
   }
 }

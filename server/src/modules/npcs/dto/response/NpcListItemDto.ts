@@ -3,6 +3,8 @@ export type NpcListItemDto = Readonly<{
   name: string;
   trainerClass: string | null;
   spriteUrl: string | null;
-  rewardMoney: number;
+  rewardAstralCoins: number;
+  rewardInfinityCoins: number;
+  rewardVoidCoins: number;
   isDefeated: boolean;
 }>;

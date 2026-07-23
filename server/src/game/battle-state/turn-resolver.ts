@@ -1,5 +1,5 @@
 import { ActivePokemon, BattleAction, TurnEvent, TurnResult, StatusAilment } from './types';
-import { applyLevelScaling } from './level-scaling';
+
 import { determineFirstStriker } from './turn-order';
 import { checkCanAttack, applyResidualDamage } from './status-effects';
 import { calculateDamage, checkAccuracy } from '../battle/damage';
@@ -20,13 +20,8 @@ export function resolveTurn(
   context: TurnContext = {}
 ): TurnResult {
   const events: TurnEvent[] = [];
-  // Scaling is a per-turn modifier. Preserve the unscaled session state so a
-  // lower-level Pokemon is not permanently weakened again after every turn.
-  const originalState1 = { ...p1, stages: { ...p1.stages } };
-  const originalState2 = { ...p2, stages: { ...p2.stages } };
-  
-  // 1. Level Scaling
-  let { p1: state1, p2: state2 } = applyLevelScaling(p1, p2);
+  let state1 = { ...p1, stages: { ...p1.stages } };
+  let state2 = { ...p2, stages: { ...p2.stages } };
   
   // Keep track of original ids so we can correctly assign events
   const isP1 = (p: ActivePokemon) => p.id === state1.id;
@@ -49,11 +44,11 @@ export function resolveTurn(
       executeSwitch(firstAttacker, firstAction, events, isP1(firstAttacker));
     } else if (firstAction.type === 'item') {
       const { caught } = executeItem(firstAttacker, firstAction, secondAttacker, events, context);
-      if (caught) return finishTurn(state1, state2, events, originalState1, originalState2); // End turn early if caught
+      if (caught) return { p1State: state1, p2State: state2, events }; // End turn early if caught
     } else {
       const { fainted, flinched } = executeMove(firstAttacker, firstAction, secondAttacker, events, context);
       if (flinched) secondAttackerFlinched = true;
-      if (fainted) return finishTurn(state1, state2, events, originalState1, originalState2); // End turn early
+      if (fainted) return { p1State: state1, p2State: state2, events }; // End turn early
     }
   }
 
@@ -63,13 +58,13 @@ export function resolveTurn(
       executeSwitch(secondAttacker, secondAction, events, isP1(secondAttacker));
     } else if (secondAction.type === 'item') {
       const { caught } = executeItem(secondAttacker, secondAction, firstAttacker, events, context);
-      if (caught) return finishTurn(state1, state2, events, originalState1, originalState2);
+      if (caught) return { p1State: state1, p2State: state2, events };
     } else {
       if (secondAttackerFlinched) {
         events.push({ type: 'flinch', pokemonId: secondAttacker.id });
       } else {
         const { fainted } = executeMove(secondAttacker, secondAction, firstAttacker, events, context);
-        if (fainted) return finishTurn(state1, state2, events, originalState1, originalState2);
+        if (fainted) return { p1State: state1, p2State: state2, events };
       }
     }
   }
@@ -87,7 +82,7 @@ export function resolveTurn(
     if (state2.currentHp <= 0) events.push({ type: 'faint', pokemonId: state2.id });
   }
 
-  return finishTurn(state1, state2, events, originalState1, originalState2);
+  return { p1State: state1, p2State: state2, events };
 }
 
 function executeSwitch(
@@ -236,26 +231,4 @@ function executeMove(
   return { fainted: false, flinched };
 }
 
-function finishTurn(
-  p1State: ActivePokemon,
-  p2State: ActivePokemon,
-  events: TurnEvent[],
-  originalState1: ActivePokemon,
-  originalState2: ActivePokemon
-): TurnResult {
-  return {
-    p1State: restorePersistentState(originalState1, p1State),
-    p2State: restorePersistentState(originalState2, p2State),
-    events
-  };
-}
 
-function restorePersistentState(original: ActivePokemon, resolved: ActivePokemon): ActivePokemon {
-  return {
-    ...original,
-    currentHp: resolved.currentHp,
-    status: resolved.status,
-    sleepTurns: resolved.sleepTurns,
-    stages: { ...resolved.stages }
-  };
-}

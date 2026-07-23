@@ -32,14 +32,6 @@
 - **Elders** ×48
 - **Guardians** ×120
 
-### Sacred Orders
-- **Ascendant**
-- **Exarch**
-- **Archon**
-- **Arbiter**
-- **Herald**
-- **Adept**
-
 ---
 
 ## Region Governance
@@ -61,19 +53,20 @@ The World of Astranox has 12 Regions in total across the 4 Continents. One Great
 | Coralyn     | **House Coralis**   |
 | Abyssara    | **House Abyss**     |
 
-| Potential Rank | Realm Tier(s)        | Maximum Level |
+| Potential Rank | Realm Tier(s) (Potentials) | Maximum Level |
 | -------------- | -------------------- | ------------- |
 | **F**          | Black Iron, Bronze   | 60            |
 | **E**          | Silver, Gold         | 120           |
 | **D**          | Platinum, Adamantite | 200           |
-| **C**          | Diamond, Crystal     | 400           |
-| **B**          | Epic                 | 500           |
-| **A**          | Heroic               | 700           |
-| **AA**         | Sovereign            | 900           |
-| **AAA**        | Legendary            | 1100          |
-| **S**          | Divine               | 1400          |
-| **S+**         | Celestial            | 1700          |
-| **SS**         | Primordial           | 2000          |
-| **SS+**        | Mythical             | 3000          |
+| **C**          | Diamond,             | 300           |
+| **B**          | Crystal              | 400           |
+| **A**          | Epic                 | 500           |
+| **S-**         | Heroic               | 700           |
+| **S**          | Sovereign            | 900           |
+| **S+**         | Legendary            | 1100          |
+| **SS-**        | Divine               | 1400          |
+| **SS**         | Celestial            | 1700          |
+| **SS+**        | Primordial           | 2000          |
+| **SSS-**       | Mythical             | 3000          |
 | **SSS**        | Infinity             | 4000          |
 | **SSS+**       | Eternal              | 5000          |

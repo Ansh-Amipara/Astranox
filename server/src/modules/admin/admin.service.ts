@@ -1,5 +1,5 @@
 import { AdminRepository } from './admin.repository';
-import { ValidationError, NotFoundError } from '../../common/errors/AppError';
+import { ValidationError, NotFoundError, AppError } from '../../common/errors/AppError';
 import { PrismaClient, PokemonPotential } from '@prisma/client';
 import { AdminMapper } from './dto/mapper';
 import type { AdminUserDto } from './dto/response/AdminUserDto';
@@ -28,10 +28,10 @@ export class AdminService {
   }
 
   async addMoney(adminId: string, userId: string, dto: AddMoneyDto): Promise<TrainerSaveDto> {
-    if (dto.amount <= 0) {
-      throw new ValidationError('Amount must be positive');
-    }
-    const result = await this.repo.addMoney(userId, dto.amount);
+    const admin = await prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'ADMIN') throw new AppError('Unauthorized', 403);
+
+    const result = await this.repo.addMoney(userId, dto.amount, dto.currencyType);
     if (!result) {
       throw new NotFoundError('Trainer save not found for this user');
     }

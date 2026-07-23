@@ -31,14 +31,20 @@ export class RankController {
 
       // Map nextRank to Examiner Name
       const examinerNames: Record<string, string> = {
-        BRONZE: 'Bronze Examiner',
-        SILVER: 'Silver Examiner',
-        GOLD: 'Gold Examiner',
-        PLATINUM: 'Platinum Examiner',
-        DIAMOND: 'Diamond Examiner',
-        EPIC: 'Epic Examiner',
-        LEGENDARY: 'Legendary Examiner',
-        MYTHICAL: 'Mythical Examiner'
+        E_RANK: 'E Rank Examiner',
+        D_RANK: 'D Rank Examiner',
+        C_RANK: 'C Rank Examiner',
+        B_RANK: 'B Rank Examiner',
+        A_RANK: 'A Rank Examiner',
+        S_MINUS_RANK: 'A Rank Examiner',
+        S_RANK: 'S Rank Examiner',
+        S_PLUS_RANK: 'S+ Rank Examiner',
+        SS_MINUS_RANK: 'S+ Rank Examiner',
+        SS_RANK: 'SS Rank Examiner',
+        SS_PLUS_RANK: 'SS+ Rank Examiner',
+        SSS_MINUS_RANK: 'SS+ Rank Examiner',
+        SSS_RANK: 'SSS Rank Examiner',
+        SSS_PLUS_RANK: 'SSS+ Rank Examiner',
       };
 
       const examinerName = examinerNames[status.nextRank];

@@ -1,14 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
 import { useAuthStore } from '../../../shared/store/auth.store';
 
-import { ChevronDown, User as UserIcon, LogOut } from 'lucide-react';
+import { User as UserIcon, LogOut } from 'lucide-react';
 
 export function Navbar() {
-  const [isPokemonOpen, setIsPokemonOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuthStore();
 
   const { data: profile } = useQuery({
@@ -19,17 +16,6 @@ export function Navbar() {
     },
     enabled: !!user,
   });
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsPokemonOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <nav className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-md relative z-[60] transition-colors duration-200 border-b border-slate-200 dark:border-transparent">
@@ -42,50 +28,11 @@ export function Navbar() {
 
             <div className="ml-10 flex items-baseline space-x-4">
               <Link to="/shop" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémart</Link>
+              <Link to="/team" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Team</Link>
+              <Link to="/pokemon" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémon</Link>
+              <Link to="/inventory" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Inventory</Link>
               <Link to="/rank" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Rank</Link>
-              <Link to="/realms" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Realms</Link>
-              {/* Pokemon Dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsPokemonOpen(!isPokemonOpen)}
-                  className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium focus:outline-none flex items-center"
-                >
-                  Pokémon
-                  <ChevronDown className={`ml-1 w-4 h-4 transition-transform ${isPokemonOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isPokemonOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-black ring-opacity-20 focus:outline-none overflow-hidden origin-top-left transition-all z-[100]">
-                    <div className="py-1 flex flex-col" role="menu" aria-orientation="vertical">
-                      <Link
-                        to="/team"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsPokemonOpen(false)}
-                      >
-                        Team
-                      </Link>
-                      <Link
-                        to="/pokemon"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors border-b border-slate-100 dark:border-slate-700/50"
-                        role="menuitem"
-                        onClick={() => setIsPokemonOpen(false)}
-                      >
-                        Pokémon
-                      </Link>
-
-                      <Link
-                        to="/inventory"
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                        role="menuitem"
-                        onClick={() => setIsPokemonOpen(false)}
-                      >
-                        Inventory
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Link to="/info" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Info</Link>
             </div>
           </div>
 

@@ -14,7 +14,9 @@ export interface InventoryItemDto {
 export interface TrainerSaveDto {
   readonly id: string;
   readonly userId: string;
-  readonly money: number;
+  readonly astralCoins: number;
+  readonly infinityCoins: number;
+  readonly voidCoins: number;
   readonly rank: string;
   readonly starterChosenAt: Date | null;
   readonly createdAt: Date;

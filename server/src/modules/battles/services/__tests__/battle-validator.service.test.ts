@@ -55,21 +55,21 @@ describe('BattleValidatorService', () => {
   });
 
   describe('validateItem', () => {
-    it('throws ValidationError if not a SECRET_REALM battle', () => {
+    it('throws ValidationError if not a WILD battle', () => {
       expect(() => validator.validateItem('poke-ball', [], 'NPC')).toThrow(ValidationError);
       expect(() => validator.validateItem('poke-ball', [], 'WILD')).toThrow(ValidationError);
     });
 
     it('validates item if present in inventory with quantity > 0', () => {
       const inventory = [{ itemId: 'poke-ball', quantity: 5 }];
-      const result = validator.validateItem('poke-ball', inventory, 'SECRET_REALM');
+      const result = validator.validateItem('poke-ball', inventory, 'WILD');
       expect(result).toBeDefined();
     });
 
     it('throws ValidationError if item is missing or quantity is 0', () => {
       const inventory = [{ itemId: 'poke-ball', quantity: 0 }];
-      expect(() => validator.validateItem('poke-ball', inventory, 'SECRET_REALM')).toThrow(ValidationError);
-      expect(() => validator.validateItem('great-ball', inventory, 'SECRET_REALM')).toThrow(ValidationError);
+      expect(() => validator.validateItem('poke-ball', inventory, 'WILD')).toThrow(ValidationError);
+      expect(() => validator.validateItem('great-ball', inventory, 'WILD')).toThrow(ValidationError);
     });
   });
 

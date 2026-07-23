@@ -8,43 +8,25 @@ Account lockout after 5 failed attempts (15 minutes)
 
 https://github.com/PokeAPI/sprites
 
-| Realm Tier | Required Rank | Trainer Level Range |
-| ---------- | ------------- | ------------------- |
-| Tier 1     | Black Iron    | Lv. 1–30            |
-| Tier 2     | Bronze        | Lv. 31–60           |
-| Tier 3     | Silver        | Lv. 61–90           |
-| Tier 4     | Gold          | Lv. 91–120          |
-| Tier 5     | Platinum      | Lv. 121–150         |
-| Tier 6     | Adamantite    | Lv. 151–200         |
-| Tier 7     | Diamond       | Lv. 201–300         |
-| Tier 8     | Crystal       | Lv. 301–400         |
-| Tier 9     | Epic          | Lv. 401–500         |
-| Tier 10    | Heroic        | Lv. 501–700         |
-| Tier 11    | Sovereign     | Lv. 701–900         |
-| Tier 12    | Legendary     | Lv. 901–1100        |
-| Tier 13    | Divine        | Lv. 1101–1400       |
-| Tier 14    | Celestial     | Lv. 1401–1700       |
-| Tier 15    | Primordial    | Lv. 1701–2000       |
-| Tier 16    | Mythical      | Lv. 2001–3000       |
-| Tier 17    | Infinity      | Lv. 3001–4000       |
-| Tier 18    | Eternal       | Lv. 4001–5000       |
-
 | Potential Rank | Realm Tier(s) (Potentials) | Maximum Level |
 | -------------- | -------------------- | ------------- |
 | **F**          | Black Iron, Bronze   | 60            |
 | **E**          | Silver, Gold         | 120           |
 | **D**          | Platinum, Adamantite | 200           |
-| **C**          | Diamond, Crystal     | 400           |
-| **B**          | Epic                 | 500           |
-| **A**          | Heroic               | 700           |
-| **AA**         | Sovereign            | 900           |
-| **AAA**        | Legendary            | 1100          |
-| **S**          | Divine               | 1400          |
-| **S+**         | Celestial            | 1700          |
-| **SS**         | Primordial           | 2000          |
-| **SS+**        | Mythical             | 3000          |
+| **C**          | Diamond              | 300           |
+| **B**          | Crystal              | 400           |
+| **A**          | Epic                 | 500           |
+| **S-**         | Heroic               | 700           |
+| **S**          | Sovereign            | 900           |
+| **S+**         | Legendary            | 1100          |
+| **SS-**        | Divine               | 1400          |
+| **SS**         | Celestial            | 1700          |
+| **SS+**        | Primordial           | 2000          |
+| **SSS-**       | Mythical             | 3000          |
 | **SSS**        | Infinity             | 4000          |
 | **SSS+**       | Eternal              | 5000          |
+
+
 
 
 in http://localhost:3001/realms/6a61d54e562932be95c5bdf2 display habitats pokemon 

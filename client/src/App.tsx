@@ -18,8 +18,8 @@ import { Bag } from '@/views/bag/ui/Bag';
 import { PokemonManagement } from '@/views/pokemon-management/ui/PokemonManagement';
 import { Profile } from '@/views/profile/ui/Profile';
 import { RankPage } from '@/views/rank/ui/RankPage';
-import { RealmsPage } from '@/views/realms/ui/RealmsPage';
-import { RealmDetailPage } from '@/views/realms/ui/RealmDetailPage';
+import { InfoPage } from '@/views/info/ui/InfoPage';
+
 import { Pokemart } from '@/views/pokemart/ui/Pokemart';
 import { TeamPage } from '@/views/team/ui/TeamPage';
 import { TradeScreen } from '@/views/trade/ui/TradeScreen';
@@ -71,8 +71,8 @@ export default function App() {
           <Route path="pokemon" element={<PokemonManagement />} />
           <Route path="profile" element={<Profile />} />
           <Route path="rank" element={<RankPage />} />
-          <Route path="realms" element={<RealmsPage />} />
-          <Route path="realms/:id" element={<RealmDetailPage />} />
+          <Route path="info" element={<InfoPage />} />
+
           <Route path="shop" element={<Pokemart />} />
           <Route path="team" element={<TeamPage />} />
           <Route path="trade" element={<TradeScreen />} />

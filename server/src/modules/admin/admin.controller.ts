@@ -39,9 +39,9 @@ export class AdminController {
   addMoney = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const { amount } = req.body;
+      const { amount, currencyType } = req.body;
 
-      const save = await this.service.addMoney(req.user!.id, id, { amount });
+      const save = await this.service.addMoney(req.user!.id, id, { amount, currencyType });
       res.json({ success: true, data: save });
     } catch (err) {
       next(err);

@@ -27,8 +27,8 @@ export class BattleValidatorService {
   }
 
   validateItem(itemId: string, inventory: any[], battleType: string) {
-    if (battleType !== 'SECRET_REALM' && battleType !== 'WILD') {
-      throw new ValidationError('Items can only be used to catch Pokemon in Wild or Secret Realm encounters.');
+    if (battleType !== 'WILD') {
+      throw new ValidationError('Items can only be used to catch Pokemon in Wild encounters.');
     }
 
     const inventoryItem = inventory.find((i: any) => i.itemId === itemId);

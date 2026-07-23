@@ -14,7 +14,7 @@ import { adminRoutes } from './modules/admin/admin.routes';
 import { npcsRoutes } from './modules/npcs/npcs.routes';
 import { tradesRoutes } from './modules/trades/trades.routes';
 import { rankRoutes } from './modules/rank/rank.routes';
-import realmsRoutes from './modules/realms/realms.routes';
+
 import pokedexRoutes from './modules/pokedex/pokedex.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import { httpLogger } from './common/middleware/http-logger';
@@ -44,7 +44,7 @@ app.use('/admin', adminRoutes);
 app.use('/npcs', npcsRoutes);
 app.use('/trades', tradesRoutes);
 app.use('/rank', rankRoutes);
-app.use('/realms', realmsRoutes);
+
 app.use('/pokedex', pokedexRoutes);
 
 // 404 Fallback for unhandled routes

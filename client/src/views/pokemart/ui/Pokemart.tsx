@@ -75,9 +75,9 @@ export function Pokemart() {
   }
 
   const storeItems = items?.filter(item => {
-    if (storeType === 'infinity') return item.category === 'potential';
-    if (storeType === 'void') return item.category === 'iv';
-    return item.category !== 'potential' && item.category !== 'iv';
+    if (storeType === 'infinity') return item.category === 'infinity-only'; // placeholder for future
+    if (storeType === 'void') return item.category === 'void-only'; // placeholder for future
+    return true; // Astral shows everything for now
   }) || [];
 
   const categories = ['all', ...Array.from(new Set(storeItems.map(i => i.category)))].sort();
@@ -87,12 +87,12 @@ export function Pokemart() {
   const getStoreCurrency = () => {
     switch (storeType) {
       case 'infinity':
-        return { name: 'Infinity Coins', amount: 0, icon: <TowerCurrencyIcon className="w-5 h-5" />, symbol: <TowerCurrencyIcon className="w-4 h-4" /> };
+        return { name: 'Infinity Coins', amount: save?.infinityCoins || 0, icon: <img src="/infinity.png" alt="Infinity Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/infinity.png" alt="Infinity Coins" className="w-4 h-4 object-contain" /> };
       case 'void':
-        return { name: 'Void Coins', amount: 0, icon: <DungeonCurrencyIcon className="w-5 h-5" />, symbol: <DungeonCurrencyIcon className="w-4 h-4" /> };
+        return { name: 'Void Coins', amount: save?.voidCoins || 0, icon: <img src="/void.png" alt="Void Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/void.png" alt="Void Coins" className="w-4 h-4 object-contain" /> };
       case 'astral':
       default:
-        return { name: 'Astral Coins', amount: save?.money || 0, icon: <NormalCurrencyIcon className="w-5 h-5" />, symbol: <NormalCurrencyIcon className="w-4 h-4" /> };
+        return { name: 'Astral Coins', amount: save?.astralCoins || 0, icon: <img src="/astral.png" alt="Astral Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/astral.png" alt="Astral Coins" className="w-4 h-4 object-contain" /> };
     }
   };
   const storeCurrency = getStoreCurrency();
