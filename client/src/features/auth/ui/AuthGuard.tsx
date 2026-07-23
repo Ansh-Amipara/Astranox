@@ -1,12 +1,11 @@
-'use client';
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../shared/store/auth.store';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isInitialized, initialize } = useAuthStore();
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [initStarted, setInitStarted] = useState(false);
   const [initError, setInitError] = useState<Error | null>(null);
 
@@ -21,9 +20,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isInitialized && !user) {
-      router.replace(`/login?from=${pathname}`);
+      navigate(`/login?from=${pathname}`);
     }
-  }, [isInitialized, user, router, pathname]);
+  }, [isInitialized, user, navigate, pathname]);
 
   if (initError) {
     throw initError;

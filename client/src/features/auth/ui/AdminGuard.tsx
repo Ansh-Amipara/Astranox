@@ -1,12 +1,11 @@
-'use client';
 import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../shared/store/auth.store';
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, isInitialized, initialize } = useAuthStore();
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (!isInitialized) {
@@ -30,7 +29,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   // Redirect to admin login if unauthenticated
   if (!user) {
     if (typeof window !== 'undefined') {
-      router.replace(`/admin/login?from=${pathname}`);
+      navigate(`/admin/login?from=${pathname}`);
     }
     return null;
   }
@@ -38,7 +37,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   // Redirect to game if not an admin
   if (user.role !== 'ADMIN') {
     if (typeof window !== 'undefined') {
-      router.replace('/');
+      navigate('/');
     }
     return null;
   }

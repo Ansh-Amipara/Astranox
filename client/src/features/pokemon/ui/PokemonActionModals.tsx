@@ -1,4 +1,3 @@
-'use client';
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';

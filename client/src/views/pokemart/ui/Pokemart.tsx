@@ -1,4 +1,3 @@
-'use client';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, AlertCircle } from 'lucide-react';
@@ -70,7 +69,7 @@ export function Pokemart() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-500"></div>
       </div>
     );
   }
@@ -247,7 +246,7 @@ export function Pokemart() {
                           </button>
                         </div>
                       </td>
-                      <td className={`p-4 font-bold ${canAfford ? 'text-red-500' : 'text-slate-400 dark:text-slate-600'}`}>
+                      <td className={`p-4 font-bold ${canAfford ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-600'}`}>
                         <div className="flex items-center gap-1.5">
                           {storeCurrency.symbol}
                           <span>{cost.toLocaleString()}</span>
@@ -259,7 +258,7 @@ export function Pokemart() {
                           disabled={!canAfford || buyMutation.isPending}
                           className={`px-6 py-2 rounded-lg font-bold shadow-sm transition-all whitespace-nowrap
                           ${canAfford
-                              ? 'bg-red-500 hover:bg-red-600 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
+                              ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
                         >
                           {buyMutation.isPending ? 'Buying...' : 'Buy'}

@@ -1,4 +1,3 @@
-'use client';
 import { useState, useRef } from 'react';
 import { PokemonModalsRef } from '../../../features/pokemon/ui/PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

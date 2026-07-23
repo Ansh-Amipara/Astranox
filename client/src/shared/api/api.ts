@@ -13,14 +13,14 @@ declare module 'axios' {
   }
 }
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
 });
 
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
 export const getSpriteUrl = (id: string | number) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/astranox/pokemon/${id}.png`;
 
 api.interceptors.request.use((config) => {

@@ -1,7 +1,6 @@
-'use client';
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { apiClient } from '../../../shared/api/api-client';
 import { useAuthStore } from '../../../shared/store/auth.store';
 import { Loader2 } from 'lucide-react';
@@ -12,8 +11,8 @@ export function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const from = searchParams?.get('from') || '/team';
@@ -28,7 +27,7 @@ export function Login() {
       const { accessToken, user } = response.data.data;
 
       setAuth(accessToken, user);
-      router.replace(from);
+      navigate(from);
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Invalid credentials');
     } finally {
@@ -98,7 +97,7 @@ export function Login() {
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           New trainer?{' '}
-          <Link href="/register" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+          <Link to="/register" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
             Create an account
           </Link>
         </p>

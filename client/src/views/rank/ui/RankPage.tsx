@@ -1,12 +1,11 @@
-'use client';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 export function RankPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
   const { data: statusResponse, isLoading } = useQuery({
@@ -18,7 +17,7 @@ export function RankPage() {
     mutationFn: () => api.post('/rank/exam'),
     onSuccess: () => {
       const returnUrl = '/rank';
-      router.push('/battle');
+      navigate('/battle');
     },
     onError: (err: any) => {
       setError(err.response?.data?.error?.message || 'Failed to start exam');

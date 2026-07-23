@@ -2,10 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { GlobalErrorFallback } from './GlobalErrorFallback';
 import { vi, describe, beforeEach, it, expect } from 'vitest';
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-  }),
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
 }));
 
 describe('GlobalErrorFallback', () => {

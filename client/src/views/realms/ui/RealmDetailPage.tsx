@@ -1,6 +1,5 @@
-'use client';
 import { useState } from 'react';
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { realmsApi, battleApi } from '../../../shared/api/api';
 import { getSpriteUrl, getTypeSpriteUrl } from '../../../shared/api/axios';
@@ -9,8 +8,8 @@ import { toast } from 'sonner';
 export function RealmDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const queryClient = useQueryClient();
 
   const [encounterData, setEncounterData] = useState<any>(null);
@@ -69,7 +68,7 @@ export function RealmDetailPage() {
           <p className="text-xl mb-4">Realm not found.</p>
           <button
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all"
-            onClick={() => router.push('/realms')}
+            onClick={() => navigate('/realms')}
           >
             Back to Realms
           </button>
@@ -133,7 +132,7 @@ export function RealmDetailPage() {
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
             <button
               className="flex-1 py-4 text-lg font-bold border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
-              onClick={() => router.push('/realms')}
+              onClick={() => navigate('/realms')}
             >
               Leave
             </button>
@@ -180,7 +179,7 @@ export function RealmDetailPage() {
                 Run
               </button>
               <button
-                onClick={() => router.push('/battle' + '?returnUrl=' + encodeURIComponent(location.pathname))}
+                onClick={() => navigate('/battle' + '?returnUrl=' + encodeURIComponent(location.pathname))}
                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
               >
                 Fight!

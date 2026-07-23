@@ -1,11 +1,10 @@
-'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../shared/store/auth.store';
 import { LogOut } from 'lucide-react';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const { logout } = useAuthStore();
 
   return (
@@ -19,7 +18,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
               <div className="flex space-x-1">
                 <Link
-                  href="/admin/dashboard"
+                  to="/admin/dashboard"
                   className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${pathname === '/admin/dashboard'
                       ? 'bg-red-500 text-white shadow-sm'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
@@ -31,7 +30,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center gap-4">
-              <Link href="/" className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-bold transition-colors">
+              <Link to="/" className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-bold transition-colors">
                 Back to Game
               </Link>
               <button

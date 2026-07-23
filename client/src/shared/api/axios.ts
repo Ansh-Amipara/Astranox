@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
   withCredentials: true,
 });
 
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
 const getCloudinaryUrl = (path: string) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/astranox/${path}`;
 
 export const getSpriteUrl = (id: string | number) => getCloudinaryUrl(`pokemon/${id}.png`);

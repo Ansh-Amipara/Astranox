@@ -1,0 +1,86 @@
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+
+// Layouts and Guards
+import { Navbar } from '@/widgets/navbar/ui/Navbar';
+import { AuthGuard } from '@/features/auth/ui/AuthGuard';
+import { RequireStarterGuard } from '@/features/auth/ui/RequireStarterGuard';
+import { AdminGuard } from '@/features/auth/ui/AdminGuard';
+import { AdminLayout } from '@/widgets/admin-layout/ui/AdminLayout';
+
+// Views
+import { Home } from '@/views/home/ui/Home';
+import { Login } from '@/views/login/ui/Login';
+import { Register } from '@/views/register/ui/Register';
+import { AdminLogin } from '@/views/admin-login/ui/AdminLogin';
+import { AdminDashboard } from '@/views/admin-dashboard/ui/AdminDashboard';
+import { BattleScreen } from '@/views/battle/ui/BattleScreen';
+import { Bag } from '@/views/bag/ui/Bag';
+import { PokemonManagement } from '@/views/pokemon-management/ui/PokemonManagement';
+import { Profile } from '@/views/profile/ui/Profile';
+import { RankPage } from '@/views/rank/ui/RankPage';
+import { RealmsPage } from '@/views/realms/ui/RealmsPage';
+import { RealmDetailPage } from '@/views/realms/ui/RealmDetailPage';
+import { Pokemart } from '@/views/pokemart/ui/Pokemart';
+import { TeamPage } from '@/views/team/ui/TeamPage';
+import { TradeScreen } from '@/views/trade/ui/TradeScreen';
+import { NotFound } from '@/views/not-found/ui/NotFound';
+
+function GameLayout() {
+  return (
+    <AuthGuard>
+      <RequireStarterGuard>
+        <Navbar />
+        <main className="flex-1 flex flex-col">
+          <Outlet />
+        </main>
+      </RequireStarterGuard>
+    </AuthGuard>
+  );
+}
+
+function AdminRootLayout() {
+  return (
+    <AdminGuard>
+      <AdminLayout>
+        <Outlet />
+      </AdminLayout>
+    </AdminGuard>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRootLayout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        </Route>
+
+        {/* Game Routes */}
+        <Route path="/" element={<GameLayout />}>
+          <Route index element={<Home />} />
+          <Route path="battle" element={<BattleScreen />} />
+          <Route path="inventory" element={<Bag />} />
+          <Route path="pokemon" element={<PokemonManagement />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="rank" element={<RankPage />} />
+          <Route path="realms" element={<RealmsPage />} />
+          <Route path="realms/:id" element={<RealmDetailPage />} />
+          <Route path="shop" element={<Pokemart />} />
+          <Route path="team" element={<TeamPage />} />
+          <Route path="trade" element={<TradeScreen />} />
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

@@ -1,6 +1,5 @@
-'use client';
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useBattleSession } from '../../../features/battle/model/useBattleSession';
 import { BattleArena } from '../../../features/battle/ui/BattleArena';
 import { BattleControls } from '../../../features/battle/ui/BattleControls';
@@ -10,8 +9,8 @@ import { getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
 
 export function BattleScreen() {
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [menu, setMenu] = useState<'main' | 'fight' | 'bag' | 'party'>('main');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
@@ -67,7 +66,7 @@ export function BattleScreen() {
     setMenu('party');
   }, []);
 
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const returnUrl = searchParams?.get('returnUrl') || '/';
 
   if (isLoading) return <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
@@ -76,7 +75,7 @@ export function BattleScreen() {
     return (
       <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
         <p>No active battle found.</p>
-        <button onClick={() => router.push(returnUrl)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold transition-colors">Return</button>
+        <button onClick={() => navigate(returnUrl)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold transition-colors">Return</button>
       </div>
     );
   }

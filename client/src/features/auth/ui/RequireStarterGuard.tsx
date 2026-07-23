@@ -1,13 +1,12 @@
-'use client';
 
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter, usePathname } from 'next/navigation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { apiClient } from '../../../shared/api/api-client';
 
 export function RequireStarterGuard({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const { data: save, isLoading } = useQuery({
     queryKey: ['trainerSave'],
@@ -19,9 +18,9 @@ export function RequireStarterGuard({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!isLoading && save && !save.starterChosenAt && pathname !== '/') {
-      router.replace('/');
+      navigate('/');
     }
-  }, [isLoading, save, pathname, router]);
+  }, [isLoading, save, pathname, navigate]);
 
   if (isLoading) {
     return (

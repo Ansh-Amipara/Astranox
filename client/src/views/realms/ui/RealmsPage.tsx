@@ -1,9 +1,8 @@
-'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { realmsApi } from '../../../shared/api/api';
 import { getSpriteUrl, getTypeSpriteUrl } from '../../../shared/api/axios';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 interface Realm {
@@ -25,7 +24,7 @@ const RANKS = [
 ];
 
 export function RealmsPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [selectedRank, setSelectedRank] = useState<string | 'all'>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
 
@@ -129,7 +128,7 @@ export function RealmsPage() {
               }`}
             onClick={() => {
               if (realm.isUnlocked) {
-                router.push(`/realms/${realm.id}`);
+                navigate(`/realms/${realm.id}`);
               } else {
                 toast.error(`Requires ${realm.requiredRank.replace('_', ' ')} Rank`);
               }

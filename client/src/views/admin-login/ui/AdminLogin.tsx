@@ -1,6 +1,5 @@
-'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../shared/store/auth.store';
 import { apiClient } from '../../../shared/api/api-client';
 
@@ -10,7 +9,7 @@ export function AdminLogin() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const router = useRouter();
+  const navigate = useNavigate();
   const setAuth = useAuthStore(state => state.setAuth);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +25,7 @@ export function AdminLogin() {
       }
       
       setAuth(data.data.accessToken, data.data.user);
-      router.push('/admin/dashboard');
+      navigate('/admin/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || err.message || 'Failed to login');
     } finally {
