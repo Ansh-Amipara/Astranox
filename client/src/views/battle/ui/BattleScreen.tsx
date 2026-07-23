@@ -246,6 +246,7 @@ export function BattleScreen() {
         battleType={battleType}
         lastTurnEvents={lastTurnEvents}
         wildSpeciesName={wild.speciesName}
+        returnUrl={returnUrl}
       />
     </div>
   );

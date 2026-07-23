@@ -28,3 +28,20 @@ https://github.com/PokeAPI/sprites
 | Tier 16    | Mythical      | Lv. 2001–3000       |
 | Tier 17    | Infinity      | Lv. 3001–4000       |
 | Tier 18    | Eternal       | Lv. 4001–5000       |
+
+| Potential Rank | Realm Tier(s) (Potentials) | Maximum Level |
+| -------------- | -------------------- | ------------- |
+| **F**          | Black Iron, Bronze   | 60            |
+| **E**          | Silver, Gold         | 120           |
+| **D**          | Platinum, Adamantite | 200           |
+| **C**          | Diamond, Crystal     | 400           |
+| **B**          | Epic                 | 500           |
+| **A**          | Heroic               | 700           |
+| **AA**         | Sovereign            | 900           |
+| **AAA**        | Legendary            | 1100          |
+| **S**          | Divine               | 1400          |
+| **S+**         | Celestial            | 1700          |
+| **SS**         | Primordial           | 2000          |
+| **SS+**        | Mythical             | 3000          |
+| **SSS**        | Infinity             | 4000          |
+| **SSS+**       | Eternal              | 5000          |

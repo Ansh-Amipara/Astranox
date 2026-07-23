@@ -12,6 +12,8 @@ const RANK_ORDER: TrainerRank[] = [
   TrainerRank.C_RANK,
   TrainerRank.B_RANK,
   TrainerRank.A_RANK,
+  TrainerRank.AA_RANK,
+  TrainerRank.AAA_RANK,
   TrainerRank.S_RANK,
   TrainerRank.S_PLUS_RANK,
   TrainerRank.SS_RANK,
@@ -26,10 +28,19 @@ const POTENTIAL_ORDER: PokemonPotential[] = [
   PokemonPotential.SILVER,
   PokemonPotential.GOLD,
   PokemonPotential.PLATINUM,
+  PokemonPotential.ADAMANTITE,
   PokemonPotential.DIAMOND,
+  PokemonPotential.CRYSTAL,
   PokemonPotential.EPIC,
+  PokemonPotential.HEROIC,
+  PokemonPotential.SOVEREIGN,
   PokemonPotential.LEGENDARY,
-  PokemonPotential.MYTHICAL
+  PokemonPotential.DIVINE,
+  PokemonPotential.CELESTIAL,
+  PokemonPotential.PRIMORDIAL,
+  PokemonPotential.MYTHICAL,
+  PokemonPotential.INFINITY,
+  PokemonPotential.ETERNAL
 ];
 
 function getRankIndex(rank: TrainerRank): number {
@@ -38,6 +49,26 @@ function getRankIndex(rank: TrainerRank): number {
 
 function getPotentialIndex(potential: PokemonPotential): number {
   return POTENTIAL_ORDER.indexOf(potential);
+}
+
+function getRealmLevelRange(rank: TrainerRank): { min: number; max: number } {
+  switch (rank) {
+    case TrainerRank.F_RANK: return { min: 1, max: 60 };
+    case TrainerRank.E_RANK: return { min: 61, max: 120 };
+    case TrainerRank.D_RANK: return { min: 121, max: 200 };
+    case TrainerRank.C_RANK: return { min: 201, max: 400 };
+    case TrainerRank.B_RANK: return { min: 401, max: 500 };
+    case TrainerRank.A_RANK: return { min: 501, max: 700 };
+    case TrainerRank.AA_RANK: return { min: 701, max: 900 };
+    case TrainerRank.AAA_RANK: return { min: 901, max: 1100 };
+    case TrainerRank.S_RANK: return { min: 1101, max: 1400 };
+    case TrainerRank.S_PLUS_RANK: return { min: 1401, max: 1700 };
+    case TrainerRank.SS_RANK: return { min: 1701, max: 2000 };
+    case TrainerRank.SS_PLUS_RANK: return { min: 2001, max: 3000 };
+    case TrainerRank.SSS_RANK: return { min: 3001, max: 4000 };
+    case TrainerRank.SSS_PLUS_RANK: return { min: 4001, max: 5000 };
+    default: return { min: 1, max: 30 };
+  }
 }
 
 export class RealmsService {
@@ -102,13 +133,13 @@ export class RealmsService {
       let currentId = sp.id;
       let finalSp = sp;
       for (let i = 0; i < 2; i++) {
-        const fullSp = await prisma.species.findUnique({ where: { id: currentId }, select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true }});
-        if (fullSp?.evolutionLevel && realm.minLevel >= fullSp.evolutionLevel && fullSp.evolvesToId) {
-           currentId = fullSp.evolvesToId;
-           const evolvedSp = await prisma.species.findUnique({ where: { id: currentId }, select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true }});
-           if (evolvedSp) finalSp = evolvedSp;
+        const fullSp = await prisma.species.findUnique({ where: { id: currentId }, select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true } });
+        if (fullSp?.evolutionLevel && getRealmLevelRange(realm.requiredRank).min >= fullSp.evolutionLevel && fullSp.evolvesToId) {
+          currentId = fullSp.evolvesToId;
+          const evolvedSp = await prisma.species.findUnique({ where: { id: currentId }, select: { id: true, name: true, spriteUrl: true, evolvesToId: true, evolutionLevel: true } });
+          if (evolvedSp) finalSp = evolvedSp;
         } else {
-           break;
+          break;
         }
       }
       return finalSp;
@@ -149,7 +180,7 @@ export class RealmsService {
       // 25% chance: Item
       const possibleItems = ['potion', 'poke-ball', 'great-ball', 'ultra-ball', 'revive'];
       const randomItemName = possibleItems[Math.floor(Math.random() * possibleItems.length)];
-      
+
       const item = await prisma.item.findFirst({ where: { name: randomItemName } });
       if (item) {
         await prisma.inventoryItem.upsert({
@@ -194,11 +225,7 @@ export class RealmsService {
     });
 
     if (possibleSpecies.length === 0) {
-       if (realm.bossSpeciesId) {
-          possibleSpecies = [{ id: realm.bossSpeciesId }];
-       } else {
-          throw new ValidationError(`No species found for types ${typesToSearch.join(', ')}`);
-       }
+      throw new ValidationError(`No species found for types ${typesToSearch.join(', ')}`);
     }
 
     // Pseudo-random but stable slice for encounters, matching getRealmById
@@ -207,48 +234,74 @@ export class RealmsService {
     const inhabitantsList = possibleSpecies.slice(startIdx, startIdx + 18);
 
     let selectedSpeciesId = inhabitantsList[Math.floor(Math.random() * inhabitantsList.length)].id;
-    let isBoss = false;
 
-    // 15-20% chance for a Boss Encounter
-    if (Math.random() < 0.20 && realm.bossSpeciesId) {
-      isBoss = true;
-      selectedSpeciesId = realm.bossSpeciesId;
-    }
-
-    // 2. Generate custom potential based on realm base rank (which aligns with requiredRank)
+    // 2. Generate custom potential based on realm base rank exactly matching requirements
     const baseIdx = getRankIndex(realm.requiredRank as TrainerRank);
-    
-    let rolledIdx = baseIdx;
-    const pRoll = Math.random() * 100;
-    
-    if (pRoll < 50) {
-      rolledIdx = Math.max(0, baseIdx - 1);
-    } else if (pRoll < 90) {
-      rolledIdx = baseIdx;
-    } else {
-      const legendaryIdx = getPotentialIndex(PokemonPotential.LEGENDARY);
-      rolledIdx = Math.min(legendaryIdx, baseIdx + 1);
+
+    let potential: PokemonPotential = PokemonPotential.BLACK_IRON;
+    const pRoll = Math.random();
+
+    switch (realm.requiredRank) {
+      case TrainerRank.F_RANK:
+        potential = pRoll < 0.5 ? PokemonPotential.BLACK_IRON : pRoll < 0.9 ? PokemonPotential.BRONZE : PokemonPotential.SILVER;
+        break;
+      case TrainerRank.E_RANK:
+        potential = pRoll < 0.2 ? PokemonPotential.BRONZE : pRoll < 0.6 ? PokemonPotential.SILVER : pRoll < 0.9 ? PokemonPotential.GOLD : PokemonPotential.PLATINUM;
+        break;
+      case TrainerRank.D_RANK:
+        potential = pRoll < 0.2 ? PokemonPotential.GOLD : pRoll < 0.6 ? PokemonPotential.PLATINUM : pRoll < 0.9 ? PokemonPotential.ADAMANTITE : PokemonPotential.DIAMOND;
+        break;
+      case TrainerRank.C_RANK:
+        potential = pRoll < 0.2 ? PokemonPotential.ADAMANTITE : pRoll < 0.6 ? PokemonPotential.DIAMOND : pRoll < 0.9 ? PokemonPotential.CRYSTAL : PokemonPotential.EPIC;
+        break;
+      case TrainerRank.B_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.CRYSTAL : pRoll < 0.9 ? PokemonPotential.EPIC : PokemonPotential.HEROIC;
+        break;
+      case TrainerRank.A_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.EPIC : pRoll < 0.9 ? PokemonPotential.HEROIC : PokemonPotential.SOVEREIGN;
+        break;
+      case TrainerRank.AA_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.HEROIC : pRoll < 0.9 ? PokemonPotential.SOVEREIGN : PokemonPotential.LEGENDARY;
+        break;
+      case TrainerRank.AAA_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.SOVEREIGN : pRoll < 0.9 ? PokemonPotential.LEGENDARY : PokemonPotential.DIVINE;
+        break;
+      case TrainerRank.S_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.LEGENDARY : pRoll < 0.9 ? PokemonPotential.DIVINE : PokemonPotential.CELESTIAL;
+        break;
+      case TrainerRank.S_PLUS_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.DIVINE : pRoll < 0.9 ? PokemonPotential.CELESTIAL : PokemonPotential.PRIMORDIAL;
+        break;
+      case TrainerRank.SS_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.CELESTIAL : pRoll < 0.9 ? PokemonPotential.PRIMORDIAL : PokemonPotential.MYTHICAL;
+        break;
+      case TrainerRank.SS_PLUS_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.PRIMORDIAL : pRoll < 0.9 ? PokemonPotential.MYTHICAL : PokemonPotential.INFINITY;
+        break;
+      case TrainerRank.SSS_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.MYTHICAL : pRoll < 0.9 ? PokemonPotential.INFINITY : PokemonPotential.ETERNAL;
+        break;
+      case TrainerRank.SSS_PLUS_RANK:
+        potential = pRoll < 0.4 ? PokemonPotential.INFINITY : PokemonPotential.ETERNAL; // No potential higher than Eternal
+        break;
     }
 
-    const assignedPotential = POTENTIAL_ORDER[rolledIdx];
+    // 3. Determine level based on the rank's min/max range
+    const levelRange = getRealmLevelRange(realm.requiredRank);
+    const level = Math.floor(Math.random() * (levelRange.max - levelRange.min + 1)) + levelRange.min;
 
-    // 3. Determine level based on the newly mapped maxLevel / minLevel in DB
-    const level = Math.floor(Math.random() * (realm.maxLevel - realm.minLevel + 1)) + realm.minLevel;
-
-    // Auto-evolve if not a boss
-    if (!isBoss) {
-      for (let i = 0; i < 2; i++) {
-        const currentSpecies = await prisma.species.findUnique({ where: { id: selectedSpeciesId }, select: { evolutionLevel: true, evolvesToId: true } });
-        if (currentSpecies?.evolutionLevel && level >= currentSpecies.evolutionLevel && currentSpecies.evolvesToId) {
-          selectedSpeciesId = currentSpecies.evolvesToId;
-        } else {
-          break;
-        }
+    // Auto-evolve
+    for (let i = 0; i < 2; i++) {
+      const currentSpecies = await prisma.species.findUnique({ where: { id: selectedSpeciesId }, select: { evolutionLevel: true, evolvesToId: true } });
+      if (currentSpecies?.evolutionLevel && level >= currentSpecies.evolutionLevel && currentSpecies.evolvesToId) {
+        selectedSpeciesId = currentSpecies.evolvesToId;
+      } else {
+        break;
       }
     }
 
     // 4. Delegate to BattleSessionService
-    const sessionRes = await this.battleService.startSecretRealmEncounter(trainerSave.userId, selectedSpeciesId, level, assignedPotential, isBoss);
+    const sessionRes = await this.battleService.startSecretRealmEncounter(trainerSave.userId, selectedSpeciesId, level, potential, false);
 
     return {
       event: 'battle',

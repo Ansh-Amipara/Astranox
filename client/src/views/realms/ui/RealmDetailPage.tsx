@@ -5,6 +5,26 @@ import { realmsApi, battleApi } from '../../../shared/api/api';
 import { getSpriteUrl, getTypeSpriteUrl } from '../../../shared/api/axios';
 import { toast } from 'sonner';
 
+function getRealmLevelRange(rank: string): { min: number; max: number } {
+  switch (rank) {
+    case 'F_RANK': return { min: 1, max: 60 };
+    case 'E_RANK': return { min: 61, max: 120 };
+    case 'D_RANK': return { min: 121, max: 200 };
+    case 'C_RANK': return { min: 201, max: 400 };
+    case 'B_RANK': return { min: 401, max: 500 };
+    case 'A_RANK': return { min: 501, max: 700 };
+    case 'AA_RANK': return { min: 701, max: 900 };
+    case 'AAA_RANK': return { min: 901, max: 1100 };
+    case 'S_RANK': return { min: 1101, max: 1400 };
+    case 'S_PLUS_RANK': return { min: 1401, max: 1700 };
+    case 'SS_RANK': return { min: 1701, max: 2000 };
+    case 'SS_PLUS_RANK': return { min: 2001, max: 3000 };
+    case 'SSS_RANK': return { min: 3001, max: 4000 };
+    case 'SSS_PLUS_RANK': return { min: 4001, max: 5000 };
+    default: return { min: 1, max: 30 };
+  }
+}
+
 export function RealmDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
@@ -90,28 +110,18 @@ export function RealmDetailPage() {
             {/* Left Side: Title & Inhabitants */}
             <div className="flex flex-col items-center md:items-start flex-1 gap-4">
               <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight text-center md:text-left">
-                <span><span className="text-slate-400 dark:text-slate-500">Tier {realm.tier} :</span> {realm.name}</span>
+                <span><span className="text-slate-400 dark:text-slate-500">{realm.requiredRank.replace('_PLUS', '+').replace('_RANK', '')} Rank :</span> {realm.name}</span>
               </p>
-              <div className="flex flex-col items-center md:items-start">
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight text-center md:text-left mb-3">
-                  <span><span className="text-slate-400 dark:text-slate-500 mr-2">Wild Inhabitants :</span> Levels {realm.minLevel} - {realm.maxLevel}</span>
+                <p className="text-xl sm:text-2xl font-bold text-slate-600 dark:text-slate-400 tracking-tight text-center md:text-left mb-3">
+                  <span className="text-slate-400 dark:text-slate-500 mr-2">Wild Inhabitants :</span> Levels {getRealmLevelRange(realm.requiredRank).min} - {getRealmLevelRange(realm.requiredRank).max}
                 </p>
                 <div className="flex flex-row gap-2 justify-center md:justify-start">
                   {realm.types.map((t: string) => (
                     <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-6 object-contain drop-shadow-sm" />
                   ))}
                 </div>
-              </div>
             </div>
 
-            {/* Right Side: Boss */}
-            <div className="flex flex-col items-center justify-center shrink-0">
-              <div className="relative w-36 h-auto min-h-[9rem] py-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border-4 border-red-200 dark:border-red-900/50 flex flex-col items-center justify-center shadow-lg hover:-translate-y-2 transition-transform z-10 scale-110">
-                <span className="absolute -top-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded shadow-sm z-10">Alpha Boss</span>
-                <img src={getSpriteUrl(realm.bossSpeciesId)} alt={realm.bossSpeciesName} className="w-24 h-24 object-contain pixelated drop-shadow-md mb-2" />
-                <span className="text-sm font-bold text-red-900 dark:text-red-400 capitalize truncate w-full text-center px-1">{realm.bossSpeciesName}</span>
-              </div>
-            </div>
           </div>
 
           {/* Inhabitants Section */}

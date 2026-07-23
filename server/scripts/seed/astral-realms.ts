@@ -5,8 +5,10 @@ const RANK_LEVEL_BOUNDS: Record<TrainerRank, { min: number, max: number }> = {
   [TrainerRank.E_RANK]: { min: 61, max: 120 },
   [TrainerRank.D_RANK]: { min: 121, max: 200 },
   [TrainerRank.C_RANK]: { min: 201, max: 400 },
-  [TrainerRank.B_RANK]: { min: 401, max: 700 },
-  [TrainerRank.A_RANK]: { min: 701, max: 1100 },
+  [TrainerRank.B_RANK]: { min: 401, max: 500 },
+  [TrainerRank.A_RANK]: { min: 501, max: 700 },
+  [TrainerRank.AA_RANK]: { min: 701, max: 900 },
+  [TrainerRank.AAA_RANK]: { min: 901, max: 1100 },
   [TrainerRank.S_RANK]: { min: 1101, max: 1400 },
   [TrainerRank.S_PLUS_RANK]: { min: 1401, max: 1700 },
   [TrainerRank.SS_RANK]: { min: 1701, max: 2000 },
@@ -16,108 +18,90 @@ const RANK_LEVEL_BOUNDS: Record<TrainerRank, { min: number, max: number }> = {
 };
 
 const realmsData = [
-  // Tier 1
-  { name: 'Lost Cave Realm', tier: 1, requiredRank: TrainerRank.F_RANK, minLevel: 1, maxLevel: 30, boss: 'Phione', types: ['water', 'ice'] },
-  { name: 'Dojo Realm', tier: 1, requiredRank: TrainerRank.F_RANK, minLevel: 1, maxLevel: 30, boss: 'Kubfu', types: ['fighting', 'normal'] },
-  { name: 'Nebula Realm', tier: 1, requiredRank: TrainerRank.F_RANK, minLevel: 1, maxLevel: 30, boss: 'Cosmog', types: ['psychic', 'fairy'] },
-  { name: 'Venom Hive Realm', tier: 1, requiredRank: TrainerRank.F_RANK, minLevel: 1, maxLevel: 30, boss: 'Poipole', types: ['poison', 'bug'] },
-  { name: 'Synthetic Lab Realm', tier: 1, requiredRank: TrainerRank.F_RANK, minLevel: 1, maxLevel: 30, boss: 'Type: Null', types: ['normal', 'steel'] },
-  { name: 'Scrap Yard Realm', tier: 1, requiredRank: TrainerRank.F_RANK, minLevel: 1, maxLevel: 30, boss: 'Meltan', types: ['steel', 'electric'] },
+  { name: 'Lost Cave Realm', tier: 1, requiredRank: TrainerRank.F_RANK, types: ['water', 'ice', 'normal'] },
+  { name: 'Dojo Realm', tier: 1, requiredRank: TrainerRank.F_RANK, types: ['fighting', 'normal', 'normal'] },
+  { name: 'Nebula Realm', tier: 1, requiredRank: TrainerRank.F_RANK, types: ['psychic', 'fairy', 'normal'] },
+  { name: 'Venom Hive Realm', tier: 2, requiredRank: TrainerRank.E_RANK, types: ['poison', 'bug', 'normal'] },
+  { name: 'Synthetic Lab Realm', tier: 2, requiredRank: TrainerRank.E_RANK, types: ['normal', 'steel', 'normal'] },
+  { name: 'Scrap Yard Realm', tier: 3, requiredRank: TrainerRank.D_RANK, types: ['steel', 'electric', 'normal'] },
 
-  // Tier 2
-  { name: 'Regi Ruins Realm', tier: 2, requiredRank: TrainerRank.F_RANK, minLevel: 31, maxLevel: 60, boss: 'Regieleki', types: ['electric', 'rock'] },
-  { name: 'Dragon Vault Realm', tier: 2, requiredRank: TrainerRank.F_RANK, minLevel: 31, maxLevel: 60, boss: 'Regidrago', types: ['dragon', 'ground'] },
-  { name: 'Swordsman Realm', tier: 2, requiredRank: TrainerRank.F_RANK, minLevel: 31, maxLevel: 60, boss: 'Cobalion', types: ['steel', 'fighting'] },
-  { name: 'Justice Realm', tier: 2, requiredRank: TrainerRank.F_RANK, minLevel: 31, maxLevel: 60, boss: 'Terrakion', types: ['rock', 'fighting'] },
-  { name: 'Honor Realm', tier: 2, requiredRank: TrainerRank.F_RANK, minLevel: 31, maxLevel: 60, boss: 'Virizion', types: ['grass', 'fighting'] },
-  { name: 'Cavalry Realm', tier: 2, requiredRank: TrainerRank.F_RANK, minLevel: 31, maxLevel: 60, boss: 'Keldeo', types: ['water', 'fighting'] },
+  { name: 'Regi Ruins Realm', tier: 3, requiredRank: TrainerRank.D_RANK, types: ['electric', 'rock', 'normal'] },
+  { name: 'Dragon Vault Realm', tier: 3, requiredRank: TrainerRank.D_RANK, types: ['dragon', 'ground', 'normal'] },
+  { name: 'Swordsman Realm', tier: 4, requiredRank: TrainerRank.C_RANK, types: ['steel', 'fighting', 'normal'] },
+  { name: 'Justice Realm', tier: 4, requiredRank: TrainerRank.C_RANK, types: ['rock', 'fighting', 'normal'] },
+  { name: 'Honor Realm', tier: 5, requiredRank: TrainerRank.B_RANK, types: ['grass', 'fighting', 'normal'] },
+  { name: 'Cavalry Realm', tier: 5, requiredRank: TrainerRank.B_RANK, types: ['water', 'fighting', 'normal'] },
 
-  // Tier 3
-  { name: 'Nature Shrine Realm', tier: 3, requiredRank: TrainerRank.E_RANK, minLevel: 61, maxLevel: 90, boss: 'Tapu Koko', types: ['electric', 'fairy'] },
-  { name: 'Life Shrine Realm', tier: 3, requiredRank: TrainerRank.E_RANK, minLevel: 61, maxLevel: 90, boss: 'Tapu Lele', types: ['psychic', 'fairy'] },
-  { name: 'Growth Shrine Realm', tier: 3, requiredRank: TrainerRank.E_RANK, minLevel: 61, maxLevel: 90, boss: 'Tapu Bulu', types: ['grass', 'fairy'] },
-  { name: 'Ocean Shrine Realm', tier: 3, requiredRank: TrainerRank.E_RANK, minLevel: 61, maxLevel: 90, boss: 'Tapu Fini', types: ['water', 'fairy'] },
-  { name: 'Crystal Cave Realm', tier: 3, requiredRank: TrainerRank.E_RANK, minLevel: 61, maxLevel: 90, boss: 'Nihilego', types: ['rock', 'poison'] },
-  { name: 'Muscle Jungle Realm', tier: 3, requiredRank: TrainerRank.E_RANK, minLevel: 61, maxLevel: 90, boss: 'Buzzwole', types: ['bug', 'fighting'] },
+  { name: 'Nature Shrine Realm', tier: 5, requiredRank: TrainerRank.B_RANK, types: ['electric', 'fairy', 'normal'] },
+  { name: 'Life Shrine Realm', tier: 6, requiredRank: TrainerRank.A_RANK, types: ['psychic', 'fairy', 'normal'] },
+  { name: 'Growth Shrine Realm', tier: 6, requiredRank: TrainerRank.A_RANK, types: ['grass', 'fairy', 'normal'] },
+  { name: 'Ocean Shrine Realm', tier: 7, requiredRank: TrainerRank.AA_RANK, types: ['water', 'fairy', 'normal'] },
+  { name: 'Crystal Cave Realm', tier: 7, requiredRank: TrainerRank.AA_RANK, types: ['rock', 'poison', 'normal'] },
+  { name: 'Muscle Jungle Realm', tier: 7, requiredRank: TrainerRank.AA_RANK, types: ['bug', 'fighting', 'normal'] },
 
-  // Tier 4
-  { name: 'Ancient Forest Realm', tier: 4, requiredRank: TrainerRank.E_RANK, minLevel: 91, maxLevel: 120, boss: 'Celebi', types: ['grass', 'psychic'] },
-  { name: 'Iron Boulder Realm', tier: 4, requiredRank: TrainerRank.E_RANK, minLevel: 91, maxLevel: 120, boss: 'Regirock', types: ['rock', 'ground'] },
-  { name: 'Frozen Peak Realm', tier: 4, requiredRank: TrainerRank.E_RANK, minLevel: 91, maxLevel: 120, boss: 'Regice', types: ['ice', 'water'] },
-  { name: 'Steel Forge Realm', tier: 4, requiredRank: TrainerRank.E_RANK, minLevel: 91, maxLevel: 120, boss: 'Registeel', types: ['steel', 'fire'] },
-  { name: 'Mystic Lake Realm', tier: 4, requiredRank: TrainerRank.E_RANK, minLevel: 91, maxLevel: 120, boss: 'Suicune', types: ['water', 'ice'] },
-  { name: 'Scorched Earth Realm', tier: 4, requiredRank: TrainerRank.E_RANK, minLevel: 91, maxLevel: 120, boss: 'Entei', types: ['fire', 'ground'] },
+  { name: 'Ancient Forest Realm', tier: 8, requiredRank: TrainerRank.AAA_RANK, types: ['grass', 'psychic', 'normal'] },
+  { name: 'Iron Boulder Realm', tier: 8, requiredRank: TrainerRank.AAA_RANK, types: ['rock', 'ground', 'normal'] },
+  { name: 'Frozen Peak Realm', tier: 9, requiredRank: TrainerRank.S_RANK, types: ['ice', 'water', 'normal'] },
+  { name: 'Steel Forge Realm', tier: 9, requiredRank: TrainerRank.S_RANK, types: ['steel', 'fire', 'normal'] },
+  { name: 'Mystic Lake Realm', tier: 9, requiredRank: TrainerRank.S_RANK, types: ['water', 'ice', 'normal'] },
+  { name: 'Scorched Earth Realm', tier: 10, requiredRank: TrainerRank.S_PLUS_RANK, types: ['fire', 'ground', 'normal'] },
 
-  // Tier 5
-  { name: 'Thunderstorm Realm', tier: 5, requiredRank: TrainerRank.D_RANK, minLevel: 121, maxLevel: 150, boss: 'Raikou', types: ['electric', 'flying'] },
-  { name: 'Abyss Realm', tier: 5, requiredRank: TrainerRank.D_RANK, minLevel: 121, maxLevel: 150, boss: 'Darkrai', types: ['dark', 'ghost'] },
-  { name: 'Radiant Meadow Realm', tier: 5, requiredRank: TrainerRank.D_RANK, minLevel: 121, maxLevel: 150, boss: 'Shaymin', types: ['grass', 'fairy'] },
-  { name: 'Crescent Moon Realm', tier: 5, requiredRank: TrainerRank.D_RANK, minLevel: 121, maxLevel: 150, boss: 'Cresselia', types: ['psychic', 'dark'] },
-  { name: 'Deep Sea Realm', tier: 5, requiredRank: TrainerRank.D_RANK, minLevel: 121, maxLevel: 150, boss: 'Manaphy', types: ['water', 'psychic'] },
-  { name: 'Volcanic Core Realm', tier: 5, requiredRank: TrainerRank.D_RANK, minLevel: 121, maxLevel: 150, boss: 'Heatran', types: ['fire', 'steel'] },
+  { name: 'Thunderstorm Realm', tier: 10, requiredRank: TrainerRank.S_PLUS_RANK, types: ['electric', 'flying', 'normal'] },
+  { name: 'Abyss Realm', tier: 11, requiredRank: TrainerRank.SS_RANK, types: ['dark', 'ghost', 'normal'] },
+  { name: 'Radiant Meadow Realm', tier: 11, requiredRank: TrainerRank.SS_RANK, types: ['grass', 'fairy', 'normal'] },
+  { name: 'Crescent Moon Realm', tier: 11, requiredRank: TrainerRank.SS_RANK, types: ['psychic', 'dark', 'normal'] },
+  { name: 'Deep Sea Realm', tier: 12, requiredRank: TrainerRank.SS_PLUS_RANK, types: ['water', 'psychic', 'normal'] },
+  { name: 'Volcanic Core Realm', tier: 12, requiredRank: TrainerRank.SS_PLUS_RANK, types: ['fire', 'steel', 'normal'] },
 
-  // Tier 6
-  { name: 'Storm Realm', tier: 6, requiredRank: TrainerRank.D_RANK, minLevel: 151, maxLevel: 200, boss: 'Zapdos', types: ['electric', 'flying'] },
-  { name: 'Blazing Sky Realm', tier: 6, requiredRank: TrainerRank.D_RANK, minLevel: 151, maxLevel: 200, boss: 'Moltres', types: ['fire', 'flying'] },
-  { name: 'Freezing Gust Realm', tier: 6, requiredRank: TrainerRank.D_RANK, minLevel: 151, maxLevel: 200, boss: 'Articuno', types: ['ice', 'flying'] },
-  { name: 'Ocean Trench Realm', tier: 6, requiredRank: TrainerRank.D_RANK, minLevel: 151, maxLevel: 200, boss: 'Lugia', types: ['psychic', 'water'] },
-  { name: 'Rainbow Horizon Realm', tier: 6, requiredRank: TrainerRank.D_RANK, minLevel: 151, maxLevel: 200, boss: 'Ho-Oh', types: ['fire', 'fairy'] },
-  { name: 'Eon Sky Realm', tier: 6, requiredRank: TrainerRank.D_RANK, minLevel: 151, maxLevel: 200, boss: 'Latios', types: ['dragon', 'psychic'] },
+  { name: 'Storm Realm', tier: 13, requiredRank: TrainerRank.SSS_RANK, types: ['electric', 'flying', 'normal'] },
+  { name: 'Blazing Sky Realm', tier: 13, requiredRank: TrainerRank.SSS_RANK, types: ['fire', 'flying', 'normal'] },
+  { name: 'Freezing Gust Realm', tier: 13, requiredRank: TrainerRank.SSS_RANK, types: ['ice', 'flying', 'normal'] },
+  { name: 'Ocean Trench Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'water', 'normal'] },
+  { name: 'Rainbow Horizon Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['fire', 'fairy', 'normal'] },
+  { name: 'Eon Sky Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'psychic', 'normal'] },
 
-  // Tier 7
-  { name: 'Time Realm', tier: 7, requiredRank: TrainerRank.C_RANK, minLevel: 201, maxLevel: 300, boss: 'Dialga', types: ['steel', 'dragon'] },
-  { name: 'Space Realm', tier: 7, requiredRank: TrainerRank.C_RANK, minLevel: 201, maxLevel: 300, boss: 'Palkia', types: ['water', 'dragon'] },
-  { name: 'Distortion Realm', tier: 7, requiredRank: TrainerRank.C_RANK, minLevel: 201, maxLevel: 300, boss: 'Giratina', types: ['ghost', 'dragon'] },
-  { name: 'Frozen Tundra Realm', tier: 7, requiredRank: TrainerRank.C_RANK, minLevel: 201, maxLevel: 300, boss: 'Kyurem', types: ['dragon', 'ice'] },
-  { name: 'Truth Realm', tier: 7, requiredRank: TrainerRank.C_RANK, minLevel: 201, maxLevel: 300, boss: 'Reshiram', types: ['dragon', 'fire'] },
-  { name: 'Ideals Realm', tier: 7, requiredRank: TrainerRank.C_RANK, minLevel: 201, maxLevel: 300, boss: 'Zekrom', types: ['dragon', 'electric'] },
+  { name: 'Time Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['steel', 'dragon', 'normal'] },
+  { name: 'Space Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['water', 'dragon', 'normal'] },
+  { name: 'Distortion Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['ghost', 'dragon', 'normal'] },
+  { name: 'Frozen Tundra Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'ice', 'normal'] },
+  { name: 'Truth Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'fire', 'normal'] },
+  { name: 'Ideals Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'electric', 'normal'] },
 
-  // Tier 8
-  { name: 'Dragon Peak Realm', tier: 8, requiredRank: TrainerRank.C_RANK, minLevel: 301, maxLevel: 400, boss: 'Rayquaza', types: ['dragon', 'flying'] },
-  { name: 'Sun Core Realm', tier: 8, requiredRank: TrainerRank.C_RANK, minLevel: 301, maxLevel: 400, boss: 'Solgaleo', types: ['psychic', 'steel'] },
-  { name: 'Moon Core Realm', tier: 8, requiredRank: TrainerRank.C_RANK, minLevel: 301, maxLevel: 400, boss: 'Lunala', types: ['psychic', 'ghost'] },
-  { name: 'Life Tree Realm', tier: 8, requiredRank: TrainerRank.C_RANK, minLevel: 301, maxLevel: 400, boss: 'Xerneas', types: ['fairy', 'grass'] },
-  { name: 'Death Valley Realm', tier: 8, requiredRank: TrainerRank.C_RANK, minLevel: 301, maxLevel: 400, boss: 'Yveltal', types: ['dark', 'flying'] },
-  { name: 'Order Realm', tier: 8, requiredRank: TrainerRank.C_RANK, minLevel: 301, maxLevel: 400, boss: 'Zygarde', types: ['dragon', 'ground'] },
+  { name: 'Dragon Peak Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'flying', 'normal'] },
+  { name: 'Sun Core Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'steel', 'normal'] },
+  { name: 'Moon Core Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'ghost', 'normal'] },
+  { name: 'Life Tree Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['fairy', 'grass', 'normal'] },
+  { name: 'Death Valley Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dark', 'flying', 'normal'] },
+  { name: 'Order Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'ground', 'normal'] },
 
-  // Tier 9
-  { name: 'Eon Ocean Realm', tier: 9, requiredRank: TrainerRank.B_RANK, minLevel: 401, maxLevel: 500, boss: 'Latias', types: ['dragon', 'psychic'] },
-  { name: 'Knowledge Realm', tier: 9, requiredRank: TrainerRank.B_RANK, minLevel: 401, maxLevel: 500, boss: 'Uxie', types: ['psychic', 'fairy'] },
-  { name: 'Emotion Realm', tier: 9, requiredRank: TrainerRank.B_RANK, minLevel: 401, maxLevel: 500, boss: 'Mesprit', types: ['psychic', 'fairy'] },
+  { name: 'Eon Ocean Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['dragon', 'psychic', 'normal'] },
+  { name: 'Knowledge Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'fairy', 'normal'] },
+  { name: 'Emotion Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'fairy', 'normal'] },
 
-  // Tier 10
-  { name: 'Willpower Realm', tier: 10, requiredRank: TrainerRank.B_RANK, minLevel: 501, maxLevel: 700, boss: 'Azelf', types: ['psychic', 'fairy'] },
-  { name: 'Cyclone Realm', tier: 10, requiredRank: TrainerRank.B_RANK, minLevel: 501, maxLevel: 700, boss: 'Tornadus', types: ['flying', 'electric'] },
-  { name: 'Thunder Realm', tier: 10, requiredRank: TrainerRank.B_RANK, minLevel: 501, maxLevel: 700, boss: 'Thundurus', types: ['electric', 'flying'] },
+  { name: 'Willpower Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'fairy', 'normal'] },
+  { name: 'Cyclone Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['flying', 'electric', 'normal'] },
+  { name: 'Thunder Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['electric', 'flying', 'normal'] },
 
-  // Tier 11
-  { name: 'Fertility Realm', tier: 11, requiredRank: TrainerRank.A_RANK, minLevel: 701, maxLevel: 900, boss: 'Landorus', types: ['ground', 'flying'] },
-  { name: 'Magma Realm', tier: 11, requiredRank: TrainerRank.A_RANK, minLevel: 701, maxLevel: 900, boss: 'Groudon', types: ['ground', 'fire'] },
-  { name: 'Oceanic Realm', tier: 11, requiredRank: TrainerRank.A_RANK, minLevel: 701, maxLevel: 900, boss: 'Kyogre', types: ['water', 'ice'] },
+  { name: 'Fertility Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['ground', 'flying', 'normal'] },
+  { name: 'Magma Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['ground', 'fire', 'normal'] },
+  { name: 'Oceanic Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['water', 'ice', 'normal'] },
 
-  // Tier 12
-  { name: 'Titan Realm', tier: 12, requiredRank: TrainerRank.A_RANK, minLevel: 901, maxLevel: 1100, boss: 'Regigigas', types: ['normal', 'fighting'] },
-  { name: 'Hero Sword Realm', tier: 12, requiredRank: TrainerRank.A_RANK, minLevel: 901, maxLevel: 1100, boss: 'Zacian', types: ['fairy', 'steel'] },
-  { name: 'Hero Shield Realm', tier: 12, requiredRank: TrainerRank.A_RANK, minLevel: 901, maxLevel: 1100, boss: 'Zamazenta', types: ['fighting', 'steel'] },
+  { name: 'Titan Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['normal', 'fighting', 'normal'] },
+  { name: 'Hero Sword Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['fairy', 'steel', 'normal'] },
+  { name: 'Hero Shield Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['fighting', 'steel', 'normal'] },
 
-  // Tier 13
-  { name: 'Past Realm', tier: 13, requiredRank: TrainerRank.S_RANK, minLevel: 1101, maxLevel: 1400, boss: 'Koraidon', types: ['fighting', 'dragon'] },
-  { name: 'Future Realm', tier: 13, requiredRank: TrainerRank.S_RANK, minLevel: 1101, maxLevel: 1400, boss: 'Miraidon', types: ['electric', 'dragon'] },
+  { name: 'Past Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['fighting', 'dragon', 'normal'] },
+  { name: 'Future Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['electric', 'dragon', 'normal'] },
 
-  // Tier 14
-  { name: 'Crown Realm', tier: 14, requiredRank: TrainerRank.S_PLUS_RANK, minLevel: 1401, maxLevel: 1700, boss: 'Calyrex', types: ['psychic', 'grass'] },
+  { name: 'Crown Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'grass', 'normal'] },
 
-  // Tier 15
-  { name: 'Genetic Realm', tier: 15, requiredRank: TrainerRank.SS_RANK, minLevel: 1701, maxLevel: 2000, boss: 'Mewtwo', types: ['psychic', 'fighting'] },
+  { name: 'Genetic Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'fighting', 'normal'] },
 
-  // Tier 16
-  { name: 'Prism Realm', tier: 16, requiredRank: TrainerRank.SS_PLUS_RANK, minLevel: 2001, maxLevel: 3000, boss: 'Necrozma', types: ['psychic', 'steel'] },
+  { name: 'Prism Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['psychic', 'steel', 'normal'] },
 
-  // Tier 17
-  { name: 'Darkest Day Realm', tier: 17, requiredRank: TrainerRank.SSS_RANK, minLevel: 3001, maxLevel: 4000, boss: 'Eternatus', types: ['poison', 'dragon'] },
+  { name: 'Darkest Day Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['poison', 'dragon', 'normal'] },
 
-  // Tier 18
-  { name: 'Creation Realm', tier: 18, requiredRank: TrainerRank.SSS_PLUS_RANK, minLevel: 4001, maxLevel: 5000, boss: 'Arceus', types: ['normal', 'psychic'] },
+  { name: 'Creation Realm', tier: 14, requiredRank: TrainerRank.SSS_PLUS_RANK, types: ['normal', 'psychic', 'normal'] },
 ];
 
 const bossNameOverrides: Record<string, string> = {
@@ -140,14 +124,6 @@ export async function seedAstralRealms(prisma: PrismaClient) {
   console.log('Seeding Astral Realms...');
 
   for (const realm of realmsData) {
-    let searchName = bossNameOverrides[realm.boss];
-    if (!searchName) {
-      searchName = realm.boss.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
-    }
-
-    const species = await prisma.species.findFirst({
-      where: { name: searchName }
-    });
 
     // Delete if exists to make script idempotent
     const existing = await prisma.astralRealm.findFirst({
@@ -162,19 +138,11 @@ export async function seedAstralRealms(prisma: PrismaClient) {
         name: realm.name,
         tier: realm.tier,
         requiredRank: realm.requiredRank,
-        minLevel: RANK_LEVEL_BOUNDS[realm.requiredRank].min,
-        maxLevel: RANK_LEVEL_BOUNDS[realm.requiredRank].max,
-        bossSpeciesName: realm.boss,
-        bossSpeciesId: species ? species.id : null,
         types: realm.types,
       }
     });
 
-    if (!species) {
-      console.warn(`  ⚠️ Boss Species not found: ${realm.boss} (normalized: ${searchName}) in ${realm.name}`);
-    } else {
-      console.log(`  ✅ Inserted Realm: ${realm.name} (Boss: ${realm.boss})`);
-    }
+    console.log(`  ✅ Inserted Realm: ${realm.name}`);
   }
 
   console.log('Finished seeding Astral Realms!');

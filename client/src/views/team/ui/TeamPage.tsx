@@ -343,13 +343,21 @@ export function TeamPage() {
               </button>
 
               <button 
+                onClick={() => removeMutation.mutate(activeMenuPkm.id)}
+                disabled={party.length <= 1 || removeMutation.isPending}
+                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {removeMutation.isPending ? 'Sending...' : 'Send to PC'}
+              </button>
+
+              <button 
                 onClick={() => {
                   if (window.confirm(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`)) {
                     releaseMutation.mutate(activeMenuPkm.id);
                   }
                 }}
                 disabled={party.length <= 1 || releaseMutation.isPending}
-                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-left px-4 py-3 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 rounded-xl font-bold transition-colors text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
               </button>
@@ -368,7 +376,7 @@ export function TeamPage() {
       {/* --- 2. Details Modal --- */}
       {detailsPkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setDetailsPkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <img 
@@ -398,67 +406,32 @@ export function TeamPage() {
               <button onClick={() => setDetailsPkm(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl">✕</button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="w-full">
               
               {/* Stats section */}
               <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">Stats</h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">Stats Overview</h3>
                 <div className="space-y-2">
                   {[
-                    { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level), iv: detailsPkm.ivHp || 0 },
-                    { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level), iv: detailsPkm.ivAttack || 0 },
-                    { label: 'Defense', stat: calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level), iv: detailsPkm.ivDefense || 0 },
-                    { label: 'Sp. Atk', stat: calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level), iv: detailsPkm.ivSpAtk || 0 },
-                    { label: 'Sp. Def', stat: calculateStat(detailsPkm.species.spDef, detailsPkm.ivSpDef || 0, detailsPkm.level), iv: detailsPkm.ivSpDef || 0 },
-                    { label: 'Speed', stat: calculateStat(detailsPkm.species.speed, detailsPkm.ivSpeed || 0, detailsPkm.level), iv: detailsPkm.ivSpeed || 0 },
+                    { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level), iv: detailsPkm.ivHp || 0, base: detailsPkm.species.hp },
+                    { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level), iv: detailsPkm.ivAttack || 0, base: detailsPkm.species.attack },
+                    { label: 'Defense', stat: calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level), iv: detailsPkm.ivDefense || 0, base: detailsPkm.species.defense },
+                    { label: 'Sp. Atk', stat: calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level), iv: detailsPkm.ivSpAtk || 0, base: detailsPkm.species.spAtk },
+                    { label: 'Sp. Def', stat: calculateStat(detailsPkm.species.spDef, detailsPkm.ivSpDef || 0, detailsPkm.level), iv: detailsPkm.ivSpDef || 0, base: detailsPkm.species.spDef },
+                    { label: 'Speed', stat: calculateStat(detailsPkm.species.speed, detailsPkm.ivSpeed || 0, detailsPkm.level), iv: detailsPkm.ivSpeed || 0, base: detailsPkm.species.speed },
                   ].map(s => (
-                    <div key={s.label} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-                      <div className="flex items-center gap-2">
+                    <div key={s.label} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-3">
                         <span className="w-20 font-bold text-slate-500 text-sm">{s.label}</span>
-                        <span className="text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 px-1.5 py-0.5 rounded font-bold">IV: {s.iv}</span>
-                      </div>
-                      <span className="font-black text-slate-900 dark:text-white text-lg">{s.stat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Moves section */}
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">Learned Moves</h3>
-                <div className="space-y-2">
-                  {[0, 1, 2, 3].map(i => detailsPkm.moves?.find((m: any) => m.slot === i)?.move?.name || null).map((m, idx) => (
-                    <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
-                      {m ? (
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-slate-900 dark:text-white capitalize">{m}</span>
-                          <span className="text-xs text-slate-500 font-medium">Slot {idx + 1}</span>
+                        <div className="flex gap-2">
+                          <span className="text-[10px] bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-bold">Base: {s.base}</span>
+                          <span className="text-[10px] bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 px-1.5 py-0.5 rounded font-bold">IV: {s.iv}</span>
                         </div>
-                      ) : (
-                        <span className="text-slate-400 dark:text-slate-500 font-medium italic">- Empty -</span>
-                      )}
+                      </div>
+                      <span className="font-black text-slate-900 dark:text-white text-xl">{s.stat}</span>
                     </div>
                   ))}
                 </div>
-                
-                <button 
-                  onClick={() => {
-                    setChangeMovePkm({ ...detailsPkm, currentMoves: [0, 1, 2, 3].map(i => detailsPkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') });
-                    setMoveSearch('');
-                    setDetailsPkm(null);
-                  }}
-                  className="mt-4 w-full bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:hover:bg-blue-800/60 dark:text-blue-300 font-bold py-3 rounded-xl transition-colors"
-                >
-                  Change Moves
-                </button>
-
-                <button 
-                  onClick={() => removeMutation.mutate(activeMenuPkm.id)}
-                  disabled={party.length <= 1 || removeMutation.isPending}
-                  className="w-full text-left px-4 py-3 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 rounded-xl font-bold transition-colors text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {removeMutation.isPending ? 'Removing...' : 'Remove from Team'}
-                </button>
               </div>
 
             </div>

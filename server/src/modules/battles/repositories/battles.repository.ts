@@ -7,7 +7,7 @@ export class BattlesRepository {
   async runTurnTransaction<T>(handler: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        return await prisma.$transaction(handler, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+        return await prisma.$transaction(handler);
       } catch (error) {
         if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2034' || attempt === 2) {
           throw error;

@@ -9,6 +9,7 @@ interface Props {
   battleType: string;
   lastTurnEvents: string[];
   wildSpeciesName: string;
+  returnUrl: string;
 }
 
 export const BattleResultModal = memo(function BattleResultModal({
@@ -17,15 +18,12 @@ export const BattleResultModal = memo(function BattleResultModal({
   battleType,
   lastTurnEvents,
   wildSpeciesName,
+  returnUrl,
 }: Props) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
 
   if (!isFinished) return null;
-  
-  const [searchParams] = useSearchParams();
-  const returnUrl = searchParams?.get('returnUrl') || '/';
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -60,8 +58,10 @@ export const BattleResultModal = memo(function BattleResultModal({
         <div className="flex gap-4 w-full">
           <button 
             onClick={() => {
-              queryClient.setQueryData(['activeBattle'], null);
               navigate(returnUrl);
+              setTimeout(() => {
+                queryClient.removeQueries({ queryKey: ['activeBattle'] });
+              }, 100);
             }} 
             className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >

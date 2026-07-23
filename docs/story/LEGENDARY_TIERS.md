@@ -2,7 +2,7 @@
 
 This classification works well for Astranox because it separates the true "world-defining" Legendary Pokémon from the rest, giving you a clear endgame progression.
 
-## Tier 1 Legendary Pokémon (8)
+## super Legendary Pokémon (8)
 
 These are the absolute highest-tier Legendary Pokémon in the world and should be the rarest encounters
 | Pokémon   |
@@ -18,7 +18,7 @@ These are the absolute highest-tier Legendary Pokémon in the world and should b
 
 ---
 
-## Tier 2 Legendary Pokémon (19)
+## Tier 1 Legendary Pokémon (19)
 
 These are incredibly powerful, world-defining Legendary Pokémon that sit just below the absolute highest tier.
 
@@ -45,13 +45,30 @@ These are incredibly powerful, world-defining Legendary Pokémon that sit just b
 | Zamazenta |
 
 ---
+## Tier 2 Legendary Pokémon
 
-## Tier 3 Legendary & Mythical Pokémon
+* Urshifu
+* Terapagos
+* Glastrier
+* Spectrier
+* Mew
+* Celebi
+* Jirachi
+* Deoxys
+* Manaphy
+* Darkrai
+* Keldeo
+* Meloetta
+* Genesect
+* Diancie
+* Volcanion
+* Melmetal
+* Zarude
+* Marshadow
+* Zeraora
+* Victini
 
-All remaining Legendary and Mythical Pokémon belong here.
-
-### Legendary Pokémon
-
+## Tier 3 Legendary 
 * Articuno
 * Zapdos
 * Moltres
@@ -97,27 +114,8 @@ All remaining Legendary and Mythical Pokémon belong here.
 * Okidogi
 * Munkidori
 * Fezandipiti
-
-### Mythical Pokémon
-
-* Mew
-* Celebi
-* Jirachi
-* Deoxys
 * Phione
-* Manaphy
-* Darkrai
 * Shaymin
-* Victini
-* Keldeo
-* Meloetta
-* Genesect
-* Diancie
-* Volcanion
 * Magearna
-* Marshadow
-* Zeraora
 * Meltan
-* Melmetal
-* Zarude
 * Pecharunt

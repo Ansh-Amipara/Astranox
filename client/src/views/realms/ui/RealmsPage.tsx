@@ -19,9 +19,29 @@ interface Realm {
 }
 
 const RANKS = [
-  'F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK', 
+  'F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK', 'AA_RANK', 'AAA_RANK',
   'S_RANK', 'S_PLUS_RANK', 'SS_RANK', 'SS_PLUS_RANK', 'SSS_RANK', 'SSS_PLUS_RANK'
 ];
+
+function getRealmLevelRange(rank: string): { min: number; max: number } {
+  switch (rank) {
+    case 'F_RANK': return { min: 1, max: 60 };
+    case 'E_RANK': return { min: 61, max: 120 };
+    case 'D_RANK': return { min: 121, max: 200 };
+    case 'C_RANK': return { min: 201, max: 400 };
+    case 'B_RANK': return { min: 401, max: 500 };
+    case 'A_RANK': return { min: 501, max: 700 };
+    case 'AA_RANK': return { min: 701, max: 900 };
+    case 'AAA_RANK': return { min: 901, max: 1100 };
+    case 'S_RANK': return { min: 1101, max: 1400 };
+    case 'S_PLUS_RANK': return { min: 1401, max: 1700 };
+    case 'SS_RANK': return { min: 1701, max: 2000 };
+    case 'SS_PLUS_RANK': return { min: 2001, max: 3000 };
+    case 'SSS_RANK': return { min: 3001, max: 4000 };
+    case 'SSS_PLUS_RANK': return { min: 4001, max: 5000 };
+    default: return { min: 1, max: 30 };
+  }
+}
 
 export function RealmsPage() {
   const navigate = useNavigate();
@@ -154,18 +174,12 @@ export function RealmsPage() {
               ) : (
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex flex-col">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-bold">Wild Lv. {realm.minLevel} - {realm.maxLevel}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-bold">Wild Lv. {getRealmLevelRange(realm.requiredRank).min} - {getRealmLevelRange(realm.requiredRank).max}</p>
                     <div className="flex flex-wrap gap-2">
                       {realm.types.map(t => (
                         <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-5 object-contain drop-shadow-sm" />
                       ))}
                     </div>
-                  </div>
-                  
-                  <div className="relative w-16 h-16 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/50 flex flex-col items-center justify-center p-1 shadow-sm shrink-0 ml-4 group-hover:scale-110 transition-transform">
-                    <span className="absolute -top-2 bg-red-600 text-white text-[7px] font-black uppercase tracking-widest px-1 py-0.5 rounded shadow-sm z-10">Alpha</span>
-                    <img src={getSpriteUrl(realm.bossSpeciesId)} alt={realm.bossSpeciesName} className="w-10 h-10 object-contain pixelated drop-shadow mb-0.5" />
-                    <span className="text-[8px] font-bold text-red-900 dark:text-red-400 capitalize truncate w-full text-center">{realm.bossSpeciesName}</span>
                   </div>
                 </div>
               )}

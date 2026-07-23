@@ -1,0 +1,447 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TrainerRank {
+  F_RANK
+  E_RANK
+  D_RANK
+  C_RANK
+  B_RANK
+  A_RANK
+  AA_RANK
+  AAA_RANK
+  S_RANK
+  S_PLUS_RANK
+  SS_RANK
+  SS_PLUS_RANK
+  SSS_RANK
+  SSS_PLUS_RANK
+}
+
+enum PokemonPotential {
+  BLACK_IRON
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  ADAMANTITE
+  DIAMOND
+  CRYSTAL
+  EPIC
+  HEROIC
+  SOVEREIGN
+  LEGENDARY
+  DIVINE
+  CELESTIAL
+  PRIMORDIAL
+  MYTHICAL
+  INFINITY
+  ETERNAL
+}
+
+model User {
+  id               String   @id @default(uuid()) @db.Uuid
+  username         String   @unique
+  email            String   @unique
+  passwordHash     String
+  role             Role     @default(USER)
+  refreshTokenHash String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  trainerSave TrainerSave?
+
+}
+
+model TrainerSave {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  starterChosenAt DateTime?
+  money           Int       @default(3000)
+  rank            TrainerRank @default(F_RANK)
+
+  badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
+
+  // Location
+  continentId String? @db.Uuid
+  regionId    String? @db.Uuid
+  areaId      String? @db.Uuid
+  positionX   Int     @default(0)
+  positionY   Int     @default(0)
+  facing      String  @default("DOWN")
+
+  party        OwnedPokemon[]
+  inventory    InventoryItem[]
+  battles      BattleSession[]
+  defeatedNpcs TrainerDefeatedNpc[]
+  astralRealmCompletions AstralRealmCompletion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tradesInitiated TradeRequest[] @relation("TradesInitiated")
+  tradesReceived  TradeRequest[] @relation("TradesReceived")
+}
+
+model OwnedPokemon {
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  speciesId Int
+  species   Species @relation(fields: [speciesId], references: [id])
+
+  nickname String?
+  level    Int     @default(5)
+  potential PokemonPotential @default(BLACK_IRON)
+
+  // Location Tracking
+  isParty   Boolean @default(false)
+  boxNumber Int? // 0 to 31. Null if in party.
+  position  Int     @default(0) // 0 to 5 if party, 0 to 29 if box.
+
+  // IVs
+  ivHp      Int @default(0)
+  ivAttack  Int @default(0)
+  ivDefense Int @default(0)
+  ivSpAtk   Int @default(0)
+  ivSpDef   Int @default(0)
+  ivSpeed   Int @default(0)
+
+  // Experience System (Phase 15)
+  currentXp Int @default(0)
+
+  // Moves (Phase 18 Refactored)
+  moves OwnedPokemonMove[]
+
+  // Trading
+  isForTrade Boolean @default(false)
+  offeredInTrades   TradeRequest[] @relation("OfferedInTrades")
+  requestedInTrades TradeRequest[] @relation("RequestedInTrades")
+
+  createdAt DateTime @default(now())
+}
+
+model OwnedPokemonMove {
+  id             Int          @id @default(autoincrement())
+  ownedPokemonId String       @db.Uuid
+  moveId         Int
+  slot           Int          @default(0) // 0 to 3 for the four move slots
+
+  ownedPokemon OwnedPokemon @relation(fields: [ownedPokemonId], references: [id], onDelete: Cascade)
+  move         Move         @relation(fields: [moveId], references: [id], onDelete: Cascade)
+
+  @@unique([ownedPokemonId, slot])
+}
+
+model Type {
+  id              Int    @id
+  name            String @unique
+  damageRelations Json
+
+  moves        Move[]
+  speciesType1 Species[] @relation("SpeciesType1")
+  speciesType2 Species[] @relation("SpeciesType2")
+}
+
+model Item {
+  id          String  @id
+  name        String  @unique
+  cost        Int
+  description String
+  spriteUrl   String?
+  category    String  @default("misc")
+
+  inventory InventoryItem[]
+}
+
+model InventoryItem {
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id])
+
+  quantity Int @default(0)
+
+  @@unique([trainerId, itemId])
+}
+
+model Move {
+  id          Int    @id
+  name        String @unique
+  typeId      Int
+  type        Type   @relation(fields: [typeId], references: [id])
+  power       Int?
+  accuracy    Int?
+  priority    Int
+  damageClass String
+
+  ailment       String?
+  ailmentChance Int?
+  flinchChance  Int?
+  statChanges   Json?
+
+  learnsets             Learnset[]
+  ownedPokemonMove      OwnedPokemonMove[]
+  npcTrainerPokemonMove NpcTrainerPokemonMove[]
+}
+
+model Species {
+  id        Int    @id
+  name      String @unique
+  spriteUrl String
+
+  hp      Int
+  attack  Int
+  defense Int
+  spAtk   Int
+  spDef   Int
+  speed   Int
+
+  catchRate Int @default(255)
+  baseExp   Int @default(100)
+  isLegendary Boolean @default(false)
+  isMythical  Boolean @default(false)
+
+  // Forms support
+  formName      String?
+  isMega        Boolean @default(false)
+  isGmax        Boolean @default(false)
+  baseSpeciesId Int?
+  pokedexNumber Int?
+
+  type1Id Int
+  type1   Type  @relation("SpeciesType1", fields: [type1Id], references: [id])
+  type2Id Int?
+  type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id])
+
+  evolutionLevel Int?
+  evolutionItem  String?
+  evolvesToId    Int?
+  evolvesTo      Species?  @relation("Evolution", fields: [evolvesToId], references: [id])
+  evolvesFrom    Species[] @relation("Evolution")
+
+  owned        OwnedPokemon[]
+  learnsets    Learnset[]
+}
+
+model Learnset {
+  id         Int @id @default(autoincrement())
+
+  speciesId  Int
+  moveId     Int
+
+  level      Int
+  learnOrder Int
+
+  species Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  move    Move    @relation(fields: [moveId], references: [id], onDelete: Cascade)
+
+  @@unique([speciesId, moveId, level])
+}
+
+// ----------------------------------------------------------------------
+// BATTLES & NPCS
+// ----------------------------------------------------------------------
+
+enum BattleStatus {
+  ACTIVE
+  WAITING_SWITCH
+  WAITING_MOVE_LEARN
+  WON
+  LOST
+  FLED
+  CAUGHT
+}
+
+enum BattleType {
+  WILD
+  NPC
+  SECRET_REALM
+}
+
+model BattleSession {
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  status     BattleStatus @default(ACTIVE)
+  battleType BattleType   @default(WILD)
+  turnNumber Int          @default(1)
+
+  playerActivePokemonId String  @db.Uuid
+  npcTrainerId          String? @db.Uuid
+
+  opponentPokemonData Json  @default("{}") // Replaces wildPokemonData
+  opponentPartyData   Json? // Array of all NPC party members
+
+  playerPokemonData Json
+  playerPartyData   Json? // Array of all 6 party members' active states mid-battle
+
+  log Json? // Array of TurnEvent
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TrainerType {
+  NORMAL
+  RIVAL
+  BOSS
+  LEGENDARY
+  HUNTER
+  CHAMPION
+  ELDER
+  GUARDIAN
+  CADRE
+  OPERATIVE
+}
+
+model NpcTrainer {
+  id           String      @id @default(uuid()) @db.Uuid
+  name         String
+  spriteUrl    String
+  trainerClass String
+  rewardMoney  Int         @default(0)
+  badgeName    String?
+  trainerType  TrainerType @default(NORMAL)
+  region       String      @default("Lunaris")
+
+  party      NpcTrainerPokemon[]
+  defeatedBy TrainerDefeatedNpc[]
+}
+
+model NpcTrainerPokemon {
+  id           String     @id @default(uuid()) @db.Uuid
+  npcTrainerId String     @db.Uuid
+  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: Cascade)
+
+  speciesId Int
+  level     Int @default(5)
+  potential PokemonPotential @default(BLACK_IRON)
+  position  Int @default(0)
+
+  // IVs
+  ivHp      Int @default(0)
+  ivAttack  Int @default(0)
+  ivDefense Int @default(0)
+  ivSpAtk   Int @default(0)
+  ivSpDef   Int @default(0)
+  ivSpeed   Int @default(0)
+
+  // Moves
+  moves NpcTrainerPokemonMove[]
+}
+
+model NpcTrainerPokemonMove {
+  id                  Int               @id @default(autoincrement())
+  npcTrainerPokemonId String            @db.Uuid
+  moveId              Int
+  slot                Int               @default(0)
+
+  npcTrainerPokemon   NpcTrainerPokemon @relation(fields: [npcTrainerPokemonId], references: [id], onDelete: Cascade)
+  move                Move              @relation(fields: [moveId], references: [id], onDelete: Cascade)
+
+  @@unique([npcTrainerPokemonId, slot])
+}
+
+model TrainerDefeatedNpc {
+  id        String      @id @default(uuid()) @db.Uuid
+  trainerId String      @db.Uuid
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  npcTrainerId String     @db.Uuid
+  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: Cascade)
+
+  defeatedAt DateTime @default(now())
+
+  @@unique([trainerId, npcTrainerId])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  adminId      String   @db.Uuid
+  action       String
+  entityType   String
+  entityId     String?
+  beforeValues Json?
+  afterValues  Json?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+}
+
+// ----------------------------------------------------------------------
+// TRADING (Phase 22)
+// ----------------------------------------------------------------------
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+model TradeRequest {
+  id                 String @id @default(uuid()) @db.Uuid
+  
+  initiatorId        String @db.Uuid
+  receiverId         String @db.Uuid
+
+  offeredPokemonId   String @db.Uuid
+  requestedPokemonId String @db.Uuid
+
+  status             TradeStatus @default(PENDING)
+
+  initiator          TrainerSave @relation("TradesInitiated", fields: [initiatorId], references: [id], onDelete: Cascade)
+  receiver           TrainerSave @relation("TradesReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  offeredPokemon     OwnedPokemon @relation("OfferedInTrades", fields: [offeredPokemonId], references: [id], onDelete: Cascade)
+  requestedPokemon   OwnedPokemon @relation("RequestedInTrades", fields: [requestedPokemonId], references: [id], onDelete: Cascade)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------
+// ASTRAL REALMS
+// ----------------------------------------------------------------------
+
+model AstralRealm {
+  id              String      @id @default(uuid()) @db.Uuid
+  name            String
+  tier            Int         // 1 to 8
+  requiredRank    TrainerRank
+  types           String[]    // Array of elemental types e.g. ["fire", "flying"]
+
+  completions     AstralRealmCompletion[]
+}
+
+model AstralRealmCompletion {
+  id              String      @id @default(uuid()) @db.Uuid
+  trainerId       String      @db.Uuid
+  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  realmId         String      @db.Uuid
+  realm           AstralRealm @relation(fields: [realmId], references: [id], onDelete: Cascade)
+  
+  completedAt     DateTime    @default(now())
+  
+  @@unique([trainerId, realmId])
+}
+
+

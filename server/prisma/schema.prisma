@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -19,6 +19,8 @@ enum TrainerRank {
   C_RANK
   B_RANK
   A_RANK
+  AA_RANK
+  AAA_RANK
   S_RANK
   S_PLUS_RANK
   SS_RANK
@@ -49,7 +51,7 @@ enum PokemonPotential {
 }
 
 model User {
-  id               String   @id @default(uuid()) @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   username         String   @unique
   email            String   @unique
   passwordHash     String
@@ -63,9 +65,9 @@ model User {
 }
 
 model TrainerSave {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @unique @db.Uuid
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   starterChosenAt DateTime?
   money           Int       @default(3000)
@@ -74,9 +76,9 @@ model TrainerSave {
   badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
 
   // Location
-  continentId String? @db.Uuid
-  regionId    String? @db.Uuid
-  areaId      String? @db.Uuid
+  continentId String? @db.ObjectId
+  regionId    String? @db.ObjectId
+  areaId      String? @db.ObjectId
   positionX   Int     @default(0)
   positionY   Int     @default(0)
   facing      String  @default("DOWN")
@@ -95,12 +97,12 @@ model TrainerSave {
 }
 
 model OwnedPokemon {
-  id        String      @id @default(uuid()) @db.Uuid
-  trainerId String      @db.Uuid
-  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId String      @db.ObjectId
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   speciesId Int
-  species   Species @relation(fields: [speciesId], references: [id])
+  species   Species @relation(fields: [speciesId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   nickname String?
   level    Int     @default(5)
@@ -134,19 +136,19 @@ model OwnedPokemon {
 }
 
 model OwnedPokemonMove {
-  id             Int          @id @default(autoincrement())
-  ownedPokemonId String       @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  ownedPokemonId String       @db.ObjectId
   moveId         Int
   slot           Int          @default(0) // 0 to 3 for the four move slots
 
-  ownedPokemon OwnedPokemon @relation(fields: [ownedPokemonId], references: [id], onDelete: Cascade)
-  move         Move         @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  ownedPokemon OwnedPokemon @relation(fields: [ownedPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  move         Move         @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([ownedPokemonId, slot])
 }
 
 model Type {
-  id              Int    @id
+  id Int @id @map("_id")
   name            String @unique
   damageRelations Json
 
@@ -156,7 +158,7 @@ model Type {
 }
 
 model Item {
-  id          String  @id
+  id String @id @map("_id")
   name        String  @unique
   cost        Int
   description String
@@ -167,12 +169,12 @@ model Item {
 }
 
 model InventoryItem {
-  id        String      @id @default(uuid()) @db.Uuid
-  trainerId String      @db.Uuid
-  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId String      @db.ObjectId
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   itemId String
-  item   Item   @relation(fields: [itemId], references: [id])
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   quantity Int @default(0)
 
@@ -180,10 +182,10 @@ model InventoryItem {
 }
 
 model Move {
-  id          Int    @id
+  id Int @id @map("_id")
   name        String @unique
   typeId      Int
-  type        Type   @relation(fields: [typeId], references: [id])
+  type        Type   @relation(fields: [typeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   power       Int?
   accuracy    Int?
   priority    Int
@@ -200,7 +202,7 @@ model Move {
 }
 
 model Species {
-  id        Int    @id
+  id Int @id @map("_id")
   name      String @unique
   spriteUrl String
 
@@ -224,14 +226,14 @@ model Species {
   pokedexNumber Int?
 
   type1Id Int
-  type1   Type  @relation("SpeciesType1", fields: [type1Id], references: [id])
+  type1   Type  @relation("SpeciesType1", fields: [type1Id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   type2Id Int?
-  type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id])
+  type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   evolutionLevel Int?
   evolutionItem  String?
   evolvesToId    Int?
-  evolvesTo      Species?  @relation("Evolution", fields: [evolvesToId], references: [id])
+  evolvesTo      Species?  @relation("Evolution", fields: [evolvesToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   evolvesFrom    Species[] @relation("Evolution")
 
   owned        OwnedPokemon[]
@@ -239,7 +241,7 @@ model Species {
 }
 
 model Learnset {
-  id         Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   speciesId  Int
   moveId     Int
@@ -247,8 +249,8 @@ model Learnset {
   level      Int
   learnOrder Int
 
-  species Species @relation(fields: [speciesId], references: [id], onDelete: Cascade)
-  move    Move    @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  species Species @relation(fields: [speciesId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  move    Move    @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([speciesId, moveId, level])
 }
@@ -274,16 +276,16 @@ enum BattleType {
 }
 
 model BattleSession {
-  id        String      @id @default(uuid()) @db.Uuid
-  trainerId String      @db.Uuid
-  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId String      @db.ObjectId
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   status     BattleStatus @default(ACTIVE)
   battleType BattleType   @default(WILD)
   turnNumber Int          @default(1)
 
-  playerActivePokemonId String  @db.Uuid
-  npcTrainerId          String? @db.Uuid
+  playerActivePokemonId String  @db.ObjectId
+  npcTrainerId          String? @db.ObjectId
 
   opponentPokemonData Json  @default("{}") // Replaces wildPokemonData
   opponentPartyData   Json? // Array of all NPC party members
@@ -311,7 +313,7 @@ enum TrainerType {
 }
 
 model NpcTrainer {
-  id           String      @id @default(uuid()) @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   spriteUrl    String
   trainerClass String
@@ -325,9 +327,9 @@ model NpcTrainer {
 }
 
 model NpcTrainerPokemon {
-  id           String     @id @default(uuid()) @db.Uuid
-  npcTrainerId String     @db.Uuid
-  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  npcTrainerId String     @db.ObjectId
+  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   speciesId Int
   level     Int @default(5)
@@ -347,24 +349,24 @@ model NpcTrainerPokemon {
 }
 
 model NpcTrainerPokemonMove {
-  id                  Int               @id @default(autoincrement())
-  npcTrainerPokemonId String            @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  npcTrainerPokemonId String            @db.ObjectId
   moveId              Int
   slot                Int               @default(0)
 
-  npcTrainerPokemon   NpcTrainerPokemon @relation(fields: [npcTrainerPokemonId], references: [id], onDelete: Cascade)
-  move                Move              @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  npcTrainerPokemon   NpcTrainerPokemon @relation(fields: [npcTrainerPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  move                Move              @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([npcTrainerPokemonId, slot])
 }
 
 model TrainerDefeatedNpc {
-  id        String      @id @default(uuid()) @db.Uuid
-  trainerId String      @db.Uuid
-  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId String      @db.ObjectId
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  npcTrainerId String     @db.Uuid
-  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: Cascade)
+  npcTrainerId String     @db.ObjectId
+  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   defeatedAt DateTime @default(now())
 
@@ -372,8 +374,8 @@ model TrainerDefeatedNpc {
 }
 
 model AuditLog {
-  id           String   @id @default(uuid()) @db.Uuid
-  adminId      String   @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  adminId      String   @db.ObjectId
   action       String
   entityType   String
   entityId     String?
@@ -396,21 +398,21 @@ enum TradeStatus {
 }
 
 model TradeRequest {
-  id                 String @id @default(uuid()) @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   
-  initiatorId        String @db.Uuid
-  receiverId         String @db.Uuid
+  initiatorId        String @db.ObjectId
+  receiverId         String @db.ObjectId
 
-  offeredPokemonId   String @db.Uuid
-  requestedPokemonId String @db.Uuid
+  offeredPokemonId   String @db.ObjectId
+  requestedPokemonId String @db.ObjectId
 
   status             TradeStatus @default(PENDING)
 
-  initiator          TrainerSave @relation("TradesInitiated", fields: [initiatorId], references: [id], onDelete: Cascade)
-  receiver           TrainerSave @relation("TradesReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  initiator          TrainerSave @relation("TradesInitiated", fields: [initiatorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receiver           TrainerSave @relation("TradesReceived", fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  offeredPokemon     OwnedPokemon @relation("OfferedInTrades", fields: [offeredPokemonId], references: [id], onDelete: Cascade)
-  requestedPokemon   OwnedPokemon @relation("RequestedInTrades", fields: [requestedPokemonId], references: [id], onDelete: Cascade)
+  offeredPokemon     OwnedPokemon @relation("OfferedInTrades", fields: [offeredPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  requestedPokemon   OwnedPokemon @relation("RequestedInTrades", fields: [requestedPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -421,25 +423,21 @@ model TradeRequest {
 // ----------------------------------------------------------------------
 
 model AstralRealm {
-  id              String      @id @default(uuid()) @db.Uuid
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   tier            Int         // 1 to 8
   requiredRank    TrainerRank
-  minLevel        Int
-  maxLevel        Int
-  bossSpeciesId   Int?        
-  bossSpeciesName String      // e.g. "Phione"
   types           String[]    // Array of elemental types e.g. ["fire", "flying"]
 
   completions     AstralRealmCompletion[]
 }
 
 model AstralRealmCompletion {
-  id              String      @id @default(uuid()) @db.Uuid
-  trainerId       String      @db.Uuid
-  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  realmId         String      @db.Uuid
-  realm           AstralRealm @relation(fields: [realmId], references: [id], onDelete: Cascade)
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId       String      @db.ObjectId
+  trainer         TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  realmId         String      @db.ObjectId
+  realm           AstralRealm @relation(fields: [realmId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   
   completedAt     DateTime    @default(now())
   
