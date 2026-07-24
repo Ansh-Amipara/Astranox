@@ -176,9 +176,10 @@ export class TrainersController {
       if (!userId) throw new ValidationError('User ID missing from request');
 
       const { pokemonId } = req.params;
+      const { targetSpeciesId } = req.body;
       if (!pokemonId) throw new ValidationError('Pokemon ID is required');
 
-      const evolvedPokemon = await this.service.evolvePokemon(userId, pokemonId);
+      const evolvedPokemon = await this.service.evolvePokemon(userId, pokemonId, targetSpeciesId);
       res.json({ success: true, data: evolvedPokemon });
     } catch (err) {
       next(err);
@@ -220,6 +221,28 @@ export class TrainersController {
       const dto: BoostIvDto = { itemId, stat };
       const boostedPokemon = await this.service.boostIv(userId, pokemonId, dto);
       res.json({ success: true, data: boostedPokemon });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  distributeXp = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+
+      const { pokemonId, amount } = req.body;
+      if (!pokemonId || !amount) {
+        throw new ValidationError('Pokemon ID and amount are required');
+      }
+
+      const parsedAmount = parseInt(amount, 10);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        throw new ValidationError('Amount must be a positive number');
+      }
+
+      const result = await this.service.distributeXp(userId, pokemonId, parsedAmount);
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }

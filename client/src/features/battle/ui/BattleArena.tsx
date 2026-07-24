@@ -40,16 +40,22 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
           </div>
         </div>
 
-        {/* Enemy Party Indicators (NPC only) */}
-        {battleType === 'NPC' && opponentPartyData.length > 0 && (
-          <div className="flex gap-1 mb-2">
-            {opponentPartyData.map((p: any) => (
+
+
+        {/* Opponent Party Dots */}
+        {opponentPartyData && opponentPartyData.length > 0 ? (
+          <div className="flex gap-1.5 mb-2 justify-start">
+            {opponentPartyData.map((p: any, idx: number) => (
               <div
-                key={p.id}
-                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'}`}
-                title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
+                key={p.id || idx}
+                className={`w-3 h-3 rounded-full border border-slate-400 dark:border-slate-600 ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-400 dark:bg-slate-700 opacity-40'}`}
+                title={`${p.speciesName || 'Pokemon'} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
               ></div>
             ))}
+          </div>
+        ) : (
+          <div className="flex gap-1.5 mb-2 justify-start">
+            <div className={`w-3 h-3 rounded-full border border-slate-400 dark:border-slate-600 ${wild.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-400 dark:bg-slate-700 opacity-40'}`}></div>
           </div>
         )}
 
@@ -107,14 +113,14 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
           </div>
         </div>
 
-        {/* Player Party Indicators */}
+        {/* Player Party Dots */}
         {playerPartyData && playerPartyData.length > 0 && (
-          <div className="flex gap-1 mb-2 justify-end">
-            {playerPartyData.map((p: any) => (
+          <div className="flex gap-1.5 mb-2 justify-end">
+            {playerPartyData.map((p: any, idx: number) => (
               <div
-                key={p.id}
-                className={`w-3 h-3 rounded-full ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'}`}
-                title={p.currentHp > 0 ? 'Healthy' : 'Fainted'}
+                key={p.id || idx}
+                className={`w-3 h-3 rounded-full border border-slate-400 dark:border-slate-600 ${p.currentHp > 0 ? 'bg-green-500 shadow-sm' : 'bg-slate-400 dark:bg-slate-700 opacity-40'}`}
+                title={`${p.name || p.speciesName} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
               ></div>
             ))}
           </div>

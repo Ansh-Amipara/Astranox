@@ -17,6 +17,15 @@ export function Navbar() {
     enabled: !!user,
   });
 
+  const { data: trainerSave } = useQuery({
+    queryKey: ['trainerSave'],
+    queryFn: async () => {
+      const res = await api.get('/trainers/me');
+      return res.data.data;
+    },
+    enabled: !!user,
+  });
+
   return (
     <nav className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-md relative z-[60] transition-colors duration-200 border-b border-slate-200 dark:border-transparent">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,12 +41,12 @@ export function Navbar() {
               <Link to="/pokemon" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pokémon</Link>
               <Link to="/inventory" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Inventory</Link>
               <Link to="/rank" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Rank</Link>
+              <Link to="/academy" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Academy</Link>
               <Link to="/info" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors px-3 py-2 rounded-md text-sm font-medium">Info</Link>
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
-
             {user && (
               <div className="flex items-center space-x-2">
 

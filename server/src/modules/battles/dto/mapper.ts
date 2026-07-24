@@ -24,7 +24,6 @@ export class BattleMapper {
       battleType: entity.battleType,
       turnNumber: entity.turnNumber,
       playerActivePokemonId: entity.playerActivePokemonId,
-      npcTrainerId: entity.npcTrainerId,
       opponentPokemonData: entity.opponentPokemonData,
       opponentPartyData: entity.opponentPartyData,
       playerPokemonData: entity.playerPokemonData,
@@ -38,7 +37,6 @@ export class BattleMapper {
   static toStartEncounterResultDto(result: any): StartEncounterResultDto {
     return {
       encounter: result.encounter,
-      npcTrainer: result.npcTrainer,
       battleSession: BattleMapper.toBattleSessionDto(result.battleSession),
     };
   }

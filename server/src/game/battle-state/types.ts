@@ -78,6 +78,7 @@ export type BattleAction =
 export type TurnEvent = 
   | { type: 'move'; pokemonId: string; moveName: string }
   | { type: 'switch'; pokemonId: string; targetPokemonId: string; name: string; isPlayer: boolean }
+  | { type: 'opponent_switch'; pokemonId: string; pokemonName: string }
   | { type: 'miss'; pokemonId: string }
   | { type: 'damage'; pokemonId: string; amount: number; isCritical: boolean; effectiveness: number }
   | { type: 'status_inflicted'; pokemonId: string; status: StatusAilment }
@@ -92,7 +93,11 @@ export type TurnEvent =
   | { type: 'prompt_learn_move'; pokemonId: string; moveId: number; moveName: string }
   | { type: 'skipped_move'; pokemonId: string }
   | { type: 'text'; text: string }
-  | { type: 'fled'; pokemonId: string };
+  | { type: 'fled'; pokemonId: string }
+  | { type: 'coin_reward'; amount: number; message: string }
+  | { type: 'stored_xp_gain'; amount: number; message: string }
+  | { type: 'item_received'; item: string; message: string }
+  | { type: 'rank_promotion'; rank: string; message: string };
 
 export interface TurnResult {
   p1State: ActivePokemon;

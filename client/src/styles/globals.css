@@ -8,17 +8,28 @@
   --color-ink-blue: #6D8196;
 
   /* Override standard neutral (slate) with ink scale */
-  --color-slate-50: #FFFFFF; /* White */
-  --color-slate-100: #FFFFE3; /* Paper */
-  --color-slate-200: #CBCBCB; /* Light */
-  --color-slate-300: #CBCBCB; /* Light */
-  --color-slate-400: #6D8196; /* Blue */
-  --color-slate-500: #6D8196; /* Blue */
-  --color-slate-600: #4A4A4A; /* Dark */
-  --color-slate-700: #4A4A4A; /* Dark */
-  --color-slate-800: #4A4A4A; /* Dark */
-  --color-slate-900: #4A4A4A; /* Dark */
-  --color-slate-950: #4A4A4A; /* Dark */
+  --color-slate-50: #FFFFFF;
+  /* White */
+  --color-slate-100: #FFFFE3;
+  /* Paper */
+  --color-slate-200: #CBCBCB;
+  /* Light */
+  --color-slate-300: #CBCBCB;
+  /* Light */
+  --color-slate-400: #6D8196;
+  /* Blue */
+  --color-slate-500: #6D8196;
+  /* Blue */
+  --color-slate-600: #4A4A4A;
+  /* Dark */
+  --color-slate-700: #4A4A4A;
+  /* Dark */
+  --color-slate-800: #4A4A4A;
+  /* Dark */
+  --color-slate-900: #4A4A4A;
+  /* Dark */
+  --color-slate-950: #4A4A4A;
+  /* Dark */
 
   /* Map primary brand colors (blue, purple, indigo) to the ink blue/dark scale */
   --color-blue-50: #FFFFFF;
@@ -71,8 +82,11 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }

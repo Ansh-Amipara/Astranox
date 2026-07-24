@@ -1,0 +1,970 @@
+[
+  {
+    "category": "Principal",
+    "npcs": [
+      {
+        "name": "Director Aurelius Vance",
+        "title": "Headmaster of Astranox Academy",
+        "rank": "SS Lv. 1526",
+        "ace": "Terapagos",
+        "coins": 2500000,
+        "xp": 1250000,
+        "team": [
+          "Terapagos",
+          "Sigilyph",
+          "Centiskorch",
+          "Appletun",
+          "Vanilluxe",
+          "Gallade"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Vice Principals",
+    "npcs": [
+      {
+        "name": "Professor Selene Marrow",
+        "title": "Vice Principal of Academics",
+        "rank": "SS- Lv. 1380",
+        "ace": "Ogerpon",
+        "coins": 1750000,
+        "xp": 900000,
+        "team": [
+          "Ogerpon",
+          "Electrode",
+          "Coalossal",
+          "Ursaluna",
+          "Buzzwole",
+          "Stunfisk"
+        ]
+      },
+      {
+        "name": "Commander Dane Voss",
+        "title": "Vice Principal of Discipline",
+        "rank": "SS- Lv. 1148",
+        "ace": "Regidrago",
+        "coins": 1750000,
+        "xp": 900000,
+        "team": [
+          "Regidrago",
+          "Bombirdier",
+          "Roserade",
+          "Kricketune",
+          "Archeops",
+          "Arcanine"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Teachers",
+    "npcs": [
+      {
+        "name": "Professor Ignis Cole",
+        "title": "Fire Style Instructor (Fire Specialist)",
+        "rank": "S+ Lv. 956",
+        "ace": "Charizard",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Charizard",
+          "Volcarona",
+          "Torkoal",
+          "Talonflame",
+          "Magmar",
+          "Blaziken"
+        ]
+      },
+      {
+        "name": "Professor Marina Reyes",
+        "title": "Water & Rain Tactics Instructor (Water Specialist)",
+        "rank": "S+ Lv. 960",
+        "ace": "Kingdra",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Kingdra",
+          "Pelipper",
+          "Barraskewda",
+          "Ludicolo",
+          "Toxapex",
+          "Gastrodon"
+        ]
+      },
+      {
+        "name": "Professor Draven Kessler",
+        "title": "Dragon Style Instructor (Dragon Specialist)",
+        "rank": "S+ Lv. 1030",
+        "ace": "Garchomp",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Garchomp",
+          "Dragonite",
+          "Salamence",
+          "Hydreigon",
+          "Goodra",
+          "Kommo-o"
+        ]
+      },
+      {
+        "name": "Professor Ferrum Blake",
+        "title": "Steel Style Instructor (Steel Specialist)",
+        "rank": "S+ Lv. 1055",
+        "ace": "Metagross",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Metagross",
+          "Aegislash",
+          "Corviknight",
+          "Bisharp",
+          "Klinklang",
+          "Empoleon"
+        ]
+      },
+      {
+        "name": "Professor Wendell Ashby",
+        "title": "Trick Room Tactics Instructor (Trick Room Specialist)",
+        "rank": "S+ Lv. 907",
+        "ace": "Reuniclus",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Reuniclus",
+          "Bronzong",
+          "Torkoal",
+          "Escavalier",
+          "Avalugg",
+          "Dusclops"
+        ]
+      },
+      {
+        "name": "Professor Talia Dunmore",
+        "title": "Sand Style Instructor (Sand Specialist)",
+        "rank": "S+ Lv. 1044",
+        "ace": "Tyranitar",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Tyranitar",
+          "Excadrill",
+          "Sandaconda",
+          "Gliscor",
+          "Krookodile",
+          "Stunfisk"
+        ]
+      },
+      {
+        "name": "Professor Voltan Reeve",
+        "title": "Electric Style Instructor (Electric Specialist)",
+        "rank": "S+ Lv. 951",
+        "ace": "Ampharos",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Ampharos",
+          "Electrode",
+          "Toxtricity",
+          "Boltund",
+          "Galvantula",
+          "Eelektross"
+        ]
+      },
+      {
+        "name": "Professor Ivy Thistledown",
+        "title": "Grass Style Instructor (Grass Specialist)",
+        "rank": "S+ Lv. 1084",
+        "ace": "Kartana",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Kartana",
+          "Trevenant",
+          "Tsareena",
+          "Ferrothorn",
+          "Rillaboom",
+          "Roserade"
+        ]
+      },
+      {
+        "name": "Professor Sabrina Wolfe",
+        "title": "Psychic Style Instructor (Psychic Specialist)",
+        "rank": "S+ Lv. 1067",
+        "ace": "Gardevoir",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Gardevoir",
+          "Alakazam",
+          "Malamar",
+          "Musharna",
+          "Gothitelle",
+          "Meowstic"
+        ]
+      },
+      {
+        "name": "Professor Boreas Frost",
+        "title": "Ice Style Instructor (Ice Specialist)",
+        "rank": "S+ Lv. 1080",
+        "ace": "Ninetales",
+        "coins": 600000,
+        "xp": 300000,
+        "team": [
+          "Ninetales",
+          "Beartic",
+          "Cryogonal",
+          "Avalugg",
+          "Cloyster",
+          "Froslass"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Students — Rank S-",
+    "npcs": [
+      {
+        "name": "Kael Thorne",
+        "title": "Rank S- Student",
+        "rank": "S- Lv. 502",
+        "ace": "Piloswine",
+        "coins": 400000,
+        "xp": 200000,
+        "team": [
+          "Piloswine",
+          "Klinklang",
+          "Eiscue",
+          "Machamp",
+          "Roaring Moon",
+          "Garbodor"
+        ]
+      },
+      {
+        "name": "Elowen Vance",
+        "title": "Rank S- Student",
+        "rank": "S- Lv. 540",
+        "ace": "Volcarona",
+        "coins": 400000,
+        "xp": 200000,
+        "team": [
+          "Volcarona",
+          "Crustle",
+          "Tauros",
+          "Kricketune",
+          "Haxorus",
+          "Garbodor"
+        ]
+      },
+      {
+        "name": "Ryzen Kade",
+        "title": "Rank S- Student",
+        "rank": "S- Lv. 525",
+        "ace": "Dustox",
+        "coins": 400000,
+        "xp": 200000,
+        "team": [
+          "Dustox",
+          "Walking Wake",
+          "Hariyama",
+          "Buzzwole",
+          "Braviary",
+          "Iron Jugulis"
+        ]
+      },
+      {
+        "name": "Aria Solheim",
+        "title": "Rank S- Student",
+        "rank": "S- Lv. 618",
+        "ace": "Huntail",
+        "coins": 400000,
+        "xp": 200000,
+        "team": [
+          "Huntail",
+          "Heracross",
+          "Sandslash",
+          "Forretress",
+          "Avalugg",
+          "Tyranitar"
+        ]
+      },
+      {
+        "name": "Draco Emberlyn",
+        "title": "Rank S- Student",
+        "rank": "S- Lv. 661",
+        "ace": "Pawmot",
+        "coins": 400000,
+        "xp": 200000,
+        "team": [
+          "Pawmot",
+          "Cherrim",
+          "Iron Hands",
+          "Blastoise",
+          "Poliwrath",
+          "Glimmora"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Students — Rank A",
+    "npcs": [
+      {
+        "name": "Milo Hartwell",
+        "title": "Rank A Student",
+        "rank": "A Lv. 406",
+        "ace": "Scrafty",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Scrafty",
+          "Hypno",
+          "Rapidash",
+          "Dragapult",
+          "Throh",
+          "Bellossom"
+        ]
+      },
+      {
+        "name": "Thessaly Rook",
+        "title": "Rank A Student",
+        "rank": "A Lv. 413",
+        "ace": "Sneasler",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Sneasler",
+          "Emolga",
+          "Whiscash",
+          "Girafarig",
+          "Blastoise",
+          "Espathra"
+        ]
+      },
+      {
+        "name": "Corwin Ashe",
+        "title": "Rank A Student",
+        "rank": "A Lv. 448",
+        "ace": "Iron Jugulis",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Iron Jugulis",
+          "Garbodor",
+          "Mamoswine",
+          "Shiftry",
+          "Incineroar",
+          "Cyclizar"
+        ]
+      },
+      {
+        "name": "Ivy Blackwood",
+        "title": "Rank A Student",
+        "rank": "A Lv. 483",
+        "ace": "Houndoom",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Houndoom",
+          "Duraludon",
+          "Starmie",
+          "Froslass",
+          "Thievul",
+          "Swampert"
+        ]
+      },
+      {
+        "name": "Sebastian Frey",
+        "title": "Rank A Student",
+        "rank": "A Lv. 432",
+        "ace": "Bewear",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Bewear",
+          "Sawk",
+          "Shiftry",
+          "Delcatty",
+          "Passimian",
+          "Tyranitar"
+        ]
+      },
+      {
+        "name": "Nadia Storm",
+        "title": "Rank A Student",
+        "rank": "A Lv. 472",
+        "ace": "Cyclizar",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Cyclizar",
+          "Marowak",
+          "Iron Jugulis",
+          "Furfrou",
+          "Sigilyph",
+          "Swoobat"
+        ]
+      },
+      {
+        "name": "Percival Lang",
+        "title": "Rank A Student",
+        "rank": "A Lv. 430",
+        "ace": "Eiscue",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Eiscue",
+          "Swanna",
+          "Greninja",
+          "Weezing",
+          "Wugtrio",
+          "Basculin"
+        ]
+      },
+      {
+        "name": "Wren Castellan",
+        "title": "Rank A Student",
+        "rank": "A Lv. 473",
+        "ace": "Archeops",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Archeops",
+          "Gouging Fire",
+          "Kangaskhan",
+          "Frosmoth",
+          "Beedrill",
+          "Dusclops"
+        ]
+      },
+      {
+        "name": "Odessa Marlowe",
+        "title": "Rank A Student",
+        "rank": "A Lv. 483",
+        "ace": "Toxtricity",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Toxtricity",
+          "Gouging Fire",
+          "Dusclops",
+          "Slither Wing",
+          "Naganadel",
+          "Jumpluff"
+        ]
+      },
+      {
+        "name": "Julian Voss",
+        "title": "Rank A Student",
+        "rank": "A Lv. 472",
+        "ace": "Manectric",
+        "coins": 250000,
+        "xp": 125000,
+        "team": [
+          "Manectric",
+          "Comfey",
+          "Forretress",
+          "Coalossal",
+          "Farigiraf",
+          "Veluza"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Students — Rank B",
+    "npcs": [
+      {
+        "name": "Finn Harrow",
+        "title": "Rank B Student",
+        "rank": "B Lv. 352",
+        "ace": "Pelipper",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Pelipper",
+          "Flutter Mane",
+          "Venomoth",
+          "Rhydon",
+          "Lapras",
+          "Reuniclus"
+        ]
+      },
+      {
+        "name": "Cassia Doyle",
+        "title": "Rank B Student",
+        "rank": "B Lv. 397",
+        "ace": "Hypno",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Hypno",
+          "Eiscue",
+          "Cloyster",
+          "Ninjask",
+          "Mudsdale",
+          "Brambleghast"
+        ]
+      },
+      {
+        "name": "Tobias Wren",
+        "title": "Rank B Student",
+        "rank": "B Lv. 355",
+        "ace": "Banette",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Banette",
+          "Celesteela",
+          "Cramorant",
+          "Serperior",
+          "Crustle",
+          "Swalot"
+        ]
+      },
+      {
+        "name": "Marielle Fox",
+        "title": "Rank B Student",
+        "rank": "B Lv. 333",
+        "ace": "Salamence",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Salamence",
+          "Beautifly",
+          "Iron Thorns",
+          "Iron Leaves",
+          "Medicham",
+          "Palossand"
+        ]
+      },
+      {
+        "name": "Adrian Cole",
+        "title": "Rank B Student",
+        "rank": "B Lv. 369",
+        "ace": "Porygon-Z",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Porygon-Z",
+          "Alcremie",
+          "Swalot",
+          "Tropius",
+          "Ceruledge",
+          "Swampert"
+        ]
+      },
+      {
+        "name": "Sable Winters",
+        "title": "Rank B Student",
+        "rank": "B Lv. 338",
+        "ace": "Vespiquen",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Vespiquen",
+          "Froslass",
+          "Weezing",
+          "Simipour",
+          "Haxorus",
+          "Centiskorch"
+        ]
+      },
+      {
+        "name": "Rowan Blackfyre",
+        "title": "Rank B Student",
+        "rank": "B Lv. 334",
+        "ace": "Lilligant",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Lilligant",
+          "Crobat",
+          "Mamoswine",
+          "Accelgor",
+          "Tropius",
+          "Trevenant"
+        ]
+      },
+      {
+        "name": "Lyra Vance",
+        "title": "Rank B Student",
+        "rank": "B Lv. 339",
+        "ace": "Nidoking",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Nidoking",
+          "Walking Wake",
+          "Diggersby",
+          "Ninetales",
+          "Camerupt",
+          "Seismitoad"
+        ]
+      },
+      {
+        "name": "Emeric Stone",
+        "title": "Rank B Student",
+        "rank": "B Lv. 398",
+        "ace": "Sigilyph",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Sigilyph",
+          "Ninetales",
+          "Sawk",
+          "Drednaw",
+          "Cramorant",
+          "Iron Bundle"
+        ]
+      },
+      {
+        "name": "Nova Fairwind",
+        "title": "Rank B Student",
+        "rank": "B Lv. 342",
+        "ace": "Cryogonal",
+        "coins": 150000,
+        "xp": 75000,
+        "team": [
+          "Cryogonal",
+          "Persian",
+          "Xatu",
+          "Pangoro",
+          "Absol",
+          "Salazzle"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Students — Rank C",
+    "npcs": [
+      {
+        "name": "Poppy Ellsworth",
+        "title": "Rank C Student",
+        "rank": "C Lv. 208",
+        "ace": "Mismagius",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Mismagius",
+          "Amoonguss",
+          "Centiskorch",
+          "Hypno",
+          "Golurk",
+          "Exeggutor"
+        ]
+      },
+      {
+        "name": "Damon Reyes",
+        "title": "Rank C Student",
+        "rank": "C Lv. 209",
+        "ace": "Exploud",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Exploud",
+          "Quagsire",
+          "Blastoise",
+          "Boltund",
+          "Tyrantrum",
+          "Minior"
+        ]
+      },
+      {
+        "name": "Wisteria Blane",
+        "title": "Rank C Student",
+        "rank": "C Lv. 261",
+        "ace": "Wailord",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Wailord",
+          "Parasect",
+          "Watchog",
+          "Chesnaught",
+          "Cinccino",
+          "Slowking"
+        ]
+      },
+      {
+        "name": "Colton Marsh",
+        "title": "Rank C Student",
+        "rank": "C Lv. 228",
+        "ace": "Politoed",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Politoed",
+          "Dachsbun",
+          "Forretress",
+          "Palossand",
+          "Sandy Shocks",
+          "Kricketune"
+        ]
+      },
+      {
+        "name": "Isolde Grey",
+        "title": "Rank C Student",
+        "rank": "C Lv. 240",
+        "ace": "Persian",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Persian",
+          "Vikavolt",
+          "Tyranitar",
+          "Sylveon",
+          "Drifblim",
+          "Toucannon"
+        ]
+      },
+      {
+        "name": "Bram Halloway",
+        "title": "Rank C Student",
+        "rank": "C Lv. 258",
+        "ace": "Kabutops",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Kabutops",
+          "Starmie",
+          "Skeledirge",
+          "Iron Bundle",
+          "Lopunny",
+          "Oinkologne"
+        ]
+      },
+      {
+        "name": "Freya Nightshade",
+        "title": "Rank C Student",
+        "rank": "C Lv. 276",
+        "ace": "Chansey",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Chansey",
+          "Farigiraf",
+          "Emboar",
+          "Beautifly",
+          "Hawlucha",
+          "Ampharos"
+        ]
+      },
+      {
+        "name": "Otto Renwick",
+        "title": "Rank C Student",
+        "rank": "C Lv. 291",
+        "ace": "Empoleon",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Porygon-Z",
+          "Empoleon",
+          "Roaring Moon",
+          "Eiscue",
+          "Aggron",
+          "Bewear"
+        ]
+      },
+      {
+        "name": "Saoirse Bell",
+        "title": "Rank C Student",
+        "rank": "C Lv. 210",
+        "ace": "Sharpedo",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Sharpedo",
+          "Baxcalibur",
+          "Empoleon",
+          "Bellibolt",
+          "Archeops",
+          "Gumshoos"
+        ]
+      },
+      {
+        "name": "Ezra Callahan",
+        "title": "Rank C Student",
+        "rank": "C Lv. 270",
+        "ace": "Octillery",
+        "coins": 90000,
+        "xp": 45000,
+        "team": [
+          "Octillery",
+          "Excadrill",
+          "Garbodor",
+          "Staraptor",
+          "Minior",
+          "Dusknoir"
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Students — Rank D",
+    "npcs": [
+      {
+        "name": "Tommy Baxter",
+        "title": "Rank D Student",
+        "rank": "D Lv. 181",
+        "ace": "Clawitzer",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Clawitzer",
+          "Tsareena",
+          "Raging Bolt",
+          "Rapidash",
+          "Meowstic",
+          "Falinks"
+        ]
+      },
+      {
+        "name": "Nelly Frost",
+        "title": "Rank D Student",
+        "rank": "D Lv. 166",
+        "ace": "Kingambit",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Kingambit",
+          "Dragalge",
+          "Breloom",
+          "Bronzong",
+          "Slowking",
+          "Leavanny"
+        ]
+      },
+      {
+        "name": "Gus Whitmore",
+        "title": "Rank D Student",
+        "rank": "D Lv. 133",
+        "ace": "Kricketune",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Kricketune",
+          "Kingler",
+          "Medicham",
+          "Tyranitar",
+          "Basculegion",
+          "Steelix"
+        ]
+      },
+      {
+        "name": "Pippa Lane",
+        "title": "Rank D Student",
+        "rank": "D Lv. 145",
+        "ace": "Beartic",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Beartic",
+          "Kartana",
+          "Typhlosion",
+          "Hawlucha",
+          "Carracosta",
+          "Feraligatr"
+        ]
+      },
+      {
+        "name": "Oskar Vinter",
+        "title": "Rank D Student",
+        "rank": "D Lv. 156",
+        "ace": "Dragalge",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Dragalge",
+          "Pawmot",
+          "Machamp",
+          "Coalossal",
+          "Kricketune",
+          "Dondozo"
+        ]
+      },
+      {
+        "name": "Della Rowan",
+        "title": "Rank D Student",
+        "rank": "D Lv. 127",
+        "ace": "Marowak",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Marowak",
+          "Feraligatr",
+          "Bisharp",
+          "Lurantis",
+          "Politoed",
+          "Brute Bonnet"
+        ]
+      },
+      {
+        "name": "Hugo Ferris",
+        "title": "Rank D Student",
+        "rank": "D Lv. 142",
+        "ace": "Skuntank",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Skuntank",
+          "Persian",
+          "Altaria",
+          "Braviary",
+          "Victreebel",
+          "Excadrill"
+        ]
+      },
+      {
+        "name": "Ruby Ashcombe",
+        "title": "Rank D Student",
+        "rank": "D Lv. 142",
+        "ace": "Minior",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Kingambit",
+          "Minior",
+          "Milotic",
+          "Dusknoir",
+          "Kangaskhan",
+          "Baxcalibur"
+        ]
+      },
+      {
+        "name": "Simon Delacroix",
+        "title": "Rank D Student",
+        "rank": "D Lv. 157",
+        "ace": "Accelgor",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Iron Jugulis",
+          "Accelgor",
+          "Iron Valiant",
+          "Forretress",
+          "Zangoose",
+          "Mamoswine"
+        ]
+      },
+      {
+        "name": "Wendy Marchetti",
+        "title": "Rank D Student",
+        "rank": "D Lv. 183",
+        "ace": "Tatsugiri",
+        "coins": 45000,
+        "xp": 22500,
+        "team": [
+          "Kricketune",
+          "Tatsugiri",
+          "Tyrantrum",
+          "Zangoose",
+          "Porygon2",
+          "Sneasler"
+        ]
+      }
+    ]
+  }
+]

@@ -69,7 +69,6 @@ export class BattlesRepository {
     playerPokemonData: any;
     playerPartyData: any;
     battleType?: any;
-    npcTrainerId?: string | null;
   }) {
     return prisma.battleSession.create({
       data: {
@@ -80,7 +79,6 @@ export class BattlesRepository {
         playerPokemonData: data.playerPokemonData,
         playerPartyData: data.playerPartyData,
         battleType: data.battleType || 'WILD',
-        npcTrainerId: data.npcTrainerId,
         log: [],
         status: BattleStatus.ACTIVE,
         turnNumber: 1

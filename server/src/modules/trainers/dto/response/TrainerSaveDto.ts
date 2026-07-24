@@ -17,6 +17,7 @@ export interface TrainerSaveDto {
   readonly astralCoins: number;
   readonly infinityCoins: number;
   readonly voidCoins: number;
+  readonly storedXp: number;
   readonly rank: string;
   readonly starterChosenAt: Date | null;
   readonly createdAt: Date;

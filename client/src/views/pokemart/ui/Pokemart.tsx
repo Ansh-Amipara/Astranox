@@ -122,7 +122,7 @@ export function Pokemart() {
                         : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                       }`}
                   >
-                    {cat.replace('-', ' ')}
+                    {cat === 'iv' ? 'IV' : cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
                   </button>
                 ))}
               </div>

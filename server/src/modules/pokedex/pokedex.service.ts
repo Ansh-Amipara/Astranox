@@ -48,7 +48,7 @@ export class PokedexService {
   }
 
   async getSpeciesById(id: number) {
-    return prisma.species.findUnique({
+    const species = await prisma.species.findUnique({
       where: { id },
       include: {
         type1: true,
@@ -57,6 +57,16 @@ export class PokedexService {
         evolvesFrom: true,
       },
     });
+    
+    if (species) {
+      const megas = await prisma.species.findMany({
+        where: { baseSpeciesId: id, isMega: true },
+        include: { type1: true, type2: true }
+      });
+      (species as any).megas = megas;
+    }
+    
+    return species;
   }
 }
 

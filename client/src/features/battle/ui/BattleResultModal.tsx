@@ -25,18 +25,28 @@ export const BattleResultModal = memo(function BattleResultModal({
 
   if (!isFinished) return null;
 
+  const rewardEvents = lastTurnEvents.filter((msg: string) => 
+    msg.toLowerCase().includes('reward') || 
+    msg.toLowerCase().includes('item') || 
+    msg.toLowerCase().includes('passed') || 
+    msg.toLowerCase().includes('promoted') ||
+    msg.toLowerCase().includes('xp')
+  );
+
+  const displayEvents = rewardEvents.length > 0 ? rewardEvents : lastTurnEvents;
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 w-full max-w-md flex flex-col items-center shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 w-full max-w-xl flex flex-col items-center shadow-2xl animate-in zoom-in-95 duration-300">
         <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 tracking-wide uppercase text-center">
           Battle Finished!
         </h2>
 
         {/* Event List */}
-        {lastTurnEvents.length > 0 && (
+        {displayEvents.length > 0 && (
           <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-            {lastTurnEvents.map((msg: string, i: number) => (
-              <p key={i} className="text-center font-medium text-slate-700 dark:text-slate-300 capitalize">
+            {displayEvents.map((msg: string, i: number) => (
+              <p key={i} className="text-center font-semibold text-slate-700 dark:text-slate-300">
                 {msg}
               </p>
             ))}
@@ -50,7 +60,7 @@ export const BattleResultModal = memo(function BattleResultModal({
             ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
             : 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
         }`}>
-          {status === 'WON' ? (battleType === 'NPC' ? 'You defeated the opposing Trainer!' : `You defeated the wild ${wildSpeciesName}!`) : 
+          {status === 'WON' ? (battleType === 'NPC' ? 'Victory! You defeated the Rank Examiner!' : `You defeated the wild ${wildSpeciesName}!`) : 
            status === 'CAUGHT' ? `Gotcha! ${wildSpeciesName} was caught!` :
            status === 'FLED' ? 'Got away safely!' : 'Defeated! Better luck next time!'}
         </div>
@@ -58,6 +68,9 @@ export const BattleResultModal = memo(function BattleResultModal({
         <div className="flex gap-4 w-full">
           <button 
             onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ['rankStatus'] });
+              queryClient.invalidateQueries({ queryKey: ['authProfile'] });
+              queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
               navigate(returnUrl);
               setTimeout(() => {
                 queryClient.removeQueries({ queryKey: ['activeBattle'] });

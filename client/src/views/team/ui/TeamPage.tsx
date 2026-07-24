@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
@@ -36,8 +36,46 @@ export function TeamPage() {
   const [evolutionPkm, setEvolutionPkm] = useState<any>(null);
   const [boostPkm, setBoostPkm] = useState<any>(null);
   const [boostIvPkm, setBoostIvPkm] = useState<any>(null);
+  const [giveXpPkm, setGiveXpPkm] = useState<any>(null);
+  const [xpAmountInput, setXpAmountInput] = useState<string>('1000');
   const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
+  const [selectedMega, setSelectedMega] = useState<any>(null);
+
+  const distributeXpMutation = useMutation({
+    mutationFn: async ({ pokemonId, amount }: { pokemonId: string; amount: number }) => {
+      const res = await api.post('/trainers/distribute-xp', { pokemonId, amount });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      setGiveXpPkm(null);
+    }
+  });
+
+  const { data: speciesInfo } = useQuery({
+    queryKey: ['species', activeMenuPkm?.speciesId || evolutionPkm?.speciesId],
+    queryFn: async () => {
+      const id = activeMenuPkm?.speciesId || evolutionPkm?.speciesId;
+      if (!id) return null;
+      const { data } = await api.get(`/pokedex/${id}`);
+      return data.data;
+    },
+    enabled: !!(activeMenuPkm || evolutionPkm)
+  });
+
+  useEffect(() => {
+    if (!evolutionPkm) {
+      setSelectedMega(null);
+    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && speciesInfo.megas?.length > 0) {
+      if (!selectedMega || selectedMega.baseSpeciesId !== evolutionPkm.speciesId) {
+        setSelectedMega(speciesInfo.megas[0]);
+      }
+    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && (!speciesInfo.megas || speciesInfo.megas.length === 0)) {
+      setSelectedMega(null);
+    }
+  }, [evolutionPkm, speciesInfo, selectedMega]);
+
   const [moveSearch, setMoveSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -99,12 +137,17 @@ export function TeamPage() {
   });
 
   const evolveMutation = useMutation({
-    mutationFn: async (pokemonId: string) => {
-      await api.post(`/trainers/party/${pokemonId}/evolve`);
+    mutationFn: async (data: any) => {
+      if (typeof data === 'string') {
+        await api.post(`/trainers/party/${data}/evolve`);
+      } else {
+        await api.post(`/trainers/party/${data.pokemonId}/evolve`, { targetSpeciesId: data.targetSpeciesId });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       setEvolutionPkm(null);
+      setSelectedMega(null);
     }
   });
 
@@ -321,18 +364,25 @@ export function TeamPage() {
               >
                 Change Moves
               </button>
-
-              {activeMenuPkm.species?.evolvesToId && (
-                <button
-                  onClick={() => {
-                    setEvolutionPkm(activeMenuPkm);
-                    setActiveMenuPkm(null);
-                  }}
-                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
-                >
-                  Evolution
-                </button>
-              )}
+              {(() => {
+                const hasEvolutions = !!activeMenuPkm.species?.evolvesToId;
+                const hasMegaForms = speciesInfo?.megas?.length > 0;
+                const canEvolve = hasEvolutions || hasMegaForms;
+                return (
+                  <button
+                    onClick={() => {
+                      if (!canEvolve) return;
+                      setEvolutionPkm({ ...activeMenuPkm, megas: speciesInfo?.megas });
+                      setSelectedMega(speciesInfo?.megas?.[0] || null);
+                      setActiveMenuPkm(null);
+                    }}
+                    disabled={!canEvolve}
+                    className={`w-full text-center px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 cursor-not-allowed'}`}
+                  >
+                    {canEvolve ? 'Evolution' : 'Fully Evolved'}
+                  </button>
+                );
+              })()}
 
               {activeMenuPkm.potential !== 'ETERNAL' && (
                 <button
@@ -345,6 +395,17 @@ export function TeamPage() {
                   Boost Potential
                 </button>
               )}
+
+              <button
+                onClick={() => {
+                  setGiveXpPkm(activeMenuPkm);
+                  setXpAmountInput('1000');
+                  setActiveMenuPkm(null);
+                }}
+                className="w-full text-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 rounded-xl font-bold transition-colors text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
+              >
+                Give XP
+              </button>
 
               <button
                 onClick={() => {
@@ -371,7 +432,7 @@ export function TeamPage() {
                   }
                 }}
                 disabled={party.length <= 1 || releaseMutation.isPending}
-                className="w-full text-center col-span-2 px-4 py-3 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 rounded-xl font-bold transition-colors text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
               </button>
@@ -612,66 +673,126 @@ export function TeamPage() {
             <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
               Evolution
             </h2>
-
-            <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
+            <div className="flex items-center justify-center gap-8 mb-8">
               <div className="flex flex-col items-center">
-                <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
+                <div className="w-24 h-24 bg-slate-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
                   <img src={getSpriteUrl(evolutionPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
                 </div>
                 <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{evolutionPkm.nickname || evolutionPkm.species.name}</span>
               </div>
 
-              <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
-                <ArrowRight className="w-10 h-10 mb-2 text-slate-300 dark:text-slate-600" strokeWidth={2.5} />
+              <div className="flex flex-col items-center justify-center text-blue-500 animate-pulse">
+                <ArrowRight className="w-10 h-10 mb-2" strokeWidth={2.5} />
                 <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Evolves To</span>
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg">
-                  <img src={getSpriteUrl(evolutionPkm.species.evolvesToId)} className="w-24 h-24 pixelated object-contain" />
+                <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg relative">
+                  {evolutionPkm.megas?.length > 1 && (
+                    <div className="absolute -top-3 -right-3 flex gap-1">
+                      {evolutionPkm.megas.map((mega: any) => (
+                        <button
+                          key={mega.id}
+                          onClick={() => setSelectedMega(mega)}
+                          className={`w-8 h-8 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-blue-500 bg-blue-100 dark:bg-blue-900/50' : 'border-slate-300 bg-slate-100 dark:bg-slate-800 opacity-50'}`}
+                        >
+                          <img src={getSpriteUrl(mega.id)} className="w-full h-full pixelated object-contain" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {selectedMega || evolutionPkm.species.evolvesToId ? (
+                    <img src={getSpriteUrl(selectedMega ? selectedMega.id : evolutionPkm.species.evolvesToId)} className="w-24 h-24 pixelated object-contain" />
+                  ) : (
+                    <div className="w-24 h-24 flex items-center justify-center text-slate-400 font-bold">NONE</div>
+                  )}
                 </div>
-                <span className="mt-3 font-bold text-slate-900 dark:text-white capitalize text-lg tracking-wide">? ? ?</span>
+                <span className="mt-3 font-bold capitalize text-lg text-blue-600 dark:text-blue-400">{selectedMega ? selectedMega.name.replace('-', ' ') : evolutionPkm.species.evolvesTo?.name || 'Fully Evolved'}</span>
               </div>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 relative z-10 border border-slate-200 dark:border-slate-700">
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 border border-slate-200 dark:border-slate-700">
               <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Evolution Requirement</h4>
-              {evolutionPkm.species.evolutionLevel ? (
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl font-black text-slate-800 dark:text-white">Level {evolutionPkm.species.evolutionLevel}</span>
-                  <span className={`text-sm mt-1 font-bold ${evolutionPkm.level >= evolutionPkm.species.evolutionLevel ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    (Current: {evolutionPkm.level})
-                  </span>
-                </div>
-              ) : evolutionPkm.species.evolutionItem ? (
-                <div className="flex flex-col items-center">
-                  <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
-                  <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    In Bag: {save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
-                  </span>
-                </div>
-              ) : null}
+              {(() => {
+                if (selectedMega) {
+                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
+                  if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
+                  if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
+                  const hasMegaStone = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{megaStoneName.replace('-', ' ')}</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasMegaStone ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        In Bag: {save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity || 0}
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (evolutionPkm.species.evolutionLevel) {
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-2xl font-black text-slate-800 dark:text-white">Level {evolutionPkm.species.evolutionLevel}</span>
+                      <span className={`text-sm mt-1 font-bold ${evolutionPkm.level >= evolutionPkm.species.evolutionLevel ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        (Current: {evolutionPkm.level})
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (evolutionPkm.species.evolutionItem) {
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        In Bag: {save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
+                      </span>
+                    </div>
+                  );
+                }
+
+                return null;
+              })()}
             </div>
 
             <div className="flex justify-center gap-4 relative z-10">
               <button
-                onClick={() => setEvolutionPkm(null)}
+                onClick={() => { setEvolutionPkm(null); setSelectedMega(null); }}
                 disabled={evolveMutation.isPending}
-                className="px-6 py-3 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
+                className="px-6 py-3 font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
 
-              {((evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
-                (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0)) && (
+              {(() => {
+                let canPerformEvolution = false;
+
+                if (selectedMega) {
+                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
+                  if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
+                  if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
+                  canPerformEvolution = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                } else if (evolutionPkm.species.evolvesToId) {
+                  canPerformEvolution = (evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
+                    (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0);
+                }
+
+                return (
                   <button
-                    onClick={() => evolveMutation.mutate(evolutionPkm.id)}
-                    disabled={evolveMutation.isPending}
-                    className="px-8 py-3 font-black tracking-widest text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (selectedMega) {
+                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id } as any);
+                      } else {
+                        evolveMutation.mutate(evolutionPkm.id);
+                      }
+                    }}
+                    disabled={!canPerformEvolution || evolveMutation.isPending}
+                    className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
                   >
-                    {evolveMutation.isPending ? 'EVOLVING...' : 'EVOLVE NOW!'}
+                    {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
                   </button>
-                )}
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -783,7 +904,7 @@ export function TeamPage() {
         const isGold = selectedIvItem === 'gold-bottle-cap';
         const requiredItemId = isGold ? 'gold-bottle-cap' : 'bottle-cap';
         const requiredItemName = isGold ? 'Gold Bottle Cap' : 'Bottle Cap';
-        
+
         const statOptions = [
           { key: 'ivHp', label: 'HP' },
           { key: 'ivAttack', label: 'Attack' },
@@ -795,16 +916,16 @@ export function TeamPage() {
 
         const ownedCrystal = save.inventory?.find((i: any) => i.itemId === requiredItemId);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
-        
-        const isMaxed = isGold 
+
+        const isMaxed = isGold
           ? statOptions.every(opt => (boostIvPkm[opt.key] as number) >= 31)
           : (boostIvPkm[selectedIvStat] as number) >= 31;
-          
+
         const statValue = boostIvPkm[selectedIvStat] as number;
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -842,29 +963,24 @@ export function TeamPage() {
 
               <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
                 <div className="flex flex-col items-center">
-                  <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
-                    <img src={getSpriteUrl(boostIvPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
-                  </div>
-                  <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 text-sm">
-                    {isGold ? 'All IVs' : 'Current IV'}: <span className="font-black text-slate-900 dark:text-white text-lg">{isGold ? 'VARIES' : statValue}</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">
+                    {isGold ? 'All IVs' : 'Current IV'}
                   </span>
+                  <span className="font-black text-slate-900 dark:text-white text-3xl">{isGold ? 'VARIES' : statValue}</span>
                 </div>
 
                 {!isMaxed && (
                   <div className="flex flex-col items-center justify-center text-blue-500 animate-pulse">
-                    <ArrowRight className="w-10 h-10 mb-2" strokeWidth={2.5} />
-                    <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Enhances To</span>
+                    <ArrowRight className="w-8 h-8" strokeWidth={2.5} />
                   </div>
                 )}
 
                 {!isMaxed && (
                   <div className="flex flex-col items-center">
-                    <div className="w-28 h-28 bg-white dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg">
-                      <img src={getSpriteUrl(boostIvPkm.speciesId)} className="w-24 h-24 pixelated object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
-                    </div>
-                    <span className="mt-3 font-bold text-slate-900 dark:text-white text-sm">
-                      {isGold ? 'All IVs' : 'Next IV'}: <span className="font-black text-blue-500 text-lg">31</span>
+                    <span className="font-bold text-slate-900 dark:text-white text-sm">
+                      {isGold ? 'All IVs' : 'Next IV'}
                     </span>
+                    <span className="font-black text-blue-500 text-3xl">31</span>
                   </div>
                 )}
                 {isMaxed && (
@@ -904,6 +1020,123 @@ export function TeamPage() {
                     {boostIvMutation.isPending ? 'ENHANCING...' : 'ENHANCE IV!'}
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* --- Give XP Modal --- */}
+      {giveXpPkm && (() => {
+        const potentialCaps: Record<string, number> = {
+          BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200,
+          DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800,
+          DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000
+        };
+        const maxLvl = potentialCaps[giveXpPkm.potential as string] || 2000;
+        const maxTotalXp = 50 * (maxLvl + 1) * maxLvl - 1;
+        const neededXp = Math.max(0, maxTotalXp - (giveXpPkm.currentXp || 0));
+        const storedXp = save?.storedXp || 0;
+        const maxAllowed = Math.min(storedXp, neededXp);
+
+        const addedAmount = parseInt(xpAmountInput || '0', 10);
+        const newTotalXp = (giveXpPkm.currentXp || 0) + (isNaN(addedAmount) ? 0 : addedAmount);
+        const previewLvl = Math.max(1, Math.floor((1 + Math.sqrt(1 + 4 * (newTotalXp / 50))) / 2));
+
+        const handleAddXp = (addAmount: number) => {
+          const currentVal = parseInt(xpAmountInput || '0', 10);
+          const nextVal = isNaN(currentVal) ? addAmount : currentVal + addAmount;
+          const cappedVal = Math.min(maxAllowed, nextVal);
+          setXpAmountInput(cappedVal.toString());
+        };
+
+        const handleMaxXp = () => {
+          setXpAmountInput(maxAllowed.toString());
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                <img
+                  src={getSpriteUrl(giveXpPkm.speciesId)}
+                  className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl object-contain pixelated border border-slate-200 dark:border-slate-700"
+                />
+                <div>
+                  <h3 className="font-extrabold text-lg capitalize text-slate-900 dark:text-white">{giveXpPkm.nickname || giveXpPkm.species?.name}</h3>
+                  <p className="text-xs font-bold text-slate-500">
+                    Lv. {giveXpPkm.level} {addedAmount > 0 && <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">→ Lv. {previewLvl}</span>} • {newTotalXp.toLocaleString()} XP (Cap: Lv. {maxLvl})
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-100 dark:bg-slate-800/60 p-3 rounded-xl mb-4 border border-slate-200 dark:border-slate-700 flex justify-between items-center text-sm">
+                <span className="font-semibold text-slate-600 dark:text-slate-300">Your Stored XP:</span>
+                <span className="font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                  <img src="/xp.png" alt="XP" className="w-4 h-4 object-contain" />
+                  {save?.storedXp?.toLocaleString() || 0} XP
+                </span>
+              </div>
+
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                Amount of XP to Give:
+              </label>
+              <input
+                type="text"
+                value={xpAmountInput}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value.replace(/\D/g, '') || '0', 10);
+                  const capped = Math.min(maxAllowed, val);
+                  setXpAmountInput(capped > 0 ? capped.toString() : '');
+                }}
+                placeholder="Enter XP amount"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-lg mb-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+
+              {/* Quick Amount Buttons */}
+              <div className="grid grid-cols-5 gap-1.5 mb-6">
+                {[1000, 5000, 25000, 100000].map((amt) => (
+                  <button
+                    key={amt}
+                    onClick={() => handleAddXp(amt)}
+                    className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                  >
+                    +{amt >= 1000 ? `${amt / 1000}k` : amt}
+                  </button>
+                ))}
+                <button
+                  onClick={handleMaxXp}
+                  className="py-1.5 px-2 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 border border-indigo-300 dark:border-indigo-700/60 rounded-lg text-xs font-black text-indigo-700 dark:text-indigo-300 transition-colors uppercase tracking-wider"
+                >
+                  Max
+                </button>
+              </div>
+
+              {distributeXpMutation.isError && (
+                <p className="text-sm font-bold text-red-500 mb-4 text-center">
+                  {(distributeXpMutation.error as any)?.response?.data?.error?.message || 'Failed to distribute XP'}
+                </p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setGiveXpPkm(null)}
+                  className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const amt = parseInt(xpAmountInput, 10);
+                    if (amt > 0) {
+                      distributeXpMutation.mutate({ pokemonId: giveXpPkm.id, amount: amt });
+                    }
+                  }}
+                  disabled={!xpAmountInput || parseInt(xpAmountInput, 10) <= 0 || distributeXpMutation.isPending}
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+                >
+                  {distributeXpMutation.isPending ? 'Giving XP...' : 'Give XP'}
+                </button>
               </div>
             </div>
           </div>

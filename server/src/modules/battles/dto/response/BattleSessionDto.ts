@@ -5,7 +5,6 @@ export type BattleSessionDto = Readonly<{
   battleType: string;
   turnNumber: number;
   playerActivePokemonId: string;
-  npcTrainerId: string | null;
   opponentPokemonData: any;
   opponentPartyData: any[] | null;
   playerPokemonData: any;

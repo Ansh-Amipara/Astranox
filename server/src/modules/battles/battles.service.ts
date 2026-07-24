@@ -46,9 +46,12 @@ export class BattlesService {
     return BattleMapper.toStartEncounterResultDto(result);
   }
 
-  async engageNpc(userId: string, npcTrainerId: string): Promise<StartEncounterResultDto> {
-    const result = await this.sessionService.engageNpc(userId, npcTrainerId);
-    return BattleMapper.toStartEncounterResultDto(result);
+  async startAcademyEncounter(userId: string, npcName: string): Promise<any> {
+    const session = await this.sessionService.startAcademyEncounter(userId, npcName);
+    return {
+      success: true,
+      data: session
+    };
   }
 
   async getActiveSession(userId: string): Promise<BattleSessionDto> {

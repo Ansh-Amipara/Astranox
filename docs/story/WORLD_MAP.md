@@ -23,38 +23,11 @@
 - **Abyssara**
 
 ---
-
-## Hierarchy
-
-### The Council
-- **Master** ×1
-- **Champions** ×12
-- **Elders** ×48
-- **Guardians** ×120
-
----
-
-## Region Governance
-
-The World of Astranox has 12 Regions in total across the 4 Continents. One Great Family governs each Region.
-
-| Region      | Great Family        |
-| ----------- | ------------------- |
-| Astera      | **House Asterion**  |
-| Pyron       | **House Ignis**     |
-| Verdantia   | **House Verdant**   |
-| Noctis      | **House Nocturne**  |
-| Frostveil   | **House Frostborn** |
-| Moonfall    | **House Lunaris**   |
-| Stormreach  | **House Tempest**   |
-| Skyhaven    | **House Skyrend**   |
-| Crystalmere | **House Crystalis** |
-| Tidewatch   | **House Maris**     |
-| Coralyn     | **House Coralis**   |
-| Abyssara    | **House Abyss**     |
+## Rank
 
 | Potential Rank | Realm Tier(s) (Potentials) | Maximum Level |
 | -------------- | -------------------- | ------------- |
+| **NO RANK**    | None (Unranked)      | 5             |
 | **F**          | Black Iron, Bronze   | 60            |
 | **E**          | Silver, Gold         | 120           |
 | **D**          | Platinum, Adamantite | 200           |

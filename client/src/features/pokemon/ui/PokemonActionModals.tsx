@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
 import { TypeSelect } from '../../../components/ui/TypeSelect';
@@ -59,6 +59,30 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   const [boostIvPkm, setBoostIvPkm] = useState<any>(null);
   const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
+  const [selectedMega, setSelectedMega] = useState<any>(null);
+
+  const { data: speciesInfo } = useQuery({
+    queryKey: ['species', activeMenuPkm?.speciesId || evolutionPkm?.speciesId],
+    queryFn: async () => {
+      const id = activeMenuPkm?.speciesId || evolutionPkm?.speciesId;
+      if (!id) return null;
+      const { data } = await api.get(`/pokedex/${id}`);
+      return data.data;
+    },
+    enabled: !!(activeMenuPkm || evolutionPkm)
+  });
+
+  React.useEffect(() => {
+    if (!evolutionPkm) {
+      setSelectedMega(null);
+    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && speciesInfo.megas?.length > 0) {
+      if (!selectedMega || selectedMega.baseSpeciesId !== evolutionPkm.speciesId) {
+        setSelectedMega(speciesInfo.megas[0]);
+      }
+    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && (!speciesInfo.megas || speciesInfo.megas.length === 0)) {
+      setSelectedMega(null);
+    }
+  }, [evolutionPkm, speciesInfo, selectedMega]);
   const [moveSearch, setMoveSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -67,7 +91,10 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   useImperativeHandle(ref, () => ({
     openDetails: setDetailsPkm,
     openMoves: (pkm) => setChangeMovePkm({ ...pkm, currentMoves: [0, 1, 2, 3].map(i => pkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') }),
-    openEvolve: setEvolutionPkm,
+    openEvolve: (pkm) => {
+      setEvolutionPkm(pkm);
+      setSelectedMega(null);
+    },
     openBoost: setBoostPkm,
     openIVs: setBoostIvPkm
   }));
@@ -96,13 +123,18 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   });
 
   const evolveMutation = useMutation({
-    mutationFn: async (pokemonId: string) => {
-      await api.post(`/trainers/party/${pokemonId}/evolve`);
+    mutationFn: async (data: any) => {
+      if (typeof data === 'string') {
+        await api.post(`/trainers/party/${data}/evolve`);
+      } else {
+        await api.post(`/trainers/party/${data.pokemonId}/evolve`, { targetSpeciesId: data.targetSpeciesId });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
       setEvolutionPkm(null);
+      setSelectedMega(null);
     }
   });
 
@@ -173,17 +205,25 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 Change Moves
               </button>
 
-              {activeMenuPkm.species?.evolvesToId && (
-                <button
-                  onClick={() => {
-                    setEvolutionPkm(activeMenuPkm);
-                    setActiveMenuPkm(null);
-                  }}
-                  className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
-                >
-                  Evolution
-                </button>
-              )}
+              {(() => {
+                const hasEvolutions = !!activeMenuPkm.species?.evolvesToId;
+                const hasMegaForms = speciesInfo?.megas?.length > 0;
+                const canEvolve = hasEvolutions || hasMegaForms;
+                return (
+                  <button
+                    onClick={() => {
+                      if (!canEvolve) return;
+                      setEvolutionPkm({ ...activeMenuPkm, megas: speciesInfo?.megas });
+                      setSelectedMega(speciesInfo?.megas?.[0] || null);
+                      setActiveMenuPkm(null);
+                    }}
+                    disabled={!canEvolve}
+                    className={`w-full text-left px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 cursor-not-allowed'}`}
+                  >
+                    {canEvolve ? 'Evolution' : 'Fully Evolved'}
+                  </button>
+                );
+              })()}
 
               {activeMenuPkm.potential !== 'ETERNAL' && (
                 <button
@@ -305,7 +345,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         </div>
       )}
 
-      {/* --- 3. Move Management Modal (Unchanged structurally, just uses new state) --- */}
+      {/* --- 3. Move Management Modal --- */}
       {changeMovePkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setChangeMovePkm(null)}>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -456,65 +496,126 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               Evolution
             </h2>
 
-            <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
+            <div className="flex items-center justify-center gap-8 mb-8">
               <div className="flex flex-col items-center">
-                <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
+                <div className="w-24 h-24 bg-slate-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
                   <img src={getSpriteUrl(evolutionPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
                 </div>
                 <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{evolutionPkm.nickname || evolutionPkm.species.name}</span>
               </div>
 
-              <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
-                <ArrowRight className="w-10 h-10 mb-2 text-slate-300 dark:text-slate-600" strokeWidth={2.5} />
+              <div className="flex flex-col items-center justify-center text-blue-500 animate-pulse">
+                <ArrowRight className="w-10 h-10 mb-2" strokeWidth={2.5} />
                 <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Evolves To</span>
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg">
-                  <img src={getSpriteUrl(evolutionPkm.species.evolvesToId)} className="w-24 h-24 pixelated object-contain" />
+                <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg relative">
+                  {(evolutionPkm.megas || speciesInfo?.megas)?.length > 1 && (
+                    <div className="absolute -top-3 -right-3 flex gap-1">
+                      {(evolutionPkm.megas || speciesInfo?.megas).map((mega: any) => (
+                        <button
+                          key={mega.id}
+                          onClick={() => setSelectedMega(mega)}
+                          className={`w-8 h-8 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-blue-500 bg-blue-100 dark:bg-blue-900/50' : 'border-slate-300 bg-slate-100 dark:bg-slate-800 opacity-50'}`}
+                        >
+                          <img src={getSpriteUrl(mega.id)} className="w-full h-full pixelated object-contain" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {selectedMega || evolutionPkm.species.evolvesToId ? (
+                    <img src={getSpriteUrl(selectedMega ? selectedMega.id : evolutionPkm.species.evolvesToId)} className="w-24 h-24 pixelated object-contain" />
+                  ) : (
+                    <div className="w-24 h-24 flex items-center justify-center text-slate-400 font-bold">NONE</div>
+                  )}
                 </div>
-                <span className="mt-3 font-bold text-slate-900 dark:text-white capitalize text-lg tracking-wide">? ? ?</span>
+                <span className="mt-3 font-bold capitalize text-lg text-blue-600 dark:text-blue-400">{selectedMega ? selectedMega.name.replace('-', ' ') : evolutionPkm.species.evolvesTo?.name || 'Fully Evolved'}</span>
               </div>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 relative z-10 border border-slate-200 dark:border-slate-700">
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 border border-slate-200 dark:border-slate-700">
               <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Evolution Requirement</h4>
-              {evolutionPkm.species.evolutionLevel ? (
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl font-black text-slate-800 dark:text-white">Level {evolutionPkm.species.evolutionLevel}</span>
-                  <span className={`text-sm mt-1 font-bold ${evolutionPkm.level >= evolutionPkm.species.evolutionLevel ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    (Current: {evolutionPkm.level})
-                  </span>
-                </div>
-              ) : evolutionPkm.species.evolutionItem ? (
-                <div className="flex flex-col items-center">
-                  <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
-                  <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    In Bag: {save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
-                  </span>
-                </div>
-              ) : null}
+              {(() => {
+                if (selectedMega) {
+                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
+                  if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
+                  if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
+                  const hasMegaStone = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{megaStoneName.replace('-', ' ')}</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasMegaStone ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        In Bag: {save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity || 0}
+                      </span>
+                    </div>
+                  );
+                }
+                
+                if (evolutionPkm.species.evolutionLevel) {
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-2xl font-black text-slate-800 dark:text-white">Level {evolutionPkm.species.evolutionLevel}</span>
+                      <span className={`text-sm mt-1 font-bold ${evolutionPkm.level >= evolutionPkm.species.evolutionLevel ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        (Current: {evolutionPkm.level})
+                      </span>
+                    </div>
+                  );
+                }
+                
+                if (evolutionPkm.species.evolutionItem) {
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        In Bag: {save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
+                      </span>
+                    </div>
+                  );
+                }
+                
+                return null;
+              })()}
             </div>
 
             <div className="flex justify-center gap-4 relative z-10">
               <button
-                onClick={() => setEvolutionPkm(null)}
+                onClick={() => { setEvolutionPkm(null); setSelectedMega(null); }}
                 disabled={evolveMutation.isPending}
                 className="px-6 py-3 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
 
-              {((evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
-                (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0)) && (
+              {(() => {
+                let canPerformEvolution = false;
+                
+                if (selectedMega) {
+                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
+                  if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
+                  if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
+                  canPerformEvolution = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                } else if (evolutionPkm.species.evolvesToId) {
+                  canPerformEvolution = (evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
+                                        (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0);
+                }
+
+                return (
                   <button
-                    onClick={() => evolveMutation.mutate(evolutionPkm.id)}
-                    disabled={evolveMutation.isPending}
-                    className="px-8 py-3 font-black tracking-widest text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (selectedMega) {
+                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id } as any);
+                      } else {
+                        evolveMutation.mutate(evolutionPkm.id);
+                      }
+                    }}
+                    disabled={!canPerformEvolution || evolveMutation.isPending}
+                    className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
                   >
-                    {evolveMutation.isPending ? 'EVOLVING...' : 'EVOLVE NOW!'}
+                    {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
                   </button>
-                )}
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -647,7 +748,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -685,29 +786,24 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
               <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
                 <div className="flex flex-col items-center">
-                  <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
-                    <img src={getSpriteUrl(boostIvPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
-                  </div>
-                  <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 text-sm">
-                    {isGold ? 'All IVs' : 'Current IV'}: <span className="font-black text-slate-900 dark:text-white text-lg">{isGold ? 'VARIES' : statValue}</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">
+                    {isGold ? 'All IVs' : 'Current IV'}
                   </span>
+                  <span className="font-black text-slate-900 dark:text-white text-3xl">{isGold ? 'VARIES' : statValue}</span>
                 </div>
 
                 {!isMaxed && (
                   <div className="flex flex-col items-center justify-center text-blue-500 animate-pulse">
-                    <ArrowRight className="w-10 h-10 mb-2" strokeWidth={2.5} />
-                    <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Enhances To</span>
+                    <ArrowRight className="w-8 h-8" strokeWidth={2.5} />
                   </div>
                 )}
 
                 {!isMaxed && (
                   <div className="flex flex-col items-center">
-                    <div className="w-28 h-28 bg-white dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg">
-                      <img src={getSpriteUrl(boostIvPkm.speciesId)} className="w-24 h-24 pixelated object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
-                    </div>
-                    <span className="mt-3 font-bold text-slate-900 dark:text-white text-sm">
-                      {isGold ? 'All IVs' : 'Next IV'}: <span className="font-black text-blue-500 text-lg">31</span>
+                    <span className="font-bold text-slate-900 dark:text-white text-sm">
+                      {isGold ? 'All IVs' : 'Next IV'}
                     </span>
+                    <span className="font-black text-blue-500 text-3xl">31</span>
                   </div>
                 )}
                 {isMaxed && (

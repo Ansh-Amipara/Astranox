@@ -303,6 +303,12 @@ export class TrainersRepository {
     });
   }
 
+  async getSpeciesById(speciesId: number) {
+    return prisma.species.findUnique({
+      where: { id: speciesId }
+    });
+  }
+
   async getInventoryItem(trainerId: string, itemId: string) {
     return prisma.inventoryItem.findUnique({
       where: {
@@ -393,6 +399,52 @@ export class TrainersRepository {
       }),
     ]);
     return results[0];
+  }
+
+  async findPokemonById(pokemonId: string): Promise<any> {
+    return prisma.ownedPokemon.findUnique({
+      where: { id: pokemonId },
+      include: {
+        species: { include: { type1: true, type2: true } },
+        moves: { include: { move: { include: { type: true } } } }
+      }
+    });
+  }
+
+  async distributeXp(trainerId: string, pokemonId: string, actualAdd: number, newXp: number, newLevel: number) {
+    return prisma.$transaction(async (tx) => {
+      const updatedTrainer = await tx.trainerSave.update({
+        where: { id: trainerId },
+        data: { storedXp: { decrement: actualAdd } } as any,
+        include: {
+          party: {
+            where: { isParty: true },
+            orderBy: { position: 'asc' },
+            include: { 
+              species: { include: { type1: true, type2: true } },
+              moves: { include: { move: { include: { type: true } } } }
+            }
+          },
+          inventory: {
+            include: { item: true }
+          }
+        }
+      });
+
+      const updatedPokemon = await tx.ownedPokemon.update({
+        where: { id: pokemonId },
+        data: {
+          currentXp: newXp,
+          level: newLevel
+        },
+        include: {
+          species: { include: { type1: true, type2: true } },
+          moves: { include: { move: { include: { type: true } } } }
+        }
+      });
+
+      return { trainer: updatedTrainer, pokemon: updatedPokemon };
+    });
   }
 }
 

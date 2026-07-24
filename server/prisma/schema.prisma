@@ -13,6 +13,7 @@ enum Role {
 }
 
 enum TrainerRank {
+  NO_RANK
   F_RANK
   E_RANK
   D_RANK
@@ -74,14 +75,14 @@ model TrainerSave {
   astralCoins     Int       @default(3000)
   infinityCoins   Int       @default(0)
   voidCoins       Int       @default(0)
-  rank            TrainerRank @default(F_RANK)
+  storedXp        Int       @default(0)
+  rank            TrainerRank @default(NO_RANK)
 
   badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
 
   party        OwnedPokemon[]
   inventory    InventoryItem[]
   battles      BattleSession[]
-  defeatedNpcs TrainerDefeatedNpc[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -192,7 +193,6 @@ model Move {
 
   learnsets             Learnset[]
   ownedPokemonMove      OwnedPokemonMove[]
-  npcTrainerPokemonMove NpcTrainerPokemonMove[]
 }
 
 model Species {
@@ -278,7 +278,6 @@ model BattleSession {
   turnNumber Int          @default(1)
 
   playerActivePokemonId String  @db.ObjectId
-  npcTrainerId          String? @db.ObjectId
 
   opponentPokemonData Json  @default("{}") // Replaces wildPokemonData
   opponentPartyData   Json? // Array of all NPC party members
@@ -305,68 +304,7 @@ enum TrainerType {
   OPERATIVE
 }
 
-model NpcTrainer {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  spriteUrl    String
-  trainerClass String
-  rewardAstralCoins Int    @default(0)
-  rewardInfinityCoins Int  @default(0)
-  rewardVoidCoins Int      @default(0)
-  badgeName    String?
-  trainerType  TrainerType @default(NORMAL)
-  region       String      @default("Lunaris")
 
-  party      NpcTrainerPokemon[]
-  defeatedBy TrainerDefeatedNpc[]
-}
-
-model NpcTrainerPokemon {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  npcTrainerId String     @db.ObjectId
-  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  speciesId Int
-  level     Int @default(5)
-  potential PokemonPotential @default(BLACK_IRON)
-  position  Int @default(0)
-
-  // IVs
-  ivHp      Int @default(0)
-  ivAttack  Int @default(0)
-  ivDefense Int @default(0)
-  ivSpAtk   Int @default(0)
-  ivSpDef   Int @default(0)
-  ivSpeed   Int @default(0)
-
-  // Moves
-  moves NpcTrainerPokemonMove[]
-}
-
-model NpcTrainerPokemonMove {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  npcTrainerPokemonId String            @db.ObjectId
-  moveId              Int
-  slot                Int               @default(0)
-
-  npcTrainerPokemon   NpcTrainerPokemon @relation(fields: [npcTrainerPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  move                Move              @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([npcTrainerPokemonId, slot])
-}
-
-model TrainerDefeatedNpc {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  trainerId String      @db.ObjectId
-  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  npcTrainerId String     @db.ObjectId
-  npcTrainer   NpcTrainer @relation(fields: [npcTrainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  defeatedAt DateTime @default(now())
-
-  @@unique([trainerId, npcTrainerId])
-}
 
 model AuditLog {
   id String @id @default(auto()) @map("_id") @db.ObjectId

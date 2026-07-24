@@ -93,7 +93,7 @@ export const ActionMenu = memo(function ActionMenu({
         <button
           onClick={onOpenBag}
           title="Bag"
-          className={`w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 border border-slate-200 dark:border-slate-700 ${battleType === 'NPC' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          className="w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 border border-slate-200 dark:border-slate-700"
         >
           <GiBackpack size={28} />
         </button>

@@ -23,6 +23,7 @@ import { InfoPage } from '@/views/info/ui/InfoPage';
 import { Pokemart } from '@/views/pokemart/ui/Pokemart';
 import { TeamPage } from '@/views/team/ui/TeamPage';
 import { TradeScreen } from '@/views/trade/ui/TradeScreen';
+import { AcademyPage } from '@/views/academy/ui/AcademyPage';
 import { NotFound } from '@/views/not-found/ui/NotFound';
 
 function GameLayout() {
@@ -72,10 +73,10 @@ export default function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="rank" element={<RankPage />} />
           <Route path="info" element={<InfoPage />} />
-
           <Route path="shop" element={<Pokemart />} />
           <Route path="team" element={<TeamPage />} />
           <Route path="trade" element={<TradeScreen />} />
+          <Route path="academy" element={<AcademyPage />} />
         </Route>
 
         {/* Fallback */}

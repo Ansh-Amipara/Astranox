@@ -15,10 +15,6 @@ export class ActiveState implements IBattleState {
     const { validator, turn, reward, persistence, event, log } = services;
 
     if (action === 'run') {
-      if (session.battleType === 'NPC') {
-        throw new ValidationError('You cannot run from an NPC battle.');
-      }
-
       const fledEvent = event.createFledEvent(session.playerActivePokemonId);
       const updatedLog = log.appendTurnLog(session.log, session.turnNumber, [fledEvent]);
 
@@ -105,12 +101,15 @@ export class ActiveState implements IBattleState {
     const p1Index = playerPartyData.findIndex(p => p.id === result.p1State.id);
     if (p1Index !== -1) playerPartyData[p1Index] = result.p1State;
 
+    let opponentPartyData = (session.opponentPartyData as any[]) || [];
+    const p2Index = opponentPartyData.findIndex(p => p.id === result.p2State.id);
+    if (p2Index !== -1) opponentPartyData[p2Index] = result.p2State;
+
     // --- CHECK RESULTS ---
     const catchEvent = result.events.find(e => e.type === 'catch_attempt') as any;
     const isCaught = catchEvent && catchEvent.success;
 
     let newStatus: BattleStatus = BattleStatus.ACTIVE;
-    let opponentPartyData = (session.opponentPartyData as any[]) || [];
 
     if (isCaught) {
       newStatus = BattleStatus.CAUGHT;
@@ -118,26 +117,94 @@ export class ActiveState implements IBattleState {
       const hasHealthy = playerPartyData.some(p => p.currentHp > 0);
       newStatus = hasHealthy ? BattleStatus.WAITING_SWITCH : BattleStatus.LOST;
     } else if (result.p2State.currentHp <= 0) {
-      
-      const faintResult = await reward.processFaintRewards(result, wildPokemon, tx);
+      const faintResult = await reward.processFaintRewards(result, wildPokemon, tx, session.battleType, session.trainerId);
       if (faintResult.newStatus) {
          newStatus = faintResult.newStatus;
       }
       await persistence.syncPartyExperience(playerPartyData, result.p1State, tx);
 
-      if (session.battleType === 'NPC') {
-        const p2Index = opponentPartyData.findIndex(p => p.id === result.p2State.id);
-        if (p2Index !== -1) opponentPartyData[p2Index] = result.p2State;
-        
-        const nextHealthy = opponentPartyData.find(p => p.currentHp > 0);
-        if (nextHealthy) {
-          result.p2State = nextHealthy;
-          result.events.push(event.createSwitchEvent(nextHealthy.id, nextHealthy.id, nextHealthy.speciesName, false));
-        } else if (newStatus === BattleStatus.ACTIVE) {
+      if (newStatus === BattleStatus.ACTIVE) {
+        const nextOpponent = opponentPartyData.find((p: any) => p.currentHp > 0);
+        if (nextOpponent) {
+          result.p2State = nextOpponent;
+          result.events.push({
+            type: 'opponent_switch',
+            pokemonId: nextOpponent.id,
+            pokemonName: nextOpponent.speciesName || nextOpponent.name
+          });
+        } else {
           newStatus = BattleStatus.WON;
+          if (wildPokemon.isRankExam && wildPokemon.targetRank) {
+            const currentSave = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
+            const coinsToGive = wildPokemon.examinerCoins ? Number(wildPokemon.examinerCoins) : 0;
+            
+            await tx.trainerSave.update({
+              where: { id: session.trainerId },
+              data: {
+                rank: wildPokemon.targetRank as any,
+                ...(coinsToGive > 0 ? { astralCoins: (currentSave?.astralCoins || 0) + coinsToGive } : {})
+              }
+            });
+
+            if (coinsToGive > 0) {
+              result.events.push({
+                type: 'coin_reward',
+                amount: coinsToGive,
+                message: `Rank Examiner Reward: +${coinsToGive} Astral Coins!`
+              });
+            }
+
+            if (wildPokemon.examinerItems && Array.isArray(wildPokemon.examinerItems)) {
+              for (const rawItemName of wildPokemon.examinerItems) {
+                try {
+                  const itemId = rawItemName.toLowerCase().replace(/\s+/g, '-');
+                  const dbItem = await tx.item.findUnique({ where: { id: itemId } });
+                  if (dbItem) {
+                    await tx.inventoryItem.upsert({
+                      where: {
+                        trainerId_itemId: {
+                          trainerId: session.trainerId,
+                          itemId: dbItem.id
+                        }
+                      },
+                      update: { quantity: { increment: 1 } },
+                      create: {
+                        trainerId: session.trainerId,
+                        itemId: dbItem.id,
+                        quantity: 1
+                      }
+                    });
+                    result.events.push({
+                      type: 'item_received',
+                      item: dbItem.name,
+                      message: `Rank Examiner Item: Received 1x ${dbItem.name}!`
+                    });
+                  }
+                } catch (itemErr) {
+                  console.error('Failed to grant examiner item reward:', itemErr);
+                }
+              }
+            }
+
+            result.events.push({
+              type: 'rank_promotion',
+              rank: wildPokemon.targetRank,
+              message: `Rank Exam Passed! Promoted to ${wildPokemon.targetRank.replace('_', ' ')}!`
+            });
+          } else if (wildPokemon.isAcademyNpc && wildPokemon.examinerCoins) {
+            const currentSave = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
+            const coinsToGive = Number(wildPokemon.examinerCoins);
+            await tx.trainerSave.update({
+              where: { id: session.trainerId },
+              data: { astralCoins: (currentSave?.astralCoins || 0) + coinsToGive }
+            });
+            result.events.push({
+              type: 'coin_reward',
+              amount: coinsToGive,
+              message: `Academy Match Reward: +${coinsToGive} Astral Coins!`
+            });
+          }
         }
-      } else if (newStatus === BattleStatus.ACTIVE) {
-        newStatus = BattleStatus.WON;
       }
     }
 
@@ -163,15 +230,6 @@ export class ActiveState implements IBattleState {
     // --- POST-BATTLE PROCESSING ---
     if (isCaught) {
       await persistence.saveCaughtPokemon(trainerSave, wildPokemon, tx);
-    }
-
-    if (newStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
-       const rewardRes = await reward.processNpcVictory(trainerSave, session.npcTrainerId, tx);
-       if (rewardRes) {
-         if (rewardRes.astralCoinsGained > 0) result.events.push({ type: 'text', text: `You won ${rewardRes.astralCoinsGained} Astral Coins for winning!` });
-         if (rewardRes.infinityCoinsGained > 0) result.events.push({ type: 'text', text: `You won ${rewardRes.infinityCoinsGained} Infinity Coins for winning!` });
-         if (rewardRes.voidCoinsGained > 0) result.events.push({ type: 'text', text: `You won ${rewardRes.voidCoinsGained} Void Coins for winning!` });
-       }
     }
 
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, result.events);

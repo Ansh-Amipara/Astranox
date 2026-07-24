@@ -21,3 +21,4 @@ trainersRoutes.delete('/:pokemonId', gameplayLimiter, controller.releasePokemon)
 trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, controller.evolvePokemon);
 trainersRoutes.post('/party/:pokemonId/boost-potential', gameplayLimiter, controller.boostPotential);
 trainersRoutes.post('/party/:pokemonId/boost-ivs', gameplayLimiter, controller.boostIv);
+trainersRoutes.post('/distribute-xp', gameplayLimiter, controller.distributeXp);

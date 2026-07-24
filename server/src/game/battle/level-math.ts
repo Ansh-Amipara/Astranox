@@ -20,7 +20,7 @@ export function getLevelFromXp(xp: number): number {
   if (xp <= 0) return 1;
   const x = xp / 50;
   const level = Math.floor((1 + Math.sqrt(1 + 4 * x)) / 2);
-  return Math.min(200, Math.max(1, level));
+  return Math.max(1, level);
 }
 
 /**

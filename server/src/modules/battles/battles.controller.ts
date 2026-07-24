@@ -43,6 +43,19 @@ export class BattlesController {
     }
   };
 
+  startAcademyEncounter = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { npcName } = req.body;
+      const userId = (req as any).user.id;
+
+      const result = await this.service.startAcademyEncounter(userId, npcName);
+
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getAvailableSpecies = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const species = await this.service.getAvailableSpecies();

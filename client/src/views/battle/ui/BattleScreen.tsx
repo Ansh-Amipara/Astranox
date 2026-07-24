@@ -5,7 +5,7 @@ import { BattleArena } from '../../../features/battle/ui/BattleArena';
 import { BattleControls } from '../../../features/battle/ui/BattleControls';
 import { BattleLog } from '../../../features/battle/ui/BattleLog';
 import { BattleResultModal } from '../../../features/battle/ui/BattleResultModal';
-import { getSpriteUrl } from '../../../shared/api/api';
+import { getSpriteUrl, api } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
 
 export function BattleScreen() {
@@ -55,12 +55,8 @@ export function BattleScreen() {
   }, [turnMutation]);
 
   const handleOpenBag = useCallback(() => {
-    if (battleType === 'NPC') {
-      showToast("You can't catch other trainers' Pokémon!");
-    } else {
-      setMenu('bag');
-    }
-  }, [battleType, showToast]);
+    setMenu('bag');
+  }, []);
 
   const handleOpenParty = useCallback(() => {
     setMenu('party');
@@ -73,9 +69,27 @@ export function BattleScreen() {
 
   if (error || !battleRes) {
     return (
-      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200">
-        <p>No active battle found.</p>
-        <button onClick={() => navigate(returnUrl)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold transition-colors">Return</button>
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200 p-6 text-center">
+        <h2 className="text-2xl font-black">No Active Battle</h2>
+        <p className="text-slate-500 max-w-sm text-sm">You currently do not have an ongoing battle session. Start a new encounter below!</p>
+        <div className="flex gap-3">
+          <button
+            onClick={async () => {
+              try {
+                await api.post('/battles/realm-encounter', {});
+                window.location.reload();
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-extrabold transition-all shadow-lg shadow-red-500/20"
+          >
+            Start Encounter
+          </button>
+          <button onClick={() => navigate(returnUrl)} className="px-5 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors">
+            Return
+          </button>
+        </div>
       </div>
     );
   }

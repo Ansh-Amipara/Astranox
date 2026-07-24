@@ -11,7 +11,6 @@ import { trainersRoutes } from './modules/trainers/trainers.routes';
 import { battlesRoutes } from './modules/battles/battles.routes';
 import { shopRoutes } from './modules/shop/shop.routes';
 import { adminRoutes } from './modules/admin/admin.routes';
-import { npcsRoutes } from './modules/npcs/npcs.routes';
 import { tradesRoutes } from './modules/trades/trades.routes';
 import { rankRoutes } from './modules/rank/rank.routes';
 
@@ -41,7 +40,6 @@ app.use('/trainers', trainersRoutes);
 app.use('/battles', battlesRoutes);
 app.use('/shop', shopRoutes);
 app.use('/admin', adminRoutes);
-app.use('/npcs', npcsRoutes);
 app.use('/trades', tradesRoutes);
 app.use('/rank', rankRoutes);
 

@@ -73,6 +73,16 @@ export function Home() {
               </div>
             </div>
 
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center p-1.5">
+                <img src="/xp.png" alt="Stored XP" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stored XP</p>
+                <p className="text-lg font-black text-indigo-600 dark:text-indigo-400">{save.storedXp?.toLocaleString() || 0} XP</p>
+              </div>
+            </div>
+
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden md:flex">
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <FiAward className="text-xl" />

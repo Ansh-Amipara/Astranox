@@ -68,10 +68,6 @@ export class WaitingMoveLearnState implements IBattleState {
     } else {
       nextStatus = (playerPokemon as any).finalStatusAfterMoveLearn || BattleStatus.WON;
       delete (playerPokemon as any).finalStatusAfterMoveLearn;
-      
-      if (nextStatus === BattleStatus.WON && session.battleType === 'NPC' && session.npcTrainerId) {
-        await services.reward.processNpcVictory(trainerSave, session.npcTrainerId, tx);
-      }
     }
 
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, eventLog);

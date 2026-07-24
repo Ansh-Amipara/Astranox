@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { api } from '../../../shared/api/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { api } from '../../../shared/api/api';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 
 export function RankPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { data: statusResponse, isLoading } = useQuery({
     queryKey: ['rankStatus'],
@@ -16,10 +18,12 @@ export function RankPage() {
   const examMutation = useMutation({
     mutationFn: () => api.post('/rank/exam'),
     onSuccess: () => {
-      const returnUrl = '/rank';
+      setError(null);
+      queryClient.invalidateQueries({ queryKey: ['battleSession'] });
       navigate('/battle');
     },
     onError: (err: any) => {
+      setSuccessMessage(null);
       setError(err.response?.data?.error?.message || 'Failed to start exam');
     }
   });
@@ -40,6 +44,13 @@ export function RankPage() {
       <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Trainer Rank</h1>
       </div>
+
+      {successMessage && (
+        <div className="mb-6 p-4 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 font-bold rounded-xl border border-green-200 dark:border-green-800/50 flex items-center gap-3">
+          <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 shrink-0" />
+          <span>{successMessage}</span>
+        </div>
+      )}
 
       {error && (
         <div className="mb-6 p-4 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 font-bold rounded-xl border border-red-200 dark:border-red-800/50">

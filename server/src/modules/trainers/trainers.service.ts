@@ -140,7 +140,7 @@ export class TrainersService {
     return true;
   }
 
-  async evolvePokemon(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
+  async evolvePokemon(userId: string, pokemonId: string, targetSpeciesId?: number): Promise<OwnedPokemonDto> {
     const save = await this.repo.findByUserId(userId);
     if (!save) throw new NotFoundError('Save not found');
     
@@ -150,26 +150,53 @@ export class TrainersService {
     }
 
     const species = pokemon.species;
-    if (!species.evolvesToId) {
-      throw new ValidationError('This Pokemon cannot evolve.');
-    }
-
+    let finalEvolvesToId: number;
     let itemIdToConsume: string | undefined;
 
-    if (species.evolutionLevel && pokemon.level >= species.evolutionLevel) {
-      // Level requirement met
-    } else if (species.evolutionItem) {
-      // Stone requirement
-      const item = await this.repo.getInventoryItem(save.id, species.evolutionItem);
-      if (!item || item.quantity <= 0) {
-        throw new ValidationError(`You do not have the required ${species.evolutionItem} to evolve this Pokemon.`);
+    if (targetSpeciesId) {
+      // Mega evolution logic
+      const targetSpecies = await this.repo.getSpeciesById(targetSpeciesId);
+      if (!targetSpecies) throw new NotFoundError('Target species not found');
+      
+      if (!targetSpecies.isMega || targetSpecies.baseSpeciesId !== species.id) {
+        throw new ValidationError('Invalid mega evolution target.');
       }
-      itemIdToConsume = species.evolutionItem;
+
+      // Convert name format 'metagross-mega' -> 'metagrossite', 'charizard-mega-x' -> 'charizardite-x'
+      let megaStoneName = targetSpecies.name.replace('-mega', 'ite');
+      if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
+      if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
+
+      const item = await this.repo.getInventoryItem(save.id, megaStoneName);
+      if (!item || item.quantity <= 0) {
+        throw new ValidationError(`You do not have the required ${megaStoneName.replace('-', ' ')} to mega evolve this Pokemon.`);
+      }
+
+      finalEvolvesToId = targetSpecies.id;
+      itemIdToConsume = megaStoneName;
     } else {
-      throw new ValidationError('This Pokemon has not met its evolution requirements yet.');
+      // Normal evolution logic
+      if (!species.evolvesToId) {
+        throw new ValidationError('This Pokemon cannot evolve.');
+      }
+
+      if (species.evolutionLevel && pokemon.level >= species.evolutionLevel) {
+        // Level requirement met
+      } else if (species.evolutionItem) {
+        // Stone requirement
+        const item = await this.repo.getInventoryItem(save.id, species.evolutionItem);
+        if (!item || item.quantity <= 0) {
+          throw new ValidationError(`You do not have the required ${species.evolutionItem} to evolve this Pokemon.`);
+        }
+        itemIdToConsume = species.evolutionItem;
+      } else {
+        throw new ValidationError('This Pokemon has not met its evolution requirements yet.');
+      }
+      
+      finalEvolvesToId = species.evolvesToId;
     }
 
-    const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, species.evolvesToId, itemIdToConsume);
+    const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, finalEvolvesToId, itemIdToConsume);
     // Since evolvePokemon doesn't return the fully included entity, we should fetch it or map what we have.
     // However, the previous implementation just returned evolvedPokemon which is the OwnedPokemon object.
     const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);
@@ -266,6 +293,55 @@ export class TrainersService {
     }
 
     throw new ValidationError('Invalid item type provided for IV boost.');
+  }
+
+  async distributeXp(userId: string, pokemonId: string, amount: number): Promise<{ trainer: TrainerSaveDto; pokemon: OwnedPokemonDto }> {
+    if (!amount || amount <= 0) {
+      throw new ValidationError('XP amount must be greater than 0.');
+    }
+
+    const trainer = await this.repo.findByUserId(userId);
+    if (!trainer) throw new NotFoundError('Trainer save not found.');
+
+    if (trainer.storedXp < amount) {
+      throw new ValidationError(`Insufficient Stored XP. You have ${trainer.storedXp} XP available.`);
+    }
+
+    const pokemon = await this.repo.findPokemonById(pokemonId);
+    if (!pokemon || pokemon.trainerId !== trainer.id) {
+      throw new NotFoundError('Pokémon not found in your collection.');
+    }
+
+    const { getLevelFromXp, getXpForLevel } = require('../../game/battle/level-math');
+    const { getMaxLevelForPotential } = require('../../game/instance/PokemonInstance');
+
+    const maxLevel = getMaxLevelForPotential(pokemon.potential);
+    const maxXpForPotential = getXpForLevel(maxLevel + 1) - 1;
+
+    let actualAdd = amount;
+    if (pokemon.currentXp + amount > maxXpForPotential) {
+      actualAdd = Math.max(0, maxXpForPotential - pokemon.currentXp);
+    }
+
+    if (actualAdd <= 0) {
+      throw new ValidationError(`This Pokémon is already capped at maximum level for its potential (${pokemon.potential}).`);
+    }
+
+    const newXp = pokemon.currentXp + actualAdd;
+    const newLevel = getLevelFromXp(newXp);
+
+    const { trainer: updatedTrainer, pokemon: updatedPokemon } = await this.repo.distributeXp(
+      trainer.id,
+      pokemon.id,
+      actualAdd,
+      newXp,
+      newLevel
+    );
+
+    return {
+      trainer: TrainerMapper.toTrainerSaveDto(updatedTrainer as any),
+      pokemon: TrainerMapper.toOwnedPokemonDto(updatedPokemon as any)
+    };
   }
 }
 

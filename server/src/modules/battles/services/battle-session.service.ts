@@ -5,6 +5,8 @@ import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { mapOwnedPokemonToInstance } from '../../trainers/owned-pokemon.mapper';
 import { ActivePokemon } from '../../../game/battle-state/types';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -212,7 +214,7 @@ export class BattleSessionService {
       throw new ValidationError('You are already in a battle.');
     }
 
-    const realm = await prisma.astralRealm.findUnique({ where: { id: realmId } });
+    const realm = await (prisma as any).astralRealm.findUnique({ where: { id: realmId } });
     if (!realm) {
       throw new NotFoundError('Realm not found.');
     }
@@ -441,93 +443,6 @@ export class BattleSessionService {
     };
   }
 
-  async engageNpc(userId: string, npcTrainerId: string) {
-    const trainerSave = await this.trainersRepo.findByUserId(userId);
-    if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
-
-    const active = await this.repository.getActiveBattleByTrainer(trainerSave.id);
-    if (active) throw new ValidationError('You are already in a battle.');
-
-    if (trainerSave.party.length === 0) throw new ValidationError('You have no Pokemon to battle with!');
-
-    const npc = await prisma.npcTrainer.findUnique({
-      where: { id: npcTrainerId },
-      include: { party: { orderBy: { position: 'asc' } } }
-    });
-
-    if (!npc || npc.party.length === 0) throw new NotFoundError('NPC Trainer not found or has no Pokemon.');
-
-    const opponentPartyData = [];
-    for (const p of npc.party) {
-       const species = await prisma.species.findUnique({ where: { id: p.speciesId }, include: { type1: true, type2: true } });
-       if (!species) continue;
-       
-       const types = [species.type1.name];
-       if (species.type2) types.push(species.type2.name);
-
-       const learnset = await prisma.learnset.findMany({
-         where: { speciesId: p.speciesId, level: { lte: p.level } },
-         orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
-         include: { move: { include: { type: true } } }
-       });
-
-       const uniqueMoves: any[] = [];
-       const seen = new Set();
-       for (let i = learnset.length - 1; i >= 0; i--) {
-         if (!seen.has(learnset[i].moveId)) {
-           seen.add(learnset[i].moveId);
-           uniqueMoves.unshift(learnset[i]);
-         }
-       }
-
-       const latestMoves = uniqueMoves.slice(-4);
-       const moves = latestMoves.map((m: any, i: number) => ({
-         moveId: m.moveId,
-         currentSlot: i,
-         name: m.move.name,
-         type: m.move.type.name
-       }));
-
-       const npcInstance = createPokemonInstance({
-         id: p.id,
-         nickname: species.name,
-         level: p.level,
-         potential: getNpcPotential(p.level),
-         ivs: { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed },
-         species: {
-           id: species.id,
-           name: species.name,
-           types,
-           baseStats: { hp: species.hp, attack: species.attack, defense: species.defense, spAtk: species.spAtk, spDef: species.spDef, speed: species.speed }
-         },
-         moves
-       });
-       opponentPartyData.push(toActivePokemon(npcInstance));
-    }
-
-    if (opponentPartyData.length === 0) throw new ValidationError('NPC party is invalid.');
-
-    const playerLead = mapOwnedPokemonToInstance(trainerSave.party[0] as any);
-    const playerActive = toActivePokemon(playerLead);
-    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
-
-    const session = await this.repository.createBattleSession({
-      trainerId: trainerSave.id,
-      playerActivePokemonId: playerActive.id,
-      opponentPokemonData: opponentPartyData[0],
-      opponentPartyData,
-      playerPokemonData: playerActive,
-      playerPartyData,
-      battleType: 'NPC',
-      npcTrainerId
-    });
-
-    return {
-      npcTrainer: { id: npc.id, name: npc.name, spriteUrl: npc.spriteUrl, trainerClass: npc.trainerClass },
-      battleSession: session
-    };
-  }
-
   async getActiveSession(userId: string) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
     if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
@@ -535,4 +450,428 @@ export class BattleSessionService {
     if (!session) throw new NotFoundError('No active battle session found.');
     return session;
   }
+
+  async startRankExamEncounter(userId: string, targetRank: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) {
+      throw new NotFoundError('Trainer save not found');
+    }
+    const trainerId = trainerSave.id;
+
+    const active = await this.repository.getActiveBattleByTrainer(trainerId);
+    if (active) {
+      throw new ValidationError('You are already in a battle.');
+    }
+
+    const config = RANK_EXAMINERS[targetRank];
+    if (!config) {
+      throw new ValidationError(`No examiner configured for rank ${targetRank}`);
+    }
+
+    const level = config.level;
+    const opponentPartyData: any[] = [];
+
+    for (const speciesName of config.team) {
+      const cleanName = speciesName.toLowerCase();
+      let species = await prisma.species.findFirst({
+        where: {
+          OR: [
+            { name: cleanName },
+            { name: cleanName.replace(/-/g, '') },
+            { name: { startsWith: cleanName.split('-')[0] } }
+          ]
+        },
+        include: { type1: true, type2: true }
+      });
+
+      if (!species) {
+        species = await prisma.species.findFirst({
+          where: { name: 'pikachu' },
+          include: { type1: true, type2: true }
+        });
+      }
+
+      if (!species) continue;
+
+      const ivs = generateWildIVs();
+      const types = [species.type1.name];
+      if (species.type2) types.push(species.type2.name);
+
+      const inst = createPokemonInstance({
+        id: crypto.randomUUID(),
+        nickname: species.name.toUpperCase(),
+        level,
+        potential: getNpcPotential(level),
+        ivs,
+        species: {
+          id: species.id,
+          name: species.name,
+          types,
+          baseStats: {
+            hp: species.hp,
+            attack: species.attack,
+            defense: species.defense,
+            spAtk: species.spAtk,
+            spDef: species.spDef,
+            speed: species.speed
+          }
+        },
+        moves: []
+      });
+
+      const learnset = await prisma.learnset.findMany({
+        where: { speciesId: species.id, level: { lte: level } },
+        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+        include: { move: { include: { type: true } } }
+      });
+
+      const uniqueMoves: any[] = [];
+      const seen = new Set();
+      for (let i = learnset.length - 1; i >= 0; i--) {
+        if (!seen.has(learnset[i].moveId)) {
+          seen.add(learnset[i].moveId);
+          uniqueMoves.unshift(learnset[i]);
+        }
+      }
+
+      const latestMoves = uniqueMoves.slice(-4);
+      inst.moves = latestMoves.map((m: any, i: number) => ({
+        moveId: m.moveId,
+        currentSlot: i,
+        name: m.move.name,
+        type: m.move.type.name
+      }));
+
+      const activeMon = toActivePokemon(inst);
+      (activeMon as any).isRankExam = true;
+      (activeMon as any).targetRank = targetRank;
+      (activeMon as any).examinerName = config.name;
+      (activeMon as any).examinerCoins = config.coins;
+      (activeMon as any).examinerItems = config.items;
+
+      opponentPartyData.push(activeMon);
+    }
+
+    if (opponentPartyData.length === 0) {
+      throw new ValidationError('Failed to generate Rank Examiner team.');
+    }
+
+    const leadOpponent = opponentPartyData[0];
+
+    if (trainerSave.party.length === 0) {
+      throw new ValidationError('You have no Pokemon to battle with!');
+    }
+    const lead = trainerSave.party[0];
+    const playerInstance = mapOwnedPokemonToInstance(lead as any);
+    const playerActive = toActivePokemon(playerInstance);
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
+    const session = await this.repository.createBattleSession({
+      trainerId,
+      playerActivePokemonId: playerActive.id,
+      opponentPokemonData: leadOpponent,
+      playerPokemonData: playerActive,
+      playerPartyData,
+      opponentPartyData,
+      battleType: 'NPC'
+    });
+
+    return session;
+  }
+
+  async startAcademyEncounter(userId: string, npcName: string) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) throw new NotFoundError('Trainer save not found');
+
+    const active = await this.repository.getActiveBattleByTrainer(trainerSave.id);
+    if (active) throw new ValidationError('You are already in a battle.');
+
+    // Load academy data
+    const academyPath = path.join(process.cwd(), '../client/src/shared/data/academy.json');
+    let academyData;
+    try {
+      academyData = JSON.parse(fs.readFileSync(academyPath, 'utf-8'));
+    } catch (err) {
+      throw new ValidationError('Could not load Academy data.');
+    }
+
+    let npcConfig = null;
+    for (const section of academyData) {
+      const found = section.npcs.find((n: any) => n.name === npcName);
+      if (found) {
+        npcConfig = found;
+        break;
+      }
+    }
+
+    if (!npcConfig) {
+      throw new NotFoundError(`Academy NPC ${npcName} not found.`);
+    }
+
+    // Extract level from rank string, e.g. "SS Lv. 1526"
+    const levelMatch = npcConfig.rank.match(/Lv\.\s*(\d+)/);
+    const level = levelMatch ? parseInt(levelMatch[1]) : 1;
+
+    const opponentPartyData: any[] = [];
+    for (const speciesName of npcConfig.team) {
+      const cleanName = speciesName.toLowerCase();
+      let species = await prisma.species.findFirst({
+        where: {
+          OR: [
+            { name: cleanName },
+            { name: cleanName.replace(/-/g, '') },
+            { name: { startsWith: cleanName.split('-')[0] } }
+          ]
+        },
+        include: { type1: true, type2: true }
+      });
+
+      if (!species) {
+        species = await prisma.species.findFirst({
+          where: { name: 'pikachu' },
+          include: { type1: true, type2: true }
+        });
+      }
+
+      if (!species) continue;
+
+      const ivs = generateWildIVs();
+      const types = [species.type1.name];
+      if (species.type2) types.push(species.type2.name);
+
+      const inst = createPokemonInstance({
+        id: crypto.randomUUID(),
+        nickname: species.name.toUpperCase(),
+        level,
+        potential: getNpcPotential(level),
+        ivs,
+        species: {
+          id: species.id,
+          name: species.name,
+          types,
+          baseStats: { hp: species.hp, attack: species.attack, defense: species.defense, spAtk: species.spAtk, spDef: species.spDef, speed: species.speed }
+        },
+        moves: []
+      });
+
+      const learnset = await prisma.learnset.findMany({
+        where: { speciesId: species.id, level: { lte: level } },
+        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+        include: { move: { include: { type: true } } }
+      });
+
+      const uniqueMoves: any[] = [];
+      const seen = new Set();
+      for (let i = learnset.length - 1; i >= 0; i--) {
+        if (!seen.has(learnset[i].moveId)) {
+          seen.add(learnset[i].moveId);
+          uniqueMoves.unshift(learnset[i]);
+        }
+      }
+
+      const latestMoves = uniqueMoves.slice(-4);
+      inst.moves = latestMoves.map((m: any, i: number) => ({
+        moveId: m.moveId,
+        currentSlot: i,
+        name: m.move.name,
+        type: m.move.type.name
+      }));
+
+      const activeMon = toActivePokemon(inst);
+      (activeMon as any).isAcademyNpc = true;
+      (activeMon as any).examinerName = npcConfig.name;
+      (activeMon as any).examinerCoins = npcConfig.coins;
+      (activeMon as any).examinerXp = npcConfig.xp;
+
+      opponentPartyData.push(activeMon);
+    }
+
+    if (opponentPartyData.length === 0) {
+      throw new ValidationError('Failed to generate Academy NPC team.');
+    }
+
+    const leadOpponent = opponentPartyData[0];
+
+    if (trainerSave.party.length === 0) {
+      throw new ValidationError('You have no Pokemon to battle with!');
+    }
+    const lead = trainerSave.party[0];
+    const playerInstance = mapOwnedPokemonToInstance(lead as any);
+    const playerActive = toActivePokemon(playerInstance);
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
+    const session = await this.repository.createBattleSession({
+      trainerId: trainerSave.id,
+      playerActivePokemonId: playerActive.id,
+      opponentPokemonData: leadOpponent,
+      playerPokemonData: playerActive,
+      playerPartyData,
+      opponentPartyData,
+      battleType: 'NPC'
+    });
+
+    return session;
+  }
 }
+
+export const RANK_EXAMINERS: Record<string, {
+  name: string;
+  targetRank: string;
+  level: number;
+  ace: string;
+  team: string[];
+  coins: number;
+  xp: number;
+  items: string[];
+}> = {
+  'F_RANK': {
+    name: 'F Rank Examiner',
+    targetRank: 'F_RANK',
+    level: 1,
+    ace: 'luxio',
+    team: ['pidgeotto', 'luxio'],
+    coins: 300,
+    xp: 1000,
+    items: ['Bronze Pearl']
+  },
+  'E_RANK': {
+    name: 'E Rank Examiner',
+    targetRank: 'E_RANK',
+    level: 61,
+    ace: 'magmortar',
+    team: ['pidgeot', 'luxray', 'magmortar'],
+    coins: 1000,
+    xp: 5000,
+    items: ['Silver Pearl', 'Gold Pearl']
+  },
+  'D_RANK': {
+    name: 'E Rank Examiner',
+    targetRank: 'D_RANK',
+    level: 121,
+    ace: 'charizard',
+    team: ['charizard', 'blastoise', 'venusaur', 'sceptile'],
+    coins: 3000,
+    xp: 15000,
+    items: ['Platinum Pearl', 'Adamantite Pearl']
+  },
+  'C_RANK': {
+    name: 'D Rank Examiner',
+    targetRank: 'C_RANK',
+    level: 201,
+    ace: 'garchomp',
+    team: ['dragonite', 'tyranitar', 'salamence', 'metagross', 'garchomp'],
+    coins: 10000,
+    xp: 45000,
+    items: ['Diamond Pearl']
+  },
+  'B_RANK': {
+    name: 'C Rank Examiner',
+    targetRank: 'B_RANK',
+    level: 301,
+    ace: 'kartana',
+    team: ['nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana'],
+    coins: 25000,
+    xp: 120000,
+    items: ['Crystal Pearl']
+  },
+  'A_RANK': {
+    name: 'B Rank Examiner',
+    targetRank: 'A_RANK',
+    level: 401,
+    ace: 'iron-valiant',
+    team: ['great-tusk', 'roaring-moon', 'iron-valiant', 'iron-thorns', 'iron-bundle', 'flutter-mane'],
+    coins: 60000,
+    xp: 300000,
+    items: ['Epic Pearl']
+  },
+  'S_MINUS_RANK': {
+    name: 'A Rank Examiner',
+    targetRank: 'S_MINUS_RANK',
+    level: 501,
+    ace: 'zapdos',
+    team: ['articuno', 'zapdos', 'moltres', 'raikou', 'entei', 'suicune'],
+    coins: 150000,
+    xp: 750000,
+    items: []
+  },
+  'S_RANK': {
+    name: 'S- Rank Examiner',
+    targetRank: 'S_RANK',
+    level: 701,
+    ace: 'regieleki',
+    team: ['latios', 'latias', 'heatran', 'cresselia', 'regieleki', 'regidrago'],
+    coins: 400000,
+    xp: 1800000,
+    items: []
+  },
+  'S_PLUS_RANK': {
+    name: 'S Rank Examiner',
+    targetRank: 'S_PLUS_RANK',
+    level: 901,
+    ace: 'ogerpon',
+    team: ['tapu-koko', 'tapu-lele', 'tapu-bulu', 'tapu-fini', 'ogerpon', 'urshifu-single-strike'],
+    coins: 1000000,
+    xp: 4000000,
+    items: []
+  },
+  'SS_MINUS_RANK': {
+    name: 'S+ Rank Examiner',
+    targetRank: 'SS_MINUS_RANK',
+    level: 1101,
+    ace: 'deoxys-normal',
+    team: ['deoxys-normal', 'darkrai', 'genesect', 'keldeo-ordinary', 'diancie', 'volcanion'],
+    coins: 2500000,
+    xp: 10000000,
+    items: []
+  },
+  'SS_RANK': {
+    name: 'SS- Rank Examiner',
+    targetRank: 'SS_RANK',
+    level: 1401,
+    ace: 'marshadow',
+    team: ['marshadow', 'zeraora', 'victini', 'melmetal', 'zarude', 'mew'],
+    coins: 6000000,
+    xp: 25000000,
+    items: []
+  },
+  'SS_PLUS_RANK': {
+    name: 'SS Rank Examiner',
+    targetRank: 'SS_PLUS_RANK',
+    level: 1701,
+    ace: 'deoxys-normal',
+    team: ['deoxys-normal', 'darkrai', 'marshadow', 'zeraora', 'melmetal', 'genesect'],
+    coins: 15000000,
+    xp: 60000000,
+    items: []
+  },
+  'SSS_MINUS_RANK': {
+    name: 'SS+ Rank Examiner',
+    targetRank: 'SSS_MINUS_RANK',
+    level: 2001,
+    ace: 'giratina-altered',
+    team: ['groudon', 'kyogre', 'dialga', 'palkia', 'giratina-altered', 'reshiram'],
+    coins: 40000000,
+    xp: 150000000,
+    items: []
+  },
+  'SSS_RANK': {
+    name: 'SSS- Rank Examiner',
+    targetRank: 'SSS_RANK',
+    level: 3001,
+    ace: 'koraidon',
+    team: ['zekrom', 'solgaleo', 'lunala', 'koraidon', 'miraidon', 'calyrex'],
+    coins: 100000000,
+    xp: 300000000,
+    items: []
+  },
+  'SSS_PLUS_RANK': {
+    name: 'SSS Rank Examiner',
+    targetRank: 'SSS_PLUS_RANK',
+    level: 4001,
+    ace: 'zacian',
+    team: ['xerneas', 'yveltal', 'lugia', 'ho-oh', 'zacian', 'zamazenta'],
+    coins: 250000000,
+    xp: 600000000,
+    items: []
+  }
+};

@@ -22,6 +22,7 @@ const RANK_REQUIREMENTS: Record<string, any> = {
 };
 
 const RANK_ORDER = [
+  'NO_RANK',
   'F_RANK',
   'E_RANK',
   'D_RANK',
@@ -74,13 +75,16 @@ export class RankService {
     
     // Check primary requirement
     const countAtMinLevel = allPokemon.filter(p => p.level >= req.minLevel).length;
+    const countAtFallbackLevel = req.minLevelFallback
+      ? allPokemon.filter(p => p.level >= req.minLevelFallback!).length
+      : 0;
+
     if (countAtMinLevel >= req.count1) {
       met = true;
     }
 
     // Check fallback requirement (e.g. OR 1 Pokemon at Lv 41)
     if (!met && req.minLevelFallback && req.countFallback) {
-      const countAtFallbackLevel = allPokemon.filter(p => p.level >= req.minLevelFallback!).length;
       if (countAtFallbackLevel >= req.countFallback) {
         met = true;
       }
@@ -100,8 +104,27 @@ export class RankService {
       requirements: req,
       progress: {
         pokemonAtPrimaryLevel: countAtMinLevel,
-        pokemonAtFallbackLevel: req.minLevelFallback ? allPokemon.filter(p => p.level >= req.minLevelFallback!).length : 0
+        pokemonAtFallbackLevel: countAtFallbackLevel,
+        currentCount: countAtMinLevel,
+        requiredCount: req.count1,
+        minLevel: req.minLevel
       }
+    };
+  }
+
+  async promoteRank(userId: string) {
+    const status = await this.getRankStatus(userId);
+    if (!status.requirementMet || !status.nextRank) {
+      throw new AppError('You do not meet the requirements for this rank promotion.', 400);
+    }
+
+    const { BattleSessionService } = require('../battles/services/battle-session.service');
+    const battleSessionService = new BattleSessionService();
+    const sessionData = await battleSessionService.startRankExamEncounter(userId, status.nextRank);
+
+    return {
+      battleSession: sessionData,
+      targetRank: status.nextRank
     };
   }
 }
