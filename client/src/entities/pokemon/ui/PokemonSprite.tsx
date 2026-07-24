@@ -14,7 +14,7 @@ export const PokemonSprite = memo(function PokemonSprite({ speciesId, speciesNam
       <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/30 dark:bg-black/50 blur-xl rounded-full"></div>
       <img 
         src={getSpriteUrl(speciesId)}
-        className={`relative w-64 h-64 object-contain ${!isPlayer ? 'animate-bounce' : ''}`}
+        className={`relative w-64 h-64 object-contain`}
         style={{ imageRendering: 'pixelated', transform: isPlayer ? 'scaleX(-1)' : undefined }}
         alt={speciesName}
       />

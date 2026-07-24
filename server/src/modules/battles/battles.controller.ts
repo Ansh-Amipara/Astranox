@@ -11,6 +11,31 @@ export class BattlesController {
     this.service = new BattlesService();
   }
 
+  getArenaTrainers = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const trainers = await this.service.getArenaTrainers();
+      res.json({ success: true, data: trainers });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  startArenaEncounter = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { trainerId } = req.body;
+      const userId = (req as any).user.id;
+
+      const result = await this.service.startArenaEncounter(userId, trainerId);
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   engageCustom = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { speciesId, level } = req.body;
@@ -38,19 +63,6 @@ export class BattlesController {
         success: true,
         data: session
       });
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  startAcademyEncounter = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { npcName } = req.body;
-      const userId = (req as any).user.id;
-
-      const result = await this.service.startAcademyEncounter(userId, npcName);
-
-      res.json(result);
     } catch (err) {
       next(err);
     }

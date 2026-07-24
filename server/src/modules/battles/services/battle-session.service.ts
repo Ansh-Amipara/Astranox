@@ -1,4 +1,5 @@
 import { TrainersRepository } from '../../trainers/trainers.repository';
+import { ARENA_TRAINERS } from '../../../game/constants/arena-trainers';
 import { BattlesRepository } from '../repositories/battles.repository';
 import { NotFoundError, ValidationError } from '../../../common/errors/AppError';
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
@@ -88,6 +89,10 @@ function toActivePokemon(inst: any): ActivePokemon {
 export class BattleSessionService {
   private repository = new BattlesRepository();
   private trainersRepo = new TrainersRepository();
+
+  async getArenaTrainers() {
+    return ARENA_TRAINERS;
+  }
 
   async getAvailableSpecies() {
     return prisma.species.findMany({
@@ -579,41 +584,26 @@ export class BattleSessionService {
     return session;
   }
 
-  async startAcademyEncounter(userId: string, npcName: string) {
+  async startArenaEncounter(userId: string, trainerId: string) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
-    if (!trainerSave) throw new NotFoundError('Trainer save not found');
+    if (!trainerSave) {
+      throw new NotFoundError('Trainer save not found');
+    }
 
     const active = await this.repository.getActiveBattleByTrainer(trainerSave.id);
-    if (active) throw new ValidationError('You are already in a battle.');
-
-    // Load academy data
-    const academyPath = path.join(process.cwd(), '../client/src/shared/data/academy.json');
-    let academyData;
-    try {
-      academyData = JSON.parse(fs.readFileSync(academyPath, 'utf-8'));
-    } catch (err) {
-      throw new ValidationError('Could not load Academy data.');
+    if (active) {
+      throw new ValidationError('You are already in a battle.');
     }
 
-    let npcConfig = null;
-    for (const section of academyData) {
-      const found = section.npcs.find((n: any) => n.name === npcName);
-      if (found) {
-        npcConfig = found;
-        break;
-      }
+    const config = ARENA_TRAINERS.find(t => t.id === trainerId);
+    if (!config) {
+      throw new NotFoundError(`Arena trainer not found.`);
     }
 
-    if (!npcConfig) {
-      throw new NotFoundError(`Academy NPC ${npcName} not found.`);
-    }
-
-    // Extract level from rank string, e.g. "SS Lv. 1526"
-    const levelMatch = npcConfig.rank.match(/Lv\.\s*(\d+)/);
-    const level = levelMatch ? parseInt(levelMatch[1]) : 1;
-
+    const level = config.level;
     const opponentPartyData: any[] = [];
-    for (const speciesName of npcConfig.team) {
+
+    for (const speciesName of config.team) {
       const cleanName = speciesName.toLowerCase();
       let species = await prisma.species.findFirst({
         where: {
@@ -649,7 +639,14 @@ export class BattleSessionService {
           id: species.id,
           name: species.name,
           types,
-          baseStats: { hp: species.hp, attack: species.attack, defense: species.defense, spAtk: species.spAtk, spDef: species.spDef, speed: species.speed }
+          baseStats: {
+            hp: species.hp,
+            attack: species.attack,
+            defense: species.defense,
+            spAtk: species.spAtk,
+            spDef: species.spDef,
+            speed: species.speed
+          }
         },
         moves: []
       });
@@ -678,16 +675,16 @@ export class BattleSessionService {
       }));
 
       const activeMon = toActivePokemon(inst);
-      (activeMon as any).isAcademyNpc = true;
-      (activeMon as any).examinerName = npcConfig.name;
-      (activeMon as any).examinerCoins = npcConfig.coins;
-      (activeMon as any).examinerXp = npcConfig.xp;
+      (activeMon as any).isArenaBattle = true;
+      (activeMon as any).examinerName = config.name;
+      (activeMon as any).examinerCoins = config.coins;
+      (activeMon as any).targetRank = config.targetRank; // for XP calculation context if needed
 
       opponentPartyData.push(activeMon);
     }
 
     if (opponentPartyData.length === 0) {
-      throw new ValidationError('Failed to generate Academy NPC team.');
+      throw new ValidationError('Failed to generate Arena Trainer team.');
     }
 
     const leadOpponent = opponentPartyData[0];

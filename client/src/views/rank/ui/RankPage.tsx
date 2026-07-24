@@ -20,7 +20,7 @@ export function RankPage() {
     onSuccess: () => {
       setError(null);
       queryClient.invalidateQueries({ queryKey: ['battleSession'] });
-      navigate('/battle');
+      navigate('/battle?returnUrl=/rank');
     },
     onError: (err: any) => {
       setSuccessMessage(null);

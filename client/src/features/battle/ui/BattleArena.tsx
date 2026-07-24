@@ -10,10 +10,9 @@ interface Props {
   player: any;
   opponentPartyData: any[];
   playerPartyData: any[];
-  battleType: string;
 }
 
-export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, playerPartyData, battleType }: Props) {
+export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, playerPartyData }: Props) {
   return (
     <div 
       className="relative z-10 flex-1 flex flex-col justify-between p-4 bg-white dark:bg-slate-900 min-h-0 overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.1)] transition-colors"
@@ -106,7 +105,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
             )}
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold text-slate-500 dark:text-slate-400 drop-shadow-sm">Lv {player.level}</span>
-              {player.potential && player.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[player.potential as string] || 2000) && (
+              {player.potential && player.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[player.potential as string] || 5000) && (
                 <span className="text-[10px] font-bold text-slate-100 bg-slate-900/50 border border-slate-700/50 px-1 rounded uppercase">Capped</span>
               )}
             </div>

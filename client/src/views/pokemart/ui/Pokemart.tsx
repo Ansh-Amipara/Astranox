@@ -2,9 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, AlertCircle } from 'lucide-react';
 import { shopApi, api } from '../../../shared/api/api';
-import { TowerCurrencyIcon } from '../../../shared/ui/TowerCurrencyIcon';
-import { DungeonCurrencyIcon } from '../../../shared/ui/DungeonCurrencyIcon';
-import { NormalCurrencyIcon } from '../../../shared/ui/NormalCurrencyIcon';
 
 interface Item {
   id: string;

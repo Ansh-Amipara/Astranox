@@ -122,150 +122,96 @@ export function PokemonManagement() {
             <p className="text-slate-500">You don't have any Pokémon yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allPokemon.map((p: any) => {
               const inParty = activePartyIds.has(p.id) || p.isParty;
               return (
-                <div key={p.id} className={`relative bg-white dark:bg-slate-900 border ${inParty ? 'border-blue-500 shadow-blue-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl p-4 shadow-sm hover:shadow-md transition-all flex flex-row`}>
-                  
+                <div
+                  key={p.id}
+                  className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer ${inParty ? 'border-blue-500 shadow-blue-500/20' : 'border-slate-300 dark:border-slate-700'} bg-white dark:bg-slate-900/80 shadow-lg hover:border-blue-500`}
+                  onClick={() => setActiveMenuPkm(p)}
+                >
                   {inParty && (
-                    <div className="absolute top-3 left-3 bg-blue-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
+                    <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
                       In Party
                     </div>
                   )}
-
-                  <div className="flex flex-col items-center justify-center flex-1 min-w-0 pr-4 border-r border-slate-200 dark:border-slate-700">
-                    <div className="w-24 h-24 relative mb-2">
-                      <img src={p.species?.spriteUrl || p.spriteUrl || getSpriteUrl(p.speciesId)} alt={p.name || p.speciesName} className="w-full h-full object-contain drop-shadow-md" style={{ imageRendering: 'pixelated' }} />
+                  
+                  <div className="p-6 flex items-start gap-6">
+                    <div className="w-24 h-24 shrink-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <img
+                        src={p.species?.spriteUrl || p.spriteUrl || getSpriteUrl(p.speciesId)}
+                        alt={p.name || p.speciesName}
+                        className="w-20 h-20 object-contain drop-shadow-md pixelated"
+                      />
                     </div>
-                    {/* Row 1: Name */}
-                    <h3 className="font-extrabold text-xl capitalize text-slate-900 dark:text-white truncate w-full text-center">{p.name || p.speciesName}</h3>
-                    
-                    {/* Row 2: Type */}
-                    <div className="mt-1 flex items-center justify-center gap-1 mb-2">
-                      {p.species?.type1 && (
-                        <img src={getTypeSpriteUrl(p.species.type1.name, false)} alt={p.species.type1.name} title={p.species.type1.name} className="h-5 w-auto object-contain drop-shadow-sm" />
-                      )}
-                      {p.species?.type2 && (
-                        <img src={getTypeSpriteUrl(p.species.type2.name, false)} alt={p.species.type2.name} title={p.species.type2.name} className="h-5 w-auto object-contain drop-shadow-sm" />
-                      )}
-                    </div>
-
-                    {/* Row 3: Potential and CP */}
-                    <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
-                      <span className={
-                        'text-[10px] font-bold uppercase px-2 py-0.5 rounded border tracking-wider ' + 
-                        (p.potential === 'DIAMOND' ? 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800' : 
-                         p.potential === 'PLATINUM' ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700' : 
-                         p.potential === 'GOLD' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' : 
-                         'bg-slate-50 dark:bg-slate-800/50 text-slate-500 border-slate-200 dark:border-slate-700')
-                      }>
-                        ★ {p.potential}
-                      </span>
-                      <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wider">
-                        CP {p.cp?.toLocaleString() || 0}
-                      </span>
-                    </div>
-
-                    {/* Row 4: Level and XP */}
-                    <div className="flex items-center justify-center gap-2 mb-2 w-full">
-                      <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-900/50">
-                        <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
-                        <span className="text-xs font-black">{p.level}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex flex-col">
+                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate">
+                            {p.name || p.speciesName}
+                          </h3>
+                        </div>
                       </div>
-                      {p.potential && p.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[p.potential as string] || 2000) ? (
-                        <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-0.5 rounded border border-red-100 dark:border-red-900/50">
-                          <span className="text-[9px] font-bold uppercase tracking-widest">Capped</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                          <span className="text-[10px] font-bold uppercase mr-1 opacity-70">XP</span>
-                          <span className="text-xs font-bold">{(p.currentXp || 0).toLocaleString()}</span>
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-1 w-full mt-1 px-2">
-                      {[0, 1, 2, 3].map(slot => {
-                        const mv = p.moves?.find((m: any) => m.slot === slot)?.move;
-                        return (
-                          <div key={slot} className="flex items-center justify-start gap-1 text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/80 px-1.5 py-1 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-                            {mv ? (
-                              <>
-                                <img src={getTypeSpriteUrl(mv.type, true)} alt={mv.type} title={mv.type} className="h-3.5 w-auto object-contain shrink-0" />
-                                <span className="font-bold text-slate-600 dark:text-slate-300 truncate capitalize">{mv.name.replace('-', ' ')}</span>
-                              </>
-                            ) : (
-                              <span className="text-center w-full text-slate-400 dark:text-slate-500 font-bold">-</span>
-                            )}
+                      {/* 2nd Row: Type */}
+                      <div className="mt-2 flex gap-1">
+                        {p.species?.type1 && (
+                          <img src={getTypeSpriteUrl(p.species.type1.name, false)} alt={p.species.type1.name} title={p.species.type1.name} className="h-6 w-auto object-contain drop-shadow-sm" />
+                        )}
+                        {p.species?.type2 && (
+                          <img src={getTypeSpriteUrl(p.species.type2.name, false)} alt={p.species.type2.name} title={p.species.type2.name} className="h-6 w-auto object-contain drop-shadow-sm" />
+                        )}
+                      </div>
+
+                      {/* 3rd Row: Potential and CP */}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {p.potential && (
+                          <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300">
+                            {p.potential.replace('_', ' ')}
+                          </span>
+                        )}
+                        <span className="text-xs px-2 py-1 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
+                          CP {p.cp?.toLocaleString() || 0}
+                        </span>
+                      </div>
+
+                      {/* Level and XP */}
+                      <div className="mt-3 flex items-center gap-3">
+                        <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded border border-blue-100 dark:border-blue-900/50">
+                          <span className="text-xs font-bold uppercase mr-1 opacity-70">Lv.</span>
+                          <span className="text-sm font-black">{p.level}</span>
+                        </div>
+                        {p.potential && p.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[p.potential as string] || 5000) ? (
+                          <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                           </div>
-                        );
-                      })}
+                        ) : (
+                          <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
+                            <span className="text-xs font-bold uppercase mr-1 opacity-70">XP</span>
+                            <span className="text-sm font-bold">{(p.currentXp || 0).toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
+                        {[0, 1, 2, 3].map(i => {
+                          const move = p.moves?.find((m: any) => m.slot === i)?.move;
+                          return (
+                            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
+                              {move ? (
+                                <>
+                                  <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
+                                  <span className="font-bold text-slate-700 dark:text-slate-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
+                                </>
+                              ) : (
+                                <span className="text-slate-400 dark:text-slate-500 italic text-xs">- Empty -</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                                <div className="flex flex-col gap-1.5 w-48 shrink-0 pl-4 justify-center">
-                    <button
-                      onClick={() => modalsRef.current?.openDetails(p)}
-                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                    >
-                      View Details
-                    </button>
-                    
-                    <button
-                      onClick={() => modalsRef.current?.openMoves(p)}
-                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                    >
-                      Change Moves
-                    </button>
-
-                    <button
-                      onClick={() => modalsRef.current?.openEvolve(p)}
-                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                    >
-                      Evolution
-                    </button>
-
-                    <button
-                      onClick={() => modalsRef.current?.openBoost(p)}
-                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                    >
-                      Boost Potential
-                    </button>
-
-                    <button
-                      onClick={() => modalsRef.current?.openIVs(p)}
-                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                    >
-                      Enhance IVs
-                    </button>
-
-                    {inParty ? (
-                      <button
-                        disabled={removeMutation.isPending}
-                        onClick={() => removeMutation.mutate(p.id)}
-                        className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors disabled:opacity-50 text-center"
-                      >
-                        Remove from Team
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setSelectedForTeam(p.id)}
-                        className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                      >
-                        Add to Team
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={() => {
-                        if(confirm('Are you sure you want to release this Pokémon?')) {
-                          releaseMutation.mutate(p.id);
-                        }
-                      }}
-                      className="w-full py-1.5 px-3 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition-colors text-center"
-                    >
-                      Release
-                    </button>
                   </div>
                 </div>
               );
@@ -276,11 +222,128 @@ export function PokemonManagement() {
 
         <PokemonActionModals 
           ref={modalsRef}
-          activeMenuPkm={activeMenuPkm}
+          activeMenuPkm={null}
           setActiveMenuPkm={setActiveMenuPkm}
           save={save}
           allMoves={allMoves}
         />
+
+        {/* Options Menu Modal */}
+        {activeMenuPkm && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                <img
+                  src={getSpriteUrl(activeMenuPkm.speciesId)}
+                  className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg object-contain pixelated border border-slate-200 dark:border-slate-700"
+                />
+                <div>
+                  <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
+                  <p className="text-xs font-bold text-slate-500">
+                    Lv. {activeMenuPkm.level}
+                    {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[activeMenuPkm.potential as string] || 5000) ? (
+                      <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
+                    ) : (
+                      <span className="font-medium text-slate-400 opacity-80 ml-1">• {(activeMenuPkm.currentXp || 0).toLocaleString()} XP</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
+                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                >
+                  View Details
+                </button>
+
+                <button
+                  onClick={() => { modalsRef.current?.openMoves(activeMenuPkm); setActiveMenuPkm(null); }}
+                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                >
+                  Change Moves
+                </button>
+
+                <button
+                  onClick={() => { modalsRef.current?.openEvolve(activeMenuPkm); setActiveMenuPkm(null); }}
+                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                >
+                  Evolution
+                </button>
+
+                {activeMenuPkm.potential !== 'ETERNAL' && (
+                  <button
+                    onClick={() => { modalsRef.current?.openBoost(activeMenuPkm); setActiveMenuPkm(null); }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                  >
+                    Boost Potential
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    modalsRef.current?.openGiveXp(activeMenuPkm);
+                    setActiveMenuPkm(null);
+                  }}
+                  className="w-full text-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 rounded-xl font-bold transition-colors text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
+                >
+                  Give XP
+                </button>
+
+                <button
+                  onClick={() => { modalsRef.current?.openIVs(activeMenuPkm); setActiveMenuPkm(null); }}
+                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                >
+                  Enhance IVs
+                </button>
+
+                {activePartyIds.has(activeMenuPkm.id) || activeMenuPkm.isParty ? (
+                  <button
+                    disabled={removeMutation.isPending}
+                    onClick={() => {
+                      removeMutation.mutate(activeMenuPkm.id);
+                      setActiveMenuPkm(null);
+                    }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 text-center"
+                  >
+                    Remove from Team
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setSelectedForTeam(activeMenuPkm.id);
+                      setActiveMenuPkm(null);
+                    }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white text-center"
+                  >
+                    Add to Team
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`)) {
+                      releaseMutation.mutate(activeMenuPkm.id);
+                      setActiveMenuPkm(null);
+                    }
+                  }}
+                  disabled={releaseMutation.isPending}
+                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
+                </button>
+              </div>
+
+              <button
+                onClick={() => setActiveMenuPkm(null)}
+                className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 w-full"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Slot Selection Modal */}
         {selectedForTeam && (

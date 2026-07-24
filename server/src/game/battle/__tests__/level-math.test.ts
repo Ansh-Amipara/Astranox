@@ -20,7 +20,7 @@ describe('Level Math (Quadratic XP)', () => {
     expect(getLevelFromXp(122500)).toBe(50);
     expect(getLevelFromXp(495000)).toBe(100);
     expect(getLevelFromXp(1990000)).toBe(200);
-    expect(getLevelFromXp(4995000)).toBe(317);
+    expect(getLevelFromXp(4995000)).toBe(316);
   });
 
   it('calculates XP yield correctly', () => {

@@ -4,9 +4,6 @@ import { useAuthStore } from '../../../shared/store/auth.store';
 import { apiClient, getSpriteUrl } from '../../../shared/api/api-client';
 import { StarterSelection } from '../../starter-selection/ui/StarterSelection';
 import { FiBox, FiMap, FiAward, FiShoppingCart } from 'react-icons/fi';
-import { TowerCurrencyIcon } from '../../../shared/ui/TowerCurrencyIcon';
-import { DungeonCurrencyIcon } from '../../../shared/ui/DungeonCurrencyIcon';
-import { NormalCurrencyIcon } from '../../../shared/ui/NormalCurrencyIcon';
 
 export function Home() {
   const { user } = useAuthStore();
@@ -36,70 +33,65 @@ export function Home() {
       <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header Section */}
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-          <div>
-            <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent mb-2">
-              Welcome back, {user?.username}!
-            </h1>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center p-1">
+        <div className="w-full">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center p-1">
                 <img src="/astral.png" alt="Astral Coins" className="w-full h-full object-contain" />
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Astral Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.astralCoins?.toLocaleString() || 0}</p>
+              <div className="truncate">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Astral Coins</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 truncate">{save.astralCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center p-1">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center p-1">
                 <img src="/infinity.png" alt="Infinity Coins" className="w-full h-full object-contain" />
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Infinity Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.infinityCoins?.toLocaleString() || 0}</p>
+              <div className="truncate">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Infinity Coins</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 truncate">{save.infinityCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center p-1">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center p-1">
                 <img src="/void.png" alt="Void Coins" className="w-full h-full object-contain" />
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Void Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{save.voidCoins?.toLocaleString() || 0}</p>
+              <div className="truncate">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Void Coins</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 truncate">{save.voidCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center p-1.5">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center p-1.5">
                 <img src="/xp.png" alt="Stored XP" className="w-full h-full object-contain" />
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stored XP</p>
-                <p className="text-lg font-black text-indigo-600 dark:text-indigo-400">{save.storedXp?.toLocaleString() || 0} XP</p>
+              <div className="truncate">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Stored XP</p>
+                <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 truncate">{save.storedXp?.toLocaleString() || 0} XP</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden md:flex">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <FiAward className="text-xl" />
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trainer Rank</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize">{save.rank.replace('_', ' ')}</p>
+              <div className="truncate">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Trainer Rank</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize truncate">{save.rank.replace('_', ' ')}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform hidden lg:flex">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black">
                 CP
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Player CP</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200">{teamCp.toLocaleString()}</p>
+              <div className="truncate">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Player CP</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 truncate">{teamCp.toLocaleString()}</p>
               </div>
             </div>
           </div>

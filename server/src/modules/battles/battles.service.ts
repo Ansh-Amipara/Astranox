@@ -36,6 +36,15 @@ export class BattlesService {
     return BattleMapper.toAvailableSpeciesDtoList(species);
   }
 
+  async getArenaTrainers() {
+    return this.sessionService.getArenaTrainers();
+  }
+
+  async startArenaEncounter(userId: string, trainerId: string): Promise<StartEncounterResultDto> {
+    const result = await this.sessionService.startArenaEncounter(userId, trainerId);
+    return BattleMapper.toStartEncounterResultDto({ encounter: { species: { name: 'Arena Trainer' } as any, level: 0, potential: '' }, battleSession: result } as any);
+  }
+
   async startCustomEncounter(userId: string, dto: StartCustomEncounterDto): Promise<StartEncounterResultDto> {
     const result = await this.sessionService.startCustomEncounter(userId, dto.speciesId, dto.level);
     return BattleMapper.toStartEncounterResultDto(result);
@@ -44,14 +53,6 @@ export class BattlesService {
   async startRealmEncounter(userId: string, realmId: string): Promise<StartEncounterResultDto> {
     const result = await this.sessionService.startRealmEncounter(userId, realmId);
     return BattleMapper.toStartEncounterResultDto(result);
-  }
-
-  async startAcademyEncounter(userId: string, npcName: string): Promise<any> {
-    const session = await this.sessionService.startAcademyEncounter(userId, npcName);
-    return {
-      success: true,
-      data: session
-    };
   }
 
   async getActiveSession(userId: string): Promise<BattleSessionDto> {

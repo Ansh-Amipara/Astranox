@@ -15,16 +15,6 @@ function calculateStat(base: number, iv: number, level: number): number {
   return Math.floor(((2 * base + iv) * level) / 100) + 5;
 }
 
-function calculateCP(detailsPkm: any): number {
-  if (!detailsPkm || !detailsPkm.species) return 0;
-  const hp = calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level);
-  const atk = calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level);
-  const def = calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level);
-  const spa = calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level);
-  const spd = calculateStat(detailsPkm.species.spDef, detailsPkm.ivSpDef || 0, detailsPkm.level);
-  const spe = calculateStat(detailsPkm.species.speed, detailsPkm.ivSpeed || 0, detailsPkm.level);
-  return hp + atk + def + spa + spd + spe;
-}
 
 export function TeamPage() {
   const queryClient = useQueryClient();
@@ -207,7 +197,7 @@ export function TeamPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => {
             const pkm = party.find((p: any) => p.position === i);
 
@@ -266,7 +256,7 @@ export function TeamPage() {
                           <span className="text-xs font-bold uppercase mr-1 opacity-70">Lv.</span>
                           <span className="text-sm font-black">{pkm.level}</span>
                         </div>
-                        {pkm.potential && pkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[pkm.potential as string] || 2000) ? (
+                        {pkm.potential && pkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[pkm.potential as string] || 5000) ? (
                           <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
                             <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                           </div>
@@ -321,7 +311,7 @@ export function TeamPage() {
                 <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
                 <p className="text-xs font-bold text-slate-500">
                   Lv. {activeMenuPkm.level}
-                  {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[activeMenuPkm.potential as string] || 2000) ? (
+                  {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[activeMenuPkm.potential as string] || 5000) ? (
                     <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
                   ) : (
                     <span className="font-medium text-slate-400 opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span>
@@ -471,7 +461,7 @@ export function TeamPage() {
                         {detailsPkm.potential.replace('_', ' ')}
                       </span>
                     )}
-                    {detailsPkm.potential && detailsPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800, DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000 }[detailsPkm.potential as string] || 2000) && (
+                    {detailsPkm.potential && detailsPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[detailsPkm.potential as string] || 5000) && (
                       <span className="text-xs px-2 py-1 rounded font-bold border border-red-200 dark:border-red-900/50 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase tracking-wider">
                         Capped
                       </span>
@@ -581,7 +571,7 @@ export function TeamPage() {
                       <TypeSelect
                         value={typeFilter === 'all' ? '' : typeFilter}
                         onChange={(val) => setTypeFilter(val || 'all')}
-                        types={Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).sort() as string[]}
+                        types={Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).filter((t: any) => t !== 'shadow' && t !== 'unknown').sort() as string[]}
                         disabled={changeMovePkm.editingSlot === undefined}
                       />
                     </div>

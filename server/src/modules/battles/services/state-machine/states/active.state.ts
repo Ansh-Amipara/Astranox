@@ -134,25 +134,51 @@ export class ActiveState implements IBattleState {
           });
         } else {
           newStatus = BattleStatus.WON;
-          if (wildPokemon.isRankExam && wildPokemon.targetRank) {
-            const currentSave = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
-            const coinsToGive = wildPokemon.examinerCoins ? Number(wildPokemon.examinerCoins) : 0;
-            
-            await tx.trainerSave.update({
-              where: { id: session.trainerId },
-              data: {
-                rank: wildPokemon.targetRank as any,
-                ...(coinsToGive > 0 ? { astralCoins: (currentSave?.astralCoins || 0) + coinsToGive } : {})
-              }
-            });
+          
+          let coinsToGive = 0;
+          let storedXpToGive = 0;
+          const baseLevel = wildPokemon.level || 5;
 
-            if (coinsToGive > 0) {
-              result.events.push({
-                type: 'coin_reward',
-                amount: coinsToGive,
-                message: `Rank Examiner Reward: +${coinsToGive} Astral Coins!`
-              });
+          if (wildPokemon.isRankExam) {
+            coinsToGive = wildPokemon.examinerCoins ? Number(wildPokemon.examinerCoins) : 0;
+            storedXpToGive = wildPokemon.examinerXp ? Number(wildPokemon.examinerXp) : 0;
+          } else {
+            coinsToGive = session.battleType === 'NPC' ? baseLevel * 30 : baseLevel * 10;
+            if (session.battleType === 'NPC') {
+              const { getExpYield } = require('../../../../../game/battle/level-math');
+              storedXpToGive = opponentPartyData.reduce((sum: number, p: any) => sum + getExpYield(p.baseExp || 100, p.level || 5), 0);
             }
+          }
+
+          if (coinsToGive > 0 || storedXpToGive > 0 || (wildPokemon.isRankExam && wildPokemon.targetRank)) {
+             const currentSave = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
+             
+             await tx.trainerSave.update({
+               where: { id: session.trainerId },
+               data: {
+                 ...(wildPokemon.isRankExam && wildPokemon.targetRank ? { rank: wildPokemon.targetRank as any } : {}),
+                 ...(coinsToGive > 0 ? { astralCoins: (currentSave?.astralCoins || 0) + coinsToGive } : {}),
+                 ...(storedXpToGive > 0 ? { storedXp: (currentSave?.storedXp || 0) + storedXpToGive } : {})
+               }
+             });
+
+             if (coinsToGive > 0) {
+                result.events.push({
+                  type: 'coin_reward',
+                  amount: coinsToGive,
+                  message: `Battle Won! Reward: +${coinsToGive} Astral Coins!`
+                });
+             }
+             if (storedXpToGive > 0) {
+                result.events.push({
+                  type: 'stored_xp_gain',
+                  amount: storedXpToGive,
+                  message: `Battle Won! Reward: +${storedXpToGive} Stored XP!`
+                });
+             }
+          }
+
+          if (wildPokemon.isRankExam && wildPokemon.targetRank) {
 
             if (wildPokemon.examinerItems && Array.isArray(wildPokemon.examinerItems)) {
               for (const rawItemName of wildPokemon.examinerItems) {
@@ -190,18 +216,6 @@ export class ActiveState implements IBattleState {
               type: 'rank_promotion',
               rank: wildPokemon.targetRank,
               message: `Rank Exam Passed! Promoted to ${wildPokemon.targetRank.replace('_', ' ')}!`
-            });
-          } else if (wildPokemon.isAcademyNpc && wildPokemon.examinerCoins) {
-            const currentSave = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
-            const coinsToGive = Number(wildPokemon.examinerCoins);
-            await tx.trainerSave.update({
-              where: { id: session.trainerId },
-              data: { astralCoins: (currentSave?.astralCoins || 0) + coinsToGive }
-            });
-            result.events.push({
-              type: 'coin_reward',
-              amount: coinsToGive,
-              message: `Academy Match Reward: +${coinsToGive} Astral Coins!`
             });
           }
         }

@@ -34,7 +34,6 @@ export class EncounterManager {
 
   private triggerEncounter() {
     this.isEncounterTriggered = true;
-    console.log("Wild encounter triggered!");
     this.onEncounter();
   }
 }

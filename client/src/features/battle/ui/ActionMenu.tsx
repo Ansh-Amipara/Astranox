@@ -7,7 +7,6 @@ import { FaRunning } from "react-icons/fa";
 interface Props {
   player: any;
   status: string;
-  battleType: string;
   rawEvents: any[];
   isPending: boolean;
   onMoveSelect: (moveAction: string) => void;
@@ -20,7 +19,6 @@ interface Props {
 export const ActionMenu = memo(function ActionMenu({
   player,
   status,
-  battleType,
   rawEvents,
   isPending,
   onMoveSelect,

@@ -4,7 +4,6 @@ import { ActionMenu } from './ActionMenu';
 interface Props {
   player: any;
   status: string;
-  battleType: string;
   rawEvents: any[];
   isPending: boolean;
   isFinished: boolean;
@@ -19,7 +18,6 @@ interface Props {
 export const BattleControls = memo(function BattleControls({
   player,
   status,
-  battleType,
   rawEvents,
   isPending,
   isFinished,
@@ -38,7 +36,6 @@ export const BattleControls = memo(function BattleControls({
             <ActionMenu
               player={player}
               status={status}
-              battleType={battleType}
               rawEvents={rawEvents}
               isPending={isPending}
               onMoveSelect={onMoveSelect}

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBattleSession } from '../../../features/battle/model/useBattleSession';
 import { BattleArena } from '../../../features/battle/ui/BattleArena';
 import { BattleControls } from '../../../features/battle/ui/BattleControls';
@@ -10,7 +10,7 @@ import { getTypeSpriteUrl } from '../../../shared/api/axios';
 
 export function BattleScreen() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+
   const [menu, setMenu] = useState<'main' | 'fight' | 'bag' | 'party'>('main');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
@@ -122,7 +122,6 @@ export function BattleScreen() {
             player={player}
             opponentPartyData={opponentPartyData}
             playerPartyData={playerPartyData}
-            battleType={battleType}
           />
         </div>
 
@@ -137,7 +136,6 @@ export function BattleScreen() {
         <BattleControls 
           player={player}
           status={status}
-          battleType={battleType}
           rawEvents={rawEvents}
           isPending={turnMutation.isPending}
           isFinished={isFinished}

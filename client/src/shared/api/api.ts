@@ -21,7 +21,12 @@ export const api = axios.create({
 });
 
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'd0baluu2';
-export const getSpriteUrl = (id: string | number) => `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/astranox/pokemon/${id}.png`;
+export const getSpriteUrl = (id: string | number) => {
+  if (id === 16 || id === '16' || id === 17 || id === '17' || id === 18 || id === '18') {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
+  }
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/astranox/pokemon/${id}.png`;
+};
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;

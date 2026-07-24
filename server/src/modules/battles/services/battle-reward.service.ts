@@ -12,23 +12,10 @@ export class BattleRewardService {
     const { getMaxLevelForPotential } = require('../../../game/instance/PokemonInstance');
     let newStatus: BattleStatus | undefined = undefined;
 
-    const xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
-
+    let xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
+    
     if (battleType === 'NPC' || wildPokemon.isRankExam) {
-      // NPC battles grant Stored XP to the Trainer instead of direct XP to fighting Pokemon
-      const storedAmount = wildPokemon.examinerXp || xpYield || 500;
-      if (trainerId) {
-        await tx.trainerSave.update({
-          where: { id: trainerId },
-          data: { storedXp: { increment: storedAmount } } as any
-        });
-      }
-      result.events.push({
-        type: 'stored_xp_gain',
-        amount: storedAmount,
-        message: `Trainer Stored XP: +${storedAmount} XP!`
-      });
-      return { newStatus };
+      xpYield = wildPokemon.examinerXp || xpYield || 500;
     }
 
     const maxLevel = getMaxLevelForPotential(result.p1State.potential);

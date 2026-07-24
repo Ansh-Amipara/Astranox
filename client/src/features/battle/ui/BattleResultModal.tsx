@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { api } from '../../../shared/api/api';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   isFinished: boolean;
