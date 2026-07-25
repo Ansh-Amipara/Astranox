@@ -15,6 +15,7 @@ import { tradesRoutes } from './modules/trades/trades.routes';
 import { rankRoutes } from './modules/rank/rank.routes';
 
 import pokedexRoutes from './modules/pokedex/pokedex.routes';
+import towerRoutes from './modules/tower/tower.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
@@ -44,6 +45,7 @@ app.use('/trades', tradesRoutes);
 app.use('/rank', rankRoutes);
 
 app.use('/pokedex', pokedexRoutes);
+app.use('/tower', towerRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {

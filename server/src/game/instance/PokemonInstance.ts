@@ -26,6 +26,25 @@ export function getMaxLevelForPotential(potential: string): number {
   }
 }
 
+export function getMinPotentialForLevel(level: number, minTier: string = 'BLACK_IRON'): string {
+  const tiers = [
+    'BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'ADAMANTITE', 'DIAMOND',
+    'CRYSTAL', 'EPIC', 'HEROIC', 'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL',
+    'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'
+  ];
+  
+  let requiredTierIndex = tiers.length - 1;
+  for (let i = 0; i < tiers.length; i++) {
+    if (level <= getMaxLevelForPotential(tiers[i])) {
+      requiredTierIndex = i;
+      break;
+    }
+  }
+
+  const minTierIndex = tiers.indexOf(minTier);
+  return tiers[Math.max(requiredTierIndex, Math.max(0, minTierIndex))];
+}
+
 /**
  * Validates and constructs a fully hydrated PokemonInstance from a payload.
  * Pure logic function that uses the Phase 5 mathematical engine.

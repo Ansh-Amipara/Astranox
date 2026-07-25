@@ -316,7 +316,3 @@ Pokémon:
 ```
 
 ---
-
-## Astranox Academy Registry
-
-The complete roster of 58 NPCs (Principal, Vice Principals, Teachers, and Students from Rank S- down to Rank D) is maintained in [Astranox_Academy.md](file:///d:/Project/Astranox/docs/Astranox_Academy.md).

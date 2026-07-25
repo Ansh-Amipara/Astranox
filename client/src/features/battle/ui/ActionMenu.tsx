@@ -9,6 +9,7 @@ interface Props {
   status: string;
   rawEvents: any[];
   isPending: boolean;
+  battleType?: string;
   onMoveSelect: (moveAction: string) => void;
   onSkipMove: () => void;
   onRun: () => void;
@@ -21,6 +22,7 @@ export const ActionMenu = memo(function ActionMenu({
   status,
   rawEvents,
   isPending,
+  battleType,
   onMoveSelect,
   onSkipMove,
   onRun,
@@ -90,8 +92,9 @@ export const ActionMenu = memo(function ActionMenu({
         {/* Utility Icons */}
         <button
           onClick={onOpenBag}
-          title="Bag"
-          className="w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 border border-slate-200 dark:border-slate-700"
+          disabled={battleType !== 'WILD'}
+          title={battleType === 'WILD' ? "Bag" : "Cannot use bag here"}
+          className="w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 border border-slate-200 dark:border-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-800"
         >
           <GiBackpack size={28} />
         </button>
@@ -104,9 +107,9 @@ export const ActionMenu = memo(function ActionMenu({
         </button>
         <button
           onClick={onRun}
-          disabled={isPending}
-          title="Run"
-          className="w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 border border-slate-200 dark:border-slate-700"
+          disabled={isPending || battleType !== 'WILD'}
+          title={battleType === 'WILD' ? "Run" : "Cannot run from this battle"}
+          className="w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 border border-slate-200 dark:border-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-800"
         >
           <FaRunning size={28} />
         </button>

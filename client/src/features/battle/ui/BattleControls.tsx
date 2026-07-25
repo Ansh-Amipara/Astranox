@@ -8,6 +8,7 @@ interface Props {
   isPending: boolean;
   isFinished: boolean;
   isWaitingSwitch: boolean;
+  battleType?: string;
   onMoveSelect: (moveAction: string) => void;
   onSkipMove: () => void;
   onRun: () => void;
@@ -22,6 +23,7 @@ export const BattleControls = memo(function BattleControls({
   isPending,
   isFinished,
   isWaitingSwitch,
+  battleType,
   onMoveSelect,
   onSkipMove,
   onRun,
@@ -38,6 +40,7 @@ export const BattleControls = memo(function BattleControls({
               status={status}
               rawEvents={rawEvents}
               isPending={isPending}
+              battleType={battleType}
               onMoveSelect={onMoveSelect}
               onSkipMove={onSkipMove}
               onRun={onRun}

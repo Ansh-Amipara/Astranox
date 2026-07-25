@@ -97,7 +97,8 @@ export type TurnEvent =
   | { type: 'coin_reward'; amount: number; message: string }
   | { type: 'stored_xp_gain'; amount: number; message: string }
   | { type: 'item_received'; item: string; message: string }
-  | { type: 'rank_promotion'; rank: string; message: string };
+  | { type: 'rank_promotion'; rank: string; message: string }
+  | { type: 'tower_cleared'; message: string };
 
 export interface TurnResult {
   p1State: ActivePokemon;

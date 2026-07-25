@@ -140,6 +140,7 @@ export function BattleScreen() {
           isPending={turnMutation.isPending}
           isFinished={isFinished}
           isWaitingSwitch={isWaitingSwitch}
+          battleType={battleType}
           onMoveSelect={handleMoveSelect}
           onSkipMove={handleSkipMove}
           onRun={handleRun}

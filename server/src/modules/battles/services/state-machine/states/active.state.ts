@@ -142,7 +142,7 @@ export class ActiveState implements IBattleState {
           if (wildPokemon.isRankExam) {
             coinsToGive = wildPokemon.examinerCoins ? Number(wildPokemon.examinerCoins) : 0;
             storedXpToGive = wildPokemon.examinerXp ? Number(wildPokemon.examinerXp) : 0;
-          } else {
+          } else if (session.battleType !== 'TOWER') {
             coinsToGive = session.battleType === 'NPC' ? baseLevel * 30 : baseLevel * 10;
             if (session.battleType === 'NPC') {
               const { getExpYield } = require('../../../../../game/battle/level-math');
@@ -176,6 +176,13 @@ export class ActiveState implements IBattleState {
                   message: `Battle Won! Reward: +${storedXpToGive} Stored XP!`
                 });
              }
+          }
+
+          if (session.battleType === 'TOWER') {
+             result.events.push({
+               type: 'tower_cleared',
+               message: `Floor Cleared! Click Return to claim Infinity Coins.`
+             });
           }
 
           if (wildPokemon.isRankExam && wildPokemon.targetRank) {

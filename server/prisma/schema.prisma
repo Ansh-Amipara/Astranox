@@ -89,6 +89,8 @@ model TrainerSave {
 
   tradesInitiated TradeRequest[] @relation("TradesInitiated")
   tradesReceived  TradeRequest[] @relation("TradesReceived")
+
+  infinityTowerState InfinityTowerState?
 }
 
 model OwnedPokemon {
@@ -266,6 +268,7 @@ enum BattleStatus {
 enum BattleType {
   WILD
   NPC
+  TOWER
 }
 
 model BattleSession {
@@ -351,6 +354,49 @@ model TradeRequest {
   updatedAt          DateTime @updatedAt
 }
 
+// ----------------------------------------------------------------------
+// INFINITY TOWER
+// ----------------------------------------------------------------------
 
+model InfinityTowerState {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId           String   @unique @db.ObjectId
+  trainer             TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  currentFloor        Int      @default(1)
+  highestFloor        Int      @default(0)
+  infinityCoins       Int      @default(0)
+  currentEncounterId  String?  @db.ObjectId
+  currentRunStartedAt DateTime?
+  floorsCompleted     Int      @default(0)
+  totalVictories      Int      @default(0)
+  totalDefeats        Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+enum EncounterStatus {
+  ACTIVE
+  CLEARED
+  FAILED
+}
+
+model InfinityTowerEncounter {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  towerStateId String @db.ObjectId
+  floor        Int
+  seed         String
+  enemyTeam    Json
+  reward       Json
+  status       EncounterStatus
+  createdAt    DateTime @default(now())
+}
+
+model InfinityCoinTransaction {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId String @db.ObjectId
+  amount    Int
+  reason    String
+  createdAt DateTime @default(now())
+}
 
 

@@ -76,6 +76,17 @@
     /* bg-slate-100 maps to #FFFFE3 (Paper), text-slate-900 maps to #4A4A4A (Dark) */
     @apply bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased;
   }
+
+  html, body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

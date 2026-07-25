@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useCompleteTowerBattle, useTowerState } from '../../tower/useTower';
 
 interface Props {
   isFinished: boolean;
@@ -21,6 +22,8 @@ export const BattleResultModal = memo(function BattleResultModal({
 }: Props) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const completeTower = useCompleteTowerBattle();
+  const { data: towerData } = useTowerState();
 
   if (!isFinished) return null;
 
@@ -52,6 +55,35 @@ export const BattleResultModal = memo(function BattleResultModal({
           </div>
         )}
 
+        {/* Tower Rewards */}
+        {battleType === 'TOWER' && status === 'WON' && towerData?.activeEncounter?.reward && (
+          <div className="w-full bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 mb-6 border border-slate-200 dark:border-slate-700 flex flex-row items-center justify-around shadow-inner">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center shadow-sm border border-yellow-200/50 dark:border-yellow-800/50">
+                <img src="/infinity.png" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Coins</span>
+                <span className="text-xl font-black text-yellow-600 dark:text-yellow-400">
+                  +{(towerData.activeEncounter.reward as any).infinityCoins || 0}
+                </span>
+              </div>
+            </div>
+            <div className="w-px h-16 bg-slate-200 dark:bg-slate-700"></div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center shadow-sm border border-blue-200/50 dark:border-blue-800/50">
+                <img src="/xp.png" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stored XP</span>
+                <span className="text-xl font-black text-blue-600 dark:text-blue-400">
+                  +{(towerData.activeEncounter.reward as any).storedXp || 0}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className={`w-full py-4 px-6 rounded-xl mb-8 border font-bold text-center text-lg ${
           status === 'WON' || status === 'CAUGHT' 
             ? 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400'
@@ -59,25 +91,41 @@ export const BattleResultModal = memo(function BattleResultModal({
             ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
             : 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
         }`}>
-          {status === 'WON' ? (battleType === 'NPC' ? 'Victory! You defeated the Rank Examiner!' : `You defeated the wild ${wildSpeciesName}!`) : 
+          {status === 'WON' ? (battleType === 'TOWER' ? 'Victory! You cleared the floor!' : battleType === 'NPC' ? 'Victory! You defeated the Rank Examiner!' : `You defeated the wild ${wildSpeciesName}!`) : 
            status === 'CAUGHT' ? `Gotcha! ${wildSpeciesName} was caught!` :
            status === 'FLED' ? 'Got away safely!' : 'Defeated! Better luck next time!'}
         </div>
 
         <div className="flex gap-4 w-full">
           <button 
+            disabled={completeTower.isPending}
             onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ['rankStatus'] });
-              queryClient.invalidateQueries({ queryKey: ['authProfile'] });
-              queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-              navigate(returnUrl);
-              setTimeout(() => {
-                queryClient.removeQueries({ queryKey: ['activeBattle'] });
-              }, 100);
+              const handleReturn = () => {
+                queryClient.invalidateQueries({ queryKey: ['rankStatus'] });
+                queryClient.invalidateQueries({ queryKey: ['authProfile'] });
+                queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+                navigate(returnUrl);
+                setTimeout(() => {
+                  queryClient.removeQueries({ queryKey: ['activeBattle'] });
+                  queryClient.removeQueries({ queryKey: ['battleSession'] });
+                }, 100);
+              };
+
+              if (battleType === 'TOWER') {
+                completeTower.mutate(status === 'WON' ? 'WON' : 'LOST', {
+                  onSuccess: handleReturn,
+                  onError: (err) => {
+                    console.error(err);
+                    handleReturn(); // Fallback anyway
+                  }
+                });
+              } else {
+                handleReturn();
+              }
             }} 
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
           >
-            Return
+            {completeTower.isPending ? 'Processing...' : 'Return'}
           </button>
         </div>
       </div>
