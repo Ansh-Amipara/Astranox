@@ -11,7 +11,7 @@ export const addMoneySchema = z.object({
 export const addPokemonSchema = z.object({
   body: z.object({
     speciesId: z.number().int().positive(),
-    level: z.number().int().min(1).max(2000),
+    level: z.number().int().min(1).max(5000),
     potential: z.nativeEnum(PokemonPotential),
     ivs: z.object({
       ivHp: z.number().int().min(0).max(31).optional(),

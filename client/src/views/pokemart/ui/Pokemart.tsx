@@ -72,9 +72,9 @@ export function Pokemart() {
   }
 
   const storeItems = items?.filter(item => {
-    if (storeType === 'infinity') return item.category === 'infinity-only'; // placeholder for future
-    if (storeType === 'void') return item.category === 'void-only'; // placeholder for future
-    return true; // Astral shows everything for now
+    if (storeType === 'infinity') return item.category === 'infinity-only';
+    if (storeType === 'void') return item.category === 'void-only';
+    return item.category !== 'infinity-only' && item.category !== 'void-only';
   }) || [];
 
   const categories = ['all', ...Array.from(new Set(storeItems.map(i => i.category)))].sort();
@@ -115,8 +115,8 @@ export function Pokemart() {
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${activeCategory === cat
-                        ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                      ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                       }`}
                   >
                     {cat === 'iv' ? 'IV' : cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
@@ -127,7 +127,7 @@ export function Pokemart() {
 
             {/* Right Side: Tabs & Money */}
             <div className="flex flex-col items-start md:items-end gap-3 w-full md:w-auto">
-              
+
               {/* Store Type Tabs */}
               <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg w-max">
                 <button
@@ -258,7 +258,7 @@ export function Pokemart() {
                               ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
                         >
-                          {buyMutation.isPending ? 'Buying...' : 'Buy'}
+                          {buyMutation.isPending ? 'Buying' : 'Buy'}
                         </button>
                       </td>
                     </tr>

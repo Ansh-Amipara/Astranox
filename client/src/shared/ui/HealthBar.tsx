@@ -14,7 +14,7 @@ export const HealthBar = memo(function HealthBar({ currentHp, maxHp }: Props) {
       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4 border-2 border-slate-300 dark:border-slate-900 overflow-hidden relative">
         <div 
           className={`h-full transition-all duration-500 ${color}`} 
-          style={{ width: `${percentage}%` }}
+          style={{ width: `${percentage}%`, minWidth: percentage > 0 ? '1%' : '0%' }}
         ></div>
       </div>
       <div className="text-right mt-1 text-xs text-slate-500 dark:text-slate-400 font-bold">

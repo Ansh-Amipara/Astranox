@@ -62,7 +62,7 @@ export const InfinityTowerPage: React.FC = () => {
     if (!skipFloors.isPending) {
       skipFloors.mutate(undefined, {
         onSuccess: (res: any) => {
-          const skipResult = res.data?.data?.skipResult;
+          const skipResult = res?.skipResult;
           if (skipResult) {
             toast.success(
               `Skipped ${skipResult.skippedCount} floors (Floor ${skipResult.startFloor} ➔ ${skipResult.endFloor})! Rewards: +${skipResult.accumulatedCoins} Coins, +${skipResult.accumulatedXp} XP`
@@ -147,7 +147,9 @@ export const InfinityTowerPage: React.FC = () => {
                           className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-110"
                         />
                       </div>
-                      <span className="text-sm font-black text-slate-800 dark:text-white capitalize truncate max-w-[80px] sm:max-w-[100px]">{pokemon.species?.name}</span>
+                      <span className="text-sm font-black text-slate-800 dark:text-white capitalize text-center leading-tight max-w-[100px] sm:max-w-[120px] break-words">
+                        {pokemon.species?.name}
+                      </span>
                       <span className="text-xs font-bold text-slate-500">Lv. {pokemon.level}</span>
                     </div>
                   ))}

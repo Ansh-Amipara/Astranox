@@ -34,6 +34,7 @@ export interface OwnedPokemonDto {
     readonly spAtk: number;
     readonly spDef: number;
     readonly speed: number;
+    readonly isGmax: boolean;
   };
 }
 

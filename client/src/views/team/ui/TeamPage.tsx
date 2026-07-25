@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
 import { TypeSelect } from '../../../components/ui/TypeSelect';
 import { ArrowRight } from 'lucide-react';
 import { getPotentialBadgeClasses } from '../../../utils/pokemonUtils';
 // --- Stat Calculation Utilities ---
-function calculateHP(base: number, iv: number, level: number): number {
+function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
   if (base === 1) return 1;
-  return Math.floor(((2 * base + iv) * level) / 100) + level + 10;
+  const hp = Math.floor(((2 * base + iv) * level) / 100) + level + 10;
+  return isGmax ? hp * 2 : hp;
 }
 
 function calculateStat(base: number, iv: number, level: number): number {
@@ -417,9 +419,17 @@ export function TeamPage() {
 
               <button
                 onClick={() => {
-                  if (window.confirm(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`)) {
-                    releaseMutation.mutate(activeMenuPkm.id);
-                  }
+                  toast(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`, {
+                    action: {
+                      label: 'Release',
+                      onClick: () => releaseMutation.mutate(activeMenuPkm.id)
+                    },
+                    cancel: {
+                      label: 'Cancel',
+                      onClick: () => {}
+                    },
+                    duration: 5000
+                  });
                 }}
                 disabled={party.length <= 1 || releaseMutation.isPending}
                 className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -489,7 +499,7 @@ export function TeamPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {[
-                        { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level), iv: detailsPkm.ivHp || 0, base: detailsPkm.species.hp },
+                        { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level, detailsPkm.species.isGmax), iv: detailsPkm.ivHp || 0, base: detailsPkm.species.hp },
                         { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level), iv: detailsPkm.ivAttack || 0, base: detailsPkm.species.attack },
                         { label: 'Defense', stat: calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level), iv: detailsPkm.ivDefense || 0, base: detailsPkm.species.defense },
                         { label: 'Sp. Atk', stat: calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level), iv: detailsPkm.ivSpAtk || 0, base: detailsPkm.species.spAtk },

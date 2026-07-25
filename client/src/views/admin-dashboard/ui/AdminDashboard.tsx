@@ -23,16 +23,16 @@ export function AdminDashboard() {
       case 'DIAMOND': return 300;
       case 'CRYSTAL': return 400;
       case 'EPIC': return 500;
-      case 'HEROIC': return 600;
-      case 'SOVEREIGN': return 700;
-      case 'LEGENDARY': return 800;
-      case 'DIVINE': return 900;
-      case 'CELESTIAL': return 1000;
-      case 'PRIMORDIAL': return 1200;
-      case 'MYTHICAL': return 1400;
-      case 'INFINITY': return 1700;
-      case 'ETERNAL': return 2000;
-      default: return 2000;
+      case 'HEROIC': return 700;
+      case 'SOVEREIGN': return 900;
+      case 'LEGENDARY': return 1100;
+      case 'DIVINE': return 1400;
+      case 'CELESTIAL': return 1700;
+      case 'PRIMORDIAL': return 2000;
+      case 'MYTHICAL': return 3000;
+      case 'INFINITY': return 4000;
+      case 'ETERNAL': return 5000;
+      default: return 5000;
     }
   }
   const [moneyAmount, setMoneyAmount] = useState<number>(1000);
@@ -415,7 +415,8 @@ export function AdminDashboard() {
                             <button
                               onClick={() => {
                                 const maxLevel = getMaxLevelForPotential(editPotential);
-                                const requiredXp = (maxLevel * 1000) - (selectedPokemonToEdit.currentXp || 0);
+                                const maxTotalXp = 50 * (maxLevel + 1) * maxLevel - 1;
+                                const requiredXp = maxTotalXp - (selectedPokemonToEdit.currentXp || 0);
                                 setEditXp(Math.max(0, requiredXp));
                               }}
                               className="text-[10px] font-bold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 uppercase px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded"

@@ -9,13 +9,14 @@
  * Formula (No EVs): floor( (2 * Base + IV) * Level / 100 ) + Level + 10
  * Note: Shedinja (Base HP 1) always has exactly 1 HP, regardless of IVs/Level.
  */
-export function calculateHP(base: number, iv: number, level: number): number {
+export function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
   if (base === 1) {
     return 1; // Shedinja rule
   }
   
   const step1 = Math.floor(((2 * base + iv) * level) / 100);
-  return step1 + level + 10;
+  const hp = step1 + level + 10;
+  return isGmax ? hp * 2 : hp;
 }
 
 /**

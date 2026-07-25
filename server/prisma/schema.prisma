@@ -211,8 +211,7 @@ model Species {
 
   catchRate Int @default(255)
   baseExp   Int @default(100)
-  isLegendary Boolean @default(false)
-  isMythical  Boolean @default(false)
+  category  String @default("Normal")
 
   // Forms support
   formName      String?

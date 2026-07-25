@@ -185,3 +185,37 @@ These are incredibly powerful, world-defining Legendary Pokémon that sit just b
 * Magearna
 * Meltan
 * Pecharunt
+
+
+> Official Master Registry of Custom or Tracked Pokémon in Astranox.
+> Use this file to document new forms, custom species, or keep track of specific Pokémon details.
+
+---
+
+## Universal Pokémon Data Template
+
+Every Pokémon entry should follow this strict template:
+
+```yaml
+Species: <string>        # Base Species Name (e.g., Charizard)
+Form: <string>           # Base / Mega-X / G-Max / Regional Form
+DexNumber: <number>      # National Pokédex Number
+Category: <string>       # Normal / Legendary / Mythical / Pseudo Legendary / Ultra Beast / Paradox
+Typing:
+  Type1: <string>        # Primary Type (e.g., Fire)
+  Type2: <string>        # Secondary Type (e.g., Flying) / Optional
+BaseStats:
+  HP: <number>           
+  Atk: <number>          
+  Def: <number>          
+  SpAtk: <number>        
+  SpDef: <number>        
+  Speed: <number>        
+Abilities:
+  Normal: [<string>]     # List of standard abilities
+  Hidden: <string>       # Hidden ability / Optional
+Evolution:
+  From: <string>         # Pre-evolution / Optional
+  To: <string>           # Next evolution / Optional
+  Method: <string>       # e.g., "Level 36" or "Fire Stone"
+```

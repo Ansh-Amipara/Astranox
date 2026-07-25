@@ -55,7 +55,7 @@ export function generateTowerConfig(floor: number): TowerEncounterConfig {
   // Coins: 10 + floor^0.65
   const baseCoins = Math.floor(10 + Math.pow(floor, 0.65));
   const rewardCoins = baseCoins * bossMultiplier;
-  const rewardXp = rewardCoins * 25; // 25 XP per coin
+  const rewardXp = teamSize * (level * 100);
 
   return {
     floor,

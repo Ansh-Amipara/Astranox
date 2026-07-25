@@ -57,7 +57,13 @@ const POTENTIAL_PEARLS = [
   { id: 'eternal-pearl', name: 'Eternal Pearl', cost: 5000, description: 'Upgrades an Infinity potential Pokémon to Eternal potential.', category: 'infinity-only' }
 ];
 
-
+const XP_CANDIES = [
+  { id: 'exp-candy-xs', name: 'Exp. Candy XS', cost: 100, description: 'A very small candy that grants 100 Experience Points to a single Pokémon.', category: 'xp-candy', spriteKey: 'xs' },
+  { id: 'exp-candy-s', name: 'Exp. Candy S', cost: 800, description: 'A small candy that grants 800 Experience Points to a single Pokémon.', category: 'xp-candy', spriteKey: 's' },
+  { id: 'exp-candy-m', name: 'Exp. Candy M', cost: 3000, description: 'A medium candy that grants 3,000 Experience Points to a single Pokémon.', category: 'xp-candy', spriteKey: 'm' },
+  { id: 'exp-candy-l', name: 'Exp. Candy L', cost: 10000, description: 'A large candy that grants 10,000 Experience Points to a single Pokémon.', category: 'xp-candy', spriteKey: 'l' },
+  { id: 'exp-candy-xl', name: 'Exp. Candy XL', cost: 30000, description: 'A very large candy that grants 30,000 Experience Points to a single Pokémon.', category: 'xp-candy', spriteKey: 'xl' }
+];
 
 export async function seedItems() {
   if (!env.CLOUDINARY_CLOUD_NAME) throw new Error('CLOUDINARY_CLOUD_NAME is required in .env');
@@ -137,7 +143,47 @@ export async function seedItems() {
     }
   }
 
+  for (const candy of XP_CANDIES) {
+    try {
+      const { id, spriteKey, ...updateData } = candy;
+      const spriteUrl = `https://raw.githubusercontent.com/msikma/pokesprite/master/icons/exp-candy/${spriteKey}.png`;
 
+      const candyWithSprite = {
+        ...updateData,
+        spriteUrl
+      };
+      await prisma.item.upsert({
+        where: { id },
+        update: candyWithSprite,
+        create: { id, ...candyWithSprite }
+      });
+      console.log(`Seeded item: ${id}`);
+    } catch (e) {
+      console.error(`Error seeding custom item ${candy.id}:`, e);
+    }
+  }
+
+  console.log(`Seeding Dynamax Candy...`);
+  try {
+    const dynamaxId = 'dynamax-candy';
+    const dynamaxCandy = {
+      id: dynamaxId,
+      name: 'Dynamax Candy',
+      cost: 100000,
+      description: 'A mysterious candy infused with Galar particles. Allows certain Pokémon to permanently unlock their Gigantamax potential.',
+      category: 'dynamax',
+      spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/item/dynamax/dynamax-candy`
+    };
+    const { id, ...dynamaxUpdateData } = dynamaxCandy;
+    await prisma.item.upsert({
+      where: { id: dynamaxId },
+      update: dynamaxUpdateData,
+      create: dynamaxCandy
+    });
+    console.log(`Seeded item: ${dynamaxId}`);
+  } catch (e) {
+    console.error(`Error seeding Dynamax Candy:`, e);
+  }
 
   console.log(`Successfully seeded items.`);
 }

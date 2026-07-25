@@ -3,6 +3,31 @@ import { runInBatches } from './utils';
 import { env } from '../../../src/config/env';
 
 const prisma = new PrismaClient();
+export function determineCategory(name: string, isLegendary: boolean, isMythical: boolean): string {
+  const ultraBeasts = ['nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana', 'guzzlord', 'poipole', 'naganadel', 'stakataka', 'blacephalon'];
+  const paradox = [
+    'great-tusk', 'scream-tail', 'brute-bonnet', 'flutter-mane', 'slither-wing', 'sandy-shocks', 'iron-treads',
+    'iron-bundle', 'iron-hands', 'iron-jugulis', 'iron-moth', 'iron-thorns', 'roaring-moon', 'iron-valiant',
+    'walking-wake', 'iron-leaves', 'gouging-fire', 'raging-bolt', 'iron-boulder', 'iron-crown', 'koraidon', 'miraidon'
+  ];
+  const pseudoLegendaries = [
+    'dratini', 'dragonair', 'dragonite', 'larvitar', 'pupitar', 'tyranitar', 'bagon', 'shelgon', 'salamence',
+    'beldum', 'metang', 'metagross', 'gible', 'gabite', 'garchomp', 'deino', 'zweilous', 'hydreigon',
+    'goomy', 'sliggoo', 'goodra', 'jangmo-o', 'hakamo-o', 'kommo-o', 'dreepy', 'drakloak', 'dragapult',
+    'frigibax', 'arctibax', 'baxcalibur'
+  ];
+
+  if (isMythical) return 'Mythical';
+  if (isLegendary) return 'Legendary';
+  
+  const baseName = name.split('-')[0];
+  if (paradox.includes(name) || paradox.includes(baseName)) return 'Paradox';
+  if (ultraBeasts.includes(name) || ultraBeasts.includes(baseName)) return 'Ultra Beast';
+  if (pseudoLegendaries.includes(name) || pseudoLegendaries.includes(baseName)) return 'Pseudo Legendary';
+
+  return 'Normal';
+}
+
 export async function seedSpecies() {
   if (!env.CLOUDINARY_CLOUD_NAME) throw new Error('CLOUDINARY_CLOUD_NAME is required in .env');
   console.log('Seeding 1025 Pokemon Species (Cloudinary sprites)... (this will take a few minutes)');
@@ -21,6 +46,9 @@ export async function seedSpecies() {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
       if (!res.ok) return; // Skip if missing for some reason
       const data = await res.json();
+      
+      // Skip non-combat mount forms for Koraidon/Miraidon
+      if (data.name.startsWith('koraidon-') || data.name.startsWith('miraidon-')) return;
 
       const hp = data.stats.find((s: any) => s.stat.name === 'hp')?.base_stat || 0;
       const attack = data.stats.find((s: any) => s.stat.name === 'attack')?.base_stat || 0;
@@ -37,8 +65,8 @@ export async function seedSpecies() {
 
       // Fetch species data for catch rate and legendary status
       let catchRate = 255;
-      let isLegendary = false;
-      let isMythical = false;
+      let isLegendaryRaw = false;
+      let isMythicalRaw = false;
       try {
         const speciesUrl = data.species?.url;
         if (speciesUrl) {
@@ -46,13 +74,15 @@ export async function seedSpecies() {
           if (speciesRes.ok) {
             const speciesData = await speciesRes.json();
             catchRate = speciesData.capture_rate || 255;
-            isLegendary = speciesData.is_legendary || false;
-            isMythical = speciesData.is_mythical || false;
+            isLegendaryRaw = speciesData.is_legendary || false;
+            isMythicalRaw = speciesData.is_mythical || false;
           }
         }
       } catch (err) {
         console.error(`Failed to fetch species data for ${id}, defaulting catchRate to 255`, err);
       }
+
+      const category = determineCategory(data.name, isLegendaryRaw, isMythicalRaw);
 
       // Extract form details
       let baseSpeciesId = id <= 1025 ? id : null;
@@ -77,8 +107,7 @@ export async function seedSpecies() {
           hp, attack, defense, spAtk, spDef, speed,
           catchRate,
           baseExp: baseExperience,
-          isLegendary,
-          isMythical,
+          category,
           type1Id, type2Id,
           baseSpeciesId,
           pokedexNumber,
@@ -93,8 +122,7 @@ export async function seedSpecies() {
           hp, attack, defense, spAtk, spDef, speed,
           catchRate,
           baseExp: baseExperience,
-          isLegendary,
-          isMythical,
+          category,
           type1Id, type2Id,
           baseSpeciesId,
           pokedexNumber,

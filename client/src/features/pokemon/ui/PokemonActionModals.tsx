@@ -1,5 +1,6 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
 import { TypeSelect } from '../../../components/ui/TypeSelect';
@@ -7,9 +8,10 @@ import { getPotentialBadgeClasses } from '../../../utils/pokemonUtils';
 import { ArrowRight } from 'lucide-react';
 
 // --- Stat Calculation Utilities ---
-function calculateHP(base: number, iv: number, level: number): number {
+function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
   if (base === 1) return 1;
-  return Math.floor(((2 * base + iv) * level) / 100) + level + 10;
+  const hp = Math.floor(((2 * base + iv) * level) / 100) + level + 10;
+  return isGmax ? hp * 2 : hp;
 }
 
 function calculateStat(base: number, iv: number, level: number): number {
@@ -18,7 +20,7 @@ function calculateStat(base: number, iv: number, level: number): number {
 
 function calculateCP(detailsPkm: any): number {
   if (!detailsPkm || !detailsPkm.species) return 0;
-  const hp = calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level);
+  const hp = calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level, detailsPkm.species.isGmax);
   const atk = calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level);
   const def = calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level);
   const spa = calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level);
@@ -59,10 +61,11 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   const [boostPkm, setBoostPkm] = useState<any>(null);
   const [boostIvPkm, setBoostIvPkm] = useState<any>(null);
   const [giveXpPkm, setGiveXpPkm] = useState<any>(null);
+  const [dynamaxPkm, setDynamaxPkm] = useState<any>(null);
   const [xpAmountInput, setXpAmountInput] = useState<string>('1000');
   const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
-  const [selectedMega, setSelectedMega] = useState<any>(null);
+  const [selectedTransformation, setSelectedTransformation] = useState<any>(null);
 
   const { data: speciesInfo } = useQuery({
     queryKey: ['species', activeMenuPkm?.speciesId || evolutionPkm?.speciesId],
@@ -75,17 +78,29 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
     enabled: !!(activeMenuPkm || evolutionPkm)
   });
 
+  const derivedTransformations = React.useMemo(() => {
+    const active = activeMenuPkm || evolutionPkm;
+    if (!active) return [];
+    const t = [];
+    if (active.species?.evolvesToId) {
+      t.push({ isStandard: true, id: active.species.evolvesToId, name: active.species.evolvesTo?.name || 'Evolution' });
+    }
+    if (speciesInfo?.megas) t.push(...speciesInfo.megas);
+    if (speciesInfo?.gmaxes) t.push(...speciesInfo.gmaxes);
+    return t;
+  }, [activeMenuPkm, evolutionPkm, speciesInfo]);
+
   React.useEffect(() => {
     if (!evolutionPkm) {
-      setSelectedMega(null);
-    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && speciesInfo.megas?.length > 0) {
-      if (!selectedMega || selectedMega.baseSpeciesId !== evolutionPkm.speciesId) {
-        setSelectedMega(speciesInfo.megas[0]);
+      setSelectedTransformation(null);
+    } else if (derivedTransformations.length > 0) {
+      if (!selectedTransformation || (selectedTransformation.baseSpeciesId !== evolutionPkm.speciesId && !selectedTransformation.isStandard)) {
+        setSelectedTransformation(derivedTransformations[0]);
       }
-    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && (!speciesInfo.megas || speciesInfo.megas.length === 0)) {
-      setSelectedMega(null);
+    } else {
+      setSelectedTransformation(null);
     }
-  }, [evolutionPkm, speciesInfo, selectedMega]);
+  }, [evolutionPkm, derivedTransformations, selectedTransformation]);
   const [moveSearch, setMoveSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -96,7 +111,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
     openMoves: (pkm) => setChangeMovePkm({ ...pkm, currentMoves: [0, 1, 2, 3].map(i => pkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') }),
     openEvolve: (pkm) => {
       setEvolutionPkm(pkm);
-      setSelectedMega(null);
+      setSelectedTransformation(null);
     },
     openBoost: setBoostPkm,
     openIVs: setBoostIvPkm,
@@ -141,7 +156,18 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
       setEvolutionPkm(null);
-      setSelectedMega(null);
+      setSelectedTransformation(null);
+    }
+  });
+
+  const dynamaxMutation = useMutation({
+    mutationFn: async (pokemonId: string) => {
+      await api.post('/inventory/use', { itemId: 'dynamax-candy', targetPokemonId: pokemonId, quantity: 1 });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
+      setDynamaxPkm(null);
     }
   });
 
@@ -227,13 +253,14 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               {(() => {
                 const hasEvolutions = !!activeMenuPkm.species?.evolvesToId;
                 const hasMegaForms = speciesInfo?.megas?.length > 0;
-                const canEvolve = hasEvolutions || hasMegaForms;
+                const hasGmaxForms = speciesInfo?.gmaxes?.length > 0;
+                const canEvolve = hasEvolutions || hasMegaForms || hasGmaxForms;
                 return (
                   <button
                     onClick={() => {
                       if (!canEvolve) return;
-                      setEvolutionPkm({ ...activeMenuPkm, megas: speciesInfo?.megas });
-                      setSelectedMega(speciesInfo?.megas?.[0] || null);
+                      setEvolutionPkm(activeMenuPkm);
+                      setSelectedTransformation(derivedTransformations[0] || null);
                       setActiveMenuPkm(null);
                     }}
                     disabled={!canEvolve}
@@ -243,6 +270,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   </button>
                 );
               })()}
+
+
 
               {activeMenuPkm.potential !== 'ETERNAL' && (
                 <button
@@ -268,9 +297,17 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
               <button
                 onClick={() => {
-                  if (window.confirm(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`)) {
-                    releaseMutation.mutate(activeMenuPkm.id);
-                  }
+                  toast(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`, {
+                    action: {
+                      label: 'Release',
+                      onClick: () => releaseMutation.mutate(activeMenuPkm.id)
+                    },
+                    cancel: {
+                      label: 'Cancel',
+                      onClick: () => {}
+                    },
+                    duration: 5000
+                  });
                 }}
                 disabled={releaseMutation.isPending}
                 className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -340,7 +377,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {[
-                        { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level), iv: detailsPkm.ivHp || 0, base: detailsPkm.species.hp },
+                        { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level, detailsPkm.species.isGmax), iv: detailsPkm.ivHp || 0, base: detailsPkm.species.hp },
                         { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level), iv: detailsPkm.ivAttack || 0, base: detailsPkm.species.attack },
                         { label: 'Defense', stat: calculateStat(detailsPkm.species.defense, detailsPkm.ivDefense || 0, detailsPkm.level), iv: detailsPkm.ivDefense || 0, base: detailsPkm.species.defense },
                         { label: 'Sp. Atk', stat: calculateStat(detailsPkm.species.spAtk, detailsPkm.ivSpAtk || 0, detailsPkm.level), iv: detailsPkm.ivSpAtk || 0, base: detailsPkm.species.spAtk },
@@ -529,35 +566,53 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg relative">
-                  {(evolutionPkm.megas || speciesInfo?.megas)?.length > 1 && (
-                    <div className="absolute -top-3 -right-3 flex gap-1">
-                      {(evolutionPkm.megas || speciesInfo?.megas).map((mega: any) => (
-                        <button
-                          key={mega.id}
-                          onClick={() => setSelectedMega(mega)}
-                          className={`w-8 h-8 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-blue-500 bg-blue-100 dark:bg-blue-900/50' : 'border-slate-300 bg-slate-100 dark:bg-slate-800 opacity-50'}`}
-                        >
-                          <img src={getSpriteUrl(mega.id)} className="w-full h-full pixelated object-contain" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {selectedMega || evolutionPkm.species.evolvesToId ? (
-                    <img src={getSpriteUrl(selectedMega ? selectedMega.id : evolutionPkm.species.evolvesToId)} className="w-24 h-24 pixelated object-contain" />
+                <div className={`w-28 h-28 ${selectedTransformation?.isGmax ? 'bg-fuchsia-50/50 dark:bg-fuchsia-900/10 border-fuchsia-400 dark:border-fuchsia-500' : 'bg-blue-50/50 dark:bg-slate-800/80 border-blue-400 dark:border-blue-500'} rounded-full flex items-center justify-center border-2 shadow-lg relative mb-3`}>
+                  {selectedTransformation ? (
+                    <img src={getSpriteUrl(selectedTransformation.id)} className={`w-24 h-24 pixelated object-contain ${selectedTransformation?.isGmax ? 'drop-shadow-[0_0_15px_rgba(255,0,255,0.2)]' : ''}`} />
                   ) : (
                     <div className="w-24 h-24 flex items-center justify-center text-slate-400 font-bold">NONE</div>
                   )}
                 </div>
-                <span className="mt-3 font-bold capitalize text-lg text-blue-600 dark:text-blue-400">{selectedMega ? selectedMega.name.replace('-', ' ') : evolutionPkm.species.evolvesTo?.name || 'Fully Evolved'}</span>
+                
+                {derivedTransformations.length > 1 && (
+                  <div className="flex gap-3 mb-2 flex-wrap justify-center">
+                    {derivedTransformations.map((transform: any) => (
+                      <button
+                        key={transform.id}
+                        onClick={() => setSelectedTransformation(transform)}
+                        className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all duration-200 ${selectedTransformation?.id === transform.id ? (transform.isGmax ? 'border-fuchsia-500 bg-fuchsia-100 dark:bg-fuchsia-900/50 shadow-md scale-110' : 'border-blue-500 bg-blue-100 dark:bg-blue-900/50 shadow-md scale-110') : 'border-slate-300 bg-slate-100 dark:bg-slate-800 opacity-50 hover:opacity-100'}`}
+                        title={transform.name}
+                      >
+                        <img src={getSpriteUrl(transform.id)} className="w-8 h-8 pixelated object-contain drop-shadow-sm" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                <span className={`font-bold capitalize text-lg ${selectedTransformation?.isGmax ? 'text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-purple-600 dark:from-fuchsia-400 dark:to-purple-400 tracking-wide' : 'text-blue-600 dark:text-blue-400'}`}>
+                  {selectedTransformation ? selectedTransformation.name.replace('-', ' ') : 'Fully Evolved'}
+                </span>
               </div>
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 border border-slate-200 dark:border-slate-700">
               <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Evolution Requirement</h4>
               {(() => {
-                if (selectedMega) {
-                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
+                if (selectedTransformation?.isGmax) {
+                  const ownedCandy = save.inventory?.find((i: any) => i.itemId === 'dynamax-candy');
+                  const hasCandy = ownedCandy && ownedCandy.quantity > 0;
+                  return (
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">Dynamax Candy</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasCandy ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        In Bag: {ownedCandy?.quantity || 0}
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (selectedTransformation?.isMega) {
+                  let megaStoneName = selectedTransformation.name.replace('-mega', 'ite');
                   if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
                   if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
                   const hasMegaStone = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
@@ -599,8 +654,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
             <div className="flex justify-center gap-4 relative z-10">
               <button
-                onClick={() => { setEvolutionPkm(null); setSelectedMega(null); }}
-                disabled={evolveMutation.isPending}
+                onClick={() => { setEvolutionPkm(null); setSelectedTransformation(null); }}
+                disabled={evolveMutation.isPending || dynamaxMutation.isPending}
                 className="px-6 py-3 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
               >
                 Cancel
@@ -609,12 +664,25 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               {(() => {
                 let canPerformEvolution = false;
                 
-                if (selectedMega) {
-                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
+                if (selectedTransformation?.isGmax) {
+                  canPerformEvolution = save.inventory?.find((i: any) => i.itemId === 'dynamax-candy')?.quantity > 0;
+                  return (
+                    <button
+                      onClick={() => dynamaxMutation.mutate(evolutionPkm.id)}
+                      disabled={!canPerformEvolution || dynamaxMutation.isPending}
+                      className={`px-8 py-3 font-black tracking-widest text-white rounded-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-fuchsia-600 hover:bg-fuchsia-500 shadow-lg hover:shadow-xl' : 'bg-slate-500'}`}
+                    >
+                      {dynamaxMutation.isPending ? 'TRANSFORMING...' : canPerformEvolution ? 'GIGANTAMAX!' : 'CANNOT GMAX'}
+                    </button>
+                  );
+                }
+                
+                if (selectedTransformation?.isMega) {
+                  let megaStoneName = selectedTransformation.name.replace('-mega', 'ite');
                   if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
                   if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
                   canPerformEvolution = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
-                } else if (evolutionPkm.species.evolvesToId) {
+                } else if (selectedTransformation?.isStandard) {
                   canPerformEvolution = (evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
                                         (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0);
                 }
@@ -622,8 +690,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 return (
                   <button
                     onClick={() => {
-                      if (selectedMega) {
-                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id } as any);
+                      if (selectedTransformation?.isMega) {
+                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedTransformation.id } as any);
                       } else {
                         evolveMutation.mutate(evolutionPkm.id);
                       }
@@ -740,6 +808,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
           </div>
         );
       })()}
+
+
 
       {/* --- 6. Enhance IVs Modal --- */}
       {boostIvPkm && (() => {

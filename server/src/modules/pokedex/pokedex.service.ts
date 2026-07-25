@@ -14,15 +14,14 @@ export class PokedexService {
       ];
     }
 
-    if (category === 'mega') {
-      where.name = { contains: '-mega' };
-    } else if (category === 'gmax') {
-      where.name = { contains: '-gmax' };
-    } else if (category === 'regular') {
-      where.NOT = [
-        { name: { contains: '-mega' } },
-        { name: { contains: '-gmax' } },
-      ];
+    if (category && category !== 'all') {
+      if (category === 'mega') {
+        where.isMega = true;
+      } else if (category === 'gmax') {
+        where.isGmax = true;
+      } else {
+        where.category = category;
+      }
     }
 
     const [species, total] = await Promise.all([
@@ -30,7 +29,10 @@ export class PokedexService {
         skip,
         take: limit,
         where,
-        orderBy: { id: 'asc' },
+        orderBy: [
+          { pokedexNumber: 'asc' },
+          { id: 'asc' }
+        ],
         include: {
           type1: true,
           type2: true,
@@ -59,11 +61,18 @@ export class PokedexService {
     });
     
     if (species) {
-      const megas = await prisma.species.findMany({
-        where: { baseSpeciesId: id, isMega: true },
-        include: { type1: true, type2: true }
-      });
+      const [megas, gmaxes] = await Promise.all([
+        prisma.species.findMany({
+          where: { baseSpeciesId: id, isMega: true },
+          include: { type1: true, type2: true }
+        }),
+        prisma.species.findMany({
+          where: { baseSpeciesId: id, isGmax: true },
+          include: { type1: true, type2: true }
+        })
+      ]);
       (species as any).megas = megas;
+      (species as any).gmaxes = gmaxes;
     }
     
     return species;

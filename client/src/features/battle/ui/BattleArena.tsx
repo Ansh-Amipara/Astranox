@@ -20,7 +20,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       <WeatherEffects weather={null} />
 
       {/* Wild Info Card (Top Left) */}
-      <div className="absolute top-6 left-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-80 z-20 text-slate-900 dark:text-slate-100">
+      <div className="absolute top-6 left-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-96 z-20 text-slate-900 dark:text-slate-100">
         <div className="flex justify-between items-end mb-2 gap-2">
           <div className="flex flex-col gap-1 min-w-0">
             <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm truncate">{wild.speciesName}</h2>
@@ -83,7 +83,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       </div>
 
       {/* Player Info Card (Bottom Right) */}
-      <div className="absolute bottom-6 right-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-80 z-20 text-slate-900 dark:text-slate-100">
+      <div className="absolute bottom-6 right-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-96 z-20 text-slate-900 dark:text-slate-100">
         <div className="flex justify-between items-end mb-2 gap-2">
           <div className="flex flex-col gap-1 min-w-0">
             <h3 className="text-xl font-bold capitalize tracking-wide drop-shadow-sm truncate">

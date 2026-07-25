@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../shared/api/api';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface InventoryItem {
   itemId: string;
@@ -8,15 +10,33 @@ interface InventoryItem {
     name: string;
     description: string;
     spriteUrl: string | null;
+    category: string;
   };
 }
 
 export function Bag() {
+  const queryClient = useQueryClient();
+  const [selectedItemToUse, setSelectedItemToUse] = useState<InventoryItem | null>(null);
   const { data: save, isLoading } = useQuery({
     queryKey: ['trainerSave'],
     queryFn: async () => {
       const { data } = await api.get('/trainers/me');
       return data.data;
+    }
+  });
+
+  const useItemMutation = useMutation({
+    mutationFn: async (data: { itemId: string; targetPokemonId?: string; quantity?: number }) => {
+      const res = await api.post('/inventory/use', data);
+      return res.data;
+    },
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      toast.success(res.data.message);
+      setSelectedItemToUse(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error?.message || 'Failed to use item');
     }
   });
 
@@ -28,7 +48,9 @@ export function Bag() {
     );
   }
 
-  const inventory: InventoryItem[] = save?.inventory || [];
+  const inventory: InventoryItem[] = (save?.inventory || []).filter(
+    (inv: InventoryItem) => inv.quantity > 0
+  );
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
@@ -66,9 +88,80 @@ export function Bag() {
                   </div>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{inv.item.description}</p>
                 </div>
+                {inv.item.category === 'xp-candy' && (
+                  <div className="mt-4 flex gap-2 w-full overflow-x-auto no-scrollbar">
+                    <button 
+                      onClick={() => useItemMutation.mutate({ itemId: inv.itemId, quantity: 1 })}
+                      disabled={useItemMutation.isPending}
+                      className="flex-shrink-0 px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-800/50 rounded-lg font-bold transition-colors disabled:opacity-50"
+                    >
+                      {useItemMutation.isPending ? 'Using...' : 'Use'}
+                    </button>
+                    
+                    {inv.quantity > 1 && (
+                      <div className="flex items-center gap-1.5 ml-auto">
+                        {[5, 10, 25, 50].map(qty => inv.quantity >= qty ? (
+                          <button
+                            key={qty}
+                            onClick={() => useItemMutation.mutate({ itemId: inv.itemId, quantity: qty })}
+                            disabled={useItemMutation.isPending}
+                            className="px-2.5 py-2 text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {qty}x
+                          </button>
+                        ) : null)}
+                        <button
+                          onClick={() => useItemMutation.mutate({ itemId: inv.itemId, quantity: inv.quantity })}
+                          disabled={useItemMutation.isPending}
+                          className="px-2.5 py-2 text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
+                        >
+                          Max
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+
+
+      {/* Use Item Modal for items requiring Pokemon target */}
+      {selectedItemToUse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-black mb-2 dark:text-white">Use {selectedItemToUse.item.name}</h2>
+            <p className="text-slate-500 mb-6">Select a Pokémon to use this item on.</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {save?.party?.map((p: any) => (
+                <button
+                  key={p.id}
+                  onClick={() => useItemMutation.mutate({ itemId: selectedItemToUse.itemId, targetPokemonId: p.id })}
+                  disabled={useItemMutation.isPending}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors text-left disabled:opacity-50"
+                >
+                  <img src={`https://res.cloudinary.com/d0baluu2/image/upload/astranox/pokemon/${p.species.id}.png`} alt={p.species.name} className="w-16 h-16 object-contain drop-shadow" />
+                  <div>
+                    <div className="font-bold text-lg capitalize dark:text-white">{p.nickname || p.species.name}</div>
+                    <div className="text-sm font-bold text-slate-500">Level {p.level} &bull; {p.potential}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => setSelectedItemToUse(null)}
+                className="px-6 py-3 rounded-xl font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

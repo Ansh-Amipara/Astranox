@@ -57,7 +57,8 @@ export class TrainerMapper {
         speed: entity.ivSpeed || 0,
       },
       entity.level || 1,
-      entity.potential || 'BLACK_IRON'
+      entity.potential || 'BLACK_IRON',
+      entity.species?.isGmax || false
     );
 
     return {
@@ -94,6 +95,7 @@ export class TrainerMapper {
         spAtk: entity.species?.spAtk || 0,
         spDef: entity.species?.spDef || 0,
         speed: entity.species?.speed || 0,
+        isGmax: entity.species?.isGmax || false,
       }
     };
   }

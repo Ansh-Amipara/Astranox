@@ -5,6 +5,7 @@ import { api, getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
 import { toast } from 'sonner';
 import { PokemonActionModals } from '../../../features/pokemon/ui/PokemonActionModals';
+import { Pagination } from '../../../components/ui/Pagination';
 
 export function PokemonManagement() {
   const queryClient = useQueryClient();
@@ -97,23 +98,7 @@ export function PokemonManagement() {
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
           <h1 className="text-3xl font-black tracking-tight">My Pokémon</h1>
           
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl disabled:opacity-50 font-bold"
-            >
-              Prev
-            </button>
-            <span className="font-bold">Page {page} of {totalPages}</span>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl disabled:opacity-50 font-bold"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
 
         
@@ -323,10 +308,20 @@ export function PokemonManagement() {
 
                 <button
                   onClick={() => {
-                    if (window.confirm(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`)) {
-                      releaseMutation.mutate(activeMenuPkm.id);
-                      setActiveMenuPkm(null);
-                    }
+                    toast(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`, {
+                      action: {
+                        label: 'Release',
+                        onClick: () => {
+                          releaseMutation.mutate(activeMenuPkm.id);
+                          setActiveMenuPkm(null);
+                        }
+                      },
+                      cancel: {
+                        label: 'Cancel',
+                        onClick: () => {}
+                      },
+                      duration: 5000
+                    });
                   }}
                   disabled={releaseMutation.isPending}
                   className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"

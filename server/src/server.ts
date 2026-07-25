@@ -13,6 +13,7 @@ import { shopRoutes } from './modules/shop/shop.routes';
 import { adminRoutes } from './modules/admin/admin.routes';
 import { tradesRoutes } from './modules/trades/trades.routes';
 import { rankRoutes } from './modules/rank/rank.routes';
+import { inventoryRoutes } from './modules/inventory/inventory.routes';
 
 import pokedexRoutes from './modules/pokedex/pokedex.routes';
 import towerRoutes from './modules/tower/tower.routes';
@@ -43,6 +44,7 @@ app.use('/shop', shopRoutes);
 app.use('/admin', adminRoutes);
 app.use('/trades', tradesRoutes);
 app.use('/rank', rankRoutes);
+app.use('/inventory', inventoryRoutes);
 
 app.use('/pokedex', pokedexRoutes);
 app.use('/tower', towerRoutes);

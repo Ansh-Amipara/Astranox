@@ -65,7 +65,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
   }
 
   // 3. Hydrate Stats via Gen V Engine
-  const maxHp = calculateHP(payload.species.baseStats.hp, payload.ivs.hp, payload.level);
+  const maxHp = calculateHP(payload.species.baseStats.hp, payload.ivs.hp, payload.level, payload.species.isGmax);
 
   const stats = {
     attack: calculateStat(payload.species.baseStats.attack, payload.ivs.attack, payload.level),
@@ -80,7 +80,8 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     payload.species.baseStats,
     payload.ivs,
     payload.level,
-    payload.potential
+    payload.potential,
+    payload.species.isGmax
   );
 
   // 5. Return Combat Entity

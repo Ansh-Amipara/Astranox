@@ -21,6 +21,7 @@ export interface SpeciesContext {
   };
   catchRate?: number;
   baseExp?: number;
+  isGmax?: boolean;
 }
 
 

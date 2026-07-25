@@ -146,7 +146,8 @@ export class BattleSessionService {
           spAtk: species.spAtk,
           spDef: species.spDef,
           speed: species.speed
-        }
+        },
+        isGmax: species.isGmax
       },
       moves: []
     });
@@ -288,7 +289,8 @@ export class BattleSessionService {
           spAtk: species.spAtk,
           spDef: species.spDef,
           speed: species.speed
-        }
+        },
+        isGmax: species.isGmax
       },
       moves: []
     });
@@ -385,7 +387,8 @@ export class BattleSessionService {
           spAtk: species.spAtk,
           spDef: species.spDef,
           speed: species.speed
-        }
+        },
+        isGmax: species.isGmax
       },
       moves: []
     });
@@ -519,7 +522,8 @@ export class BattleSessionService {
             spAtk: species.spAtk,
             spDef: species.spDef,
             speed: species.speed
-          }
+          },
+          isGmax: species.isGmax
         },
         moves: []
       });
@@ -646,7 +650,8 @@ export class BattleSessionService {
             spAtk: species.spAtk,
             spDef: species.spDef,
             speed: species.speed
-          }
+          },
+          isGmax: species.isGmax
         },
         moves: []
       });

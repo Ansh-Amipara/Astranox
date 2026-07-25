@@ -1,4 +1,5 @@
 import { PrismaClient, TrainerSave, PokemonPotential } from '@prisma/client';
+import { ValidationError } from '../../common/errors/AppError';
 
 const prisma = new PrismaClient();
 
@@ -157,6 +158,13 @@ export class TrainersRepository {
       });
       if (!pokemon) throw new Error('Pokemon not found in party');
 
+      const partyCount = await tx.ownedPokemon.count({
+        where: { trainerId, isParty: true }
+      });
+      if (partyCount <= 1) {
+        throw new ValidationError('You must have at least one Pokemon in your party.');
+      }
+
       const boxed = await tx.ownedPokemon.findMany({
         where: { trainerId, isParty: false },
         select: { boxNumber: true, position: true }
@@ -225,6 +233,15 @@ export class TrainersRepository {
         where: { trainerId, isParty: to.isParty, boxNumber: to.boxNumber, position: to.position }
       });
 
+      if (from.isParty && !to.isParty && !toPokemon && fromPokemon) {
+        const partyCount = await tx.ownedPokemon.count({
+          where: { trainerId, isParty: true }
+        });
+        if (partyCount <= 1) {
+          throw new ValidationError('You must have at least one Pokemon in your party.');
+        }
+      }
+
       if (fromPokemon) {
         await tx.ownedPokemon.update({
           where: { id: fromPokemon.id },
@@ -285,11 +302,28 @@ export class TrainersRepository {
   }
 
   async releasePokemon(trainerId: string, pokemonId: string) {
-    return prisma.ownedPokemon.deleteMany({
-      where: {
-        id: pokemonId,
-        trainerId
-      }
+    return prisma.$transaction(async (tx) => {
+      // Manually delete dependent records to avoid referential integrity errors since schema uses NoAction
+      await tx.ownedPokemonMove.deleteMany({
+        where: { ownedPokemonId: pokemonId }
+      });
+      
+      // Also clear any trades involving this pokemon
+      await tx.tradeRequest.deleteMany({
+        where: {
+          OR: [
+            { offeredPokemonId: pokemonId },
+            { requestedPokemonId: pokemonId }
+          ]
+        }
+      });
+
+      return tx.ownedPokemon.deleteMany({
+        where: {
+          id: pokemonId,
+          trainerId
+        }
+      });
     });
   }
 

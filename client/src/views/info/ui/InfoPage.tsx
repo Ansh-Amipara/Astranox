@@ -24,12 +24,8 @@ export function InfoPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 p-8 sm:p-12">
       <div className="w-full mx-auto">
         <div className="flex items-center gap-4 mb-10">
-          <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-2xl">
-            <FiInfo className="text-3xl text-purple-600 dark:text-purple-400" />
-          </div>
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Game Information</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Detailed progression breakdown for Ranks, Tiers, and Levels.</p>
           </div>
         </div>
 
@@ -45,7 +41,7 @@ export function InfoPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {TABLE_DATA.map((row) => (
-                  <tr 
+                  <tr
                     key={row.rank}
                     className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group"
                   >

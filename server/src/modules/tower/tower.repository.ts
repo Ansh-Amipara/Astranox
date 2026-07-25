@@ -140,8 +140,7 @@ export class TowerRepository {
     // Given Astranox data size (1025 species), fetching in memory is fine if filtered.
     const where: any = {};
     if (!allowLegendary) {
-      where.isLegendary = false;
-      where.isMythical = false;
+      where.category = { notIn: ['Legendary', 'Mythical', 'Ultra Beast', 'Paradox'] };
     }
     
     // Simplistic evolution filtering based on basic fields

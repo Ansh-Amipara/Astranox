@@ -69,7 +69,7 @@ export class TowerService {
     const playerCp = party.reduce((sum, p) => {
       const baseStats = { hp: p.species.hp, attack: p.species.attack, defense: p.species.defense, spAtk: p.species.spAtk, spDef: p.species.spDef, speed: p.species.speed };
       const ivs = { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed };
-      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential);
+      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential, p.species.isGmax);
     }, 0);
     const floorCp = estimateTowerFloorCP(state!.currentFloor);
 
@@ -92,7 +92,7 @@ export class TowerService {
     const playerCp = party.reduce((sum, p) => {
       const baseStats = { hp: p.species.hp, attack: p.species.attack, defense: p.species.defense, spAtk: p.species.spAtk, spDef: p.species.spDef, speed: p.species.speed };
       const ivs = { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed };
-      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential);
+      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential, p.species.isGmax);
     }, 0);
 
     let skippedCount = 0;
@@ -204,7 +204,8 @@ export class TowerService {
           speed: species.speed
         },
         catchRate: species.catchRate || 255,
-        baseExp: species.baseExp || 64
+        baseExp: species.baseExp || 64,
+        isGmax: species.isGmax
       };
 
       const payload: PokemonInstancePayload = {
@@ -272,6 +273,7 @@ export class TowerService {
       include: {
         party: {
           where: { isParty: true },
+          orderBy: { position: 'asc' },
           include: {
             species: { include: { type1: true, type2: true } },
             moves: { include: { move: { include: { type: true } } } }

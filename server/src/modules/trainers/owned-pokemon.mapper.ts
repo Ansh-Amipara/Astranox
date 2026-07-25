@@ -37,6 +37,7 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
     },
     catchRate: dbModel.species.catchRate,
     baseExp: dbModel.species.baseExp,
+    isGmax: dbModel.species.isGmax,
   };
 
   // 2. Hydrate via Pure Factory

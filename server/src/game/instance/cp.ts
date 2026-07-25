@@ -51,9 +51,11 @@ export function calculatePokemonCP(
   baseStats: BaseStats,
   ivs: IVs,
   level: number,
-  potential: string
+  potential: string,
+  isGmax: boolean = false
 ): number {
-  const maxHp = calculateHP(baseStats.hp, ivs.hp, level);
+  // 1. Calculate final raw stats using standard logic
+  const maxHp = calculateHP(baseStats.hp, ivs.hp, level, isGmax);
   const atk = calculateStat(baseStats.attack, ivs.attack, level);
   const def = calculateStat(baseStats.defense, ivs.defense, level);
   const spa = calculateStat(baseStats.spAtk, ivs.spAtk, level);
