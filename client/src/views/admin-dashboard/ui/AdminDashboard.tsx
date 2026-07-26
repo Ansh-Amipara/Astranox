@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Banknote, Gift, Pencil, X } from 'lucide-react';
+import { Dropdown } from '@/components/ui/Dropdown';
 import { api } from '../../../shared/api/api';
 
 export function AdminDashboard() {
@@ -40,6 +41,7 @@ export function AdminDashboard() {
   const [speciesId, setSpeciesId] = useState<number>(1);
   const [pokemonLevel, setPokemonLevel] = useState<number>(5);
   const [speciesSearch, setSpeciesSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
   const [useCustomIvs, setUseCustomIvs] = useState(false);
   const [customIvs, setCustomIvs] = useState({ ivHp: 31, ivAttack: 31, ivDefense: 31, ivSpAtk: 31, ivSpDef: 31, ivSpeed: 31 });
@@ -253,22 +255,44 @@ export function AdminDashboard() {
                     </h3>
                     <div className="space-y-4">
                       <div className="relative">
-                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Pokémon Species</label>
-                        <input
-                          type="text"
-                          value={speciesSearch}
-                          onFocus={() => setShowSpeciesDropdown(true)}
-                          onChange={(e) => {
-                            setSpeciesSearch(e.target.value);
-                            setShowSpeciesDropdown(true);
-                          }}
-                          placeholder="Search Pokémon..."
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
-                        />
+                        <div className="flex justify-between items-end mb-1">
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pokémon Species</label>
+                        </div>
+                        <div className="flex gap-2">
+                          <Dropdown
+                            value={categoryFilter}
+                            onChange={(val) => {
+                              setCategoryFilter(val);
+                              setShowSpeciesDropdown(true);
+                            }}
+                            options={[
+                              { value: 'All', label: 'All Categories' },
+                              { value: 'Normal', label: 'Normal' },
+                              { value: 'Legendary', label: 'Legendary' },
+                              { value: 'Mythical', label: 'Mythical' },
+                              { value: 'Pseudo Legendary', label: 'Pseudo Legendary' },
+                              { value: 'Ultra Beast', label: 'Ultra Beast' },
+                              { value: 'Paradox', label: 'Paradox' }
+                            ]}
+                            className="w-1/3"
+                          />
+                          <input
+                            type="text"
+                            value={speciesSearch}
+                            onFocus={() => setShowSpeciesDropdown(true)}
+                            onChange={(e) => {
+                              setSpeciesSearch(e.target.value);
+                              setShowSpeciesDropdown(true);
+                            }}
+                            placeholder="Search Pokémon..."
+                            className="w-2/3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                          />
+                        </div>
                         {showSpeciesDropdown && (
                           <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-h-48 overflow-y-auto shadow-xl">
                             {speciesList
-                              ?.filter((s: any) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
+                              ?.filter((s: any) => categoryFilter === 'All' || s.category === categoryFilter)
+                              .filter((s: any) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
                               .map((s: any) => (
                                 <div
                                   key={s.id}
@@ -288,16 +312,15 @@ export function AdminDashboard() {
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Potential</label>
-                        <select
+                        <Dropdown
                           value={pokemonPotential}
-                          onChange={(e) => {
-                            setPokemonPotential(e.target.value);
-                            setPokemonLevel(Math.min(pokemonLevel, getMaxLevelForPotential(e.target.value)));
+                          onChange={(val) => {
+                            setPokemonPotential(val);
+                            setPokemonLevel(Math.min(pokemonLevel, getMaxLevelForPotential(val)));
                           }}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
-                        >
-                          {POTENTIALS.map(p => <option key={p} value={p}>{p.replace('_', ' ')}</option>)}
-                        </select>
+                          options={POTENTIALS.map(p => ({ value: p, label: p.replace('_', ' ') }))}
+                          className="w-full"
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Level (1-{getMaxLevelForPotential(pokemonPotential)})</label>

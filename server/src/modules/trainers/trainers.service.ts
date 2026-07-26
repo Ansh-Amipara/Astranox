@@ -121,7 +121,10 @@ export class TrainersService {
       throw new NotFoundError('Pokemon not found or does not belong to you.');
     }
 
-    // Prevent smelting if the pokemon is in the party
+    // Prevent smelting if the pokemon is in the party or escrowed
+    if (pokemonToSmelt.isEscrowed) {
+      throw new ValidationError('Cannot smelt a Pokémon that is currently locked in a marketplace trade or offer.');
+    }
     if (pokemonToSmelt.isParty) {
       throw new ValidationError('Cannot smelt a Pokémon that is currently in your party. Please remove it from your party first.');
     }
@@ -177,6 +180,10 @@ export class TrainersService {
     const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
     if (!pokemon) {
       throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    if (pokemon.isEscrowed) {
+      throw new ValidationError('Cannot evolve a Pokémon that is currently locked in a marketplace trade or offer.');
     }
 
     const species = pokemon.species;
@@ -240,6 +247,10 @@ export class TrainersService {
     const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
     if (!pokemon) {
       throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    if (pokemon.isEscrowed) {
+      throw new ValidationError('Cannot modify a Pokémon that is currently locked in a marketplace trade or offer.');
     }
 
     const { itemId } = dto;

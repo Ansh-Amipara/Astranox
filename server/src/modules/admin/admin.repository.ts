@@ -1,6 +1,7 @@
 import { PrismaClient, PokemonPotential } from '@prisma/client';
 import { AppError } from '../../common/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
+import { getXpForLevel } from '../../game/battle/level-math';
 
 const prisma = new PrismaClient();
 
@@ -45,7 +46,7 @@ export class AdminRepository {
 
   async getAllSpecies() {
     return prisma.species.findMany({
-      select: { id: true, name: true },
+      select: { id: true, name: true, category: true, spriteUrl: true },
       orderBy: { id: 'asc' }
     });
   }
@@ -101,7 +102,7 @@ export class AdminRepository {
           speciesId,
           level,
           potential,
-          currentXp: level * 1000,
+          currentXp: getXpForLevel(level),
           isParty,
           boxNumber,
           position,

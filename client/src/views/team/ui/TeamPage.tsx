@@ -262,7 +262,7 @@ export function TeamPage() {
                       {/* 3rd Row: Potential and CP */}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         {pkm.potential && (
-                          <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300">
+                          <span className={getPotentialBadgeClasses(pkm.potential)}>
                             {pkm.potential.replace('_', ' ')}
                           </span>
                         )}

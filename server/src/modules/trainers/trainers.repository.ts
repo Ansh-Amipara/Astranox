@@ -123,6 +123,7 @@ export class TrainersRepository {
       where: {
         trainerId,
         isParty: false,
+        isEscrowed: false,
         boxNumber,
       },
       orderBy: { position: 'asc' },
@@ -137,7 +138,7 @@ export class TrainersRepository {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       prisma.ownedPokemon.findMany({
-        where: { trainerId },
+        where: { trainerId, isEscrowed: false },
         orderBy: [{ isParty: 'desc' }, { level: 'desc' }],
         skip,
         take: limit,
@@ -146,7 +147,7 @@ export class TrainersRepository {
           moves: { include: { move: { include: { type: true } } } }
         }
       }),
-      prisma.ownedPokemon.count({ where: { trainerId } })
+      prisma.ownedPokemon.count({ where: { trainerId, isEscrowed: false } })
     ]);
     return { data, total };
   }
@@ -154,19 +155,19 @@ export class TrainersRepository {
   async removeFromParty(trainerId: string, pokemonId: string) {
     return prisma.$transaction(async (tx) => {
       const pokemon = await tx.ownedPokemon.findFirst({
-        where: { id: pokemonId, trainerId, isParty: true }
+        where: { id: pokemonId, trainerId, isParty: true, isEscrowed: false }
       });
       if (!pokemon) throw new Error('Pokemon not found in party');
 
       const partyCount = await tx.ownedPokemon.count({
-        where: { trainerId, isParty: true }
+        where: { trainerId, isParty: true, isEscrowed: false }
       });
       if (partyCount <= 1) {
         throw new ValidationError('You must have at least one Pokemon in your party.');
       }
 
       const boxed = await tx.ownedPokemon.findMany({
-        where: { trainerId, isParty: false },
+        where: { trainerId, isParty: false, isEscrowed: false },
         select: { boxNumber: true, position: true }
       });
       
@@ -197,7 +198,7 @@ export class TrainersRepository {
   async addToParty(trainerId: string, pokemonId: string, targetPosition: number) {
     return prisma.$transaction(async (tx) => {
       const fromPokemon = await tx.ownedPokemon.findFirst({
-        where: { id: pokemonId, trainerId, isParty: false }
+        where: { id: pokemonId, trainerId, isParty: false, isEscrowed: false }
       });
       if (!fromPokemon) throw new Error('Pokemon not found in PC');
 
@@ -227,10 +228,10 @@ export class TrainersRepository {
     return prisma.$transaction(async (tx) => {
       // Find both pokemon
       const fromPokemon = await tx.ownedPokemon.findFirst({
-        where: { trainerId, isParty: from.isParty, boxNumber: from.boxNumber, position: from.position }
+        where: { trainerId, isParty: from.isParty, boxNumber: from.boxNumber, position: from.position, isEscrowed: false }
       });
       const toPokemon = await tx.ownedPokemon.findFirst({
-        where: { trainerId, isParty: to.isParty, boxNumber: to.boxNumber, position: to.position }
+        where: { trainerId, isParty: to.isParty, boxNumber: to.boxNumber, position: to.position, isEscrowed: false }
       });
 
       if (from.isParty && !to.isParty && !toPokemon && fromPokemon) {
@@ -304,24 +305,25 @@ export class TrainersRepository {
   async smeltPokemon(trainerId: string, pokemonId: string, xpReward: number, pearlRewards: { itemId: string; quantity: number }[]) {
     return prisma.$transaction(async (tx) => {
       // Manually delete dependent records to avoid referential integrity errors since schema uses NoAction
-      await tx.ownedPokemonMove.deleteMany({
-        where: { ownedPokemonId: pokemonId }
-      });
-      
-      // Also clear any trades involving this pokemon
-      await tx.tradeRequest.deleteMany({
-        where: {
-          OR: [
-            { offeredPokemonId: pokemonId },
-            { requestedPokemonId: pokemonId }
-          ]
-        }
-      });
+      await Promise.all([
+        tx.ownedPokemonMove.deleteMany({ where: { ownedPokemonId: pokemonId } }),
+        tx.tradeRequest.deleteMany({
+          where: {
+            OR: [
+              { offeredPokemonId: pokemonId },
+              { requestedPokemonId: pokemonId }
+            ]
+          }
+        }),
+        tx.escrowOfferPokemon.deleteMany({ where: { pokemonId } }),
+        tx.tradeListing.deleteMany({ where: { pokemonId } })
+      ]);
 
       const deleted = await tx.ownedPokemon.deleteMany({
         where: {
           id: pokemonId,
-          trainerId
+          trainerId,
+          isEscrowed: false
         }
       });
 
@@ -358,7 +360,7 @@ export class TrainersRepository {
       }
 
       return deleted;
-    });
+    }, { timeout: 15000 });
   }
 
   async getPokemonById(trainerId: string, pokemonId: string) {
@@ -400,8 +402,8 @@ export class TrainersRepository {
         });
       }
 
-      return tx.ownedPokemon.update({
-        where: { id: pokemonId },
+      return tx.ownedPokemon.updateMany({
+        where: { id: pokemonId, isEscrowed: false },
         data: { speciesId: evolvesToId }
       });
     });

@@ -23,6 +23,9 @@ import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
 import { logger } from './config/logger';
 
+import { marketplaceRoutes } from './modules/marketplace/marketplace.routes';
+import { startMarketplaceWorker } from './modules/marketplace/marketplace.worker';
+
 const app = express();
 const port = env.PORT;
 
@@ -50,6 +53,7 @@ app.use('/inventory', inventoryRoutes);
 app.use('/pokedex', pokedexRoutes);
 app.use('/tower', towerRoutes);
 app.use('/rift', riftRoutes);
+app.use('/marketplace', marketplaceRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {
@@ -69,4 +73,5 @@ initSocket(httpServer);
 
 httpServer.listen(port, () => {
   logger.info(`Server running on port ${port}`);
+  startMarketplaceWorker();
 });

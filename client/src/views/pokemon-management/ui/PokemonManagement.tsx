@@ -3,6 +3,7 @@ import { PokemonModalsRef } from '../../../features/pokemon/ui/PokemonActionModa
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '../../../shared/api/api';
 import { getTypeSpriteUrl } from '../../../shared/api/axios';
+import { getPotentialBadgeClasses } from '../../../utils/pokemonUtils';
 import { toast } from 'sonner';
 import { PokemonActionModals } from '../../../features/pokemon/ui/PokemonActionModals';
 import { Pagination } from '../../../components/ui/Pagination';
@@ -134,9 +135,14 @@ export function PokemonManagement() {
                   className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer ${inParty ? 'border-blue-500 shadow-blue-500/20' : 'border-slate-300 dark:border-slate-700'} bg-white dark:bg-slate-900/80 shadow-lg hover:border-blue-500`}
                   onClick={() => setActiveMenuPkm(p)}
                 >
-                  {inParty && (
+                  {inParty && !p.isEscrowed && (
                     <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
                       In Party
+                    </div>
+                  )}
+                  {p.isEscrowed && (
+                    <div className="absolute top-3 right-3 bg-purple-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
+                      In Trade
                     </div>
                   )}
                   
@@ -170,7 +176,7 @@ export function PokemonManagement() {
                       {/* 3rd Row: Potential and CP */}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         {p.potential && (
-                          <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border border-yellow-300/50 bg-gradient-to-br from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-300">
+                          <span className={getPotentialBadgeClasses(p.potential)}>
                             {p.potential.replace('_', ' ')}
                           </span>
                         )}
@@ -253,7 +259,20 @@ export function PokemonManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              {activeMenuPkm.isEscrowed ? (
+                <div className="flex flex-col gap-2">
+                  <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 p-3 rounded-xl text-sm font-bold text-center border border-purple-200 dark:border-purple-800/50">
+                    This Pokémon is currently locked in a Marketplace trade or offer and cannot be modified.
+                  </div>
+                  <button
+                    onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                  >
+                    View Details
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
                   className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
@@ -348,6 +367,7 @@ export function PokemonManagement() {
                   {smeltMutation.isPending ? 'Smelting...' : 'Smelt Pokemon'}
                 </button>
               </div>
+              )}
 
               <button
                 onClick={() => setActiveMenuPkm(null)}

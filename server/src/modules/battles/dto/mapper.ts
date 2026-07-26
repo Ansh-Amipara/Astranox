@@ -9,6 +9,7 @@ export class BattleMapper {
       id: entity.id,
       name: entity.name,
       spriteUrl: entity.spriteUrl,
+      category: entity.category,
     };
   }
 
