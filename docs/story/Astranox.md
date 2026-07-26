@@ -186,9 +186,7 @@ These are incredibly powerful, world-defining Legendary Pokémon that sit just b
 * Meltan
 * Pecharunt
 
-
 > Official Master Registry of Custom or Tracked Pokémon in Astranox.
-> Use this file to document new forms, custom species, or keep track of specific Pokémon details.
 
 ---
 
@@ -219,3 +217,40 @@ Evolution:
   To: <string>           # Next evolution / Optional
   Method: <string>       # e.g., "Level 36" or "Fire Stone"
 ```
+
+## Universal NPC Data Template
+
+Every NPC entry follows this strict template:
+
+```yaml
+Name: <string>           # Unique NPC Name
+Title: <string>          # Optional Honorific / Title
+Rank: <string>           # Competitive Rank & Level
+Identity: <string>       # Faction Identity & Lore Role
+Location:
+  World: <string>        # astranox / void / Optional
+  Continent: <string>    # Solaris / Lunaria / Aetheria / Nerevia / Optional
+  Region: <string>       # Region Name / Optional
+Reward:
+  Coins: <number>        # Astral Coins
+  XP: <number>           # Experience Points
+  Items: [<string>]      # Reward Items / Optional
+Pokémon:
+  Ace: <string>          # Primary Ace Pokémon
+  Team: [<string>]       # Full 6-Pokémon Roster
+```
+
+---
+
+# Core Facilities & Features
+
+## Smelt Pokémon (Astral Furnace)
+The **Astral Furnace** allows players to permanently destroy ("Smelt") unwanted Pokémon in exchange for Stored XP and Potential Pearls. This completely replaces the traditional "Release Pokémon" functionality. 
+- Smelted Pokémon are permanently deleted from the player's collection.
+- Players are instantly rewarded with **Stored XP** (Floor of Current Pokémon XP × 0.60) and **Potential Pearls** (based on the Pokémon's Potential tier).
+
+## Infinity Tower
+A challenging gauntlet where players ascend through increasingly difficult floors to test their strength and earn rare rewards. As Trainers climb higher, they will encounter elite NPC teams and uniquely powerful wild Pokémon scaled to their progress.
+
+## Arena
+The competitive heart of Astranox where Trainers can test their teams against other powerful opponents and climb the Trainer Ranks. Winning in the Arena yields Astral Coins, Experience, and prestige on the path to reaching the highest ranks (from F up to SSS+).

@@ -17,7 +17,7 @@ trainersRoutes.post('/party/:pokemonId/add', gameplayLimiter, controller.addToPa
 trainersRoutes.post('/swap', gameplayLimiter, controller.swapSlots);
 trainersRoutes.get('/moves', controller.getAllMoves);
 trainersRoutes.patch('/party/:pokemonId/moves', gameplayLimiter, controller.changeMoves);
-trainersRoutes.delete('/:pokemonId', gameplayLimiter, controller.releasePokemon);
+trainersRoutes.post('/party/:pokemonId/smelt', gameplayLimiter, controller.smeltPokemon);
 trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, controller.evolvePokemon);
 trainersRoutes.post('/party/:pokemonId/boost-potential', gameplayLimiter, controller.boostPotential);
 trainersRoutes.post('/party/:pokemonId/boost-ivs', gameplayLimiter, controller.boostIv);

@@ -133,14 +133,34 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
     }
   });
 
-  const releaseMutation = useMutation({
+  const smeltMutation = useMutation({
     mutationFn: async (pokemonId: string) => {
-      await api.delete(`/trainers/${pokemonId}`);
+      const { data } = await api.post(`/trainers/party/${pokemonId}/smelt`);
+      return data.data; // { storedXp, pearls: [{ type, quantity }] }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
       setActiveMenuPkm(null);
+
+      // Show success toast with rewards
+      toast.success(
+        <div className="flex flex-col gap-1">
+          <p className="font-bold">Smelt Successful!</p>
+          <p className="text-sm">Gained {data.storedXp.toLocaleString()} Stored XP</p>
+          {data.pearls.length > 0 && (
+            <div className="text-sm mt-1">
+              <p className="font-semibold">Pearls Obtained:</p>
+              <ul className="list-disc list-inside">
+                {data.pearls.map((p: any, i: number) => (
+                  <li key={i}>{p.quantity}x {p.type} Pearl</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>,
+        { duration: 5000 }
+      );
     }
   });
 
@@ -297,10 +317,10 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
               <button
                 onClick={() => {
-                  toast(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`, {
+                  toast(`Smelting permanently destroys this Pokémon.\nYou will receive Stored XP and Potential Pearls.\nThis action cannot be undone.`, {
                     action: {
-                      label: 'Release',
-                      onClick: () => releaseMutation.mutate(activeMenuPkm.id)
+                      label: 'Smelt',
+                      onClick: () => smeltMutation.mutate(activeMenuPkm.id)
                     },
                     cancel: {
                       label: 'Cancel',
@@ -309,10 +329,11 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     duration: 5000
                   });
                 }}
-                disabled={releaseMutation.isPending}
+                disabled={smeltMutation.isPending || activeMenuPkm.isParty}
+                title={activeMenuPkm.isParty ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
                 className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
+                {smeltMutation.isPending ? 'Smelting...' : 'Smelt Pokemon'}
               </button>
             </div>
 
@@ -719,15 +740,15 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
           'ADAMANTITE': { next: 'DIAMOND', item: 'diamond-pearl', itemName: 'Diamond Pearl' },
           'DIAMOND': { next: 'CRYSTAL', item: 'crystal-pearl', itemName: 'Crystal Pearl' },
           'CRYSTAL': { next: 'EPIC', item: 'epic-pearl', itemName: 'Epic Pearl' },
-          'EPIC': { next: 'HEROIC', item: 'heroic-crystal', itemName: 'Heroic Crystal' },
-          'HEROIC': { next: 'SOVEREIGN', item: 'sovereign-crystal', itemName: 'Sovereign Crystal' },
-          'SOVEREIGN': { next: 'LEGENDARY', item: 'legendary-crystal', itemName: 'Legendary Crystal' },
-          'LEGENDARY': { next: 'DIVINE', item: 'divine-crystal', itemName: 'Divine Crystal' },
-          'DIVINE': { next: 'CELESTIAL', item: 'celestial-crystal', itemName: 'Celestial Crystal' },
-          'CELESTIAL': { next: 'PRIMORDIAL', item: 'primordial-crystal', itemName: 'Primordial Crystal' },
-          'PRIMORDIAL': { next: 'MYTHICAL', item: 'mythical-crystal', itemName: 'Mythical Crystal' },
-          'MYTHICAL': { next: 'INFINITY', item: 'infinity-crystal', itemName: 'Infinity Crystal' },
-          'INFINITY': { next: 'ETERNAL', item: 'eternal-crystal', itemName: 'Eternal Crystal' },
+          'EPIC': { next: 'HEROIC', item: 'heroic-pearl', itemName: 'Heroic Pearl' },
+          'HEROIC': { next: 'SOVEREIGN', item: 'sovereign-pearl', itemName: 'Sovereign Pearl' },
+          'SOVEREIGN': { next: 'LEGENDARY', item: 'legendary-pearl', itemName: 'Legendary Pearl' },
+          'LEGENDARY': { next: 'DIVINE', item: 'divine-pearl', itemName: 'Divine Pearl' },
+          'DIVINE': { next: 'CELESTIAL', item: 'celestial-pearl', itemName: 'Celestial Pearl' },
+          'CELESTIAL': { next: 'PRIMORDIAL', item: 'primordial-pearl', itemName: 'Primordial Pearl' },
+          'PRIMORDIAL': { next: 'MYTHICAL', item: 'mythical-pearl', itemName: 'Mythical Pearl' },
+          'MYTHICAL': { next: 'INFINITY', item: 'infinity-pearl', itemName: 'Infinity Pearl' },
+          'INFINITY': { next: 'ETERNAL', item: 'eternal-pearl', itemName: 'Eternal Pearl' },
         };
         const mapping = potentialMap[boostPkm.potential];
         const ownedCrystal = save.inventory?.find((i: any) => i.itemId === mapping?.item);
@@ -742,6 +763,15 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
           'DIAMOND': { border: 'border-sky-400 dark:border-sky-400', shadow: 'shadow-sky-400/20', bgGradient: 'from-sky-50/50 to-blue-50/50 dark:from-sky-900/20 dark:to-blue-900/20', textGradient: 'from-sky-600 to-blue-600 dark:from-sky-300 dark:to-blue-400', textBase: 'text-sky-600 dark:text-sky-400', arrow: 'text-sky-400', buttonBg: 'bg-sky-500', buttonHover: 'hover:bg-sky-400' },
           'CRYSTAL': { border: 'border-fuchsia-400 dark:border-fuchsia-400', shadow: 'shadow-fuchsia-400/20', bgGradient: 'from-fuchsia-50/50 to-purple-50/50 dark:from-fuchsia-900/20 dark:to-purple-900/20', textGradient: 'from-fuchsia-600 to-purple-600 dark:from-fuchsia-300 dark:to-purple-400', textBase: 'text-fuchsia-600 dark:text-fuchsia-400', arrow: 'text-fuchsia-400', buttonBg: 'bg-fuchsia-500', buttonHover: 'hover:bg-fuchsia-400' },
           'EPIC': { border: 'border-purple-600 dark:border-purple-600', shadow: 'shadow-purple-600/20', bgGradient: 'from-purple-50/50 to-violet-50/50 dark:from-purple-900/20 dark:to-violet-900/20', textGradient: 'from-purple-600 to-violet-600 dark:from-purple-500 dark:to-violet-600', textBase: 'text-purple-600 dark:text-purple-500', arrow: 'text-purple-500', buttonBg: 'bg-purple-600', buttonHover: 'hover:bg-purple-500' },
+          'HEROIC': { border: 'border-pink-600 dark:border-pink-600', shadow: 'shadow-pink-600/20', bgGradient: 'from-pink-50/50 to-rose-50/50 dark:from-pink-900/20 dark:to-rose-900/20', textGradient: 'from-pink-600 to-rose-600 dark:from-pink-500 dark:to-rose-600', textBase: 'text-pink-600 dark:text-pink-500', arrow: 'text-pink-500', buttonBg: 'bg-pink-600', buttonHover: 'hover:bg-pink-500' },
+          'SOVEREIGN': { border: 'border-rose-600 dark:border-rose-600', shadow: 'shadow-rose-600/20', bgGradient: 'from-rose-50/50 to-pink-50/50 dark:from-rose-900/20 dark:to-pink-900/20', textGradient: 'from-rose-600 to-pink-600 dark:from-rose-500 dark:to-pink-600', textBase: 'text-rose-600 dark:text-rose-500', arrow: 'text-rose-500', buttonBg: 'bg-rose-600', buttonHover: 'hover:bg-rose-500' },
+          'LEGENDARY': { border: 'border-orange-600 dark:border-orange-600', shadow: 'shadow-orange-600/20', bgGradient: 'from-orange-50/50 to-amber-50/50 dark:from-orange-900/20 dark:to-amber-900/20', textGradient: 'from-orange-600 to-amber-600 dark:from-orange-500 dark:to-amber-600', textBase: 'text-orange-600 dark:text-orange-500', arrow: 'text-orange-500', buttonBg: 'bg-orange-600', buttonHover: 'hover:bg-orange-500' },
+          'DIVINE': { border: 'border-amber-600 dark:border-amber-600', shadow: 'shadow-amber-600/20', bgGradient: 'from-amber-50/50 to-yellow-50/50 dark:from-amber-900/20 dark:to-yellow-900/20', textGradient: 'from-amber-600 to-yellow-600 dark:from-amber-500 dark:to-yellow-600', textBase: 'text-amber-600 dark:text-amber-500', arrow: 'text-amber-500', buttonBg: 'bg-amber-600', buttonHover: 'hover:bg-amber-500' },
+          'CELESTIAL': { border: 'border-emerald-600 dark:border-emerald-600', shadow: 'shadow-emerald-600/20', bgGradient: 'from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/20 dark:to-teal-900/20', textGradient: 'from-emerald-600 to-teal-600 dark:from-emerald-500 dark:to-teal-600', textBase: 'text-emerald-600 dark:text-emerald-500', arrow: 'text-emerald-500', buttonBg: 'bg-emerald-600', buttonHover: 'hover:bg-emerald-500' },
+          'PRIMORDIAL': { border: 'border-teal-600 dark:border-teal-600', shadow: 'shadow-teal-600/20', bgGradient: 'from-teal-50/50 to-emerald-50/50 dark:from-teal-900/20 dark:to-emerald-900/20', textGradient: 'from-teal-600 to-emerald-600 dark:from-teal-500 dark:to-emerald-600', textBase: 'text-teal-600 dark:text-teal-500', arrow: 'text-teal-500', buttonBg: 'bg-teal-600', buttonHover: 'hover:bg-teal-500' },
+          'MYTHICAL': { border: 'border-cyan-600 dark:border-cyan-600', shadow: 'shadow-cyan-600/20', bgGradient: 'from-cyan-50/50 to-blue-50/50 dark:from-cyan-900/20 dark:to-blue-900/20', textGradient: 'from-cyan-600 to-blue-600 dark:from-cyan-500 dark:to-blue-600', textBase: 'text-cyan-600 dark:text-cyan-500', arrow: 'text-cyan-500', buttonBg: 'bg-cyan-600', buttonHover: 'hover:bg-cyan-500' },
+          'INFINITY': { border: 'border-indigo-600 dark:border-indigo-600', shadow: 'shadow-indigo-600/20', bgGradient: 'from-indigo-50/50 to-blue-50/50 dark:from-indigo-900/20 dark:to-blue-900/20', textGradient: 'from-indigo-600 to-blue-600 dark:from-indigo-500 dark:to-blue-600', textBase: 'text-indigo-600 dark:text-indigo-500', arrow: 'text-indigo-500', buttonBg: 'bg-indigo-600', buttonHover: 'hover:bg-indigo-500' },
+          'ETERNAL': { border: 'border-violet-600 dark:border-violet-600', shadow: 'shadow-violet-600/20', bgGradient: 'from-violet-50/50 to-purple-50/50 dark:from-violet-900/20 dark:to-purple-900/20', textGradient: 'from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-600', textBase: 'text-violet-600 dark:text-violet-500', arrow: 'text-violet-500', buttonBg: 'bg-violet-600', buttonHover: 'hover:bg-violet-500' },
         };
         const theme = themeMap[mapping?.next] || themeMap['GOLD'];
 
@@ -942,8 +972,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {giveXpPkm && (() => {
         const potentialCaps: Record<string, number> = {
           BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200,
-          DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 600, SOVEREIGN: 700, LEGENDARY: 800,
-          DIVINE: 900, CELESTIAL: 1000, PRIMORDIAL: 1200, MYTHICAL: 1400, INFINITY: 1700, ETERNAL: 2000
+          DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100,
+          DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000
         };
         const maxLvl = potentialCaps[giveXpPkm.potential as string] || 2000;
         const maxTotalXp = 50 * (maxLvl + 1) * maxLvl - 1;

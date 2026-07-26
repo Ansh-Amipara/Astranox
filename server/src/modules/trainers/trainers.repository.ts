@@ -301,7 +301,7 @@ export class TrainersRepository {
     });
   }
 
-  async releasePokemon(trainerId: string, pokemonId: string) {
+  async smeltPokemon(trainerId: string, pokemonId: string, xpReward: number, pearlRewards: { itemId: string; quantity: number }[]) {
     return prisma.$transaction(async (tx) => {
       // Manually delete dependent records to avoid referential integrity errors since schema uses NoAction
       await tx.ownedPokemonMove.deleteMany({
@@ -318,12 +318,46 @@ export class TrainersRepository {
         }
       });
 
-      return tx.ownedPokemon.deleteMany({
+      const deleted = await tx.ownedPokemon.deleteMany({
         where: {
           id: pokemonId,
           trainerId
         }
       });
+
+      if (deleted.count > 0) {
+        // Award XP
+        await tx.trainerSave.update({
+          where: { id: trainerId },
+          data: { storedXp: { increment: xpReward } }
+        });
+
+        // Award Pearls
+        for (const pearl of pearlRewards) {
+          const existingItem = await tx.inventoryItem.findUnique({
+            where: {
+              trainerId_itemId: { trainerId, itemId: pearl.itemId }
+            }
+          });
+
+          if (existingItem) {
+            await tx.inventoryItem.update({
+              where: { id: existingItem.id },
+              data: { quantity: { increment: pearl.quantity } }
+            });
+          } else {
+            await tx.inventoryItem.create({
+              data: {
+                trainerId,
+                itemId: pearl.itemId,
+                quantity: pearl.quantity
+              }
+            });
+          }
+        }
+      }
+
+      return deleted;
     });
   }
 

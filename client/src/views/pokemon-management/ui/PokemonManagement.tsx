@@ -67,14 +67,32 @@ export function PokemonManagement() {
     }
   });
 
-  const releaseMutation = useMutation({
+  const smeltMutation = useMutation({
     mutationFn: async (pokemonId: string) => {
-      await api.delete(`/trainers/${pokemonId}`);
+      const { data } = await api.post(`/trainers/party/${pokemonId}/smelt`);
+      return data.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
-      toast.success('Pokémon released!');
+      
+      toast.success(
+        <div className="flex flex-col gap-1">
+          <p className="font-bold">Smelt Successful!</p>
+          <p className="text-sm">Gained {data.storedXp.toLocaleString()} Stored XP</p>
+          {data.pearls.length > 0 && (
+            <div className="text-sm mt-1">
+              <p className="font-semibold">Pearls Obtained:</p>
+              <ul className="list-disc list-inside">
+                {data.pearls.map((p: any, i: number) => (
+                  <li key={i}>{p.quantity}x {p.type} Pearl</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>,
+        { duration: 5000 }
+      );
     }
   });
 
@@ -308,11 +326,11 @@ export function PokemonManagement() {
 
                 <button
                   onClick={() => {
-                    toast(`Are you sure you want to release ${activeMenuPkm.nickname || activeMenuPkm.species?.name}? This cannot be undone.`, {
+                    toast(`Smelting permanently destroys this Pokémon.\nYou will receive Stored XP and Potential Pearls.\nThis action cannot be undone.`, {
                       action: {
-                        label: 'Release',
+                        label: 'Smelt',
                         onClick: () => {
-                          releaseMutation.mutate(activeMenuPkm.id);
+                          smeltMutation.mutate(activeMenuPkm.id);
                           setActiveMenuPkm(null);
                         }
                       },
@@ -323,10 +341,11 @@ export function PokemonManagement() {
                       duration: 5000
                     });
                   }}
-                  disabled={releaseMutation.isPending}
+                  disabled={smeltMutation.isPending || activePartyIds.has(activeMenuPkm.id) || activeMenuPkm.isParty}
+                  title={(activePartyIds.has(activeMenuPkm.id) || activeMenuPkm.isParty) ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
                   className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {releaseMutation.isPending ? 'Releasing...' : 'Release Pokemon'}
+                  {smeltMutation.isPending ? 'Smelting...' : 'Smelt Pokemon'}
                 </button>
               </div>
 

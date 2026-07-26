@@ -112,32 +112,62 @@ export class TrainersService {
     return result;
   }
 
-  async releasePokemon(userId: string, pokemonId: string): Promise<boolean> {
+  async smeltPokemon(userId: string, pokemonId: string): Promise<{ storedXp: number, pearls: { type: string, quantity: number }[] }> {
     const save = await this.repo.findByUserId(userId);
     if (!save) throw new NotFoundError('Save not found');
     
-    // Prevent releasing if it's the last pokemon in the party
-    const partyCount = save.party.length;
-    
-    const pokemonToRelease = await this.repo.findByUserId(userId).then((s: any) => {
-      // Find in party
-      const inParty = s.party.find((p: any) => p.id === pokemonId);
-      if (inParty) return inParty;
-      // Have to check if it exists in DB at all to see if it's in the PC
-      // We can just rely on the delete failing if it doesn't exist, but we need to prevent last party member deletion
-      return inParty;
-    });
-
-    if (pokemonToRelease && pokemonToRelease.isParty && partyCount <= 1) {
-      throw new ValidationError('You cannot release your last active party Pokemon.');
+    const pokemonToSmelt = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemonToSmelt) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
     }
 
-    const result = await this.repo.releasePokemon(save.id, pokemonId);
+    // Prevent smelting if the pokemon is in the party
+    if (pokemonToSmelt.isParty) {
+      throw new ValidationError('Cannot smelt a Pokémon that is currently in your party. Please remove it from your party first.');
+    }
+
+    // Calculate XP reward
+    const xpReward = Math.floor(pokemonToSmelt.currentXp * 0.60);
+
+    // Calculate Pearl rewards
+    const potentialOrder = [
+      'BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 
+      'ADAMANTITE', 'DIAMOND', 'CRYSTAL', 'EPIC', 'HEROIC', 
+      'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL', 
+      'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'
+    ];
+    
+    // The specific pearl mapping logic used in the game DB
+    const getPearlItemId = (potential: string) => {
+      return `${potential.toLowerCase()}-pearl`;
+    };
+
+    const targetIndex = potentialOrder.indexOf(pokemonToSmelt.potential);
+    const pearlsToAward: { type: string, quantity: number, itemId: string }[] = [];
+
+    // Start from BRONZE (index 1) since Black Iron has no pearl
+    for (let i = 1; i <= targetIndex; i++) {
+      const pot = potentialOrder[i];
+      if (i < targetIndex) {
+        // Lower tiers are 100%
+        pearlsToAward.push({ type: pot.charAt(0) + pot.slice(1).toLowerCase(), quantity: 1, itemId: getPearlItemId(pot) });
+      } else if (i === targetIndex) {
+        // Same tier is 50%
+        if (Math.random() < 0.50) {
+          pearlsToAward.push({ type: pot.charAt(0) + pot.slice(1).toLowerCase(), quantity: 1, itemId: getPearlItemId(pot) });
+        }
+      }
+    }
+
+    const pearlRewardsForDb = pearlsToAward.map(p => ({ itemId: p.itemId, quantity: p.quantity }));
+    const pearlsForResponse = pearlsToAward.map(p => ({ type: p.type, quantity: p.quantity }));
+
+    const result = await this.repo.smeltPokemon(save.id, pokemonId, xpReward, pearlRewardsForDb);
     if (result.count === 0) {
       throw new NotFoundError('Pokemon not found or does not belong to you.');
     }
     
-    return true;
+    return { storedXp: xpReward, pearls: pearlsForResponse };
   }
 
   async evolvePokemon(userId: string, pokemonId: string, targetSpeciesId?: number): Promise<OwnedPokemonDto> {
@@ -227,24 +257,15 @@ export class TrainersService {
       'diamond-pearl': { current: PokemonPotential.ADAMANTITE, next: PokemonPotential.DIAMOND },
       'crystal-pearl': { current: PokemonPotential.DIAMOND, next: PokemonPotential.CRYSTAL },
       'epic-pearl': { current: PokemonPotential.CRYSTAL, next: PokemonPotential.EPIC },
-      // Legacy crystals
-      'bronze-crystal': { current: PokemonPotential.BLACK_IRON, next: PokemonPotential.BRONZE },
-      'silver-crystal': { current: PokemonPotential.BRONZE, next: PokemonPotential.SILVER },
-      'gold-crystal': { current: PokemonPotential.SILVER, next: PokemonPotential.GOLD },
-      'platinum-crystal': { current: PokemonPotential.GOLD, next: PokemonPotential.PLATINUM },
-      'adamantite-crystal': { current: PokemonPotential.PLATINUM, next: PokemonPotential.ADAMANTITE },
-      'diamond-crystal': { current: PokemonPotential.ADAMANTITE, next: PokemonPotential.DIAMOND },
-      'crystal-crystal': { current: PokemonPotential.DIAMOND, next: PokemonPotential.CRYSTAL },
-      'epic-crystal': { current: PokemonPotential.CRYSTAL, next: PokemonPotential.EPIC },
-      'heroic-crystal': { current: PokemonPotential.EPIC, next: PokemonPotential.HEROIC },
-      'sovereign-crystal': { current: PokemonPotential.HEROIC, next: PokemonPotential.SOVEREIGN },
-      'legendary-crystal': { current: PokemonPotential.SOVEREIGN, next: PokemonPotential.LEGENDARY },
-      'divine-crystal': { current: PokemonPotential.LEGENDARY, next: PokemonPotential.DIVINE },
-      'celestial-crystal': { current: PokemonPotential.DIVINE, next: PokemonPotential.CELESTIAL },
-      'primordial-crystal': { current: PokemonPotential.CELESTIAL, next: PokemonPotential.PRIMORDIAL },
-      'mythical-crystal': { current: PokemonPotential.PRIMORDIAL, next: PokemonPotential.MYTHICAL },
-      'infinity-crystal': { current: PokemonPotential.MYTHICAL, next: PokemonPotential.INFINITY },
-      'eternal-crystal': { current: PokemonPotential.INFINITY, next: PokemonPotential.ETERNAL },
+      'heroic-pearl': { current: PokemonPotential.EPIC, next: PokemonPotential.HEROIC },
+      'sovereign-pearl': { current: PokemonPotential.HEROIC, next: PokemonPotential.SOVEREIGN },
+      'legendary-pearl': { current: PokemonPotential.SOVEREIGN, next: PokemonPotential.LEGENDARY },
+      'divine-pearl': { current: PokemonPotential.LEGENDARY, next: PokemonPotential.DIVINE },
+      'celestial-pearl': { current: PokemonPotential.DIVINE, next: PokemonPotential.CELESTIAL },
+      'primordial-pearl': { current: PokemonPotential.CELESTIAL, next: PokemonPotential.PRIMORDIAL },
+      'mythical-pearl': { current: PokemonPotential.PRIMORDIAL, next: PokemonPotential.MYTHICAL },
+      'infinity-pearl': { current: PokemonPotential.MYTHICAL, next: PokemonPotential.INFINITY },
+      'eternal-pearl': { current: PokemonPotential.INFINITY, next: PokemonPotential.ETERNAL },
     };
 
     const progression = validProgressions[itemId];
