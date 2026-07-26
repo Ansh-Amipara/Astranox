@@ -36,7 +36,7 @@ export function AdminDashboard() {
     }
   }
   const [moneyAmount, setMoneyAmount] = useState<number>(1000);
-  const [currencyType, setCurrencyType] = useState<'astralCoins' | 'infinityCoins' | 'voidCoins'>('astralCoins');
+  const [currencyType, setCurrencyType] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
   const [speciesId, setSpeciesId] = useState<number>(1);
   const [pokemonLevel, setPokemonLevel] = useState<number>(5);
   const [speciesSearch, setSpeciesSearch] = useState('');
@@ -147,7 +147,6 @@ export function AdminDashboard() {
                     <th className="p-4 font-bold">Email</th>
                     <th className="p-4 font-bold">Astral Coins</th>
                     <th className="p-4 font-bold">Infinity Coins</th>
-                    <th className="p-4 font-bold">Void Coins</th>
                     <th className="p-4 font-bold">Party Size</th>
                     <th className="p-4 font-bold text-right">Actions</th>
                   </tr>
@@ -163,7 +162,6 @@ export function AdminDashboard() {
                       <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">{user.email}</td>
                       <td className="p-4 text-amber-500 font-bold">{user.trainerSave?.astralCoins ?? 0}</td>
                       <td className="p-4 text-purple-500 font-bold">{user.trainerSave?.infinityCoins ?? 0}</td>
-                      <td className="p-4 text-stone-500 font-bold">{user.trainerSave?.voidCoins ?? 0}</td>
                       <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</td>
                       <td className="p-4 text-right flex justify-end gap-2">
                         <button
@@ -237,7 +235,6 @@ export function AdminDashboard() {
                       >
                         <option value="astralCoins">Astral</option>
                         <option value="infinityCoins">Infinity</option>
-                        <option value="voidCoins">Void</option>
                       </select>
                       <button
                         onClick={() => addMoneyMutation.mutate({ userId: selectedUser.id, amount: moneyAmount, currencyType })}

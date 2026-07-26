@@ -34,10 +34,10 @@ export function useBattleSession() {
         return {
           ...old,
           status: updatedTurnData.status,
-          turnNumber: updatedTurnData.turnNumber + 1,
-          playerPokemonData: updatedTurnData.p1State,
-          opponentPokemonData: updatedTurnData.p2State,
-          log: [...(old.log || []), { turn: updatedTurnData.turnNumber, events: updatedTurnData.events }]
+          turnNumber: updatedTurnData.turnNumber !== undefined ? updatedTurnData.turnNumber + 1 : old.turnNumber,
+          playerPokemonData: updatedTurnData.p1State || old.playerPokemonData,
+          opponentPokemonData: updatedTurnData.p2State || old.opponentPokemonData,
+          log: [...(old.log || []), { turn: updatedTurnData.turnNumber ?? old.turnNumber, events: updatedTurnData.events }]
         };
       });
       const s = updatedTurnData.status;

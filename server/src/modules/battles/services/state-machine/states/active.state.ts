@@ -142,7 +142,7 @@ export class ActiveState implements IBattleState {
           if (wildPokemon.isRankExam) {
             coinsToGive = wildPokemon.examinerCoins ? Number(wildPokemon.examinerCoins) : 0;
             storedXpToGive = wildPokemon.examinerXp ? Number(wildPokemon.examinerXp) : 0;
-          } else if (session.battleType !== 'TOWER') {
+          } else if (session.battleType !== 'TOWER' && session.battleType !== 'RIFT') {
             coinsToGive = session.battleType === 'NPC' ? baseLevel * 30 : baseLevel * 10;
             if (session.battleType === 'NPC') {
               const { getExpYield } = require('../../../../../game/battle/level-math');
@@ -183,6 +183,22 @@ export class ActiveState implements IBattleState {
                type: 'tower_cleared',
                message: `Floor Cleared! Click Return to claim Infinity Coins.`
              });
+          } else if (session.battleType === 'RIFT') {
+            const riftState = await tx.riftDungeonState.findFirst({ where: { trainerId: session.trainerId, currentRunStartedAt: { not: null } } });
+            if (riftState && riftState.currentEncounterId) {
+              const encounter = await tx.riftEncounter.findUnique({ where: { id: riftState.currentEncounterId } });
+              const infinityCoins = encounter && (encounter.reward as any)?.infinityCoins ? (encounter.reward as any).infinityCoins : 0;
+              if (infinityCoins > 0) {
+                result.events.push({
+                  type: 'text',
+                  text: `Battle Won! Reward: +${infinityCoins} Infinity Coins!`
+                });
+              }
+            }
+            result.events.push({
+               type: 'text',
+               text: `Rift Floor Cleared! Click Return to proceed.`
+             });
           }
 
           if (wildPokemon.isRankExam && wildPokemon.targetRank) {
@@ -222,7 +238,7 @@ export class ActiveState implements IBattleState {
             result.events.push({
               type: 'rank_promotion',
               rank: wildPokemon.targetRank,
-              message: `Rank Exam Passed! Promoted to ${wildPokemon.targetRank.replace('_', ' ')}!`
+              message: `Rank Exam Passed! Promoted to ${wildPokemon.targetRank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '')} Rank!`
             });
           }
         }

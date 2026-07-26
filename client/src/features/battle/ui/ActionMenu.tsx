@@ -107,8 +107,8 @@ export const ActionMenu = memo(function ActionMenu({
         </button>
         <button
           onClick={onRun}
-          disabled={isPending || battleType !== 'WILD'}
-          title={battleType === 'WILD' ? "Run" : "Cannot run from this battle"}
+          disabled={isPending || battleType === 'NPC'}
+          title={battleType === 'NPC' ? "Cannot run from this battle" : "Run"}
           className="w-20 bg-slate-50 hover:bg-slate-200 text-slate-900 rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 border border-slate-200 dark:border-slate-700 disabled:bg-slate-300 dark:disabled:bg-slate-800"
         >
           <FaRunning size={28} />

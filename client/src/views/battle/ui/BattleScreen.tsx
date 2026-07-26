@@ -219,8 +219,8 @@ export function BattleScreen() {
                       >
                         <div className="flex flex-row gap-3 w-full items-center mb-3">
                           <img 
-                            src={getSpriteUrl(p.speciesId)} 
-                            alt={p.speciesName} 
+                            src={getSpriteUrl(p.species?.id || p.speciesId)} 
+                            alt={p.name || p.speciesName} 
                             className="w-16 h-16 object-contain drop-shadow"
                             style={{ imageRendering: 'pixelated' }}
                           />
@@ -258,7 +258,7 @@ export function BattleScreen() {
         status={status}
         battleType={battleType}
         lastTurnEvents={lastTurnEvents}
-        wildSpeciesName={wild.speciesName}
+        wildSpeciesName={wild.name || wild.speciesName}
         returnUrl={returnUrl}
       />
     </div>

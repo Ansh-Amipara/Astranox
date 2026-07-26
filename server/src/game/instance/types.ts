@@ -46,6 +46,16 @@ export interface PokemonInstancePayload {
   };
   species: SpeciesContext;
   
+  isCorrupted?: boolean;
+  corruptedMultipliers?: {
+    hp: number;
+    atk: number;
+    def: number;
+    spa: number;
+    spd: number;
+    spe: number;
+  };
+  
   // Future Expansion:
   moves: PokemonMove[];
   // ability: string;
@@ -63,6 +73,8 @@ export interface PokemonInstance {
   currentXp: number;
   types: string[];
   cp: number;
+  
+  isCorrupted: boolean;
   
   // Combat Stats
   maxHp: number;

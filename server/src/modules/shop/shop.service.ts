@@ -47,19 +47,15 @@ export class ShopService {
     const totalCost = item.cost * quantity;
 
     const isInfinity = item.category === 'infinity-only';
-    const isVoid = item.category === 'void-only';
 
     if (isInfinity && trainer.infinityCoins < totalCost) {
       throw new AppError('Not enough Infinity Coins.', 400);
-    } else if (isVoid && trainer.voidCoins < totalCost) {
-      throw new AppError('Not enough Void Coins.', 400);
-    } else if (!isInfinity && !isVoid && trainer.astralCoins < totalCost) {
+    } else if (!isInfinity && trainer.astralCoins < totalCost) {
       throw new AppError('Not enough Astral Coins.', 400);
     }
 
     const decrementData: any = {};
     if (isInfinity) decrementData.infinityCoins = { decrement: totalCost };
-    else if (isVoid) decrementData.voidCoins = { decrement: totalCost };
     else decrementData.astralCoins = { decrement: totalCost };
 
     // Execute in transaction

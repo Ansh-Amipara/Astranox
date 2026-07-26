@@ -62,7 +62,7 @@ function getNpcPotential(level: number): string {
   return 'ETERNAL';
 }
 
-function toActivePokemon(inst: any): ActivePokemon {
+export function toActivePokemon(inst: any): ActivePokemon {
   return {
     id: inst.id,
     speciesId: inst.species.id,

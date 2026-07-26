@@ -10,507 +10,564 @@ export interface ArenaTrainerConfig {
 }
 
 export const ARENA_TRAINERS: ArenaTrainerConfig[] = [
-  // ==========================================
-  // F RANK TRAINERS (Level 15, 2 Pokemon)
-  // ==========================================
   {
-    id: 'f_bug_catcher_ben',
-    name: 'Bug Catcher Ben',
+    id: 'f_leo',
+    name: 'Leo Bug Catcher',
     targetRank: 'F_RANK',
-    level: 15,
-    team: ['caterpie', 'weedle'],
+    level: 10,
+    team: ["caterpie","scyther"],
     coins: 100,
     xp: 200,
     theme: 'Bug'
   },
   {
-    id: 'f_youngster_joey',
-    name: 'Youngster Joey',
+    id: 'f_finn',
+    name: 'Finn Young Camper',
     targetRank: 'F_RANK',
     level: 15,
-    team: ['rattata', 'pidgey'],
+    team: ["rattata","snorlax"],
     coins: 100,
     xp: 200,
     theme: 'Normal'
   },
   {
-    id: 'f_lass_sarah',
-    name: 'Lass Sarah',
+    id: 'f_marina',
+    name: 'Marina Rookie Fisher',
     targetRank: 'F_RANK',
-    level: 15,
-    team: ['jigglypuff', 'clefairy'],
+    level: 20,
+    team: ["psyduck","azumarill"],
     coins: 100,
     xp: 200,
-    theme: 'Fairy'
+    theme: 'Water'
   },
   {
-    id: 'f_camper_liam',
-    name: 'Camper Liam',
+    id: 'f_ava',
+    name: 'Ava Bird Keeper',
     targetRank: 'F_RANK',
-    level: 15,
-    team: ['geodude', 'mankey'],
+    level: 25,
+    team: ["pidgey","pidgeotto"],
     coins: 100,
     xp: 200,
-    theme: 'Rock/Fighting'
+    theme: 'Flying'
   },
   {
-    id: 'f_picnicker_mia',
-    name: 'Picnicker Mia',
+    id: 'f_theo',
+    name: 'Theo Junior Electrician',
     targetRank: 'F_RANK',
-    level: 15,
-    team: ['oddish', 'bellsprout'],
+    level: 30,
+    team: ["voltorb","pikachu"],
+    coins: 100,
+    xp: 200,
+    theme: 'Electric'
+  },
+  {
+    id: 'f_flora',
+    name: 'Flora Garden Keeper',
+    targetRank: 'F_RANK',
+    level: 40,
+    team: ["vileplume","bellossom"],
     coins: 100,
     xp: 200,
     theme: 'Grass'
   },
   {
-    id: 'f_swimmer_luke',
-    name: 'Swimmer Luke',
+    id: 'f_grant',
+    name: 'Grant Quarry Worker',
     targetRank: 'F_RANK',
-    level: 15,
-    team: ['tentacool', 'poliwag'],
+    level: 50,
+    team: ["golem","rhydon"],
     coins: 100,
     xp: 200,
-    theme: 'Water'
+    theme: 'Rock'
   },
   {
-    id: 'f_hiker_david',
-    name: 'Hiker David',
+    id: 'f_hazel',
+    name: 'Hazel Pet Lover',
     targetRank: 'F_RANK',
-    level: 15,
-    team: ['machop', 'geodude'],
+    level: 60,
+    team: ["clefable","wigglytuff"],
     coins: 100,
     xp: 200,
-    theme: 'Fighting'
+    theme: 'Fairy'
   },
   {
-    id: 'f_arsonist_burnie',
-    name: 'Pyromaniac Burnie',
-    targetRank: 'F_RANK',
-    level: 15,
-    team: ['charmander', 'growlithe'],
-    coins: 100,
-    xp: 200,
-    theme: 'Fire'
-  },
-
-  // ==========================================
-  // E RANK TRAINERS (Level 60, 3 Pokemon)
-  // ==========================================
-  {
-    id: 'e_bird_keeper_toby',
-    name: 'Bird Keeper Toby',
+    id: 'e_rowan',
+    name: 'Rowan Forest Ranger',
     targetRank: 'E_RANK',
-    level: 60,
-    team: ['pidgeotto', 'fearow', 'dodrio'],
+    level: 70,
+    team: ["victreebel","exeggutor","vileplume"],
     coins: 500,
     xp: 1000,
-    theme: 'Flying'
+    theme: 'Grass'
   },
   {
-    id: 'e_black_belt_kenji',
-    name: 'Black Belt Kenji',
+    id: 'e_drake',
+    name: 'Drake Harbor Sailor',
     targetRank: 'E_RANK',
-    level: 60,
-    team: ['machoke', 'hitmonlee', 'hitmonchan'],
-    coins: 500,
-    xp: 1000,
-    theme: 'Fighting'
-  },
-  {
-    id: 'e_psychic_yuri',
-    name: 'Psychic Yuri',
-    targetRank: 'E_RANK',
-    level: 60,
-    team: ['kadabra', 'hypno', 'mr-mime'],
-    coins: 500,
-    xp: 1000,
-    theme: 'Psychic'
-  },
-  {
-    id: 'e_hex_maniac_luna',
-    name: 'Hex Maniac Luna',
-    targetRank: 'E_RANK',
-    level: 60,
-    team: ['haunter', 'gengar', 'misdreavus'],
-    coins: 500,
-    xp: 1000,
-    theme: 'Ghost'
-  },
-  {
-    id: 'e_scientist_rick',
-    name: 'Scientist Rick',
-    targetRank: 'E_RANK',
-    level: 60,
-    team: ['magneton', 'muk', 'weezing'],
-    coins: 500,
-    xp: 1000,
-    theme: 'Poison'
-  },
-  {
-    id: 'e_sailor_popeye',
-    name: 'Sailor Popeye',
-    targetRank: 'E_RANK',
-    level: 60,
-    team: ['machoke', 'poliwrath', 'tentacruel'],
+    level: 75,
+    team: ["tentacruel","blastoise","milotic"],
     coins: 500,
     xp: 1000,
     theme: 'Water'
   },
   {
-    id: 'e_tamer_cole',
-    name: 'Tamer Cole',
+    id: 'e_brock',
+    name: 'Brock Mountain Hiker',
     targetRank: 'E_RANK',
-    level: 60,
-    team: ['sandslash', 'arbok', 'marowak'],
+    level: 80,
+    team: ["steelix","rhydon","golem"],
+    coins: 500,
+    xp: 1000,
+    theme: 'Rock'
+  },
+  {
+    id: 'e_hugo',
+    name: 'Hugo Steel Smith',
+    targetRank: 'E_RANK',
+    level: 90,
+    team: ["magnezone","steelix","skarmory"],
+    coins: 500,
+    xp: 1000,
+    theme: 'Steel'
+  },
+  {
+    id: 'e_rex',
+    name: 'Rex Desert Hunter',
+    targetRank: 'E_RANK',
+    level: 100,
+    team: ["sandslash","dugtrio","marowak"],
     coins: 500,
     xp: 1000,
     theme: 'Ground'
   },
   {
-    id: 'e_firebreather_dick',
-    name: 'Firebreather Dick',
+    id: 'e_iris',
+    name: 'Iris Caretaker',
     targetRank: 'E_RANK',
-    level: 60,
-    team: ['magmar', 'arcanine', 'rapidash'],
+    level: 110,
+    team: ["togekiss","clefable","sylveon"],
     coins: 500,
     xp: 1000,
+    theme: 'Fairy'
+  },
+  {
+    id: 'e_volt',
+    name: 'Volt Power Technician',
+    targetRank: 'E_RANK',
+    level: 115,
+    team: ["electrode","raichu","luxray"],
+    coins: 500,
+    xp: 1000,
+    theme: 'Electric'
+  },
+  {
+    id: 'e_kai',
+    name: 'Kai Martial Student',
+    targetRank: 'E_RANK',
+    level: 120,
+    team: ["machamp","hitmonlee","hitmonchan"],
+    coins: 500,
+    xp: 1000,
+    theme: 'Fighting'
+  },
+  {
+    id: 'd_blaze',
+    name: 'Blaze Flame Veteran',
+    targetRank: 'D_RANK',
+    level: 130,
+    team: ["arcanine","rapidash","magmortar","ninetales"],
+    coins: 1500,
+    xp: 3500,
     theme: 'Fire'
   },
-
-  // ==========================================
-  // D RANK TRAINERS (Level 120, 4 Pokemon)
-  // ==========================================
   {
-    id: 'd_ace_trainer_chloe',
-    name: 'Ace Trainer Chloe',
+    id: 'd_selene',
+    name: 'Selene Psychic Adept',
     targetRank: 'D_RANK',
-    level: 120,
-    team: ['starmie', 'tauros', 'exeggutor', 'lapras'],
+    level: 140,
+    team: ["alakazam","mr-mime","hypno","espeon"],
     coins: 1500,
     xp: 3500,
-    theme: 'Balanced'
+    theme: 'Psychic'
   },
   {
-    id: 'd_dragon_tamer_lance',
-    name: 'Dragon Tamer Lance',
+    id: 'd_ivy',
+    name: 'Ivy Venom Expert',
     targetRank: 'D_RANK',
-    level: 120,
-    team: ['dragonair', 'dragonair', 'gyarados', 'aerodactyl'],
-    coins: 1500,
-    xp: 3500,
-    theme: 'Dragon'
-  },
-  {
-    id: 'd_veteran_kyle',
-    name: 'Veteran Kyle',
-    targetRank: 'D_RANK',
-    level: 120,
-    team: ['snorlax', 'machamp', 'golem', 'rhydon'],
-    coins: 1500,
-    xp: 3500,
-    theme: 'Heavyweight'
-  },
-  {
-    id: 'd_ninja_boy_koga',
-    name: 'Ninja Boy Koga',
-    targetRank: 'D_RANK',
-    level: 120,
-    team: ['crobat', 'venomoth', 'weezing', 'muk'],
+    level: 150,
+    team: ["crobat","weezing","arbok","nidoking"],
     coins: 1500,
     xp: 3500,
     theme: 'Poison'
   },
   {
-    id: 'd_beauty_valerie',
-    name: 'Beauty Valerie',
+    id: 'd_elsa',
+    name: 'Elsa Ice Explorer',
     targetRank: 'D_RANK',
-    level: 120,
-    team: ['ninetales', 'milotic', 'roselia', 'gardevoir'],
+    level: 160,
+    team: ["mamoswine","froslass","glalie","abomasnow"],
     coins: 1500,
     xp: 3500,
-    theme: 'Elegant'
-  },
-  {
-    id: 'd_roughneck_biff',
-    name: 'Roughneck Biff',
-    targetRank: 'D_RANK',
-    level: 120,
-    team: ['houndoom', 'scrafty', 'krookodile', 'pangoro'],
-    coins: 1500,
-    xp: 3500,
-    theme: 'Dark'
-  },
-  {
-    id: 'd_collector_ian',
-    name: 'Collector Ian',
-    targetRank: 'D_RANK',
-    level: 120,
-    team: ['pinsir', 'scyther', 'heracross', 'tauros'],
-    coins: 1500,
-    xp: 3500,
-    theme: 'Rare'
-  },
-  {
-    id: 'd_engineer_spark',
-    name: 'Engineer Spark',
-    targetRank: 'D_RANK',
-    level: 120,
-    team: ['raichu', 'electabuzz', 'magneton', 'jolteon'],
-    coins: 1500,
-    xp: 3500,
-    theme: 'Electric'
-  },
-
-  // ==========================================
-  // C RANK TRAINERS (Level 200, 5 Pokemon)
-  // ==========================================
-  {
-    id: 'c_expert_chen',
-    name: 'Expert Chen',
-    targetRank: 'C_RANK',
-    level: 200,
-    team: ['lucario', 'conkeldurr', 'mienshao', 'infernape', 'gallade'],
-    coins: 4000,
-    xp: 10000,
-    theme: 'Fighting'
-  },
-  {
-    id: 'c_glacier_faye',
-    name: 'Glacier Faye',
-    targetRank: 'C_RANK',
-    level: 200,
-    team: ['glaceon', 'froslass', 'mamoswine', 'weavile', 'walrein'],
-    coins: 4000,
-    xp: 10000,
     theme: 'Ice'
   },
   {
-    id: 'c_furnace_ignis',
-    name: 'Furnace Ignis',
-    targetRank: 'C_RANK',
-    level: 200,
-    team: ['arcanine', 'magmortar', 'blaziken', 'darmanitan', 'volcarona'],
-    coins: 4000,
-    xp: 10000,
-    theme: 'Fire'
+    id: 'd_doran',
+    name: 'Doran Earth Miner',
+    targetRank: 'D_RANK',
+    level: 170,
+    team: ["golem","donphan","hippowdon","rhyperior"],
+    coins: 1500,
+    xp: 3500,
+    theme: 'Ground'
   },
   {
-    id: 'c_abyss_marina',
-    name: 'Abyss Marina',
-    targetRank: 'C_RANK',
+    id: 'd_raven',
+    name: 'Raven Spirit Medium',
+    targetRank: 'D_RANK',
+    level: 180,
+    team: ["gengar","mismagius","banette","dusknoir"],
+    coins: 1500,
+    xp: 3500,
+    theme: 'Ghost'
+  },
+  {
+    id: 'd_zephyr',
+    name: 'Zephyr Wind Rider',
+    targetRank: 'D_RANK',
+    level: 190,
+    team: ["pidgeot","fearow","dodrio","crobat"],
+    coins: 1500,
+    xp: 3500,
+    theme: 'Flying'
+  },
+  {
+    id: 'd_marina',
+    name: 'Marina Deep Sea Captain',
+    targetRank: 'D_RANK',
     level: 200,
-    team: ['gyarados', 'vaporeon', 'swampert', 'gastrodon', 'feraligatr'],
-    coins: 4000,
-    xp: 10000,
+    team: ["wailord","walrein","lapras","milotic"],
+    coins: 1500,
+    xp: 3500,
     theme: 'Water'
   },
   {
-    id: 'c_overgrowth_sylvia',
-    name: 'Overgrowth Sylvia',
+    id: 'c_roland',
+    name: 'Roland Steel Knight',
     targetRank: 'C_RANK',
-    level: 200,
-    team: ['venusaur', 'sceptile', 'torterra', 'roserade', 'tangrowth'],
+    level: 210,
+    team: ["skarmory","mawile","aggron","bisharp","aegislash"],
     coins: 4000,
     xp: 10000,
-    theme: 'Grass'
+    theme: 'Steel'
   },
   {
-    id: 'c_thunder_volkner',
-    name: 'Thunder Volkner',
+    id: 'c_orion',
+    name: 'Orion Mind Sage',
     targetRank: 'C_RANK',
-    level: 200,
-    team: ['luxray', 'electivire', 'ampharos', 'magnezone', 'zapdos'],
+    level: 220,
+    team: ["espeon","gardevoir","gallade","metagross","alakazam"],
     coins: 4000,
     xp: 10000,
-    theme: 'Electric'
+    theme: 'Psychic'
   },
   {
-    id: 'c_geist_mortis',
-    name: 'Geist Mortis',
+    id: 'c_nyx',
+    name: 'Nyx Phantom Walker',
     targetRank: 'C_RANK',
-    level: 200,
-    team: ['gengar', 'dusknoir', 'chandelure', 'aegislash', 'trevenant'],
+    level: 230,
+    team: ["banette","dusknoir","chandelure","trevenant","gengar"],
     coins: 4000,
     xp: 10000,
     theme: 'Ghost'
   },
   {
-    id: 'c_mystic_sabrina',
-    name: 'Mystic Sabrina',
+    id: 'c_briar',
+    name: 'Briar Forest Guardian',
     targetRank: 'C_RANK',
-    level: 200,
-    team: ['alakazam', 'espeon', 'gardevoir', 'metagross', 'reuniclus'],
+    level: 250,
+    team: ["venusaur","meganium","sceptile","torterra","serperior"],
     coins: 4000,
     xp: 10000,
-    theme: 'Psychic'
-  },
-
-  // ==========================================
-  // B RANK TRAINERS (Level 300, 6 Pokemon)
-  // ==========================================
-  {
-    id: 'b_dragon_master_drake',
-    name: 'Dragon Master Drake',
-    targetRank: 'B_RANK',
-    level: 300,
-    team: ['dragonite', 'salamence', 'garchomp', 'haxorus', 'hydreigon', 'goodra'],
-    coins: 10000,
-    xp: 30000,
-    theme: 'Dragon'
+    theme: 'Grass'
   },
   {
-    id: 'b_steel_titan_steven',
-    name: 'Steel Titan Steven',
-    targetRank: 'B_RANK',
+    id: 'c_axel',
+    name: 'Axel Storm Caller',
+    targetRank: 'C_RANK',
+    level: 260,
+    team: ["jolteon","ampharos","manectric","luxray","electivire"],
+    coins: 4000,
+    xp: 10000,
+    theme: 'Electric'
+  },
+  {
+    id: 'c_shade',
+    name: 'Shade Night Assassin',
+    targetRank: 'C_RANK',
+    level: 280,
+    team: ["umbreon","houndoom","absol","zoroark","weavile"],
+    coins: 4000,
+    xp: 10000,
+    theme: 'Dark'
+  },
+  {
+    id: 'c_kane',
+    name: 'Kane Inferno Master',
+    targetRank: 'C_RANK',
+    level: 290,
+    team: ["typhlosion","blaziken","infernape","emboar","charizard"],
+    coins: 4000,
+    xp: 10000,
+    theme: 'Fire'
+  },
+  {
+    id: 'c_terra',
+    name: 'Terra Earth Warden',
+    targetRank: 'C_RANK',
     level: 300,
-    team: ['skarmory', 'aggron', 'metagross', 'lucario', 'excadrill', 'ferrothorn'],
+    team: ["marowak","donphan","flygon","hippowdon","garchomp"],
+    coins: 4000,
+    xp: 10000,
+    theme: 'Ground'
+  },
+  {
+    id: 'b_magnus',
+    name: 'Magnus Iron General',
+    targetRank: 'B_RANK',
+    level: 310,
+    team: ["forretress","scizor","empoleon","lucario","excadrill","metagross"],
     coins: 10000,
     xp: 30000,
     theme: 'Steel'
   },
   {
-    id: 'b_fairy_queen_diantha',
-    name: 'Fairy Queen Diantha',
+    id: 'b_freya',
+    name: 'Freya Blizzard Queen',
     targetRank: 'B_RANK',
-    level: 300,
-    team: ['clefable', 'togekiss', 'gardevoir', 'sylveon', 'florges', 'mimikyu'],
+    level: 320,
+    team: ["jynx","lapras","glaceon","glalie","abomasnow","weavile"],
     coins: 10000,
     xp: 30000,
-    theme: 'Fairy'
+    theme: 'Ice'
   },
   {
-    id: 'b_sandstorm_bruno',
-    name: 'Sandstorm Bruno',
+    id: 'b_jin',
+    name: 'Jin Grand Dojo Master',
     targetRank: 'B_RANK',
-    level: 300,
-    team: ['tyranitar', 'hippowdon', 'excadrill', 'garchomp', 'gliscor', 'gastrodon'],
+    level: 340,
+    team: ["hitmonlee","hitmonchan","hitmontop","hariyama","lucario","machamp"],
     coins: 10000,
     xp: 30000,
-    theme: 'Sand'
+    theme: 'Fighting'
   },
   {
-    id: 'b_rain_dancer_wallace',
-    name: 'Rain Dancer Wallace',
+    id: 'b_kairos',
+    name: 'Kairos Ocean Lord',
     targetRank: 'B_RANK',
-    level: 300,
-    team: ['politoed', 'kingdra', 'ludicolo', 'swampert', 'ferrothorn', 'kabutops'],
+    level: 350,
+    team: ["vaporeon","feraligatr","swampert","empoleon","samurott","greninja"],
     coins: 10000,
     xp: 30000,
-    theme: 'Rain'
+    theme: 'Water'
   },
   {
-    id: 'b_sun_bringer_flannery',
-    name: 'Sun Bringer Flannery',
+    id: 'b_vesper',
+    name: 'Vesper Shadow Hunter',
     targetRank: 'B_RANK',
-    level: 300,
-    team: ['ninetales', 'charizard', 'venusaur', 'darmanitan', 'volcarona', 'torkoal'],
-    coins: 10000,
-    xp: 30000,
-    theme: 'Sun'
-  },
-  {
-    id: 'b_shadow_karen',
-    name: 'Shadow Karen',
-    targetRank: 'B_RANK',
-    level: 300,
-    team: ['umbreon', 'houndoom', 'honchkrow', 'weavile', 'bisharp', 'hydreigon'],
+    level: 370,
+    team: ["honchkrow","spiritomb","drapion","krookodile","pangoro","hydreigon"],
     coins: 10000,
     xp: 30000,
     theme: 'Dark'
   },
   {
-    id: 'b_poison_fang_koga',
-    name: 'Poison Fang Koga',
+    id: 'b_zephyr',
+    name: 'Zephyr Sky Marshal',
     targetRank: 'B_RANK',
-    level: 300,
-    team: ['crobat', 'venomoth', 'muk', 'weezing', 'toxicroak', 'drapion'],
+    level: 380,
+    team: ["aerodactyl","crobat","togekiss","braviary","talonflame","salamence"],
     coins: 10000,
     xp: 30000,
-    theme: 'Poison'
-  },
-
-  // ==========================================
-  // A RANK TRAINERS (Level 400, 6 Pokemon)
-  // ==========================================
-  {
-    id: 'a_champion_cynthia',
-    name: 'Champion Cynthia',
-    targetRank: 'A_RANK',
-    level: 400,
-    team: ['spiritomb', 'roserade', 'togekiss', 'lucario', 'milotic', 'garchomp'],
-    coins: 25000,
-    xp: 75000,
-    theme: 'Champion'
+    theme: 'Flying'
   },
   {
-    id: 'a_champion_red',
-    name: 'Legend Red',
-    targetRank: 'A_RANK',
-    level: 400,
-    team: ['pikachu', 'lapras', 'snorlax', 'venusaur', 'charizard', 'blastoise'],
-    coins: 25000,
-    xp: 75000,
-    theme: 'Legend'
+    id: 'b_sol',
+    name: 'Sol Solar Commander',
+    targetRank: 'B_RANK',
+    level: 390,
+    team: ["ninetales","arcanine","rapidash","magmortar","talonflame","charizard"],
+    coins: 10000,
+    xp: 30000,
+    theme: 'Fire'
   },
   {
-    id: 'a_paradox_professor',
-    name: 'Paradox Professor',
-    targetRank: 'A_RANK',
+    id: 'b_iris',
+    name: 'Iris Dragon Disciple',
+    targetRank: 'B_RANK',
     level: 400,
-    team: ['great-tusk', 'scream-tail', 'brute-bonnet', 'flutter-mane', 'slither-wing', 'roaring-moon'],
-    coins: 25000,
-    xp: 75000,
-    theme: 'Past Paradox'
+    team: ["kingdra","flygon","altaria","haxorus","druddigon","dragonite"],
+    coins: 10000,
+    xp: 30000,
+    theme: 'Dragon'
   },
   {
-    id: 'a_future_scientist',
-    name: 'Future Scientist',
+    id: 'a_ignis',
+    name: 'Ignis Crimson Lord',
     targetRank: 'A_RANK',
-    level: 400,
-    team: ['iron-treads', 'iron-bundle', 'iron-hands', 'iron-jugulis', 'iron-moth', 'iron-valiant'],
+    level: 410,
+    team: ["arcanine","magmortar","blaziken","infernape","volcarona","charizard"],
     coins: 25000,
     xp: 75000,
-    theme: 'Future Paradox'
+    theme: 'Fire'
   },
   {
-    id: 'a_beast_caller',
-    name: 'Beast Caller',
+    id: 'a_neptune',
+    name: 'Neptune Tide Emperor',
     targetRank: 'A_RANK',
-    level: 400,
-    team: ['nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana'],
+    level: 420,
+    team: ["starmie","lapras","milotic","kingdra","swampert","feraligatr"],
     coins: 25000,
     xp: 75000,
-    theme: 'Ultra Beasts'
+    theme: 'Water'
   },
   {
-    id: 'a_weather_trio',
-    name: 'Weather Master',
+    id: 'a_gaia',
+    name: 'Gaia Nature Sovereign',
     targetRank: 'A_RANK',
-    level: 400,
-    team: ['castform', 'pelipper', 'torkoal', 'hippowdon', 'abomasnow', 'rayquaza'],
+    level: 440,
+    team: ["venusaur","sceptile","breloom","roserade","ferrothorn","rillaboom"],
     coins: 25000,
     xp: 75000,
-    theme: 'Weather'
+    theme: 'Grass'
   },
   {
-    id: 'a_space_time_guru',
-    name: 'Space Time Guru',
+    id: 'a_atlas',
+    name: 'Atlas Earth Titan',
     targetRank: 'A_RANK',
-    level: 400,
-    team: ['bronzong', 'magnezone', 'porygon-z', 'togekiss', 'lucario', 'garchomp'],
+    level: 450,
+    team: ["steelix","rhyperior","donphan","hippowdon","excadrill","garchomp"],
     coins: 25000,
     xp: 75000,
-    theme: 'Sinnoh'
+    theme: 'Ground'
   },
   {
-    id: 'a_draconic_elder',
-    name: 'Draconic Elder',
+    id: 'a_voltaris',
+    name: 'Voltaris Thunder Emperor',
     targetRank: 'A_RANK',
-    level: 400,
-    team: ['dragonite', 'salamence', 'garchomp', 'haxorus', 'hydreigon', 'kommo-o'],
+    level: 470,
+    team: ["raichu","jolteon","ampharos","magnezone","electivire","galvantula"],
     coins: 25000,
     xp: 75000,
-    theme: 'All Dragons'
+    theme: 'Electric'
+  },
+  {
+    id: 'a_astra',
+    name: 'Astra Arcane Master',
+    targetRank: 'A_RANK',
+    level: 480,
+    team: ["alakazam","espeon","gardevoir","gallade","metagross","reuniclus"],
+    coins: 25000,
+    xp: 75000,
+    theme: 'Psychic'
+  },
+  {
+    id: 'a_noctis',
+    name: 'Noctis Shadow Monarch',
+    targetRank: 'A_RANK',
+    level: 490,
+    team: ["umbreon","houndoom","tyranitar","weavile","bisharp","krookodile"],
+    coins: 25000,
+    xp: 75000,
+    theme: 'Dark'
+  },
+  {
+    id: 'a_drakon',
+    name: 'Drakon Dragon Lord',
+    targetRank: 'A_RANK',
+    level: 500,
+    team: ["dragonite","salamence","garchomp","haxorus","hydreigon","kommo-o"],
+    coins: 25000,
+    xp: 75000,
+    theme: 'Dragon'
+  },
+  {
+    id: 's_minus_solaris',
+    name: 'Solaris Hero of Flames',
+    targetRank: 'S_MINUS_RANK',
+    level: 520,
+    team: ["charizard","typhlosion","blaziken","infernape","emboar","incineroar"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Fire'
+  },
+  {
+    id: 's_minus_leviathan',
+    name: 'Leviathan Hero of Oceans',
+    targetRank: 'S_MINUS_RANK',
+    level: 550,
+    team: ["blastoise","feraligatr","swampert","empoleon","samurott","greninja"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Water'
+  },
+  {
+    id: 's_minus_verdant',
+    name: 'Verdant Hero of Nature',
+    targetRank: 'S_MINUS_RANK',
+    level: 580,
+    team: ["venusaur","meganium","sceptile","torterra","serperior","chesnaught"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Grass'
+  },
+  {
+    id: 's_minus_tempest',
+    name: 'Tempest Hero of Storms',
+    targetRank: 'S_MINUS_RANK',
+    level: 600,
+    team: ["pidgeot","noctowl","swellow","staraptor","unfezant","talonflame"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Flying'
+  },
+  {
+    id: 's_minus_umbra',
+    name: 'Umbra Hero of Shadows',
+    targetRank: 'S_MINUS_RANK',
+    level: 630,
+    team: ["tyranitar","mightyena","shiftry","crawdaunt","honchkrow","zoroark"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Dark'
+  },
+  {
+    id: 's_minus_lumina',
+    name: 'Lumina Hero of Light',
+    targetRank: 'S_MINUS_RANK',
+    level: 660,
+    team: ["clefable","wigglytuff","togekiss","gardevoir","sylveon","florges"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Fairy'
+  },
+  {
+    id: 's_minus_chronos',
+    name: 'Chronos Hero of Minds',
+    targetRank: 'S_MINUS_RANK',
+    level: 680,
+    team: ["alakazam","hypno","exeggutor","starmie","mr-mime","metagross"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Psychic'
+  },
+  {
+    id: 's_minus_aurelion',
+    name: 'Aurelion Hero of Dragons',
+    targetRank: 'S_MINUS_RANK',
+    level: 700,
+    team: ["dragonite","salamence","garchomp","hydreigon","goodra","dragapult"],
+    coins: 50000,
+    xp: 150000,
+    theme: 'Dragon'
   }
 ];

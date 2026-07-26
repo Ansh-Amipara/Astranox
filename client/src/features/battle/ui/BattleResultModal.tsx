@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useCompleteTowerBattle, useTowerState } from '../../tower/useTower';
+import { useCompleteRiftEncounter, useAbandonRiftRun } from '../../rift/useRift';
 
 interface Props {
   isFinished: boolean;
@@ -23,6 +24,8 @@ export const BattleResultModal = memo(function BattleResultModal({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const completeTower = useCompleteTowerBattle();
+  const completeRift = useCompleteRiftEncounter();
+  const abandonRift = useAbandonRiftRun();
   const { data: towerData } = useTowerState();
 
   if (!isFinished) return null;
@@ -91,14 +94,14 @@ export const BattleResultModal = memo(function BattleResultModal({
             ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
             : 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
         }`}>
-          {status === 'WON' ? (battleType === 'TOWER' ? 'Victory! You cleared the floor!' : battleType === 'NPC' ? 'Victory! You defeated the Rank Examiner!' : `You defeated the wild ${wildSpeciesName}!`) : 
+          {status === 'WON' ? (battleType === 'TOWER' ? 'Victory! You cleared the floor!' : battleType === 'RIFT' ? 'Victory! You cleared the Rift floor!' : battleType === 'NPC' ? 'Victory! You defeated the Rank Examiner!' : `You defeated the wild ${wildSpeciesName}!`) : 
            status === 'CAUGHT' ? `Gotcha! ${wildSpeciesName} was caught!` :
            status === 'FLED' ? 'Got away safely!' : 'Defeated! Better luck next time!'}
         </div>
 
         <div className="flex gap-4 w-full">
           <button 
-            disabled={completeTower.isPending}
+            disabled={completeTower.isPending || completeRift.isPending || abandonRift.isPending}
             onClick={() => {
               const handleReturn = () => {
                 queryClient.invalidateQueries({ queryKey: ['rankStatus'] });
@@ -119,13 +122,31 @@ export const BattleResultModal = memo(function BattleResultModal({
                     handleReturn(); // Fallback anyway
                   }
                 });
+              } else if (battleType === 'RIFT') {
+                if (status === 'WON') {
+                  completeRift.mutate(undefined, {
+                    onSuccess: handleReturn,
+                    onError: (err) => {
+                      console.error(err);
+                      handleReturn();
+                    }
+                  });
+                } else {
+                  abandonRift.mutate(undefined, {
+                    onSuccess: handleReturn,
+                    onError: (err) => {
+                      console.error(err);
+                      handleReturn();
+                    }
+                  });
+                }
               } else {
                 handleReturn();
               }
             }} 
             className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
           >
-            {completeTower.isPending ? 'Processing...' : 'Return'}
+            {completeTower.isPending || completeRift.isPending || abandonRift.isPending ? 'Processing...' : 'Return'}
           </button>
         </div>
       </div>

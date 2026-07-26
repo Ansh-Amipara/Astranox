@@ -129,13 +129,6 @@ export function Profile() {
                         <span className="text-purple-500 font-black text-lg">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-slate-500 font-medium text-xs uppercase tracking-widest">Void Coins</span>
-                      <div className="flex items-center gap-2 mt-1">
-                        <img src="/void.png" alt="Void" className="w-5 h-5 object-contain" />
-                        <span className="text-stone-500 font-black text-lg">{trainerSave.voidCoins?.toLocaleString() || 0}</span>
-                      </div>
-                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-medium">Badges</span>

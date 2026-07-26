@@ -65,15 +65,26 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
   }
 
   // 3. Hydrate Stats via Gen V Engine
-  const maxHp = calculateHP(payload.species.baseStats.hp, payload.ivs.hp, payload.level, payload.species.isGmax);
+  let maxHp = calculateHP(payload.species.baseStats.hp, payload.ivs.hp, payload.level, payload.species.isGmax);
 
-  const stats = {
+  let stats = {
     attack: calculateStat(payload.species.baseStats.attack, payload.ivs.attack, payload.level),
     defense: calculateStat(payload.species.baseStats.defense, payload.ivs.defense, payload.level),
     spAtk: calculateStat(payload.species.baseStats.spAtk, payload.ivs.spAtk, payload.level),
     spDef: calculateStat(payload.species.baseStats.spDef, payload.ivs.spDef, payload.level),
     speed: calculateStat(payload.species.baseStats.speed, payload.ivs.speed, payload.level),
   };
+
+  // 3.5 Apply Rift Corruption Modifiers
+  if (payload.isCorrupted && payload.corruptedMultipliers) {
+    maxHp = Math.floor(maxHp * payload.corruptedMultipliers.hp);
+    stats.attack = Math.floor(stats.attack * payload.corruptedMultipliers.atk);
+    stats.defense = Math.floor(stats.defense * payload.corruptedMultipliers.def);
+    stats.spAtk = Math.floor(stats.spAtk * payload.corruptedMultipliers.spa);
+    stats.spDef = Math.floor(stats.spDef * payload.corruptedMultipliers.spd);
+    stats.speed = Math.floor(stats.speed * payload.corruptedMultipliers.spe);
+  }
+
 
   // 4. Calculate CP
   const cp = calculatePokemonCP(
@@ -93,6 +104,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     currentXp: payload.currentXp || 0,
     types: payload.species.types,
     cp,
+    isCorrupted: payload.isCorrupted || false,
     maxHp,
     currentHp: maxHp, // Fresh instances spawn at full health
     stats,

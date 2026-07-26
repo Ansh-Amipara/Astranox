@@ -22,6 +22,7 @@ import { RankPage } from '@/views/rank/ui/RankPage';
 import { InfoPage } from '@/views/info/ui/InfoPage';
 import { ArenaPage } from '@/views/arena/ui/ArenaPage';
 import { InfinityTowerPage } from '@/views/infinity-tower/InfinityTowerPage';
+import { RiftPage } from '@/views/rift/ui/RiftPage';
 
 import { Pokemart } from '@/views/pokemart/ui/Pokemart';
 import { TeamPage } from '@/views/team/ui/TeamPage';
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="team" element={<TeamPage />} />
           <Route path="trade" element={<TradeScreen />} />
           <Route path="tower" element={<InfinityTowerPage />} />
+          <Route path="rift" element={<RiftPage />} />
 
         </Route>
 

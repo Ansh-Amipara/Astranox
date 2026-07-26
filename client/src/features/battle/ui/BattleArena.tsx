@@ -23,7 +23,14 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       <div className="absolute top-6 left-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-96 z-20 text-slate-900 dark:text-slate-100">
         <div className="flex justify-between items-end mb-2 gap-2">
           <div className="flex flex-col gap-1 min-w-0">
-            <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm truncate">{wild.speciesName}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold capitalize tracking-wide drop-shadow-sm line-clamp-2 break-words">{wild.name || wild.speciesName}</h2>
+              {wild.isCorrupted && (
+                <span className="px-1.5 py-0.5 bg-purple-900/80 text-purple-200 border border-purple-500/50 rounded-sm text-[10px] font-black uppercase tracking-widest">
+                  Corrupted
+                </span>
+              )}
+            </div>
             {wild.types && (
               <div className="flex gap-1 mt-1">
                 {wild.types.map((t: string) => (
@@ -48,7 +55,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
               <div
                 key={p.id || idx}
                 className={`w-3 h-3 rounded-full border border-slate-400 dark:border-slate-600 ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-400 dark:bg-slate-700 opacity-40'}`}
-                title={`${p.speciesName || 'Pokemon'} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
+                title={`${p.name || p.speciesName || 'Pokemon'} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
               ></div>
             ))}
           </div>
@@ -65,8 +72,8 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       {/* Wild Sprite (Top Right) */}
       <div className="absolute top-12 right-16 z-10">
         <PokemonSprite
-          speciesId={wild.speciesId}
-          speciesName={wild.speciesName}
+          speciesId={wild.species?.id || wild.speciesId}
+          speciesName={wild.name || wild.speciesName}
           isPlayer={false}
           className=""
         />
@@ -75,8 +82,8 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       {/* Player Sprite (Bottom Left) */}
       <div className="absolute bottom-12 left-24 z-10">
         <PokemonSprite
-          speciesId={player.speciesId}
-          speciesName={player.speciesName}
+          speciesId={player.species?.id || player.speciesId}
+          speciesName={player.name || player.speciesName}
           isPlayer={true}
           className=""
         />
@@ -86,8 +93,8 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       <div className="absolute bottom-6 right-6 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-2xl w-96 z-20 text-slate-900 dark:text-slate-100">
         <div className="flex justify-between items-end mb-2 gap-2">
           <div className="flex flex-col gap-1 min-w-0">
-            <h3 className="text-xl font-bold capitalize tracking-wide drop-shadow-sm truncate">
-              {player.nickname || player.speciesName}
+            <h3 className="text-xl font-bold capitalize tracking-wide drop-shadow-sm line-clamp-2 break-words">
+              {player.name || player.nickname || player.speciesName}
             </h3>
             {player.types && (
               <div className="flex gap-1 mt-1">

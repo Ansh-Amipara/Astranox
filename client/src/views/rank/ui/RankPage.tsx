@@ -38,6 +38,14 @@ export function RankPage() {
 
   const { currentRank, nextRank, requirementMet, requirements, progress, message } = statusResponse.data;
 
+  const formatRank = (rank: string) => {
+    if (!rank) return '';
+    return rank
+      .replace('_MINUS_RANK', '-')
+      .replace('_PLUS_RANK', '+')
+      .replace('_RANK', '') + ' Rank';
+  };
+
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
@@ -62,14 +70,14 @@ export function RankPage() {
         <div className="w-full flex justify-between items-center mb-8 border-b border-slate-100 dark:border-slate-700 pb-8">
           <div className="flex flex-col items-center flex-1">
             <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Current Rank</span>
-            <span className="text-4xl font-black text-slate-800 dark:text-white">{currentRank.replace('_', ' ')}</span>
+            <span className="text-4xl font-black text-slate-800 dark:text-white">{formatRank(currentRank)}</span>
           </div>
           <div className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded-full mx-4">
             <ArrowRight className="w-6 h-6 text-slate-400" />
           </div>
           <div className="flex flex-col items-center flex-1">
             <span className="text-sm font-bold text-blue-500 uppercase tracking-widest mb-2">Next Rank</span>
-            <span className="text-4xl font-black text-blue-600 dark:text-blue-400">{nextRank ? nextRank.replace('_', ' ') : 'MAX MAX'}</span>
+            <span className="text-4xl font-black text-blue-600 dark:text-blue-400">{nextRank ? formatRank(nextRank) : 'MAX RANK'}</span>
           </div>
         </div>
 

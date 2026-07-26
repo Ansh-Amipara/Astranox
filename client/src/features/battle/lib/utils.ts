@@ -1,5 +1,5 @@
 export const getEventMessage = (ev: any, player: any, wild: any) => {
-  const name = ev.pokemonId === player.id ? player.speciesName : wild.speciesName;
+  const name = ev.pokemonId === player.id ? (player.name || player.speciesName) : (wild.name || wild.speciesName);
   switch (ev.type) {
     case 'move': return `${name} used ${ev.moveName}!`;
     case 'damage': {
@@ -25,7 +25,7 @@ export const getEventMessage = (ev: any, player: any, wild: any) => {
     case 'rank_promotion': return ev.message || `Rank Exam Passed! Promoted to ${ev.rank}!`;
     case 'catch_attempt': 
       if (ev.success) {
-        return `Gotcha! ${wild.speciesName} was caught!`;
+        return `Gotcha! ${wild.name || wild.speciesName} was caught!`;
       } else {
         if (ev.shakes === 0) return `Oh no! The Pokémon broke free!`;
         if (ev.shakes === 1) return `Aww! It appeared to be caught!`;

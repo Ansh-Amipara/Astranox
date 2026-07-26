@@ -74,7 +74,6 @@ model TrainerSave {
   starterChosenAt DateTime?
   astralCoins     Int       @default(3000)
   infinityCoins   Int       @default(0)
-  voidCoins       Int       @default(0)
   storedXp        Int       @default(0)
   rank            TrainerRank @default(NO_RANK)
 
@@ -91,6 +90,7 @@ model TrainerSave {
   tradesReceived  TradeRequest[] @relation("TradesReceived")
 
   infinityTowerState InfinityTowerState?
+  riftState          RiftDungeonState?
 }
 
 model OwnedPokemon {
@@ -268,6 +268,7 @@ enum BattleType {
   WILD
   NPC
   TOWER
+  RIFT
 }
 
 model BattleSession {
@@ -398,4 +399,43 @@ model InfinityCoinTransaction {
   createdAt DateTime @default(now())
 }
 
+// ----------------------------------------------------------------------
+// RIFT DUNGEON
+// ----------------------------------------------------------------------
 
+enum RiftDifficulty {
+  NORMAL
+  HARD
+  NIGHTMARE
+  ABYSS
+}
+
+model RiftDungeonState {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId           String   @unique @db.ObjectId
+  trainer             TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
+  rank                TrainerRank @default(F_RANK)
+  difficulty          RiftDifficulty @default(NORMAL)
+  
+  currentFloor        Int      @default(1)
+  highestFloor        Int      @default(0)
+  
+  currentEncounterId  String?  @db.ObjectId
+  currentRunStartedAt DateTime?
+  
+  totalRiftsCleared   Int      @default(0)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model RiftEncounter {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  riftStateId  String @db.ObjectId
+  floor        Int
+  enemyTeam    Json
+  reward       Json
+  status       EncounterStatus
+  createdAt    DateTime @default(now())
+}

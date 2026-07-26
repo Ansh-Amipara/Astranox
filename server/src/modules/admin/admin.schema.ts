@@ -4,7 +4,7 @@ import { PokemonPotential } from '@prisma/client';
 export const addMoneySchema = z.object({
   body: z.object({
     amount: z.number().int().positive(),
-    currencyType: z.enum(['astralCoins', 'infinityCoins', 'voidCoins']).default('astralCoins')
+    currencyType: z.enum(['astralCoins', 'infinityCoins']).default('astralCoins')
   })
 });
 

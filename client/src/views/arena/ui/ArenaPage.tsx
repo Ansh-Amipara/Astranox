@@ -15,7 +15,7 @@ interface ArenaTrainer {
   theme: string;
 }
 
-const RANKS = ['F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK'];
+const RANKS = ['F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK', 'S_MINUS_RANK'];
 
 export function ArenaPage() {
   const navigate = useNavigate();
@@ -74,13 +74,13 @@ export function ArenaPage() {
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
             >
-              {rank.replace('_', ' ').toLowerCase()}
+              {rank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '').toLowerCase()}
             </button>
           ))}
         </div>
 
         {/* Trainers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
           {filteredTrainers.map((trainer) => (
             <div
               key={trainer.id}

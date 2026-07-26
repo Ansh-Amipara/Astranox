@@ -10,7 +10,6 @@ export class TrainerMapper {
       userId: entity.userId,
       astralCoins: entity.astralCoins,
       infinityCoins: entity.infinityCoins,
-      voidCoins: entity.voidCoins,
       storedXp: entity.storedXp || 0,
       rank: entity.rank,
       starterChosenAt: entity.starterChosenAt,

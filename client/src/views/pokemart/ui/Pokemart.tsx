@@ -17,7 +17,7 @@ export function Pokemart() {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [multiplier, setMultiplier] = useState<number>(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [storeType, setStoreType] = useState<'astral' | 'infinity' | 'void'>('astral');
+  const [storeType, setStoreType] = useState<'astral' | 'infinity'>('astral');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const { data: save } = useQuery({
@@ -73,8 +73,7 @@ export function Pokemart() {
 
   const storeItems = items?.filter(item => {
     if (storeType === 'infinity') return item.category === 'infinity-only';
-    if (storeType === 'void') return item.category === 'void-only';
-    return item.category !== 'infinity-only' && item.category !== 'void-only';
+    return item.category !== 'infinity-only';
   }) || [];
 
   const categories = ['all', ...Array.from(new Set(storeItems.map(i => i.category)))].sort();
@@ -85,8 +84,6 @@ export function Pokemart() {
     switch (storeType) {
       case 'infinity':
         return { name: 'Infinity Coins', amount: save?.infinityCoins || 0, icon: <img src="/infinity.png" alt="Infinity Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/infinity.png" alt="Infinity Coins" className="w-4 h-4 object-contain" /> };
-      case 'void':
-        return { name: 'Void Coins', amount: save?.voidCoins || 0, icon: <img src="/void.png" alt="Void Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/void.png" alt="Void Coins" className="w-4 h-4 object-contain" /> };
       case 'astral':
       default:
         return { name: 'Astral Coins', amount: save?.astralCoins || 0, icon: <img src="/astral.png" alt="Astral Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/astral.png" alt="Astral Coins" className="w-4 h-4 object-contain" /> };
@@ -141,12 +138,6 @@ export function Pokemart() {
                   className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'infinity' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                 >
                   Infinity
-                </button>
-                <button
-                  onClick={() => setStoreType('void')}
-                  className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'void' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                >
-                  Void
                 </button>
               </div>
 

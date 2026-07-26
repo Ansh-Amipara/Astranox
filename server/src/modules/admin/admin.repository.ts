@@ -29,7 +29,7 @@ export class AdminRepository {
     });
   }
 
-  async addMoney(userId: string, amount: number, currencyType: 'astralCoins' | 'infinityCoins' | 'voidCoins') {
+  async addMoney(userId: string, amount: number, currencyType: 'astralCoins' | 'infinityCoins') {
     return prisma.$transaction(async (tx) => {
       const save = await tx.trainerSave.findUnique({ where: { userId } });
       if (!save) throw new AppError('User has no save file.', 404);

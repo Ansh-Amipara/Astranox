@@ -56,16 +56,6 @@ export function Home() {
             </div>
 
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
-              <div className="w-10 h-10 shrink-0 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center p-1">
-                <img src="/void.png" alt="Void Coins" className="w-full h-full object-contain" />
-              </div>
-              <div className="truncate">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Void Coins</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200 truncate">{save.voidCoins?.toLocaleString() || 0}</p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
               <div className="w-10 h-10 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center p-1.5">
                 <img src="/xp.png" alt="Stored XP" className="w-full h-full object-contain" />
               </div>
@@ -81,7 +71,7 @@ export function Home() {
               </div>
               <div className="truncate">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Trainer Rank</p>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize truncate">{save.rank.replace('_', ' ')}</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 capitalize truncate">{save.rank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '')}</p>
               </div>
             </div>
 
