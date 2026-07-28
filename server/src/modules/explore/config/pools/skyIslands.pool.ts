@@ -1,0 +1,22 @@
+export const SKY_ISLANDS_POKEMON = [
+  "altaria",
+  "axew",
+  "fraxure",
+  "haxorus",
+  "druddigon",
+  "noibat",
+  "noivern",
+  "corviknight",
+  "corvisquire",
+  "rookidee",
+  "cramorant",
+  "tatsugiri-curly",
+  "cyclizar",
+  "bombirdier",
+  "flamigo",
+  "kommo-o-totem",
+  "cramorant-gorging",
+  "cramorant-gulping",
+  "tatsugiri-droopy",
+  "tatsugiri-stretchy"
+];

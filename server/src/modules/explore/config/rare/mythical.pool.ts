@@ -1,0 +1,21 @@
+export const MYTHICAL_POKEMON = [
+  "mew",
+  "celebi",
+  "jirachi",
+  "deoxys",
+  "manaphy",
+  "darkrai",
+  "shaymin",
+  "arceus",
+  "victini",
+  "keldeo",
+  "meloetta",
+  "genesect",
+  "diancie",
+  "hoopa",
+  "volcanion",
+  "magearna",
+  "marshadow",
+  "zeraora",
+  "meltan"
+];

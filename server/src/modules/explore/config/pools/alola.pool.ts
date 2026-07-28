@@ -1,0 +1,21 @@
+export const ALOLA_POKEMON = [
+  "raticate-alola",
+  "raticate-totem-alola",
+  "rattata-alola",
+  "diglett-alola",
+  "geodude-alola",
+  "grimer-alola",
+  "sandshrew-alola",
+  "ninetales-alola",
+  "vulpix-alola",
+  "exeggutor-alola",
+  "dugtrio-alola",
+  "marowak-alola",
+  "sandslash-alola",
+  "golem-alola",
+  "persian-alola",
+  "graveler-alola",
+  "meowth-alola",
+  "muk-alola",
+  "raichu-alola"
+];

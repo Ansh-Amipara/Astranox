@@ -18,6 +18,7 @@ import { inventoryRoutes } from './modules/inventory/inventory.routes';
 import pokedexRoutes from './modules/pokedex/pokedex.routes';
 import towerRoutes from './modules/tower/tower.routes';
 import { riftRoutes } from './modules/rift/rift.routes';
+import exploreRoutes from './modules/explore/explore.routes';
 import { errorHandler } from './common/middleware/error-handler';
 import { httpLogger } from './common/middleware/http-logger';
 import cookieParser from 'cookie-parser';
@@ -54,6 +55,7 @@ app.use('/pokedex', pokedexRoutes);
 app.use('/tower', towerRoutes);
 app.use('/rift', riftRoutes);
 app.use('/marketplace', marketplaceRoutes);
+app.use('/explore', exploreRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {

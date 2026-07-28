@@ -23,6 +23,8 @@ import { InfoPage } from '@/views/info/ui/InfoPage';
 import { ArenaPage } from '@/views/arena/ui/ArenaPage';
 import { InfinityTowerPage } from '@/views/infinity-tower/InfinityTowerPage';
 import { RiftPage } from '@/views/rift/ui/RiftPage';
+import { ExplorePage } from '@/views/explore/ui/ExplorePage';
+import { ExploreDetailPage } from '@/views/explore/ui/ExploreDetailPage';
 import { MarketplacePage } from '@/views/marketplace/ui/MarketplacePage';
 import { ListingDetailsPage } from '@/views/marketplace/ui/ListingDetailsPage';
 import { CreateListingPage } from '@/views/marketplace/ui/CreateListingPage';
@@ -90,6 +92,8 @@ export default function App() {
           <Route path="marketplace/:id" element={<ListingDetailsPage />} />
           <Route path="tower" element={<InfinityTowerPage />} />
           <Route path="rift" element={<RiftPage />} />
+          <Route path="explore" element={<ExplorePage />} />
+          <Route path="explore/:id" element={<ExploreDetailPage />} />
 
         </Route>
 

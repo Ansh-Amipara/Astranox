@@ -1,0 +1,79 @@
+import { TrainersRepository } from '../trainers/trainers.repository';
+import { BattlesRepository } from '../battles/repositories/battles.repository';
+import { ExploreRepository } from './explore.repository';
+import { PokemonGeneratorService } from './services/pokemon-generator.service';
+import { RewardGeneratorService } from './services/reward-generator.service';
+import { EncounterGeneratorService } from './services/encounter-generator.service';
+import { EXPLORE_OUTCOME_RATES } from './config/explore.config';
+import { ExploreLocation } from './config/coinRewards.config';
+import { NotFoundError, ValidationError } from '../../common/errors/AppError';
+import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
+import { toActivePokemon } from '../battles/services/battle-session.service';
+
+export class ExploreService {
+  private exploreRepo = new ExploreRepository();
+  private trainersRepo = new TrainersRepository();
+  private battlesRepo = new BattlesRepository();
+  
+  private pokemonGen = new PokemonGeneratorService();
+  private rewardGen = new RewardGeneratorService();
+  private encounterGen = new EncounterGeneratorService();
+
+  async explore(userId: string, location: ExploreLocation) {
+    const trainerSave = await this.trainersRepo.findByUserId(userId);
+    if (!trainerSave) {
+      throw new NotFoundError('Trainer save not found');
+    }
+
+    const activeBattle = await this.battlesRepo.getActiveBattleByTrainer(trainerSave.id);
+    if (activeBattle) {
+      throw new ValidationError('You cannot explore while in a battle.');
+    }
+
+    const roll = Math.random();
+
+    // 10% Nothing
+    if (roll < EXPLORE_OUTCOME_RATES.NOTHING) {
+      return { type: 'NOTHING', message: 'Nothing was found.' };
+    }
+
+    // 15% Coins (between 0.10 and 0.25)
+    if (roll < EXPLORE_OUTCOME_RATES.NOTHING + EXPLORE_OUTCOME_RATES.COINS) {
+      const coins = this.rewardGen.generateCoins(location);
+      await this.exploreRepo.addAstralCoins(trainerSave.id, coins);
+      return { 
+        type: 'COINS', 
+        message: `You found ${coins} Astral Coins.`,
+        amount: coins
+      };
+    }
+
+    // 75% Pokemon
+    if (trainerSave.party.length === 0) {
+      throw new ValidationError('You have no Pokemon to battle with!');
+    }
+
+    const { speciesName, level } = this.encounterGen.generateEncounter(location);
+    const wildActive = await this.pokemonGen.generateWildPokemon(speciesName, level, trainerSave.rank);
+
+    const lead = trainerSave.party[0];
+    const playerInstance = mapOwnedPokemonToInstance(lead as any);
+    const playerActive = toActivePokemon(playerInstance);
+    const playerPartyData = trainerSave.party.map((p: any) => toActivePokemon(mapOwnedPokemonToInstance(p)));
+
+    const session = await this.battlesRepo.createBattleSession({
+      trainerId: trainerSave.id,
+      playerActivePokemonId: playerActive.id,
+      opponentPokemonData: wildActive,
+      playerPokemonData: playerActive,
+      playerPartyData,
+      battleType: 'WILD'
+    });
+
+    return {
+      type: 'POKEMON',
+      encounter: wildActive,
+      battleSessionId: session.id
+    };
+  }
+}
