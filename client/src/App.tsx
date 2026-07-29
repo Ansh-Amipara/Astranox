@@ -2,40 +2,40 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 
 // Layouts and Guards
 import { Navbar } from '@/widgets/navbar/ui/Navbar';
-import { AuthGuard } from '@/features/auth/ui/AuthGuard';
-import { RequireStarterGuard } from '@/features/auth/ui/RequireStarterGuard';
-import { AdminGuard } from '@/features/auth/ui/AdminGuard';
+import { AuthGuard } from '@/modules/auth/components/AuthGuard';
+import { RequireStarterGuard } from '@/modules/auth/components/RequireStarterGuard';
+import { AdminGuard } from '@/modules/auth/components/AdminGuard';
 import { AdminLayout } from '@/widgets/admin-layout/ui/AdminLayout';
 
 // Views
-import { Home } from '@/views/home/ui/Home';
-import { Login } from '@/views/login/ui/Login';
-import { Register } from '@/views/register/ui/Register';
-import { AdminLogin } from '@/views/admin-login/ui/AdminLogin';
-import { AdminDashboard } from '@/views/admin-dashboard/ui/AdminDashboard';
-import { AdminEventManagement } from '@/views/admin-events/ui/AdminEventManagement';
-import { BattleScreen } from '@/views/battle/ui/BattleScreen';
-import { Bag } from '@/views/bag/ui/Bag';
-import { PokemonManagement } from '@/views/pokemon-management/ui/PokemonManagement';
-import { PokedexPage } from '@/views/pokedex/ui/PokedexPage';
-import { Profile } from '@/views/profile/ui/Profile';
-import { RankPage } from '@/views/rank/ui/RankPage';
-import { InfoPage } from '@/views/info/ui/InfoPage';
-import { ArenaPage } from '@/views/arena/ui/ArenaPage';
-import { InfinityTowerPage } from '@/views/infinity-tower/InfinityTowerPage';
-import { RiftPage } from '@/views/rift/ui/RiftPage';
-import { ExplorePage } from '@/views/explore/ui/ExplorePage';
-import { ExploreDetailPage } from '@/views/explore/ui/ExploreDetailPage';
-import { MarketplacePage } from '@/views/marketplace/ui/MarketplacePage';
-import { ListingDetailsPage } from '@/views/marketplace/ui/ListingDetailsPage';
-import { CreateListingPage } from '@/views/marketplace/ui/CreateListingPage';
+import { Home } from '@/modules/core/pages/home/ui/Home';
+import { Login } from '@/modules/auth/pages/login/ui/Login';
+import { Register } from '@/modules/auth/pages/register/ui/Register';
+import { AdminLogin } from '@/modules/auth/pages/admin-login/ui/AdminLogin';
+import { AdminDashboard } from '@/modules/admin/pages/admin-dashboard/ui/AdminDashboard';
+import { AdminEventManagement } from '@/modules/admin/pages/admin-events/ui/AdminEventManagement';
+import { BattleScreen } from '@/modules/battle/pages/battle/ui/BattleScreen';
+import { Bag } from '@/modules/inventory/pages/bag/ui/Bag';
+import { PokemonManagement } from '@/modules/pokemon/pages/pokemon-management/ui/PokemonManagement';
+import { PokedexPage } from '@/modules/pokedex/pages/pokedex/ui/PokedexPage';
+import { Profile } from '@/modules/profile/pages/profile/ui/Profile';
+import { RankPage } from '@/modules/social/pages/rank/ui/RankPage';
+import { InfoPage } from '@/modules/core/pages/info/ui/InfoPage';
+import { ArenaPage } from '@/modules/battle/pages/arena/ui/ArenaPage';
+import { InfinityTowerPage } from '@/modules/tower/pages/infinity-tower/InfinityTowerPage';
+import { RiftPage } from '@/modules/rift/pages/rift/ui/RiftPage';
+import { ExplorePage } from '@/modules/explore/pages/explore/ui/ExplorePage';
+import { ExploreDetailPage } from '@/modules/explore/pages/explore/ui/ExploreDetailPage';
+import { MarketplacePage } from '@/modules/marketplace/pages/marketplace/ui/MarketplacePage';
+import { ListingDetailsPage } from '@/modules/marketplace/pages/marketplace/ui/ListingDetailsPage';
+import { CreateListingPage } from '@/modules/marketplace/pages/marketplace/ui/CreateListingPage';
 
-import { Pokemart } from '@/views/pokemart/ui/Pokemart';
-import { TeamPage } from '@/views/team/ui/TeamPage';
-import { TradeScreen } from '@/views/trade/ui/TradeScreen';
-import { EventDashboard } from '@/views/events/ui/EventDashboard';
+import { Pokemart } from '@/modules/marketplace/pages/pokemart/ui/Pokemart';
+import { TeamPage } from '@/modules/pokemon/pages/team/ui/TeamPage';
+import { TradeScreen } from '@/modules/marketplace/pages/trade/ui/TradeScreen';
+import { EventDashboard } from '@/modules/events/pages/events/ui/EventDashboard';
 
-import { NotFound } from '@/views/not-found/ui/NotFound';
+import { NotFound } from '@/modules/core/pages/not-found/ui/NotFound';
 
 function GameLayout() {
   return (

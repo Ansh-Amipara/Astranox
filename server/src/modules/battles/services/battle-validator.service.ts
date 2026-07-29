@@ -1,4 +1,4 @@
-import { ValidationError } from '../../../common/errors/AppError';
+import { ValidationError } from '../../../core/errors/AppError';
 import { ActivePokemon, BattleAction } from '../../../game/battle-state/types';
 
 export class BattleValidatorService {

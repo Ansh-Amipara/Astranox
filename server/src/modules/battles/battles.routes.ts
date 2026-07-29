@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { BattlesController } from './battles.controller';
-import { requireAuth } from '../../common/middleware/require-auth';
-import { battleActionLimiter } from '../../common/middleware/rate-limiter';
-import { validate } from '../../common/middleware/validate';
+import { requireAuth } from '../../core/middleware/require-auth';
+import { battleActionLimiter } from '../../core/middleware/rate-limiter';
+import { validate } from '../../core/middleware/validate';
 import { engageCustomSchema, submitTurnSchema } from './battles.schema';
 
 export const battlesRoutes = Router();

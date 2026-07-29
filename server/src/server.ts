@@ -19,8 +19,8 @@ import pokedexRoutes from './modules/pokedex/pokedex.routes';
 import towerRoutes from './modules/tower/tower.routes';
 import { riftRoutes } from './modules/rift/rift.routes';
 import exploreRoutes from './modules/explore/explore.routes';
-import { errorHandler } from './common/middleware/error-handler';
-import { httpLogger } from './common/middleware/http-logger';
+import { errorHandler } from './core/middleware/error-handler';
+import { httpLogger } from './core/middleware/http-logger';
 import cookieParser from 'cookie-parser';
 import { logger } from './config/logger';
 

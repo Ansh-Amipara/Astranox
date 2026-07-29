@@ -6,7 +6,7 @@ import { RewardGeneratorService } from './services/reward-generator.service';
 import { EncounterGeneratorService } from './services/encounter-generator.service';
 import { EXPLORE_OUTCOME_RATES } from './config/explore.config';
 import { ExploreLocation } from './config/coinRewards.config';
-import { NotFoundError, ValidationError } from '../../common/errors/AppError';
+import { NotFoundError, ValidationError } from '../../core/errors/AppError';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { toActivePokemon } from '../battles/services/battle-session.service';
 

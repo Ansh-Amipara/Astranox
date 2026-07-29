@@ -1,5 +1,5 @@
 import { PrismaClient, TradeStatus } from '@prisma/client';
-import { NotFoundError, ValidationError, ForbiddenError } from '../../common/errors/AppError';
+import { NotFoundError, ValidationError, ForbiddenError } from '../../core/errors/AppError';
 import { TradeMapper } from './dto/mapper';
 import { TrainerMapper } from '../trainers/dto/mapper';
 import type { TradeRequestDto } from './dto/response/TradeRequestDto';

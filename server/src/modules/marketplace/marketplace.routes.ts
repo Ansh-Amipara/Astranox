@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { MarketplaceController } from './marketplace.controller';
-import { requireAuth } from '../../common/middleware/require-auth';
-import { gameplayLimiter } from '../../common/middleware/rate-limiter';
+import { requireAuth } from '../../core/middleware/require-auth';
+import { gameplayLimiter } from '../../core/middleware/rate-limiter';
 
 export const marketplaceRoutes = Router();
 const controller = new MarketplaceController();

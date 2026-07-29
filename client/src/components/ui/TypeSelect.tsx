@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTypeSpriteUrl } from '../../shared/api/axios';
+import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { Dropdown, DropdownOption } from './Dropdown';
 
 interface TypeSelectProps {

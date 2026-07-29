@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore } from '../store/auth.store';
+import { useAuthStore } from '@/modules/auth/store/auth.store';
 import { logRequest, logResponse, logErrorAndToast } from './logger';
 
 declare module 'axios' {

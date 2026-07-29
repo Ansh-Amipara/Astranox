@@ -1,5 +1,5 @@
 import { PrismaClient, TrainerSave, PokemonPotential } from '@prisma/client';
-import { ValidationError } from '../../common/errors/AppError';
+import { ValidationError } from '../../core/errors/AppError';
 
 const prisma = new PrismaClient();
 

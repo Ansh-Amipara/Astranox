@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../../../shared/api/api';
-import { useAuthStore } from '../../../shared/store/auth.store';
+import { api } from '@/shared/api/api';
+import { useAuthStore } from '@/modules/auth/store/auth.store';
 
 import { User as UserIcon, LogOut } from 'lucide-react';
 

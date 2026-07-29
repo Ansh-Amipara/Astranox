@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../../common/middleware/require-auth';
+import { requireAuth } from '../../core/middleware/require-auth';
 import { getTowerState, startFloor, startBattle, completeBattle, skipFloors } from './tower.controller';
 
 const router = Router();

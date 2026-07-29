@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { getSpriteUrl } from '../../../shared/api/api';
+import { getSpriteUrl } from '@/shared/api/api';
 
 interface Props {
   speciesId: number;

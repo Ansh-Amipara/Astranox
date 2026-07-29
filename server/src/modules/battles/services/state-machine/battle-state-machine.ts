@@ -3,7 +3,7 @@ import { IBattleState, StateMachineServices } from './battle-state.interface';
 import { ActiveState } from './states/active.state';
 import { WaitingSwitchState } from './states/waiting-switch.state';
 import { WaitingMoveLearnState } from './states/waiting-move-learn.state';
-import { ValidationError } from '../../../../common/errors/AppError';
+import { ValidationError } from '../../../../core/errors/AppError';
 
 export class BattleStateMachine {
   private states: Record<string, IBattleState>;

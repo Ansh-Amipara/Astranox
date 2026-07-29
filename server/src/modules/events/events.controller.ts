@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { EventsService } from './events.service';
-import { AuthRequest } from '../../common/middleware/require-auth';
 
+interface AuthRequest extends Request {
+  user: { id: string; role: 'USER' | 'ADMIN'; username: string; email: string };
+}
 export class EventsController {
   private service = new EventsService();
 

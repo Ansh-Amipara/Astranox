@@ -1,5 +1,5 @@
 import { TrainersRepository } from './trainers.repository';
-import { ValidationError, NotFoundError } from '../../common/errors/AppError';
+import { ValidationError, NotFoundError } from '../../core/errors/AppError';
 import { TrainerMapper } from './dto/mapper';
 import type { TrainerSaveDto } from './dto/response/TrainerSaveDto';
 import type { OwnedPokemonDto } from './dto/response/OwnedPokemonDto';

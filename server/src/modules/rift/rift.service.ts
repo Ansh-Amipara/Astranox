@@ -1,6 +1,6 @@
 import { RiftRepository } from './rift.repository';
 import { TrainerRank, RiftDifficulty, PrismaClient } from '@prisma/client';
-import { AppError, NotFoundError, ValidationError } from '../../common/errors/AppError';
+import { AppError, NotFoundError, ValidationError } from '../../core/errors/AppError';
 import { 
   RIFT_DIFFICULTY_MULTIPLIERS, RIFT_MAX_FLOORS, RIFT_BASE_INFINITY_COINS, 
   RIFT_POKEMON_POOLS, RANK_TO_TIER_MAPPING, RIFT_LEVEL_RANGES, getRiftRankWeight, RIFT_REWARD_MULTIPLIERS 

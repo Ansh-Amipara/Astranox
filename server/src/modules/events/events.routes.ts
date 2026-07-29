@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { EventsController } from './events.controller';
-import { requireAuth } from '../../common/middleware/require-auth';
+import { requireAuth } from '../../core/middleware/require-auth';
 
 const eventsRoutes = Router();
 const controller = new EventsController();

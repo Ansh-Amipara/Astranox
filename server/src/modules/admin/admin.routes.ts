@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { AdminController } from './admin.controller';
 import { AdminEventsController } from './admin-events.controller';
-import { requireAuth, requireAdmin } from '../../common/middleware/require-auth';
-import { validate } from '../../common/middleware/validate';
+import { requireAuth, requireAdmin } from '../../core/middleware/require-auth';
+import { validate } from '../../core/middleware/validate';
 import { addMoneySchema, addPokemonSchema, editPokemonSchema } from './admin.schema';
 
 const router = Router();

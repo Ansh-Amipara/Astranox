@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { Navbar } from './Navbar';
 import { describe, it, expect, vi } from 'vitest';
-import { useAuthStore } from '../../../shared/store/auth.store';
+import { useAuthStore } from '@/modules/auth/store/auth.store';
 
 // Mock the auth store to simulate a logged-in state
-vi.mock('../../../shared/store/auth.store', () => ({
+vi.mock('@/modules/auth/store/auth.store', () => ({
   useAuthStore: vi.fn(),
 }));
 

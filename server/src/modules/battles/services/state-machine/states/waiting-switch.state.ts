@@ -1,6 +1,6 @@
 import { Prisma, BattleSession, TrainerSave, BattleStatus } from '@prisma/client';
 import { IBattleState, StateMachineServices } from '../battle-state.interface';
-import { ValidationError } from '../../../../../common/errors/AppError';
+import { ValidationError } from '../../../../../core/errors/AppError';
 
 export class WaitingSwitchState implements IBattleState {
   async handleAction(

@@ -1,6 +1,6 @@
 import { EventsRepository } from './events.repository';
 import { EventTaskType, PrismaClient } from '@prisma/client';
-import { AppError, NotFoundError, ValidationError } from '../../common/errors/AppError';
+import { AppError, NotFoundError, ValidationError } from '../../core/errors/AppError';
 import { createPokemonInstance } from '../../game/instance/PokemonInstance';
 import { PokemonInstancePayload } from '../../game/instance/types';
 
@@ -109,9 +109,8 @@ export class EventsService {
             speed: Math.floor(Math.random() * 32)
           },
       species: speciesContext,
-      moves,
-      nature: rewardConfig.nature
-    };
+      moves
+    } as any;
 
     const instance = createPokemonInstance(payload);
 
@@ -148,7 +147,7 @@ export class EventsService {
           trainerId: save.id,
           speciesId: species.id,
           level: instance.level,
-          potential: instance.potential,
+          potential: instance.potential as any,
           isParty: false,
           boxNumber,
           position,

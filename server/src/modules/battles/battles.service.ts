@@ -7,7 +7,7 @@ import { BattleEventService } from './services/battle-event.service';
 import { BattleLogService } from './services/battle-log.service';
 import { BattleStateMachine } from './services/state-machine/battle-state-machine';
 import { StateMachineServices } from './services/state-machine/battle-state.interface';
-import { NotFoundError } from '../../common/errors/AppError';
+import { NotFoundError } from '../../core/errors/AppError';
 import { Prisma } from '@prisma/client';
 import { BattleMapper } from './dto/mapper';
 import type { StartCustomEncounterDto } from './dto/request/StartCustomEncounterDto';

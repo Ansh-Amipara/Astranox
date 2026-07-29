@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { pokedexService } from './pokedex.service';
-import { NotFoundError } from '../../common/errors/AppError';
+import { NotFoundError } from '../../core/errors/AppError';
 
 export class PokedexController {
   async getAllSpecies(req: Request, res: Response, next: NextFunction) {

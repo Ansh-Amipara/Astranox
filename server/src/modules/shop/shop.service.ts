@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { AppError } from '../../common/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
 import { ShopMapper } from './dto/mapper';
 import { TrainerMapper } from '../trainers/dto/mapper';
 import type { ShopItemDto } from './dto/response/ShopItemDto';

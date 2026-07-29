@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ExploreService } from './explore.service';
 import { ExploreLocation } from './config/coinRewards.config';
-import { ValidationError } from '../../common/errors/AppError';
+import { ValidationError } from '../../core/errors/AppError';
 
 export class ExploreController {
   private service = new ExploreService();

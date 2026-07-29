@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TradesController } from './trades.controller';
-import { requireAuth } from '../../common/middleware/require-auth';
-import { validate } from '../../common/middleware/validate';
+import { requireAuth } from '../../core/middleware/require-auth';
+import { validate } from '../../core/middleware/validate';
 import { requestTradeSchema } from './trades.schema';
 const router = Router();
 const controller = new TradesController();

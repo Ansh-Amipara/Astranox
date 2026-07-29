@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { BattleStateMachine } from '../battle-state-machine';
 import { BattleStatus } from '@prisma/client';
-import { ValidationError } from '../../../../../common/errors/AppError';
+import { ValidationError } from '../../../../../core/errors/AppError';
 
 describe('BattleStateMachine', () => {
   it('should initialize with predefined states', () => {

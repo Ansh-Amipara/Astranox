@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BattleValidatorService } from '../battle-validator.service';
-import { ValidationError } from '../../../../common/errors/AppError';
+import { ValidationError } from '../../../../core/errors/AppError';
 
 describe('BattleValidatorService', () => {
   const validator = new BattleValidatorService();

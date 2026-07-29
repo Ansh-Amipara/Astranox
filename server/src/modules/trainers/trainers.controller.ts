@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { TrainersService } from './trainers.service';
-import { ValidationError } from '../../common/errors/AppError';
+import { ValidationError } from '../../core/errors/AppError';
 import type { PickStarterDto } from './dto/request/PickStarterDto';
 import type { SwapSlotsDto } from './dto/request/SwapSlotsDto';
 import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';

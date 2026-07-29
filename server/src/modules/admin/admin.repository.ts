@@ -1,5 +1,5 @@
 import { PrismaClient, PokemonPotential } from '@prisma/client';
-import { AppError } from '../../common/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 import { getXpForLevel } from '../../game/battle/level-math';
 

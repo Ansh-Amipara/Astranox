@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { rankService } from './rank.service';
-import { AppError } from '../../common/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
 import { BattlesService } from '../battles/battles.service';
 import { PrismaClient } from '@prisma/client';
 

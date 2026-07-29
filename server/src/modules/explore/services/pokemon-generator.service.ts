@@ -8,7 +8,7 @@ import {
 } from '../config/potentialBracket.config';
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { toActivePokemon } from '../../battles/services/battle-session.service';
-import { NotFoundError } from '../../../common/errors/AppError';
+import { NotFoundError } from '../../../core/errors/AppError';
 
 const prisma = new PrismaClient();
 

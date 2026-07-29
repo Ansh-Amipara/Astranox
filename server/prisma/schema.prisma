@@ -77,8 +77,6 @@ model TrainerSave {
   storedXp        Int       @default(0)
   rank            TrainerRank @default(NO_RANK)
 
-  badges String[] // e.g. ["Boulder Badge", "Cascade Badge"]
-
   party        OwnedPokemon[]
   inventory    InventoryItem[]
   battles      BattleSession[]
@@ -304,21 +302,6 @@ model BattleSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-enum TrainerType {
-  NORMAL
-  RIVAL
-  BOSS
-  LEGENDARY
-  HUNTER
-  CHAMPION
-  ELDER
-  GUARDIAN
-  CADRE
-  OPERATIVE
-}
-
-
 
 model AuditLog {
   id String @id @default(auto()) @map("_id") @db.ObjectId

@@ -1,6 +1,6 @@
 import { Prisma, BattleSession, TrainerSave, BattleStatus } from '@prisma/client';
 import { IBattleState, StateMachineServices } from '../battle-state.interface';
-import { ValidationError } from '../../../../../common/errors/AppError';
+import { ValidationError } from '../../../../../core/errors/AppError';
 import { BattleAction } from '../../../../../game/battle-state/types';
 import { getBallBonus } from '../../../../../game/battle/catch-math';
 import { EventsService } from '../../../../events/events.service';

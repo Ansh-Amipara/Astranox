@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service';
 import { registerSchema, loginSchema } from '@astranox/shared';
-import { ValidationError, UnauthorizedError } from '../../common/errors/AppError';
+import { ValidationError, UnauthorizedError } from '../../core/errors/AppError';
 
 export class AuthController {
   private service: AuthService;

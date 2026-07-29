@@ -4,8 +4,8 @@ import type { LoginDto } from './dto/request/LoginDto';
 import type { RegisterDto } from './dto/request/RegisterDto';
 import type { AuthResultDto } from './dto/response/LoginResponseDto';
 import { AuthMapper } from './dto/mapper';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../common/utils/jwt';
-import { ValidationError, UnauthorizedError } from '../../common/errors/AppError';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../core/utils/jwt';
+import { ValidationError, UnauthorizedError } from '../../core/errors/AppError';
 
 export class AuthService {
   private repo: AuthRepository;

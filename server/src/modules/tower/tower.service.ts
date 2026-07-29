@@ -4,7 +4,7 @@ import { generateTowerConfig, estimateTowerFloorCP } from '../../game/tower/gene
 import { createPokemonInstance, getMinPotentialForLevel } from '../../game/instance/PokemonInstance';
 import { calculatePokemonCP } from '../../game/instance/cp';
 import { PokemonInstancePayload } from '../../game/instance/types';
-import { AppError } from '../../common/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
 import { PrismaClient, BattleStatus, BattleType, Prisma } from '@prisma/client';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { EventsService } from '../events/events.service';

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { useAuthStore } from '../../../shared/store/auth.store';
+import { useAuthStore } from '@/modules/auth/store/auth.store';
 import { LogOut } from 'lucide-react';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

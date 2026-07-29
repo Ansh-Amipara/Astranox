@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TrainersController } from './trainers.controller';
-import { requireAuth } from '../../common/middleware/require-auth';
-import { gameplayLimiter } from '../../common/middleware/rate-limiter';
+import { requireAuth } from '../../core/middleware/require-auth';
+import { gameplayLimiter } from '../../core/middleware/rate-limiter';
 
 export const trainersRoutes = Router();
 const controller = new TrainersController();

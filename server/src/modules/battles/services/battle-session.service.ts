@@ -1,7 +1,7 @@
 import { TrainersRepository } from '../../trainers/trainers.repository';
 import { ARENA_TRAINERS } from '../../../game/constants/arena-trainers';
 import { BattlesRepository } from '../repositories/battles.repository';
-import { NotFoundError, ValidationError } from '../../../common/errors/AppError';
+import { NotFoundError, ValidationError } from '../../../core/errors/AppError';
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { mapOwnedPokemonToInstance } from '../../trainers/owned-pokemon.mapper';
 import { ActivePokemon } from '../../../game/battle-state/types';

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { BattlesService } from './battles.service';
-import { ValidationError } from '../../common/errors/AppError';
+import { ValidationError } from '../../core/errors/AppError';
 import type { EngageCustomDto } from './dto/request/EngageCustomDto';
 import type { SubmitTurnDto } from './dto/request/SubmitTurnDto';
 

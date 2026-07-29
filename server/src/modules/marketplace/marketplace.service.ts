@@ -1,5 +1,5 @@
 import { MarketplaceRepository } from './marketplace.repository';
-import { AppError } from '../../common/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();

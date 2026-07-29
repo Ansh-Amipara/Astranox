@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { RiftController } from './rift.controller';
-import { requireAuth } from '../../common/middleware/require-auth';
+import { requireAuth } from '../../core/middleware/require-auth';
 
 export const riftRoutes = Router();
 const controller = new RiftController();
