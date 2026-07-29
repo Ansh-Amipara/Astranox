@@ -1,10 +1,10 @@
 import { PrismaClient, TrainerRank } from '@prisma/client';
 import crypto from 'crypto';
-import { 
-  BRACKET_ORDER, 
-  BRACKET_OFFSET, 
-  TRAINER_RANK_TO_BRACKET, 
-  BRACKET_POTENTIALS 
+import {
+  BRACKET_ORDER,
+  BRACKET_OFFSET,
+  TRAINER_RANK_TO_BRACKET,
+  BRACKET_POTENTIALS
 } from '../config/potentialBracket.config';
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { toActivePokemon } from '../../battles/services/battle-session.service';
@@ -38,10 +38,26 @@ export class PokemonGeneratorService {
     const userBracket = TRAINER_RANK_TO_BRACKET[playerRank];
     const userBracketIdx = BRACKET_ORDER.indexOf(userBracket);
     const minBracketIdx = Math.max(0, userBracketIdx - BRACKET_OFFSET);
-    
+
     const availableBrackets = BRACKET_ORDER.slice(minBracketIdx, userBracketIdx + 1);
-    const selectedBracket = availableBrackets[Math.floor(Math.random() * availableBrackets.length)];
-    
+
+    // Dynamic Weighted Probabilities for up to 5 stages (Lowest to Highest)
+    // 40%, 30%, 20%, 8%, 2%
+    const baseWeights = [40, 30, 20, 8, 2];
+    const currentWeights = baseWeights.slice(0, availableBrackets.length);
+    const totalWeight = currentWeights.reduce((a, b) => a + b, 0);
+
+    let randomVal = Math.random() * totalWeight;
+    let selectedBracket = availableBrackets[0];
+
+    for (let i = 0; i < availableBrackets.length; i++) {
+      if (randomVal < currentWeights[i]) {
+        selectedBracket = availableBrackets[i];
+        break;
+      }
+      randomVal -= currentWeights[i];
+    }
+
     const potentials = BRACKET_POTENTIALS[selectedBracket];
     const potential = potentials[Math.floor(Math.random() * potentials.length)];
 
@@ -49,7 +65,7 @@ export class PokemonGeneratorService {
 
     const types = [species.type1.name];
     if (species.type2) types.push(species.type2.name);
-    
+
     const wildInstance = createPokemonInstance({
       id: crypto.randomUUID(),
       nickname: species.name,

@@ -47,9 +47,9 @@ A Pokémon's **Potential** (or Rank) dictates the absolute maximum level it can 
 
 # Battle & Capture Rules
 
-* **Astral Realms:** Pokémon encountered within an Astral Realm **are capturable**.
-* **Standard Fights:** Pokémon encountered in normal Wild or NPC fights **are NOT capturable**.
-* **Level Generation:** The level range of Pokémon in any fight spans from **Lv. 1 to Lv. 5000**, depending on your current progress and the tier of the realm or region.
+* **Explore:** Pokémon encountered within the Explore system **are capturable**.
+* **Standard Fights:** Pokémon encountered in normal NPC fights or other special dungeons **are NOT capturable**.
+* **Level Generation:** The level range of Pokémon in any fight spans from **Lv. 1 to Lv. 5000**, depending on your current progress and the tier of the region.
 
 ---
 
@@ -244,6 +244,35 @@ Pokémon:
 
 # Core Facilities & Features
 
+## Explore
+The **Explore** system allows players to venture into different wild biomes and regions to discover Pokémon and Astral Coins. Each location contains an exhaustive pool of native Pokémon, dynamically balanced by the player's Trainer Rank (determining Potential ranges).
+
+- **Outcomes:** 75% chance for a Wild Pokémon encounter, 15% chance for Astral Coins, 10% chance to find Nothing.
+- **Biomes:** Plains, Forest, Mountain, Ocean, Swamp, Desert, Fairy Garden, Frozen Peaks, Volcano, Haunted Ruins, Crystal Cave, Ancient Temple, Sky Islands.
+- **Regions:** Alola Region, Hisui Region, Galar Region, Paldea Region.
+- **Dynamic Potential Scaling (5-Stage System):** The potential of encountered wild Pokémon dynamically scales to the player's Trainer Rank using a 5-stage window. These encounters are realistically weighted: you have a **40% chance** to find the lowest potential in your window, scaling down to just a **2% chance** for your maximum potential!
+
+| Trainer Rank | Encounter Potential Pool |
+|---|---|
+| **F Rank** | F |
+| **E Rank** | F, E |
+| **D Rank** | F, E, D |
+| **C Rank** | F, E, D, C |
+| **B Rank** | F, E, D, C, B |
+| **A Rank** | E, D, C, B, A |
+| **S Ranks (S-, S, S+)** | D, C, B, A, S |
+| **SS Ranks (SS-, SS, SS+)** | C, B, A, S, SS |
+| **SSS Ranks (SSS-, SSS, SSS+)** | B, A, S, SS, SSS |
+
+### Explore Rare Encounters
+Rare encounters bypass the standard biome pools and can trigger dynamically across any location based on the following cumulative probabilities:
+- **Pseudo Legendary:** 0.30%
+- **Ultra Beast:** 0.08%
+- **Paradox:** 0.07%
+- **Mythical:** 0.03%
+- **Legendary:** 0.019%
+- **Super Legendary:** 0.001%
+
 ## Smelt Pokémon (Astral Furnace)
 The **Astral Furnace** allows players to permanently destroy ("Smelt") unwanted Pokémon in exchange for Stored XP and Potential Pearls. This completely replaces the traditional "Release Pokémon" functionality. 
 - Smelted Pokémon are permanently deleted from the player's collection.
@@ -334,3 +363,1719 @@ Dynamic, time-limited anomalies that tear through the fabric of the Astranox uni
 | **SSS+** | 3 | Lv 4104 | 100,000 | 150,000 | 250,000 | 400,000 |
 | **SSS+** | 4 | Lv 4302 | 125,000 | 187,500 | 312,500 | 500,000 |
 | **SSS+** | 5 | Lv 4500 | 150,000 | 225,000 | 375,000 | 600,000 |
+
+
+# Elite Infinite Tower
+
+**Elite Infinite Tower** is an excellent endgame feature for **Astranox**. It gives max-level players a reason to keep improving their teams without affecting the main story.
+
+## Lore
+
+After the collision between the **Inner World** and the **Outer World**, a colossal tower emerged at the center of Lunaris. The tower is a fracture in reality where countless dimensions overlap.
+
+The deeper you climb, the more unstable reality becomes. Every floor is generated differently, making no two runs the same.
+
+---
+
+## Entry Requirements
+
+* Trainer Rank: **Diamond+** (or Legendary if you want it to be true endgame)
+* At least **6 Pokémon**
+* Daily attempts: **Unlimited** (or 3 per day if you want progression pacing)
+
+---
+
+Rewards: Players only earn Stored XP and Infinity Coins.
+Skip Feature: You can skip combat if the Tower floor's Combat Power is less than 10% of your team's.
+
+### Why this fits Astranox
+
+This complements your existing systems well:
+
+* **Explore System** focuses on venturing into wild biomes and capturing Pokémon.
+* **Rift Dungeons** provide handcrafted co-op or PvE challenges with Corrupted Pokémon that cannot be captured.
+* **Elite Infinite Tower** becomes the ultimate solo endgame, testing team building, resource management, and strategic adaptation rather than simply increasing Pokémon levels. It creates long-term replayability without interfering with the story progression.
+
+
+# Astranox NPC Registry
+
+> Official Master Registry of all NPCs across the 12 Regions of Astranox.
+
+---
+
+## Universal NPC Data Template
+
+Every NPC entry follows this strict template:
+
+```yaml
+Name: <string>           # Unique NPC Name
+Title: <string>          # Optional Honorific / Title
+Rank: <string>           # Competitive Rank & Level
+Identity: <string>       # Faction Identity & Lore Role
+Location:
+  World: <string>        # astranox / void / Optional
+  Continent: <string>    # Solaris / Lunaria / Aetheria / Nerevia / Optional
+  Region: <string>       # Region Name / Optional
+Reward:
+  Coins: <number>        # Astral Coins
+  XP: <number>           # Experience Points
+  Items: [<string>]      # Reward Items / Optional
+Pokémon:
+  Ace: <string>          # Primary Ace Pokémon
+  Team: [<string>]       # Full 6-Pokémon Roster
+```
+
+---
+
+## Rank Examiners Registry
+
+### F Rank Examiner
+```yaml
+Name: F Rank Examiner
+Title: null
+Rank: F (Level 1)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 300
+  XP: 1000
+  Items: ["Bronze Pearl"]
+Pokémon:
+  Ace: Luxio
+  Team: ["Pidgeotto", "Luxio"]
+```
+
+### E Rank Examiner
+```yaml
+Name: E Rank Examiner
+Title: null
+Rank: E (Level 61)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 1000
+  XP: 5000
+  Items: ["Silver Pearl", "Gold Pearl"]
+Pokémon:
+  Ace: Magmortar
+  Team: ["Pidgeot", "Luxray", "Magmortar"]
+```
+
+### D Rank Examiner
+```yaml
+Name: D Rank Examiner
+Title: null
+Rank: D (Level 121)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 3000
+  XP: 15000
+  Items: ["Platinum Pearl", "Adamantite Pearl"]
+Pokémon:
+  Ace: Charizard
+  Team: ["Charizard", "Blastoise", "Venusaur", "Sceptile"]
+```
+
+### C Rank Examiner
+```yaml
+Name: C Rank Examiner
+Title: null
+Rank: C (Level 201)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 10000
+  XP: 45000
+  Items: ["Diamond Pearl"]
+Pokémon:
+  Ace: Garchomp
+  Team: ["Dragonite", "Tyranitar", "Salamence", "Metagross", "Garchomp"]
+```
+
+### B Rank Examiner
+```yaml
+Name: B Rank Examiner
+Title: null
+Rank: B (Level 301)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 25000
+  XP: 120000
+  Items: ["Crystal Pearl"]
+Pokémon:
+  Ace: Kartana
+  Team: ["Nihilego", "Buzzwole", "Pheromosa", "Xurkitree", "Celesteela", "Kartana"]
+```
+
+### A Rank Examiner
+```yaml
+Name: A Rank Examiner
+Title: null
+Rank: A (Level 401)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 60000
+  XP: 300000
+  Items: ["Epic Pearl"]
+Pokémon:
+  Ace: Iron Valiant
+  Team: ["Great Tusk", "Roaring Moon", "Iron Valiant", "Iron Thorns", "Iron Bundle", "Flutter Mane"]
+```
+
+### S- Rank Examiner
+```yaml
+Name: S- Rank Examiner
+Title: null
+Rank: S- (Level 501)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 150000
+  XP: 750000
+  Items: null
+Pokémon:
+  Ace: Zapdos
+  Team: ["Articuno", "Zapdos", "Moltres", "Raikou", "Entei", "Suicune"]
+```
+
+### S Rank Examiner
+```yaml
+Name: S Rank Examiner
+Title: null
+Rank: S (Level 701)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 400000
+  XP: 1800000
+  Items: null
+Pokémon:
+  Ace: Regieleki
+  Team: ["Latios", "Latias", "Heatran", "Cresselia", "Regieleki", "Regidrago"]
+```
+
+### S+ Rank Examiner
+```yaml
+Name: S+ Rank Examiner
+Title: null
+Rank: S+ (Level 901)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 1000000
+  XP: 4000000
+  Items: null
+Pokémon:
+  Ace: Ogerpon
+  Team: ["Tapu Koko", "Tapu Lele", "Tapu Bulu", "Tapu Fini", "Ogerpon", "Urshifu"]
+```
+
+### SS- Rank Examiner
+```yaml
+Name: SS- Rank Examiner
+Title: null
+Rank: SS- (Level 1101)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 2500000
+  XP: 10000000
+  Items: null
+Pokémon:
+  Ace: Deoxys
+  Team: ["Deoxys", "Darkrai", "Genesect", "Keldeo", "Diancie", "Volcanion"]
+```
+
+### SS Rank Examiner
+```yaml
+Name: SS Rank Examiner
+Title: null
+Rank: SS (Level 1401)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 6000000
+  XP: 25000000
+  Items: null
+Pokémon:
+  Ace: Marshadow
+  Team: ["Marshadow", "Zeraora", "Victini", "Melmetal", "Zarude", "Mew"]
+```
+
+### SS+ Rank Examiner
+```yaml
+Name: SS+ Rank Examiner
+Title: null
+Rank: SS+ (Level 1701)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 15000000
+  XP: 60000000
+  Items: null
+Pokémon:
+  Ace: Deoxys
+  Team: ["Deoxys", "Darkrai", "Marshadow", "Zeraora", "Melmetal", "Genesect"]
+```
+
+### SSS- Rank Examiner
+```yaml
+Name: SSS- Rank Examiner
+Title: null
+Rank: SSS- (Level 2001)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 40000000
+  XP: 150000000
+  Items: null
+Pokémon:
+  Ace: Giratina
+  Team: ["Groudon", "Kyogre", "Dialga", "Palkia", "Giratina", "Reshiram"]
+```
+
+### SSS Rank Examiner
+```yaml
+Name: SSS Rank Examiner
+Title: null
+Rank: SSS (Level 3001)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 100000000
+  XP: 300000000
+  Items: null
+Pokémon:
+  Ace: Koraidon
+  Team: ["Zekrom", "Solgaleo", "Lunala", "Koraidon", "Miraidon", "Calyrex"]
+```
+
+### SSS+ Rank Examiner
+```yaml
+Name: SSS+ Rank Examiner
+Title: null
+Rank: SSS+ (Level 4001)
+Identity: Official Astranox Rank Evaluator
+Location:
+  World: null
+  Continent: null
+  Region: null
+Reward:
+  Coins: 250000000
+  XP: 600000000
+  Items: null
+Pokémon:
+  Ace: Zacian
+  Team: ["Xerneas", "Yveltal", "Lugia", "Ho-Oh", "Zacian", "Zamazenta"]
+```
+
+---
+
+
+# Pokémon 3D (HOME) Sprite Coverage
+
+## Summary
+- **Total Pokémon (including forms):** 1351
+- **3D Sprites Present:** 1335
+- **3D Sprites Missing (Fell back to Pixel/Artwork):** 16
+- **Coverage:** 98.82%
+
+## Missing 3D Sprites
+- [ ] pikachu-rock-star (ID: 10080)
+- [ ] pikachu-belle (ID: 10081)
+- [ ] pikachu-pop-star (ID: 10082)
+- [ ] pikachu-phd (ID: 10083)
+- [ ] pikachu-libre (ID: 10084)
+- [ ] pikachu-cosplay (ID: 10085)
+- [ ] pikachu-starter (ID: 10158)
+- [ ] eevee-starter (ID: 10159)
+- [ ] koraidon-limited-build (ID: 10264)
+- [ ] koraidon-sprinting-build (ID: 10265)
+- [ ] koraidon-swimming-build (ID: 10266)
+- [ ] koraidon-gliding-build (ID: 10267)
+- [ ] miraidon-low-power-mode (ID: 10268)
+- [ ] miraidon-drive-mode (ID: 10269)
+- [ ] miraidon-aquatic-mode (ID: 10270)
+- [ ] miraidon-glide-mode (ID: 10271)
+
+## Present 3D Sprites
+- [x] bulbasaur (ID: 1)
+- [x] ivysaur (ID: 2)
+- [x] venusaur (ID: 3)
+- [x] charmander (ID: 4)
+- [x] charmeleon (ID: 5)
+- [x] charizard (ID: 6)
+- [x] squirtle (ID: 7)
+- [x] wartortle (ID: 8)
+- [x] blastoise (ID: 9)
+- [x] caterpie (ID: 10)
+- [x] metapod (ID: 11)
+- [x] butterfree (ID: 12)
+- [x] weedle (ID: 13)
+- [x] kakuna (ID: 14)
+- [x] beedrill (ID: 15)
+- [x] pidgey (ID: 16)
+- [x] pidgeotto (ID: 17)
+- [x] pidgeot (ID: 18)
+- [x] rattata (ID: 19)
+- [x] raticate (ID: 20)
+- [x] spearow (ID: 21)
+- [x] fearow (ID: 22)
+- [x] ekans (ID: 23)
+- [x] arbok (ID: 24)
+- [x] pikachu (ID: 25)
+- [x] raichu (ID: 26)
+- [x] sandshrew (ID: 27)
+- [x] sandslash (ID: 28)
+- [x] nidoran-f (ID: 29)
+- [x] nidorina (ID: 30)
+- [x] nidoqueen (ID: 31)
+- [x] nidoran-m (ID: 32)
+- [x] nidorino (ID: 33)
+- [x] nidoking (ID: 34)
+- [x] clefairy (ID: 35)
+- [x] clefable (ID: 36)
+- [x] vulpix (ID: 37)
+- [x] ninetales (ID: 38)
+- [x] jigglypuff (ID: 39)
+- [x] wigglytuff (ID: 40)
+- [x] zubat (ID: 41)
+- [x] golbat (ID: 42)
+- [x] oddish (ID: 43)
+- [x] gloom (ID: 44)
+- [x] vileplume (ID: 45)
+- [x] paras (ID: 46)
+- [x] parasect (ID: 47)
+- [x] venonat (ID: 48)
+- [x] venomoth (ID: 49)
+- [x] diglett (ID: 50)
+- [x] dugtrio (ID: 51)
+- [x] meowth (ID: 52)
+- [x] persian (ID: 53)
+- [x] psyduck (ID: 54)
+- [x] golduck (ID: 55)
+- [x] mankey (ID: 56)
+- [x] primeape (ID: 57)
+- [x] growlithe (ID: 58)
+- [x] arcanine (ID: 59)
+- [x] poliwag (ID: 60)
+- [x] poliwhirl (ID: 61)
+- [x] poliwrath (ID: 62)
+- [x] abra (ID: 63)
+- [x] kadabra (ID: 64)
+- [x] alakazam (ID: 65)
+- [x] machop (ID: 66)
+- [x] machoke (ID: 67)
+- [x] machamp (ID: 68)
+- [x] bellsprout (ID: 69)
+- [x] weepinbell (ID: 70)
+- [x] victreebel (ID: 71)
+- [x] tentacool (ID: 72)
+- [x] tentacruel (ID: 73)
+- [x] geodude (ID: 74)
+- [x] graveler (ID: 75)
+- [x] golem (ID: 76)
+- [x] ponyta (ID: 77)
+- [x] rapidash (ID: 78)
+- [x] slowpoke (ID: 79)
+- [x] slowbro (ID: 80)
+- [x] magnemite (ID: 81)
+- [x] magneton (ID: 82)
+- [x] farfetchd (ID: 83)
+- [x] doduo (ID: 84)
+- [x] dodrio (ID: 85)
+- [x] seel (ID: 86)
+- [x] dewgong (ID: 87)
+- [x] grimer (ID: 88)
+- [x] muk (ID: 89)
+- [x] shellder (ID: 90)
+- [x] cloyster (ID: 91)
+- [x] gastly (ID: 92)
+- [x] haunter (ID: 93)
+- [x] gengar (ID: 94)
+- [x] onix (ID: 95)
+- [x] drowzee (ID: 96)
+- [x] hypno (ID: 97)
+- [x] krabby (ID: 98)
+- [x] kingler (ID: 99)
+- [x] voltorb (ID: 100)
+- [x] electrode (ID: 101)
+- [x] exeggcute (ID: 102)
+- [x] exeggutor (ID: 103)
+- [x] cubone (ID: 104)
+- [x] marowak (ID: 105)
+- [x] hitmonlee (ID: 106)
+- [x] hitmonchan (ID: 107)
+- [x] lickitung (ID: 108)
+- [x] koffing (ID: 109)
+- [x] weezing (ID: 110)
+- [x] rhyhorn (ID: 111)
+- [x] rhydon (ID: 112)
+- [x] chansey (ID: 113)
+- [x] tangela (ID: 114)
+- [x] kangaskhan (ID: 115)
+- [x] horsea (ID: 116)
+- [x] seadra (ID: 117)
+- [x] goldeen (ID: 118)
+- [x] seaking (ID: 119)
+- [x] staryu (ID: 120)
+- [x] starmie (ID: 121)
+- [x] mr-mime (ID: 122)
+- [x] scyther (ID: 123)
+- [x] jynx (ID: 124)
+- [x] electabuzz (ID: 125)
+- [x] magmar (ID: 126)
+- [x] pinsir (ID: 127)
+- [x] tauros (ID: 128)
+- [x] magikarp (ID: 129)
+- [x] gyarados (ID: 130)
+- [x] lapras (ID: 131)
+- [x] ditto (ID: 132)
+- [x] eevee (ID: 133)
+- [x] vaporeon (ID: 134)
+- [x] jolteon (ID: 135)
+- [x] flareon (ID: 136)
+- [x] porygon (ID: 137)
+- [x] omanyte (ID: 138)
+- [x] omastar (ID: 139)
+- [x] kabuto (ID: 140)
+- [x] kabutops (ID: 141)
+- [x] aerodactyl (ID: 142)
+- [x] snorlax (ID: 143)
+- [x] articuno (ID: 144)
+- [x] zapdos (ID: 145)
+- [x] moltres (ID: 146)
+- [x] dratini (ID: 147)
+- [x] dragonair (ID: 148)
+- [x] dragonite (ID: 149)
+- [x] mewtwo (ID: 150)
+- [x] mew (ID: 151)
+- [x] chikorita (ID: 152)
+- [x] bayleef (ID: 153)
+- [x] meganium (ID: 154)
+- [x] cyndaquil (ID: 155)
+- [x] quilava (ID: 156)
+- [x] typhlosion (ID: 157)
+- [x] totodile (ID: 158)
+- [x] croconaw (ID: 159)
+- [x] feraligatr (ID: 160)
+- [x] sentret (ID: 161)
+- [x] furret (ID: 162)
+- [x] hoothoot (ID: 163)
+- [x] noctowl (ID: 164)
+- [x] ledyba (ID: 165)
+- [x] ledian (ID: 166)
+- [x] spinarak (ID: 167)
+- [x] ariados (ID: 168)
+- [x] crobat (ID: 169)
+- [x] chinchou (ID: 170)
+- [x] lanturn (ID: 171)
+- [x] pichu (ID: 172)
+- [x] cleffa (ID: 173)
+- [x] igglybuff (ID: 174)
+- [x] togepi (ID: 175)
+- [x] togetic (ID: 176)
+- [x] natu (ID: 177)
+- [x] xatu (ID: 178)
+- [x] mareep (ID: 179)
+- [x] flaaffy (ID: 180)
+- [x] ampharos (ID: 181)
+- [x] bellossom (ID: 182)
+- [x] marill (ID: 183)
+- [x] azumarill (ID: 184)
+- [x] sudowoodo (ID: 185)
+- [x] politoed (ID: 186)
+- [x] hoppip (ID: 187)
+- [x] skiploom (ID: 188)
+- [x] jumpluff (ID: 189)
+- [x] aipom (ID: 190)
+- [x] sunkern (ID: 191)
+- [x] sunflora (ID: 192)
+- [x] yanma (ID: 193)
+- [x] wooper (ID: 194)
+- [x] quagsire (ID: 195)
+- [x] espeon (ID: 196)
+- [x] umbreon (ID: 197)
+- [x] murkrow (ID: 198)
+- [x] slowking (ID: 199)
+- [x] misdreavus (ID: 200)
+- [x] unown (ID: 201)
+- [x] wobbuffet (ID: 202)
+- [x] girafarig (ID: 203)
+- [x] pineco (ID: 204)
+- [x] forretress (ID: 205)
+- [x] dunsparce (ID: 206)
+- [x] gligar (ID: 207)
+- [x] steelix (ID: 208)
+- [x] snubbull (ID: 209)
+- [x] granbull (ID: 210)
+- [x] qwilfish (ID: 211)
+- [x] scizor (ID: 212)
+- [x] shuckle (ID: 213)
+- [x] heracross (ID: 214)
+- [x] sneasel (ID: 215)
+- [x] teddiursa (ID: 216)
+- [x] ursaring (ID: 217)
+- [x] slugma (ID: 218)
+- [x] magcargo (ID: 219)
+- [x] swinub (ID: 220)
+- [x] piloswine (ID: 221)
+- [x] corsola (ID: 222)
+- [x] remoraid (ID: 223)
+- [x] octillery (ID: 224)
+- [x] delibird (ID: 225)
+- [x] mantine (ID: 226)
+- [x] skarmory (ID: 227)
+- [x] houndour (ID: 228)
+- [x] houndoom (ID: 229)
+- [x] kingdra (ID: 230)
+- [x] phanpy (ID: 231)
+- [x] donphan (ID: 232)
+- [x] porygon2 (ID: 233)
+- [x] stantler (ID: 234)
+- [x] smeargle (ID: 235)
+- [x] tyrogue (ID: 236)
+- [x] hitmontop (ID: 237)
+- [x] smoochum (ID: 238)
+- [x] elekid (ID: 239)
+- [x] magby (ID: 240)
+- [x] miltank (ID: 241)
+- [x] blissey (ID: 242)
+- [x] raikou (ID: 243)
+- [x] entei (ID: 244)
+- [x] suicune (ID: 245)
+- [x] larvitar (ID: 246)
+- [x] pupitar (ID: 247)
+- [x] tyranitar (ID: 248)
+- [x] lugia (ID: 249)
+- [x] ho-oh (ID: 250)
+- [x] celebi (ID: 251)
+- [x] treecko (ID: 252)
+- [x] grovyle (ID: 253)
+- [x] sceptile (ID: 254)
+- [x] torchic (ID: 255)
+- [x] combusken (ID: 256)
+- [x] blaziken (ID: 257)
+- [x] mudkip (ID: 258)
+- [x] marshtomp (ID: 259)
+- [x] swampert (ID: 260)
+- [x] poochyena (ID: 261)
+- [x] mightyena (ID: 262)
+- [x] zigzagoon (ID: 263)
+- [x] linoone (ID: 264)
+- [x] wurmple (ID: 265)
+- [x] silcoon (ID: 266)
+- [x] beautifly (ID: 267)
+- [x] cascoon (ID: 268)
+- [x] dustox (ID: 269)
+- [x] lotad (ID: 270)
+- [x] lombre (ID: 271)
+- [x] ludicolo (ID: 272)
+- [x] seedot (ID: 273)
+- [x] nuzleaf (ID: 274)
+- [x] shiftry (ID: 275)
+- [x] taillow (ID: 276)
+- [x] swellow (ID: 277)
+- [x] wingull (ID: 278)
+- [x] pelipper (ID: 279)
+- [x] ralts (ID: 280)
+- [x] kirlia (ID: 281)
+- [x] gardevoir (ID: 282)
+- [x] surskit (ID: 283)
+- [x] masquerain (ID: 284)
+- [x] shroomish (ID: 285)
+- [x] breloom (ID: 286)
+- [x] slakoth (ID: 287)
+- [x] vigoroth (ID: 288)
+- [x] slaking (ID: 289)
+- [x] nincada (ID: 290)
+- [x] ninjask (ID: 291)
+- [x] shedinja (ID: 292)
+- [x] whismur (ID: 293)
+- [x] loudred (ID: 294)
+- [x] exploud (ID: 295)
+- [x] makuhita (ID: 296)
+- [x] hariyama (ID: 297)
+- [x] azurill (ID: 298)
+- [x] nosepass (ID: 299)
+- [x] skitty (ID: 300)
+- [x] delcatty (ID: 301)
+- [x] sableye (ID: 302)
+- [x] mawile (ID: 303)
+- [x] aron (ID: 304)
+- [x] lairon (ID: 305)
+- [x] aggron (ID: 306)
+- [x] meditite (ID: 307)
+- [x] medicham (ID: 308)
+- [x] electrike (ID: 309)
+- [x] manectric (ID: 310)
+- [x] plusle (ID: 311)
+- [x] minun (ID: 312)
+- [x] volbeat (ID: 313)
+- [x] illumise (ID: 314)
+- [x] roselia (ID: 315)
+- [x] gulpin (ID: 316)
+- [x] swalot (ID: 317)
+- [x] carvanha (ID: 318)
+- [x] sharpedo (ID: 319)
+- [x] wailmer (ID: 320)
+- [x] wailord (ID: 321)
+- [x] numel (ID: 322)
+- [x] camerupt (ID: 323)
+- [x] torkoal (ID: 324)
+- [x] spoink (ID: 325)
+- [x] grumpig (ID: 326)
+- [x] spinda (ID: 327)
+- [x] trapinch (ID: 328)
+- [x] vibrava (ID: 329)
+- [x] flygon (ID: 330)
+- [x] cacnea (ID: 331)
+- [x] cacturne (ID: 332)
+- [x] swablu (ID: 333)
+- [x] altaria (ID: 334)
+- [x] zangoose (ID: 335)
+- [x] seviper (ID: 336)
+- [x] lunatone (ID: 337)
+- [x] solrock (ID: 338)
+- [x] barboach (ID: 339)
+- [x] whiscash (ID: 340)
+- [x] corphish (ID: 341)
+- [x] crawdaunt (ID: 342)
+- [x] baltoy (ID: 343)
+- [x] claydol (ID: 344)
+- [x] lileep (ID: 345)
+- [x] cradily (ID: 346)
+- [x] anorith (ID: 347)
+- [x] armaldo (ID: 348)
+- [x] feebas (ID: 349)
+- [x] milotic (ID: 350)
+- [x] castform (ID: 351)
+- [x] kecleon (ID: 352)
+- [x] shuppet (ID: 353)
+- [x] banette (ID: 354)
+- [x] duskull (ID: 355)
+- [x] dusclops (ID: 356)
+- [x] tropius (ID: 357)
+- [x] chimecho (ID: 358)
+- [x] absol (ID: 359)
+- [x] wynaut (ID: 360)
+- [x] snorunt (ID: 361)
+- [x] glalie (ID: 362)
+- [x] spheal (ID: 363)
+- [x] sealeo (ID: 364)
+- [x] walrein (ID: 365)
+- [x] clamperl (ID: 366)
+- [x] huntail (ID: 367)
+- [x] gorebyss (ID: 368)
+- [x] relicanth (ID: 369)
+- [x] luvdisc (ID: 370)
+- [x] bagon (ID: 371)
+- [x] shelgon (ID: 372)
+- [x] salamence (ID: 373)
+- [x] beldum (ID: 374)
+- [x] metang (ID: 375)
+- [x] metagross (ID: 376)
+- [x] regirock (ID: 377)
+- [x] regice (ID: 378)
+- [x] registeel (ID: 379)
+- [x] latias (ID: 380)
+- [x] latios (ID: 381)
+- [x] kyogre (ID: 382)
+- [x] groudon (ID: 383)
+- [x] rayquaza (ID: 384)
+- [x] jirachi (ID: 385)
+- [x] deoxys-normal (ID: 386)
+- [x] turtwig (ID: 387)
+- [x] grotle (ID: 388)
+- [x] torterra (ID: 389)
+- [x] chimchar (ID: 390)
+- [x] monferno (ID: 391)
+- [x] infernape (ID: 392)
+- [x] piplup (ID: 393)
+- [x] prinplup (ID: 394)
+- [x] empoleon (ID: 395)
+- [x] starly (ID: 396)
+- [x] staravia (ID: 397)
+- [x] staraptor (ID: 398)
+- [x] bidoof (ID: 399)
+- [x] bibarel (ID: 400)
+- [x] kricketot (ID: 401)
+- [x] kricketune (ID: 402)
+- [x] shinx (ID: 403)
+- [x] luxio (ID: 404)
+- [x] luxray (ID: 405)
+- [x] budew (ID: 406)
+- [x] roserade (ID: 407)
+- [x] cranidos (ID: 408)
+- [x] rampardos (ID: 409)
+- [x] shieldon (ID: 410)
+- [x] bastiodon (ID: 411)
+- [x] burmy (ID: 412)
+- [x] wormadam-plant (ID: 413)
+- [x] mothim (ID: 414)
+- [x] combee (ID: 415)
+- [x] vespiquen (ID: 416)
+- [x] pachirisu (ID: 417)
+- [x] buizel (ID: 418)
+- [x] floatzel (ID: 419)
+- [x] cherubi (ID: 420)
+- [x] cherrim (ID: 421)
+- [x] shellos (ID: 422)
+- [x] gastrodon (ID: 423)
+- [x] ambipom (ID: 424)
+- [x] drifloon (ID: 425)
+- [x] drifblim (ID: 426)
+- [x] buneary (ID: 427)
+- [x] lopunny (ID: 428)
+- [x] mismagius (ID: 429)
+- [x] honchkrow (ID: 430)
+- [x] glameow (ID: 431)
+- [x] purugly (ID: 432)
+- [x] chingling (ID: 433)
+- [x] stunky (ID: 434)
+- [x] skuntank (ID: 435)
+- [x] bronzor (ID: 436)
+- [x] bronzong (ID: 437)
+- [x] bonsly (ID: 438)
+- [x] mime-jr (ID: 439)
+- [x] happiny (ID: 440)
+- [x] chatot (ID: 441)
+- [x] spiritomb (ID: 442)
+- [x] gible (ID: 443)
+- [x] gabite (ID: 444)
+- [x] garchomp (ID: 445)
+- [x] munchlax (ID: 446)
+- [x] riolu (ID: 447)
+- [x] lucario (ID: 448)
+- [x] hippopotas (ID: 449)
+- [x] hippowdon (ID: 450)
+- [x] skorupi (ID: 451)
+- [x] drapion (ID: 452)
+- [x] croagunk (ID: 453)
+- [x] toxicroak (ID: 454)
+- [x] carnivine (ID: 455)
+- [x] finneon (ID: 456)
+- [x] lumineon (ID: 457)
+- [x] mantyke (ID: 458)
+- [x] snover (ID: 459)
+- [x] abomasnow (ID: 460)
+- [x] weavile (ID: 461)
+- [x] magnezone (ID: 462)
+- [x] lickilicky (ID: 463)
+- [x] rhyperior (ID: 464)
+- [x] tangrowth (ID: 465)
+- [x] electivire (ID: 466)
+- [x] magmortar (ID: 467)
+- [x] togekiss (ID: 468)
+- [x] yanmega (ID: 469)
+- [x] leafeon (ID: 470)
+- [x] glaceon (ID: 471)
+- [x] gliscor (ID: 472)
+- [x] mamoswine (ID: 473)
+- [x] porygon-z (ID: 474)
+- [x] gallade (ID: 475)
+- [x] probopass (ID: 476)
+- [x] dusknoir (ID: 477)
+- [x] froslass (ID: 478)
+- [x] rotom (ID: 479)
+- [x] uxie (ID: 480)
+- [x] mesprit (ID: 481)
+- [x] azelf (ID: 482)
+- [x] dialga (ID: 483)
+- [x] palkia (ID: 484)
+- [x] heatran (ID: 485)
+- [x] regigigas (ID: 486)
+- [x] giratina-altered (ID: 487)
+- [x] cresselia (ID: 488)
+- [x] phione (ID: 489)
+- [x] manaphy (ID: 490)
+- [x] darkrai (ID: 491)
+- [x] shaymin-land (ID: 492)
+- [x] arceus (ID: 493)
+- [x] victini (ID: 494)
+- [x] snivy (ID: 495)
+- [x] servine (ID: 496)
+- [x] serperior (ID: 497)
+- [x] tepig (ID: 498)
+- [x] pignite (ID: 499)
+- [x] emboar (ID: 500)
+- [x] oshawott (ID: 501)
+- [x] dewott (ID: 502)
+- [x] samurott (ID: 503)
+- [x] patrat (ID: 504)
+- [x] watchog (ID: 505)
+- [x] lillipup (ID: 506)
+- [x] herdier (ID: 507)
+- [x] stoutland (ID: 508)
+- [x] purrloin (ID: 509)
+- [x] liepard (ID: 510)
+- [x] pansage (ID: 511)
+- [x] simisage (ID: 512)
+- [x] pansear (ID: 513)
+- [x] simisear (ID: 514)
+- [x] panpour (ID: 515)
+- [x] simipour (ID: 516)
+- [x] munna (ID: 517)
+- [x] musharna (ID: 518)
+- [x] pidove (ID: 519)
+- [x] tranquill (ID: 520)
+- [x] unfezant (ID: 521)
+- [x] blitzle (ID: 522)
+- [x] zebstrika (ID: 523)
+- [x] roggenrola (ID: 524)
+- [x] boldore (ID: 525)
+- [x] gigalith (ID: 526)
+- [x] woobat (ID: 527)
+- [x] swoobat (ID: 528)
+- [x] drilbur (ID: 529)
+- [x] excadrill (ID: 530)
+- [x] audino (ID: 531)
+- [x] timburr (ID: 532)
+- [x] gurdurr (ID: 533)
+- [x] conkeldurr (ID: 534)
+- [x] tympole (ID: 535)
+- [x] palpitoad (ID: 536)
+- [x] seismitoad (ID: 537)
+- [x] throh (ID: 538)
+- [x] sawk (ID: 539)
+- [x] sewaddle (ID: 540)
+- [x] swadloon (ID: 541)
+- [x] leavanny (ID: 542)
+- [x] venipede (ID: 543)
+- [x] whirlipede (ID: 544)
+- [x] scolipede (ID: 545)
+- [x] cottonee (ID: 546)
+- [x] whimsicott (ID: 547)
+- [x] petilil (ID: 548)
+- [x] lilligant (ID: 549)
+- [x] basculin-red-striped (ID: 550)
+- [x] sandile (ID: 551)
+- [x] krokorok (ID: 552)
+- [x] krookodile (ID: 553)
+- [x] darumaka (ID: 554)
+- [x] darmanitan-standard (ID: 555)
+- [x] maractus (ID: 556)
+- [x] dwebble (ID: 557)
+- [x] crustle (ID: 558)
+- [x] scraggy (ID: 559)
+- [x] scrafty (ID: 560)
+- [x] sigilyph (ID: 561)
+- [x] yamask (ID: 562)
+- [x] cofagrigus (ID: 563)
+- [x] tirtouga (ID: 564)
+- [x] carracosta (ID: 565)
+- [x] archen (ID: 566)
+- [x] archeops (ID: 567)
+- [x] trubbish (ID: 568)
+- [x] garbodor (ID: 569)
+- [x] zorua (ID: 570)
+- [x] zoroark (ID: 571)
+- [x] minccino (ID: 572)
+- [x] cinccino (ID: 573)
+- [x] gothita (ID: 574)
+- [x] gothorita (ID: 575)
+- [x] gothitelle (ID: 576)
+- [x] solosis (ID: 577)
+- [x] duosion (ID: 578)
+- [x] reuniclus (ID: 579)
+- [x] ducklett (ID: 580)
+- [x] swanna (ID: 581)
+- [x] vanillite (ID: 582)
+- [x] vanillish (ID: 583)
+- [x] vanilluxe (ID: 584)
+- [x] deerling (ID: 585)
+- [x] sawsbuck (ID: 586)
+- [x] emolga (ID: 587)
+- [x] karrablast (ID: 588)
+- [x] escavalier (ID: 589)
+- [x] foongus (ID: 590)
+- [x] amoonguss (ID: 591)
+- [x] frillish-male (ID: 592)
+- [x] jellicent-male (ID: 593)
+- [x] alomomola (ID: 594)
+- [x] joltik (ID: 595)
+- [x] galvantula (ID: 596)
+- [x] ferroseed (ID: 597)
+- [x] ferrothorn (ID: 598)
+- [x] klink (ID: 599)
+- [x] klang (ID: 600)
+- [x] klinklang (ID: 601)
+- [x] tynamo (ID: 602)
+- [x] eelektrik (ID: 603)
+- [x] eelektross (ID: 604)
+- [x] elgyem (ID: 605)
+- [x] beheeyem (ID: 606)
+- [x] litwick (ID: 607)
+- [x] lampent (ID: 608)
+- [x] chandelure (ID: 609)
+- [x] axew (ID: 610)
+- [x] fraxure (ID: 611)
+- [x] haxorus (ID: 612)
+- [x] cubchoo (ID: 613)
+- [x] beartic (ID: 614)
+- [x] cryogonal (ID: 615)
+- [x] shelmet (ID: 616)
+- [x] accelgor (ID: 617)
+- [x] stunfisk (ID: 618)
+- [x] mienfoo (ID: 619)
+- [x] mienshao (ID: 620)
+- [x] druddigon (ID: 621)
+- [x] golett (ID: 622)
+- [x] golurk (ID: 623)
+- [x] pawniard (ID: 624)
+- [x] bisharp (ID: 625)
+- [x] bouffalant (ID: 626)
+- [x] rufflet (ID: 627)
+- [x] braviary (ID: 628)
+- [x] vullaby (ID: 629)
+- [x] mandibuzz (ID: 630)
+- [x] heatmor (ID: 631)
+- [x] durant (ID: 632)
+- [x] deino (ID: 633)
+- [x] zweilous (ID: 634)
+- [x] hydreigon (ID: 635)
+- [x] larvesta (ID: 636)
+- [x] volcarona (ID: 637)
+- [x] cobalion (ID: 638)
+- [x] terrakion (ID: 639)
+- [x] virizion (ID: 640)
+- [x] tornadus-incarnate (ID: 641)
+- [x] thundurus-incarnate (ID: 642)
+- [x] reshiram (ID: 643)
+- [x] zekrom (ID: 644)
+- [x] landorus-incarnate (ID: 645)
+- [x] kyurem (ID: 646)
+- [x] keldeo-ordinary (ID: 647)
+- [x] meloetta-aria (ID: 648)
+- [x] genesect (ID: 649)
+- [x] chespin (ID: 650)
+- [x] quilladin (ID: 651)
+- [x] chesnaught (ID: 652)
+- [x] fennekin (ID: 653)
+- [x] braixen (ID: 654)
+- [x] delphox (ID: 655)
+- [x] froakie (ID: 656)
+- [x] frogadier (ID: 657)
+- [x] greninja (ID: 658)
+- [x] bunnelby (ID: 659)
+- [x] diggersby (ID: 660)
+- [x] fletchling (ID: 661)
+- [x] fletchinder (ID: 662)
+- [x] talonflame (ID: 663)
+- [x] scatterbug (ID: 664)
+- [x] spewpa (ID: 665)
+- [x] vivillon (ID: 666)
+- [x] litleo (ID: 667)
+- [x] pyroar-male (ID: 668)
+- [x] flabebe (ID: 669)
+- [x] floette (ID: 670)
+- [x] florges (ID: 671)
+- [x] skiddo (ID: 672)
+- [x] gogoat (ID: 673)
+- [x] pancham (ID: 674)
+- [x] pangoro (ID: 675)
+- [x] furfrou (ID: 676)
+- [x] espurr (ID: 677)
+- [x] meowstic-male (ID: 678)
+- [x] honedge (ID: 679)
+- [x] doublade (ID: 680)
+- [x] aegislash-shield (ID: 681)
+- [x] spritzee (ID: 682)
+- [x] aromatisse (ID: 683)
+- [x] swirlix (ID: 684)
+- [x] slurpuff (ID: 685)
+- [x] inkay (ID: 686)
+- [x] malamar (ID: 687)
+- [x] binacle (ID: 688)
+- [x] barbaracle (ID: 689)
+- [x] skrelp (ID: 690)
+- [x] dragalge (ID: 691)
+- [x] clauncher (ID: 692)
+- [x] clawitzer (ID: 693)
+- [x] helioptile (ID: 694)
+- [x] heliolisk (ID: 695)
+- [x] tyrunt (ID: 696)
+- [x] tyrantrum (ID: 697)
+- [x] amaura (ID: 698)
+- [x] aurorus (ID: 699)
+- [x] sylveon (ID: 700)
+- [x] hawlucha (ID: 701)
+- [x] dedenne (ID: 702)
+- [x] carbink (ID: 703)
+- [x] goomy (ID: 704)
+- [x] sliggoo (ID: 705)
+- [x] goodra (ID: 706)
+- [x] klefki (ID: 707)
+- [x] phantump (ID: 708)
+- [x] trevenant (ID: 709)
+- [x] pumpkaboo-average (ID: 710)
+- [x] gourgeist-average (ID: 711)
+- [x] bergmite (ID: 712)
+- [x] avalugg (ID: 713)
+- [x] noibat (ID: 714)
+- [x] noivern (ID: 715)
+- [x] xerneas (ID: 716)
+- [x] yveltal (ID: 717)
+- [x] zygarde-50 (ID: 718)
+- [x] diancie (ID: 719)
+- [x] hoopa (ID: 720)
+- [x] volcanion (ID: 721)
+- [x] rowlet (ID: 722)
+- [x] dartrix (ID: 723)
+- [x] decidueye (ID: 724)
+- [x] litten (ID: 725)
+- [x] torracat (ID: 726)
+- [x] incineroar (ID: 727)
+- [x] popplio (ID: 728)
+- [x] brionne (ID: 729)
+- [x] primarina (ID: 730)
+- [x] pikipek (ID: 731)
+- [x] trumbeak (ID: 732)
+- [x] toucannon (ID: 733)
+- [x] yungoos (ID: 734)
+- [x] gumshoos (ID: 735)
+- [x] grubbin (ID: 736)
+- [x] charjabug (ID: 737)
+- [x] vikavolt (ID: 738)
+- [x] crabrawler (ID: 739)
+- [x] crabominable (ID: 740)
+- [x] oricorio-baile (ID: 741)
+- [x] cutiefly (ID: 742)
+- [x] ribombee (ID: 743)
+- [x] rockruff (ID: 744)
+- [x] lycanroc-midday (ID: 745)
+- [x] wishiwashi-solo (ID: 746)
+- [x] mareanie (ID: 747)
+- [x] toxapex (ID: 748)
+- [x] mudbray (ID: 749)
+- [x] mudsdale (ID: 750)
+- [x] dewpider (ID: 751)
+- [x] araquanid (ID: 752)
+- [x] fomantis (ID: 753)
+- [x] lurantis (ID: 754)
+- [x] morelull (ID: 755)
+- [x] shiinotic (ID: 756)
+- [x] salandit (ID: 757)
+- [x] salazzle (ID: 758)
+- [x] stufful (ID: 759)
+- [x] bewear (ID: 760)
+- [x] bounsweet (ID: 761)
+- [x] steenee (ID: 762)
+- [x] tsareena (ID: 763)
+- [x] comfey (ID: 764)
+- [x] oranguru (ID: 765)
+- [x] passimian (ID: 766)
+- [x] wimpod (ID: 767)
+- [x] golisopod (ID: 768)
+- [x] sandygast (ID: 769)
+- [x] palossand (ID: 770)
+- [x] pyukumuku (ID: 771)
+- [x] type-null (ID: 772)
+- [x] silvally (ID: 773)
+- [x] minior-red-meteor (ID: 774)
+- [x] komala (ID: 775)
+- [x] turtonator (ID: 776)
+- [x] togedemaru (ID: 777)
+- [x] mimikyu-disguised (ID: 778)
+- [x] bruxish (ID: 779)
+- [x] drampa (ID: 780)
+- [x] dhelmise (ID: 781)
+- [x] jangmo-o (ID: 782)
+- [x] hakamo-o (ID: 783)
+- [x] kommo-o (ID: 784)
+- [x] tapu-koko (ID: 785)
+- [x] tapu-lele (ID: 786)
+- [x] tapu-bulu (ID: 787)
+- [x] tapu-fini (ID: 788)
+- [x] cosmog (ID: 789)
+- [x] cosmoem (ID: 790)
+- [x] solgaleo (ID: 791)
+- [x] lunala (ID: 792)
+- [x] nihilego (ID: 793)
+- [x] buzzwole (ID: 794)
+- [x] pheromosa (ID: 795)
+- [x] xurkitree (ID: 796)
+- [x] celesteela (ID: 797)
+- [x] kartana (ID: 798)
+- [x] guzzlord (ID: 799)
+- [x] necrozma (ID: 800)
+- [x] magearna (ID: 801)
+- [x] marshadow (ID: 802)
+- [x] poipole (ID: 803)
+- [x] naganadel (ID: 804)
+- [x] stakataka (ID: 805)
+- [x] blacephalon (ID: 806)
+- [x] zeraora (ID: 807)
+- [x] meltan (ID: 808)
+- [x] melmetal (ID: 809)
+- [x] grookey (ID: 810)
+- [x] thwackey (ID: 811)
+- [x] rillaboom (ID: 812)
+- [x] scorbunny (ID: 813)
+- [x] raboot (ID: 814)
+- [x] cinderace (ID: 815)
+- [x] sobble (ID: 816)
+- [x] drizzile (ID: 817)
+- [x] inteleon (ID: 818)
+- [x] skwovet (ID: 819)
+- [x] greedent (ID: 820)
+- [x] rookidee (ID: 821)
+- [x] corvisquire (ID: 822)
+- [x] corviknight (ID: 823)
+- [x] blipbug (ID: 824)
+- [x] dottler (ID: 825)
+- [x] orbeetle (ID: 826)
+- [x] nickit (ID: 827)
+- [x] thievul (ID: 828)
+- [x] gossifleur (ID: 829)
+- [x] eldegoss (ID: 830)
+- [x] wooloo (ID: 831)
+- [x] dubwool (ID: 832)
+- [x] chewtle (ID: 833)
+- [x] drednaw (ID: 834)
+- [x] yamper (ID: 835)
+- [x] boltund (ID: 836)
+- [x] rolycoly (ID: 837)
+- [x] carkol (ID: 838)
+- [x] coalossal (ID: 839)
+- [x] applin (ID: 840)
+- [x] flapple (ID: 841)
+- [x] appletun (ID: 842)
+- [x] silicobra (ID: 843)
+- [x] sandaconda (ID: 844)
+- [x] cramorant (ID: 845)
+- [x] arrokuda (ID: 846)
+- [x] barraskewda (ID: 847)
+- [x] toxel (ID: 848)
+- [x] toxtricity-amped (ID: 849)
+- [x] sizzlipede (ID: 850)
+- [x] centiskorch (ID: 851)
+- [x] clobbopus (ID: 852)
+- [x] grapploct (ID: 853)
+- [x] sinistea (ID: 854)
+- [x] polteageist (ID: 855)
+- [x] hatenna (ID: 856)
+- [x] hattrem (ID: 857)
+- [x] hatterene (ID: 858)
+- [x] impidimp (ID: 859)
+- [x] morgrem (ID: 860)
+- [x] grimmsnarl (ID: 861)
+- [x] obstagoon (ID: 862)
+- [x] perrserker (ID: 863)
+- [x] cursola (ID: 864)
+- [x] sirfetchd (ID: 865)
+- [x] mr-rime (ID: 866)
+- [x] runerigus (ID: 867)
+- [x] milcery (ID: 868)
+- [x] alcremie (ID: 869)
+- [x] falinks (ID: 870)
+- [x] pincurchin (ID: 871)
+- [x] snom (ID: 872)
+- [x] frosmoth (ID: 873)
+- [x] stonjourner (ID: 874)
+- [x] eiscue-ice (ID: 875)
+- [x] indeedee-male (ID: 876)
+- [x] morpeko-full-belly (ID: 877)
+- [x] cufant (ID: 878)
+- [x] copperajah (ID: 879)
+- [x] dracozolt (ID: 880)
+- [x] arctozolt (ID: 881)
+- [x] dracovish (ID: 882)
+- [x] arctovish (ID: 883)
+- [x] duraludon (ID: 884)
+- [x] dreepy (ID: 885)
+- [x] drakloak (ID: 886)
+- [x] dragapult (ID: 887)
+- [x] zacian (ID: 888)
+- [x] zamazenta (ID: 889)
+- [x] eternatus (ID: 890)
+- [x] kubfu (ID: 891)
+- [x] urshifu-single-strike (ID: 892)
+- [x] zarude (ID: 893)
+- [x] regieleki (ID: 894)
+- [x] regidrago (ID: 895)
+- [x] glastrier (ID: 896)
+- [x] spectrier (ID: 897)
+- [x] calyrex (ID: 898)
+- [x] wyrdeer (ID: 899)
+- [x] kleavor (ID: 900)
+- [x] ursaluna (ID: 901)
+- [x] basculegion-male (ID: 902)
+- [x] sneasler (ID: 903)
+- [x] overqwil (ID: 904)
+- [x] enamorus-incarnate (ID: 905)
+- [x] sprigatito (ID: 906)
+- [x] floragato (ID: 907)
+- [x] meowscarada (ID: 908)
+- [x] fuecoco (ID: 909)
+- [x] crocalor (ID: 910)
+- [x] skeledirge (ID: 911)
+- [x] quaxly (ID: 912)
+- [x] quaxwell (ID: 913)
+- [x] quaquaval (ID: 914)
+- [x] lechonk (ID: 915)
+- [x] oinkologne-male (ID: 916)
+- [x] tarountula (ID: 917)
+- [x] spidops (ID: 918)
+- [x] nymble (ID: 919)
+- [x] lokix (ID: 920)
+- [x] pawmi (ID: 921)
+- [x] pawmo (ID: 922)
+- [x] pawmot (ID: 923)
+- [x] tandemaus (ID: 924)
+- [x] maushold-family-of-four (ID: 925)
+- [x] fidough (ID: 926)
+- [x] dachsbun (ID: 927)
+- [x] smoliv (ID: 928)
+- [x] dolliv (ID: 929)
+- [x] arboliva (ID: 930)
+- [x] squawkabilly-green-plumage (ID: 931)
+- [x] nacli (ID: 932)
+- [x] naclstack (ID: 933)
+- [x] garganacl (ID: 934)
+- [x] charcadet (ID: 935)
+- [x] armarouge (ID: 936)
+- [x] ceruledge (ID: 937)
+- [x] tadbulb (ID: 938)
+- [x] bellibolt (ID: 939)
+- [x] wattrel (ID: 940)
+- [x] kilowattrel (ID: 941)
+- [x] maschiff (ID: 942)
+- [x] mabosstiff (ID: 943)
+- [x] shroodle (ID: 944)
+- [x] grafaiai (ID: 945)
+- [x] bramblin (ID: 946)
+- [x] brambleghast (ID: 947)
+- [x] toedscool (ID: 948)
+- [x] toedscruel (ID: 949)
+- [x] klawf (ID: 950)
+- [x] capsakid (ID: 951)
+- [x] scovillain (ID: 952)
+- [x] rellor (ID: 953)
+- [x] rabsca (ID: 954)
+- [x] flittle (ID: 955)
+- [x] espathra (ID: 956)
+- [x] tinkatink (ID: 957)
+- [x] tinkatuff (ID: 958)
+- [x] tinkaton (ID: 959)
+- [x] wiglett (ID: 960)
+- [x] wugtrio (ID: 961)
+- [x] bombirdier (ID: 962)
+- [x] finizen (ID: 963)
+- [x] palafin-zero (ID: 964)
+- [x] varoom (ID: 965)
+- [x] revavroom (ID: 966)
+- [x] cyclizar (ID: 967)
+- [x] orthworm (ID: 968)
+- [x] glimmet (ID: 969)
+- [x] glimmora (ID: 970)
+- [x] greavard (ID: 971)
+- [x] houndstone (ID: 972)
+- [x] flamigo (ID: 973)
+- [x] cetoddle (ID: 974)
+- [x] cetitan (ID: 975)
+- [x] veluza (ID: 976)
+- [x] dondozo (ID: 977)
+- [x] tatsugiri-curly (ID: 978)
+- [x] annihilape (ID: 979)
+- [x] clodsire (ID: 980)
+- [x] farigiraf (ID: 981)
+- [x] dudunsparce-two-segment (ID: 982)
+- [x] kingambit (ID: 983)
+- [x] great-tusk (ID: 984)
+- [x] scream-tail (ID: 985)
+- [x] brute-bonnet (ID: 986)
+- [x] flutter-mane (ID: 987)
+- [x] slither-wing (ID: 988)
+- [x] sandy-shocks (ID: 989)
+- [x] iron-treads (ID: 990)
+- [x] iron-bundle (ID: 991)
+- [x] iron-hands (ID: 992)
+- [x] iron-jugulis (ID: 993)
+- [x] iron-moth (ID: 994)
+- [x] iron-thorns (ID: 995)
+- [x] frigibax (ID: 996)
+- [x] arctibax (ID: 997)
+- [x] baxcalibur (ID: 998)
+- [x] gimmighoul (ID: 999)
+- [x] gholdengo (ID: 1000)
+- [x] wo-chien (ID: 1001)
+- [x] chien-pao (ID: 1002)
+- [x] ting-lu (ID: 1003)
+- [x] chi-yu (ID: 1004)
+- [x] roaring-moon (ID: 1005)
+- [x] iron-valiant (ID: 1006)
+- [x] koraidon (ID: 1007)
+- [x] miraidon (ID: 1008)
+- [x] walking-wake (ID: 1009)
+- [x] iron-leaves (ID: 1010)
+- [x] dipplin (ID: 1011)
+- [x] poltchageist (ID: 1012)
+- [x] sinistcha (ID: 1013)
+- [x] okidogi (ID: 1014)
+- [x] munkidori (ID: 1015)
+- [x] fezandipiti (ID: 1016)
+- [x] ogerpon (ID: 1017)
+- [x] archaludon (ID: 1018)
+- [x] hydrapple (ID: 1019)
+- [x] gouging-fire (ID: 1020)
+- [x] raging-bolt (ID: 1021)
+- [x] iron-boulder (ID: 1022)
+- [x] iron-crown (ID: 1023)
+- [x] terapagos (ID: 1024)
+- [x] pecharunt (ID: 1025)
+- [x] deoxys-attack (ID: 10001)
+- [x] deoxys-defense (ID: 10002)
+- [x] deoxys-speed (ID: 10003)
+- [x] wormadam-sandy (ID: 10004)
+- [x] wormadam-trash (ID: 10005)
+- [x] shaymin-sky (ID: 10006)
+- [x] giratina-origin (ID: 10007)
+- [x] rotom-heat (ID: 10008)
+- [x] rotom-wash (ID: 10009)
+- [x] rotom-frost (ID: 10010)
+- [x] rotom-fan (ID: 10011)
+- [x] rotom-mow (ID: 10012)
+- [x] castform-sunny (ID: 10013)
+- [x] castform-rainy (ID: 10014)
+- [x] castform-snowy (ID: 10015)
+- [x] basculin-blue-striped (ID: 10016)
+- [x] darmanitan-zen (ID: 10017)
+- [x] meloetta-pirouette (ID: 10018)
+- [x] tornadus-therian (ID: 10019)
+- [x] thundurus-therian (ID: 10020)
+- [x] landorus-therian (ID: 10021)
+- [x] kyurem-black (ID: 10022)
+- [x] kyurem-white (ID: 10023)
+- [x] keldeo-resolute (ID: 10024)
+- [x] meowstic-female (ID: 10025)
+- [x] aegislash-blade (ID: 10026)
+- [x] pumpkaboo-small (ID: 10027)
+- [x] pumpkaboo-large (ID: 10028)
+- [x] pumpkaboo-super (ID: 10029)
+- [x] gourgeist-small (ID: 10030)
+- [x] gourgeist-large (ID: 10031)
+- [x] gourgeist-super (ID: 10032)
+- [x] venusaur-mega (ID: 10033)
+- [x] charizard-mega-x (ID: 10034)
+- [x] charizard-mega-y (ID: 10035)
+- [x] blastoise-mega (ID: 10036)
+- [x] alakazam-mega (ID: 10037)
+- [x] gengar-mega (ID: 10038)
+- [x] kangaskhan-mega (ID: 10039)
+- [x] pinsir-mega (ID: 10040)
+- [x] gyarados-mega (ID: 10041)
+- [x] aerodactyl-mega (ID: 10042)
+- [x] mewtwo-mega-x (ID: 10043)
+- [x] mewtwo-mega-y (ID: 10044)
+- [x] ampharos-mega (ID: 10045)
+- [x] scizor-mega (ID: 10046)
+- [x] heracross-mega (ID: 10047)
+- [x] houndoom-mega (ID: 10048)
+- [x] tyranitar-mega (ID: 10049)
+- [x] blaziken-mega (ID: 10050)
+- [x] gardevoir-mega (ID: 10051)
+- [x] mawile-mega (ID: 10052)
+- [x] aggron-mega (ID: 10053)
+- [x] medicham-mega (ID: 10054)
+- [x] manectric-mega (ID: 10055)
+- [x] banette-mega (ID: 10056)
+- [x] absol-mega (ID: 10057)
+- [x] garchomp-mega (ID: 10058)
+- [x] lucario-mega (ID: 10059)
+- [x] abomasnow-mega (ID: 10060)
+- [x] floette-eternal (ID: 10061)
+- [x] latias-mega (ID: 10062)
+- [x] latios-mega (ID: 10063)
+- [x] swampert-mega (ID: 10064)
+- [x] sceptile-mega (ID: 10065)
+- [x] sableye-mega (ID: 10066)
+- [x] altaria-mega (ID: 10067)
+- [x] gallade-mega (ID: 10068)
+- [x] audino-mega (ID: 10069)
+- [x] sharpedo-mega (ID: 10070)
+- [x] slowbro-mega (ID: 10071)
+- [x] steelix-mega (ID: 10072)
+- [x] pidgeot-mega (ID: 10073)
+- [x] glalie-mega (ID: 10074)
+- [x] diancie-mega (ID: 10075)
+- [x] metagross-mega (ID: 10076)
+- [x] kyogre-primal (ID: 10077)
+- [x] groudon-primal (ID: 10078)
+- [x] rayquaza-mega (ID: 10079)
+- [x] hoopa-unbound (ID: 10086)
+- [x] camerupt-mega (ID: 10087)
+- [x] lopunny-mega (ID: 10088)
+- [x] salamence-mega (ID: 10089)
+- [x] beedrill-mega (ID: 10090)
+- [x] rattata-alola (ID: 10091)
+- [x] raticate-alola (ID: 10092)
+- [x] raticate-totem-alola (ID: 10093)
+- [x] pikachu-original-cap (ID: 10094)
+- [x] pikachu-hoenn-cap (ID: 10095)
+- [x] pikachu-sinnoh-cap (ID: 10096)
+- [x] pikachu-unova-cap (ID: 10097)
+- [x] pikachu-kalos-cap (ID: 10098)
+- [x] pikachu-alola-cap (ID: 10099)
+- [x] raichu-alola (ID: 10100)
+- [x] sandshrew-alola (ID: 10101)
+- [x] sandslash-alola (ID: 10102)
+- [x] vulpix-alola (ID: 10103)
+- [x] ninetales-alola (ID: 10104)
+- [x] diglett-alola (ID: 10105)
+- [x] dugtrio-alola (ID: 10106)
+- [x] meowth-alola (ID: 10107)
+- [x] persian-alola (ID: 10108)
+- [x] geodude-alola (ID: 10109)
+- [x] graveler-alola (ID: 10110)
+- [x] golem-alola (ID: 10111)
+- [x] grimer-alola (ID: 10112)
+- [x] muk-alola (ID: 10113)
+- [x] exeggutor-alola (ID: 10114)
+- [x] marowak-alola (ID: 10115)
+- [x] greninja-battle-bond (ID: 10116)
+- [x] greninja-ash (ID: 10117)
+- [x] zygarde-10-power-construct (ID: 10118)
+- [x] zygarde-50-power-construct (ID: 10119)
+- [x] zygarde-complete (ID: 10120)
+- [x] gumshoos-totem (ID: 10121)
+- [x] vikavolt-totem (ID: 10122)
+- [x] oricorio-pom-pom (ID: 10123)
+- [x] oricorio-pau (ID: 10124)
+- [x] oricorio-sensu (ID: 10125)
+- [x] lycanroc-midnight (ID: 10126)
+- [x] wishiwashi-school (ID: 10127)
+- [x] lurantis-totem (ID: 10128)
+- [x] salazzle-totem (ID: 10129)
+- [x] minior-orange-meteor (ID: 10130)
+- [x] minior-yellow-meteor (ID: 10131)
+- [x] minior-green-meteor (ID: 10132)
+- [x] minior-blue-meteor (ID: 10133)
+- [x] minior-indigo-meteor (ID: 10134)
+- [x] minior-violet-meteor (ID: 10135)
+- [x] minior-red (ID: 10136)
+- [x] minior-orange (ID: 10137)
+- [x] minior-yellow (ID: 10138)
+- [x] minior-green (ID: 10139)
+- [x] minior-blue (ID: 10140)
+- [x] minior-indigo (ID: 10141)
+- [x] minior-violet (ID: 10142)
+- [x] mimikyu-busted (ID: 10143)
+- [x] mimikyu-totem-disguised (ID: 10144)
+- [x] mimikyu-totem-busted (ID: 10145)
+- [x] kommo-o-totem (ID: 10146)
+- [x] magearna-original (ID: 10147)
+- [x] pikachu-partner-cap (ID: 10148)
+- [x] marowak-totem (ID: 10149)
+- [x] ribombee-totem (ID: 10150)
+- [x] rockruff-own-tempo (ID: 10151)
+- [x] lycanroc-dusk (ID: 10152)
+- [x] araquanid-totem (ID: 10153)
+- [x] togedemaru-totem (ID: 10154)
+- [x] necrozma-dusk (ID: 10155)
+- [x] necrozma-dawn (ID: 10156)
+- [x] necrozma-ultra (ID: 10157)
+- [x] pikachu-world-cap (ID: 10160)
+- [x] meowth-galar (ID: 10161)
+- [x] ponyta-galar (ID: 10162)
+- [x] rapidash-galar (ID: 10163)
+- [x] slowpoke-galar (ID: 10164)
+- [x] slowbro-galar (ID: 10165)
+- [x] farfetchd-galar (ID: 10166)
+- [x] weezing-galar (ID: 10167)
+- [x] mr-mime-galar (ID: 10168)
+- [x] articuno-galar (ID: 10169)
+- [x] zapdos-galar (ID: 10170)
+- [x] moltres-galar (ID: 10171)
+- [x] slowking-galar (ID: 10172)
+- [x] corsola-galar (ID: 10173)
+- [x] zigzagoon-galar (ID: 10174)
+- [x] linoone-galar (ID: 10175)
+- [x] darumaka-galar (ID: 10176)
+- [x] darmanitan-galar-standard (ID: 10177)
+- [x] darmanitan-galar-zen (ID: 10178)
+- [x] yamask-galar (ID: 10179)
+- [x] stunfisk-galar (ID: 10180)
+- [x] zygarde-10 (ID: 10181)
+- [x] cramorant-gulping (ID: 10182)
+- [x] cramorant-gorging (ID: 10183)
+- [x] toxtricity-low-key (ID: 10184)
+- [x] eiscue-noice (ID: 10185)
+- [x] indeedee-female (ID: 10186)
+- [x] morpeko-hangry (ID: 10187)
+- [x] zacian-crowned (ID: 10188)
+- [x] zamazenta-crowned (ID: 10189)
+- [x] eternatus-eternamax (ID: 10190)
+- [x] urshifu-rapid-strike (ID: 10191)
+- [x] zarude-dada (ID: 10192)
+- [x] calyrex-ice (ID: 10193)
+- [x] calyrex-shadow (ID: 10194)
+- [x] venusaur-gmax (ID: 10195)
+- [x] charizard-gmax (ID: 10196)
+- [x] blastoise-gmax (ID: 10197)
+- [x] butterfree-gmax (ID: 10198)
+- [x] pikachu-gmax (ID: 10199)
+- [x] meowth-gmax (ID: 10200)
+- [x] machamp-gmax (ID: 10201)
+- [x] gengar-gmax (ID: 10202)
+- [x] kingler-gmax (ID: 10203)
+- [x] lapras-gmax (ID: 10204)
+- [x] eevee-gmax (ID: 10205)
+- [x] snorlax-gmax (ID: 10206)
+- [x] garbodor-gmax (ID: 10207)
+- [x] melmetal-gmax (ID: 10208)
+- [x] rillaboom-gmax (ID: 10209)
+- [x] cinderace-gmax (ID: 10210)
+- [x] inteleon-gmax (ID: 10211)
+- [x] corviknight-gmax (ID: 10212)
+- [x] orbeetle-gmax (ID: 10213)
+- [x] drednaw-gmax (ID: 10214)
+- [x] coalossal-gmax (ID: 10215)
+- [x] flapple-gmax (ID: 10216)
+- [x] appletun-gmax (ID: 10217)
+- [x] sandaconda-gmax (ID: 10218)
+- [x] toxtricity-amped-gmax (ID: 10219)
+- [x] centiskorch-gmax (ID: 10220)
+- [x] hatterene-gmax (ID: 10221)
+- [x] grimmsnarl-gmax (ID: 10222)
+- [x] alcremie-gmax (ID: 10223)
+- [x] copperajah-gmax (ID: 10224)
+- [x] duraludon-gmax (ID: 10225)
+- [x] urshifu-single-strike-gmax (ID: 10226)
+- [x] urshifu-rapid-strike-gmax (ID: 10227)
+- [x] toxtricity-low-key-gmax (ID: 10228)
+- [x] growlithe-hisui (ID: 10229)
+- [x] arcanine-hisui (ID: 10230)
+- [x] voltorb-hisui (ID: 10231)
+- [x] electrode-hisui (ID: 10232)
+- [x] typhlosion-hisui (ID: 10233)
+- [x] qwilfish-hisui (ID: 10234)
+- [x] sneasel-hisui (ID: 10235)
+- [x] samurott-hisui (ID: 10236)
+- [x] lilligant-hisui (ID: 10237)
+- [x] zorua-hisui (ID: 10238)
+- [x] zoroark-hisui (ID: 10239)
+- [x] braviary-hisui (ID: 10240)
+- [x] sliggoo-hisui (ID: 10241)
+- [x] goodra-hisui (ID: 10242)
+- [x] avalugg-hisui (ID: 10243)
+- [x] decidueye-hisui (ID: 10244)
+- [x] dialga-origin (ID: 10245)
+- [x] palkia-origin (ID: 10246)
+- [x] basculin-white-striped (ID: 10247)
+- [x] basculegion-female (ID: 10248)
+- [x] enamorus-therian (ID: 10249)
+- [x] tauros-paldea-combat-breed (ID: 10250)
+- [x] tauros-paldea-blaze-breed (ID: 10251)
+- [x] tauros-paldea-aqua-breed (ID: 10252)
+- [x] wooper-paldea (ID: 10253)
+- [x] oinkologne-female (ID: 10254)
+- [x] dudunsparce-three-segment (ID: 10255)
+- [x] palafin-hero (ID: 10256)
+- [x] maushold-family-of-three (ID: 10257)
+- [x] tatsugiri-droopy (ID: 10258)
+- [x] tatsugiri-stretchy (ID: 10259)
+- [x] squawkabilly-blue-plumage (ID: 10260)
+- [x] squawkabilly-yellow-plumage (ID: 10261)
+- [x] squawkabilly-white-plumage (ID: 10262)
+- [x] gimmighoul-roaming (ID: 10263)
+- [x] ursaluna-bloodmoon (ID: 10272)
+- [x] ogerpon-wellspring-mask (ID: 10273)
+- [x] ogerpon-hearthflame-mask (ID: 10274)
+- [x] ogerpon-cornerstone-mask (ID: 10275)
+- [x] terapagos-terastal (ID: 10276)
+- [x] terapagos-stellar (ID: 10277)
+- [x] clefable-mega (ID: 10278)
+- [x] victreebel-mega (ID: 10279)
+- [x] starmie-mega (ID: 10280)
+- [x] dragonite-mega (ID: 10281)
+- [x] meganium-mega (ID: 10282)
+- [x] feraligatr-mega (ID: 10283)
+- [x] skarmory-mega (ID: 10284)
+- [x] froslass-mega (ID: 10285)
+- [x] emboar-mega (ID: 10286)
+- [x] excadrill-mega (ID: 10287)
+- [x] scolipede-mega (ID: 10288)
+- [x] scrafty-mega (ID: 10289)
+- [x] eelektross-mega (ID: 10290)
+- [x] chandelure-mega (ID: 10291)
+- [x] chesnaught-mega (ID: 10292)
+- [x] delphox-mega (ID: 10293)
+- [x] greninja-mega (ID: 10294)
+- [x] pyroar-mega (ID: 10295)
+- [x] floette-mega (ID: 10296)
+- [x] malamar-mega (ID: 10297)
+- [x] barbaracle-mega (ID: 10298)
+- [x] dragalge-mega (ID: 10299)
+- [x] hawlucha-mega (ID: 10300)
+- [x] zygarde-mega (ID: 10301)
+- [x] drampa-mega (ID: 10302)
+- [x] falinks-mega (ID: 10303)
+- [x] raichu-mega-x (ID: 10304)
+- [x] raichu-mega-y (ID: 10305)
+- [x] chimecho-mega (ID: 10306)
+- [x] absol-mega-z (ID: 10307)
+- [x] staraptor-mega (ID: 10308)
+- [x] garchomp-mega-z (ID: 10309)
+- [x] lucario-mega-z (ID: 10310)
+- [x] heatran-mega (ID: 10311)
+- [x] darkrai-mega (ID: 10312)
+- [x] golurk-mega (ID: 10313)
+- [x] meowstic-male-mega (ID: 10314)
+- [x] crabominable-mega (ID: 10315)
+- [x] golisopod-mega (ID: 10316)
+- [x] magearna-mega (ID: 10317)
+- [x] magearna-original-mega (ID: 10318)
+- [x] zeraora-mega (ID: 10319)
+- [x] scovillain-mega (ID: 10320)
+- [x] glimmora-mega (ID: 10321)
+- [x] tatsugiri-curly-mega (ID: 10322)
+- [x] tatsugiri-droopy-mega (ID: 10323)
+- [x] tatsugiri-stretchy-mega (ID: 10324)
+- [x] baxcalibur-mega (ID: 10325)
+- [x] meowstic-female-mega (ID: 10326)

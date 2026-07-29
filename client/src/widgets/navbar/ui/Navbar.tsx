@@ -27,7 +27,7 @@ export function Navbar() {
   });
 
   return (
-    <nav className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-md relative z-[60] transition-colors duration-200 border-b border-slate-200 dark:border-transparent">
+    <nav className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-md relative z-60 transition-colors duration-200 border-b border-slate-200 dark:border-transparent">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">

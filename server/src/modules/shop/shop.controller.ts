@@ -28,6 +28,18 @@ export class ShopController {
       next(error);
     }
   }
+
+  async sellItem(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { itemId, quantity } = buyItemSchema.parse(req.body);
+
+      const trainerSave = await shopService.sellItem(req.user!.id, { itemId, quantity });
+
+      res.json({ success: true, data: trainerSave });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const shopController = new ShopController();

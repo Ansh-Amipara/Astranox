@@ -566,8 +566,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !evolveMutation.isPending && setEvolutionPkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10 pointer-events-none" />
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+              <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10 pointer-events-none" />
 
             <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
               Evolution
@@ -610,7 +610,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   </div>
                 )}
                 
-                <span className={`font-bold capitalize text-lg ${selectedTransformation?.isGmax ? 'text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-purple-600 dark:from-fuchsia-400 dark:to-purple-400 tracking-wide' : 'text-blue-600 dark:text-blue-400'}`}>
+                <span className={`font-bold capitalize text-lg ${selectedTransformation?.isGmax ? 'text-transparent bg-clip-text bg-linear-to-r from-fuchsia-600 to-purple-600 dark:from-fuchsia-400 dark:to-purple-400 tracking-wide' : 'text-blue-600 dark:text-blue-400'}`}>
                   {selectedTransformation ? selectedTransformation.name.replace('-', ' ') : 'Fully Evolved'}
                 </span>
               </div>
@@ -718,7 +718,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                       }
                     }}
                     disabled={!canPerformEvolution || evolveMutation.isPending}
-                    className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
+                    className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
                   >
                     {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
                   </button>
@@ -778,7 +778,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>
             <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center`} onClick={e => e.stopPropagation()}>
-              <div className={`absolute inset-0 bg-gradient-to-br ${theme.bgGradient} pointer-events-none`} />
+              <div className={`absolute inset-0 bg-linear-to-br ${theme.bgGradient} pointer-events-none`} />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
                 Boost Potential
@@ -801,7 +801,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   <div className={`w-28 h-28 bg-white dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 ${theme.border} shadow-lg`}>
                     <img src={getSpriteUrl(boostPkm.speciesId)} className="w-24 h-24 pixelated object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
                   </div>
-                  <span className={`mt-3 font-bold capitalize text-lg tracking-wide text-transparent bg-clip-text bg-gradient-to-r ${theme.textGradient}`}>{mapping?.next.replace('_', ' ')}</span>
+                  <span className={`mt-3 font-bold capitalize text-lg tracking-wide text-transparent bg-clip-text bg-linear-to-r ${theme.textGradient}`}>{mapping?.next.replace('_', ' ')}</span>
                 </div>
               </div>
 
@@ -868,7 +868,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
                 Enhance IVs
@@ -997,7 +997,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         };
 
         return (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <img

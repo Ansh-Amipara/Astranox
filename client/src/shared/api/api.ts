@@ -13,7 +13,7 @@ declare module 'axios' {
   }
 }
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4005';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -96,6 +96,10 @@ export const shopApi = {
   },
   buyItem: async (itemId: string, quantity: number) => {
     const { data } = await api.post('/shop/buy', { itemId, quantity });
+    return data;
+  },
+  sellItem: async (itemId: string, quantity: number) => {
+    const { data } = await api.post('/shop/sell', { itemId, quantity });
     return data;
   }
 };

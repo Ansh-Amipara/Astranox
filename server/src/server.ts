@@ -28,7 +28,7 @@ import { marketplaceRoutes } from './modules/marketplace/marketplace.routes';
 import { startMarketplaceWorker } from './modules/marketplace/marketplace.worker';
 
 const app = express();
-const port = env.PORT;
+const port = env.API_PORT;
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cors({ origin: env.CORS_ORIGIN === 'true' ? true : env.CORS_ORIGIN, credentials: true }));
@@ -73,7 +73,22 @@ app.use(errorHandler);
 const httpServer = createServer(app);
 initSocket(httpServer);
 
-httpServer.listen(port, () => {
-  logger.info(`Server running on port ${port}`);
+let currentPort = Number(port) || 4005;
+
+httpServer.on('listening', () => {
+  logger.info(`Server running on port ${currentPort}`);
   startMarketplaceWorker();
 });
+
+httpServer.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    logger.warn(`Port ${currentPort} is in use, trying ${currentPort + 1}...`);
+    currentPort++;
+    httpServer.listen(currentPort);
+  } else {
+    logger.error('Server error', err);
+    process.exit(1);
+  }
+});
+
+httpServer.listen(currentPort);

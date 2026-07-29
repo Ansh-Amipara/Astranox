@@ -76,7 +76,7 @@ export function PokemonManagement() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
-      
+
       toast.success(
         <div className="flex flex-col gap-1">
           <p className="font-bold">Smelt Successful!</p>
@@ -110,17 +110,18 @@ export function PokemonManagement() {
   const totalPages = Math.ceil(total / 20) || 1;
 
   const activePartyIds = new Set(save?.party?.map((p: any) => p.id) || []);
+  const isInParty = (pokemon: any) => activePartyIds.has(pokemon.id);
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
           <h1 className="text-3xl font-black tracking-tight">My Pokémon</h1>
-          
+
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
 
-        
+
         {allPokemon.length === 0 ? (
           <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
             <p className="text-slate-500">You don't have any Pokémon yet.</p>
@@ -128,7 +129,7 @@ export function PokemonManagement() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allPokemon.map((p: any) => {
-              const inParty = activePartyIds.has(p.id) || p.isParty;
+              const inParty = isInParty(p);
               return (
                 <div
                   key={p.id}
@@ -145,7 +146,7 @@ export function PokemonManagement() {
                       In Trade
                     </div>
                   )}
-                  
+
                   <div className="p-6 flex items-start gap-6">
                     <div className="w-24 h-24 shrink-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
                       <img
@@ -229,7 +230,7 @@ export function PokemonManagement() {
         )}
 
 
-        <PokemonActionModals 
+        <PokemonActionModals
           ref={modalsRef}
           activeMenuPkm={null}
           setActiveMenuPkm={setActiveMenuPkm}
@@ -239,7 +240,7 @@ export function PokemonManagement() {
 
         {/* Options Menu Modal */}
         {activeMenuPkm && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <img
@@ -273,100 +274,100 @@ export function PokemonManagement() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
-                >
-                  View Details
-                </button>
-
-                <button
-                  onClick={() => { modalsRef.current?.openMoves(activeMenuPkm); setActiveMenuPkm(null); }}
-                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
-                >
-                  Change Moves
-                </button>
-
-                <button
-                  onClick={() => { modalsRef.current?.openEvolve(activeMenuPkm); setActiveMenuPkm(null); }}
-                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
-                >
-                  Evolution
-                </button>
-
-                {activeMenuPkm.potential !== 'ETERNAL' && (
                   <button
-                    onClick={() => { modalsRef.current?.openBoost(activeMenuPkm); setActiveMenuPkm(null); }}
+                    onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
                     className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
                   >
-                    Boost Potential
+                    View Details
                   </button>
-                )}
 
-                <button
-                  onClick={() => {
-                    modalsRef.current?.openGiveXp(activeMenuPkm);
-                    setActiveMenuPkm(null);
-                  }}
-                  className="w-full text-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 rounded-xl font-bold transition-colors text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
-                >
-                  Give XP
-                </button>
-
-                <button
-                  onClick={() => { modalsRef.current?.openIVs(activeMenuPkm); setActiveMenuPkm(null); }}
-                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
-                >
-                  Enhance IVs
-                </button>
-
-                {activePartyIds.has(activeMenuPkm.id) || activeMenuPkm.isParty ? (
                   <button
-                    disabled={removeMutation.isPending}
-                    onClick={() => {
-                      removeMutation.mutate(activeMenuPkm.id);
-                      setActiveMenuPkm(null);
-                    }}
-                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 text-center"
+                    onClick={() => { modalsRef.current?.openMoves(activeMenuPkm); setActiveMenuPkm(null); }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
                   >
-                    Remove from Team
+                    Change Moves
                   </button>
-                ) : (
+
+                  <button
+                    onClick={() => { modalsRef.current?.openEvolve(activeMenuPkm); setActiveMenuPkm(null); }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                  >
+                    Evolution
+                  </button>
+
+                  {activeMenuPkm.potential !== 'ETERNAL' && (
+                    <button
+                      onClick={() => { modalsRef.current?.openBoost(activeMenuPkm); setActiveMenuPkm(null); }}
+                      className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                    >
+                      Boost Potential
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
-                      setSelectedForTeam(activeMenuPkm.id);
+                      modalsRef.current?.openGiveXp(activeMenuPkm);
                       setActiveMenuPkm(null);
                     }}
-                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white text-center"
+                    className="w-full text-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 rounded-xl font-bold transition-colors text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
                   >
-                    Add to Team
+                    Give XP
                   </button>
-                )}
 
-                <button
-                  onClick={() => {
-                    toast(`Smelting permanently destroys this Pokémon.\nYou will receive Stored XP and Potential Pearls.\nThis action cannot be undone.`, {
-                      action: {
-                        label: 'Smelt',
-                        onClick: () => {
-                          smeltMutation.mutate(activeMenuPkm.id);
-                          setActiveMenuPkm(null);
-                        }
-                      },
-                      cancel: {
-                        label: 'Cancel',
-                        onClick: () => {}
-                      },
-                      duration: 5000
-                    });
-                  }}
-                  disabled={smeltMutation.isPending || activePartyIds.has(activeMenuPkm.id) || activeMenuPkm.isParty}
-                  title={(activePartyIds.has(activeMenuPkm.id) || activeMenuPkm.isParty) ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
-                  className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {smeltMutation.isPending ? 'Smelting...' : 'Smelt Pokemon'}
-                </button>
-              </div>
+                  <button
+                    onClick={() => { modalsRef.current?.openIVs(activeMenuPkm); setActiveMenuPkm(null); }}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                  >
+                    Enhance IVs
+                  </button>
+
+                  {isInParty(activeMenuPkm) ? (
+                    <button
+                      disabled={removeMutation.isPending}
+                      onClick={() => {
+                        removeMutation.mutate(activeMenuPkm.id);
+                        setActiveMenuPkm(null);
+                      }}
+                      className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50"
+                    >
+                      Remove from Team
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setSelectedForTeam(activeMenuPkm.id);
+                        setActiveMenuPkm(null);
+                      }}
+                      className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                    >
+                      Add to Team
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      toast(`Smelting permanently destroys this Pokémon.\nYou will receive Stored XP and Potential Pearls.\nThis action cannot be undone.`, {
+                        action: {
+                          label: 'Smelt',
+                          onClick: () => {
+                            smeltMutation.mutate(activeMenuPkm.id);
+                            setActiveMenuPkm(null);
+                          }
+                        },
+                        cancel: {
+                          label: 'Cancel',
+                          onClick: () => { }
+                        },
+                        duration: 5000
+                      });
+                    }}
+                    disabled={smeltMutation.isPending || isInParty(activeMenuPkm)}
+                    title={isInParty(activeMenuPkm) ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {smeltMutation.isPending ? 'Smelting...' : 'Smelt Pokemon'}
+                  </button>
+                </div>
               )}
 
               <button
@@ -385,7 +386,7 @@ export function PokemonManagement() {
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800">
               <h2 className="text-2xl font-black mb-2">Select Team Slot</h2>
               <p className="text-slate-500 dark:text-slate-400 mb-6">Which slot should this Pokémon take? (1-6)</p>
-              
+
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {[0, 1, 2, 3, 4, 5].map(slot => (
                   <button

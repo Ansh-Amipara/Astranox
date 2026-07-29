@@ -166,31 +166,15 @@ export class TrainersRepository {
         throw new ValidationError('You must have at least one Pokemon in your party.');
       }
 
-      const boxed = await tx.ownedPokemon.findMany({
-        where: { trainerId, isParty: false, isEscrowed: false },
-        select: { boxNumber: true, position: true }
+      const maxPositionResult = await tx.ownedPokemon.aggregate({
+        where: { trainerId, isParty: false },
+        _max: { position: true }
       });
-      
-      const occupied = new Set(boxed.map(p => `${p.boxNumber}-${p.position}`));
-      let targetBox = null;
-      let targetPos = null;
-      
-      for (let b = 0; b < 32; b++) {
-        for (let p = 0; p < 30; p++) {
-          if (!occupied.has(`${b}-${p}`)) {
-            targetBox = b;
-            targetPos = p;
-            break;
-          }
-        }
-        if (targetBox !== null) break;
-      }
-      
-      if (targetBox === null) throw new Error('No PC Box space available');
+      const nextPosition = (maxPositionResult._max.position ?? -1) + 1;
       
       await tx.ownedPokemon.update({
         where: { id: pokemonId },
-        data: { isParty: false, boxNumber: targetBox as any, position: targetPos as number }
+        data: { isParty: false, boxNumber: null as any, position: nextPosition }
       });
     });
   }

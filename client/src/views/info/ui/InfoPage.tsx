@@ -80,8 +80,52 @@ const TABLE_DATA = [
   { rank: 'SSS+', tiers: 'Eternal', maxLevel: 5000 },
 ];
 
+const EXPLORE_BIOMES = [
+  { name: 'Plains', types: 'Normal, Grass, Flying' },
+  { name: 'Forest', types: 'Bug, Grass, Poison' },
+  { name: 'Swamp', types: 'Poison, Ground, Water' },
+  { name: 'Desert', types: 'Ground, Rock, Fire' },
+  { name: 'Ocean', types: 'Water, Ice' },
+  { name: 'Mountain', types: 'Rock, Ground, Fighting' },
+  { name: 'Frozen Peaks', types: 'Ice, Steel' },
+  { name: 'Haunted Ruins', types: 'Ghost, Dark, Poison' },
+  { name: 'Volcano', types: 'Fire, Ground, Rock' },
+  { name: 'Fairy Garden', types: 'Fairy, Grass, Psychic' },
+  { name: 'Ancient Temple', types: 'Psychic, Ghost, Dragon' },
+  { name: 'Crystal Cave', types: 'Rock, Steel, Fairy' },
+  { name: 'Sky Islands', types: 'Flying, Dragon, Electric' },
+];
+
+const EXPLORE_REGIONS = [
+  { name: 'Alola Region', types: 'Alolan Forms, Water, Grass, Fire' },
+  { name: 'Galar Region', types: 'Galarian Forms, Steel, Dragon, Fairy' },
+  { name: 'Hisui Region', types: 'Hisuian Forms, Fighting, Ground, Ghost' },
+  { name: 'Paldea Region', types: 'Paldean Forms, Electric, Dark, Fighting' }
+];
+
+const EXPLORE_RARE_POOLS = [
+  { category: 'Pseudo Legendary', probability: '0.300%' },
+  { category: 'Ultra Beast', probability: '0.080%' },
+  { category: 'Paradox', probability: '0.070%' },
+  { category: 'Mythical', probability: '0.030%' },
+  { category: 'Legendary', probability: '0.019%' },
+  { category: 'Super Legendary', probability: '0.001%' },
+];
+
+const EXPLORE_POTENTIAL_SCALING = [
+  { rank: 'F Rank', encounters: 'F' },
+  { rank: 'E Rank', encounters: 'F, E' },
+  { rank: 'D Rank', encounters: 'F, E, D' },
+  { rank: 'C Rank', encounters: 'F, E, D, C' },
+  { rank: 'B Rank', encounters: 'F, E, D, C, B' },
+  { rank: 'A Rank', encounters: 'E, D, C, B, A' },
+  { rank: 'S Ranks (S-, S, S+)', encounters: 'D, C, B, A, S' },
+  { rank: 'SS Ranks (SS-, SS, SS+)', encounters: 'C, B, A, S, SS' },
+  { rank: 'SSS Ranks (SSS-, SSS, SSS+)', encounters: 'B, A, S, SS, SSS' },
+];
+
 export function InfoPage() {
-  const [activeTab, setActiveTab] = useState<'general' | 'rift' | 'furnace' | 'tower'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'explore' | 'rift' | 'furnace' | 'tower'>('general');
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 p-8 sm:p-12">
@@ -93,7 +137,7 @@ export function InfoPage() {
         </div>
 
         <div className="flex flex-wrap gap-2 sm:gap-4 mb-10 border-b border-slate-200 dark:border-slate-800 pb-4">
-          {(['general', 'rift', 'furnace', 'tower'] as const).map((tab) => (
+          {(['general', 'explore', 'rift', 'furnace', 'tower'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -103,7 +147,7 @@ export function InfoPage() {
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
-              {tab === 'rift' ? 'Void Rifts' : tab === 'furnace' ? 'Astral Furnace' : tab === 'tower' ? 'Infinity Tower' : tab}
+              {tab === 'explore' ? 'Explore Realms' : tab === 'rift' ? 'Void Rifts' : tab === 'furnace' ? 'Astral Furnace' : tab === 'tower' ? 'Infinity Tower' : tab}
             </button>
           ))}
         </div>
@@ -139,6 +183,127 @@ export function InfoPage() {
                             {row.maxLevel}
                           </span>
                         </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'explore' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Explore Realms</h1>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 mb-10 text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
+              <p className="mb-4">
+                The <span className="font-bold text-emerald-600 dark:text-emerald-400">Explore System</span> allows you to venture into different wild biomes to discover Pokémon and Astral Coins.
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mb-4">
+                <li><span className="font-bold text-purple-600 dark:text-purple-400">Dynamic Potential Scaling (5-Stage System):</span> The potential of encountered wild Pokémon dynamically scales to your Trainer Rank using a 5-stage window. For example, if you are at <span className="font-bold">A Rank</span>, you will encounter wild Pokémon with potentials ranging from <span className="font-bold">E Rank</span> up to <span className="font-bold">A Rank</span>. These encounters are realistically weighted: you have a <span className="font-bold text-slate-500">40% chance</span> to find the lowest potential in your window, scaling down to just a <span className="font-bold text-orange-500">2% chance</span> for your maximum potential!</li>
+              </ul>
+              
+              <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                      <th className="py-3 px-4 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trainer Rank</th>
+                      <th className="py-3 px-4 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Encounter Potential Pool</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {EXPLORE_POTENTIAL_SCALING.map((row) => (
+                      <tr key={row.rank} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">{row.rank}</td>
+                        <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-mono font-bold">{row.encounters}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Explore Biomes & Types</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">Discover different Pokémon types by visiting specific biomes.</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-10">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Biome</th>
+                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Common Types</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {EXPLORE_BIOMES.map((row) => (
+                      <tr key={row.name} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td className="py-4 px-6 font-bold text-lg text-slate-900 dark:text-slate-100">{row.name}</td>
+                        <td className="py-4 px-6 text-slate-600 dark:text-slate-300 font-medium">{row.types}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Special Regions</h1>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-10">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Region</th>
+                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Features</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {EXPLORE_REGIONS.map((row) => (
+                      <tr key={row.name} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td className="py-4 px-6 font-bold text-lg text-slate-900 dark:text-slate-100">{row.name}</td>
+                        <td className="py-4 px-6 text-slate-600 dark:text-slate-300 font-medium">{row.types}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Rare Encounters Probability</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">These pools bypass standard biomes and trigger dynamically.</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-10">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Category</th>
+                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-right">Probability</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {EXPLORE_RARE_POOLS.map((row) => (
+                      <tr key={row.category} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td className="py-4 px-6 font-bold text-lg text-slate-900 dark:text-slate-100">{row.category}</td>
+                        <td className="py-4 px-6 text-right font-mono font-bold text-purple-600 dark:text-purple-400">{row.probability}</td>
                       </tr>
                     ))}
                   </tbody>

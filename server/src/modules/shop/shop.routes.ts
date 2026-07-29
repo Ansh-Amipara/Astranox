@@ -6,5 +6,6 @@ const router = Router();
 
 router.get('/items', requireAuth, shopController.getItems.bind(shopController));
 router.post('/buy', requireAuth, shopController.buyItem.bind(shopController));
+router.post('/sell', requireAuth, shopController.sellItem.bind(shopController));
 
 export { router as shopRoutes };

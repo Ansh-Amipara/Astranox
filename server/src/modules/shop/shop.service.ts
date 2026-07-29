@@ -102,6 +102,87 @@ export class ShopService {
 
     return TrainerMapper.toTrainerSaveDto(updatedTrainer!);
   }
+
+  async sellItem(userId: string, dto: BuyItemDto): Promise<TrainerSaveDto> {
+    const { itemId, quantity } = dto;
+    if (quantity <= 0) {
+      throw new AppError('Quantity must be greater than zero.', 400);
+    }
+
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
+    });
+
+    if (!item) {
+      throw new AppError('Item not found.', 404);
+    }
+
+    const trainer = await prisma.trainerSave.findUnique({
+      where: { userId },
+    });
+
+    if (!trainer) {
+      throw new AppError('Trainer profile not found.', 404);
+    }
+
+    const inventoryItem = await prisma.inventoryItem.findUnique({
+      where: {
+        trainerId_itemId: {
+          trainerId: trainer.id,
+          itemId: item.id,
+        },
+      },
+    });
+
+    if (!inventoryItem || inventoryItem.quantity < quantity) {
+      throw new AppError(`You do not own enough ${item.name} to sell.`, 400);
+    }
+
+    const sellValue = Math.floor(item.cost * 0.75);
+    const totalRefund = sellValue * quantity;
+    const isInfinity = item.category === 'infinity-only';
+
+    await prisma.$transaction(async (tx) => {
+      const incrementData: any = isInfinity
+        ? { infinityCoins: { increment: totalRefund } }
+        : { astralCoins: { increment: totalRefund } };
+
+      await tx.trainerSave.update({
+        where: { id: trainer.id },
+        data: incrementData,
+      });
+
+      if (inventoryItem.quantity === quantity) {
+        await tx.inventoryItem.delete({
+          where: { id: inventoryItem.id },
+        });
+      } else {
+        await tx.inventoryItem.update({
+          where: { id: inventoryItem.id },
+          data: { quantity: { decrement: quantity } },
+        });
+      }
+    });
+
+    const updatedTrainer = await prisma.trainerSave.findUnique({
+      where: { id: trainer.id },
+      include: {
+        inventory: {
+          include: {
+            item: true,
+          }
+        },
+        party: {
+          include: {
+            species: { include: { type1: true, type2: true } },
+            moves: { include: { move: { include: { type: true } } } }
+          }
+        }
+      },
+    });
+
+    return TrainerMapper.toTrainerSaveDto(updatedTrainer!);
+  }
 }
 
 export const shopService = new ShopService();

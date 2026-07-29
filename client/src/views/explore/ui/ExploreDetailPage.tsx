@@ -2,7 +2,27 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ExploreService, ExploreResponse } from '@/services/explore.service';
 import { api, getSpriteUrl } from '@/shared/api/api';
-import { LOCATIONS } from './ExplorePage';
+import { LOCATIONS, getRealmImagePath } from './ExplorePage';
+
+const REGION_TYPES: Record<string, string[]> = {
+  PLAINS: ['Normal', 'Flying', 'Grass'],
+  FOREST: ['Bug', 'Grass', 'Poison'],
+  VOLCANO: ['Fire', 'Rock', 'Ground'],
+  OCEAN: ['Water', 'Ice'],
+  FROZEN_PEAKS: ['Ice', 'Steel'],
+  DESERT: ['Ground', 'Rock'],
+  MOUNTAIN: ['Rock', 'Fighting', 'Flying'],
+  HAUNTED_RUINS: ['Ghost', 'Dark'],
+  FAIRY_GARDEN: ['Fairy', 'Grass'],
+  SWAMP: ['Poison', 'Ground', 'Water'],
+  ANCIENT_TEMPLE: ['Psychic', 'Dragon', 'Rock'],
+  CRYSTAL_CAVE: ['Rock', 'Ice', 'Fairy'],
+  SKY_ISLANDS: ['Flying', 'Dragon', 'Fairy'],
+  ALOLA_REGION: ['Water', 'Fire', 'Grass'],
+  HISUI_REGION: ['Fighting', 'Ghost', 'Ice'],
+  GALAR_REGION: ['Steel', 'Dragon', 'Dark'],
+  PALDEA_REGION: ['Dragon', 'Fighting', 'Fairy']
+};
 
 export function ExploreDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -54,49 +74,53 @@ export function ExploreDetailPage() {
     navigate('/battle?returnUrl=/explore/' + locationId);
   };
 
+  const types = locationId ? (REGION_TYPES[locationId] || ['Various Types']) : [];
+
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
-      <div className="w-full mx-auto flex flex-col min-h-[calc(100vh-112px)]">
-        
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-slate-800 dark:text-white mb-2 capitalize">
-              {locationId?.replace('_', ' ').toLowerCase()}
-            </h1>
-            <p className="text-slate-500 font-medium">
-              You have arrived at this location. Will you explore the area?
-            </p>
-          </div>
-          
-          <button
-            onClick={() => navigate('/explore')}
-            disabled={loading}
-            className="px-6 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl transition-colors disabled:opacity-50 w-full sm:w-auto text-center"
-          >
-            Leave Area
-          </button>
+    <div className="flex-1 relative min-h-[calc(100vh-64px)] flex items-center justify-center p-4">
+      {/* Background Image */}
+      {locationId && (
+        <div className="absolute inset-0 z-0">
+          <img src={getRealmImagePath(locationId)} alt={locationId} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
         </div>
+      )}
+
+      {/* Centered Popup Card */}
+      <div className="relative z-10 w-full max-w-lg bg-white/95 dark:bg-ink-dark/95 backdrop-blur-xl border border-white/20 dark:border-ink-light/20 rounded-3xl shadow-2xl p-8 text-center flex flex-col items-center">
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 font-bold rounded-xl border border-red-200 dark:border-red-800/50">
+          <div className="w-full mb-6 p-4 bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-bold rounded-xl border border-red-200 dark:border-red-800">
             {error}
           </div>
         )}
 
-        <div className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col items-center justify-center p-8 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-emerald-500/5 dark:bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+        <h1 className="text-4xl font-black text-ink-dark dark:text-ink-paper capitalize mb-2">
+          {locationId?.replace(/_/g, ' ').toLowerCase()}
+        </h1>
 
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {types.map(t => (
+            <span key={t} className="px-3 py-1 bg-ink-blue/10 dark:bg-ink-blue/20 text-ink-blue dark:text-ink-paper font-bold text-sm rounded-full uppercase tracking-wider border border-ink-blue/20">
+              {t}
+            </span>
+          ))}
+        </div>
+        <div className="w-full flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => navigate('/explore')}
+            disabled={loading}
+            className="flex-1 py-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-black text-xl rounded-2xl transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50"
+          >
+            Leave
+          </button>
           <button
             onClick={handleExplore}
             disabled={loading}
-            className="relative z-10 w-full max-w-lg py-6 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-2xl rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
+            className="flex-1 py-4 bg-ink-blue hover:bg-ink-dark text-white font-black text-xl rounded-2xl shadow-[0_0_20px_rgba(109,129,150,0.3)] hover:shadow-[0_0_30px_rgba(109,129,150,0.5)] transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50"
           >
-            {loading ? 'Exploring...' : 'Search Area'}
+            {loading ? 'Exploring...' : 'Explore'}
           </button>
-          
-          <p className="text-slate-400 dark:text-slate-500 mt-6 font-medium relative z-10">
-            Click to search the environment for wild Pokémon and items.
-          </p>
         </div>
       </div>
 
@@ -104,7 +128,7 @@ export function ExploreDetailPage() {
       {result && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
-            
+
             {result.type === 'NOTHING' && (
               <div className="text-center text-slate-900 dark:text-white">
                 <div className="text-6xl mb-4">💨</div>
@@ -118,8 +142,8 @@ export function ExploreDetailPage() {
 
             {result.type === 'COINS' && (
               <div className="text-center text-slate-900 dark:text-white">
-                <div className="text-6xl mb-4 text-amber-500">💰</div>
-                <h2 className="text-2xl font-black mb-2 text-amber-600 dark:text-amber-400">Coins Found!</h2>
+                <div className="text-6xl mb-4 text-ink-blue">💰</div>
+                <h2 className="text-2xl font-black mb-2 text-ink-dark dark:text-ink-paper">Coins Found!</h2>
                 <p className="text-slate-600 dark:text-slate-300 mb-6 font-medium">{result.message}</p>
                 <button onClick={() => setResult(null)} className="w-full py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors">
                   Awesome!
@@ -129,19 +153,19 @@ export function ExploreDetailPage() {
 
             {result.type === 'POKEMON' && result.encounter && (
               <div className="text-center text-slate-900 dark:text-white">
-                <h2 className="text-3xl font-black mb-2 text-red-500 dark:text-red-400 uppercase tracking-wider">
+                <h2 className="text-3xl font-black mb-2 text-ink-dark dark:text-ink-paper uppercase tracking-wider">
                   Wild Encounter!
                 </h2>
                 <div className="flex justify-center mb-4 relative">
-                  <div className="absolute inset-0 bg-red-500/10 dark:bg-red-500/20 blur-xl rounded-full"></div>
-                  <img 
-                    src={getSpriteUrl(result.encounter.speciesId || result.encounter.species?.id)} 
-                    alt={result.encounter.speciesName} 
+                  <div className="absolute inset-0 bg-ink-blue/10 dark:bg-ink-blue/20 blur-xl rounded-full"></div>
+                  <img
+                    src={getSpriteUrl(result.encounter.speciesId || result.encounter.species?.id)}
+                    alt={result.encounter.speciesName}
                     className="w-40 h-40 object-contain relative z-10"
-                    style={{ filter: 'drop-shadow(0 0 10px rgba(239,68,68,0.2))', imageRendering: 'pixelated' }}
+                    style={{ filter: 'drop-shadow(0 0 10px rgba(109,129,150,0.2))', imageRendering: 'pixelated' }}
                   />
                 </div>
-                
+
                 <h3 className="text-2xl font-black capitalize mb-2">
                   {result.encounter.speciesName}
                 </h3>
@@ -158,13 +182,13 @@ export function ExploreDetailPage() {
                   <button onClick={handleRun} className="py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-xl font-black transition-colors">
                     Run Away
                   </button>
-                  <button onClick={handleFight} className="py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-black shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all">
+                  <button onClick={handleFight} className="py-3 bg-ink-blue hover:bg-ink-dark text-white rounded-xl font-black shadow-[0_0_15px_rgba(109,129,150,0.3)] transition-all">
                     Fight!
                   </button>
                 </div>
               </div>
             )}
-            
+
           </div>
         </div>
       )}

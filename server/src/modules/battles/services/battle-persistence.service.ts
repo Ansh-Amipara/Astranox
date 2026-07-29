@@ -21,18 +21,15 @@ export class BattlePersistenceService {
   }
 
   async saveCaughtPokemon(trainerSave: any, wildPokemon: any, tx: Prisma.TransactionClient) {
-    const partyCount = trainerSave.party.length;
-    const isParty = partyCount < 6;
+    const isParty = false;
     let boxNumber: number | null = null;
-    let position = partyCount;
+    let position = 0;
 
-    if (!isParty) {
-      boxNumber = 1;
-      const boxMons = await tx.ownedPokemon.findMany({
-        where: { trainerId: trainerSave.id, isParty: false, boxNumber: 1 }
-      });
-      position = boxMons.length;
-    }
+    const maxPositionResult = await tx.ownedPokemon.aggregate({
+      where: { trainerId: trainerSave.id, isParty: false },
+      _max: { position: true }
+    });
+    position = (maxPositionResult._max.position ?? -1) + 1;
 
     const newPokemon = await tx.ownedPokemon.create({
       data: {

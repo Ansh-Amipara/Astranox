@@ -15,6 +15,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001,
+    port: 4001,
+    strictPort: false, // Automatically try next port if in use
   },
 });

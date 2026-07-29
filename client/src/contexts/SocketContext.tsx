@@ -19,7 +19,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     // Determine backend URL (usually same as API base, but socket.io handles it well if we just point to the base URL)
-    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:4005';
     // Remove /api from the end if it exists, as socket.io typically connects to the root
     const baseUrl = backendUrl.replace(/\/api$/, '');
 
