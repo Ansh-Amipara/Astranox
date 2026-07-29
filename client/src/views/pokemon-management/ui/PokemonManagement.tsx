@@ -158,8 +158,13 @@ export function PokemonManagement() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex flex-col">
-                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate">
-                            {p.name || p.speciesName}
+                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate flex items-center gap-2">
+                            {p.nickname || p.name || p.speciesName}
+                            {p.isBound && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                                🔒 Bound
+                              </span>
+                            )}
                           </h3>
                         </div>
                       </div>
@@ -248,7 +253,14 @@ export function PokemonManagement() {
                   className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg object-contain pixelated border border-slate-200 dark:border-slate-700"
                 />
                 <div>
-                  <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
+                  <h3 className="font-bold capitalize text-slate-900 dark:text-white flex items-center gap-2">
+                    {activeMenuPkm.nickname || activeMenuPkm.name || activeMenuPkm.species?.name}
+                    {activeMenuPkm.isBound && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                        🔒 Bound
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-xs font-bold text-slate-500">
                     Lv. {activeMenuPkm.level}
                     {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[activeMenuPkm.potential as string] || 5000) ? (

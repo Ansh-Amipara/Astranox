@@ -67,6 +67,13 @@ export class TradesService {
       throw new ValidationError('Invalid requested Pokemon.');
     }
 
+    if (offeredPokemon.isBound) {
+      throw new ValidationError('Bound Pokemon cannot be traded.');
+    }
+    if (requestedPokemon.isBound) {
+      throw new ValidationError('Cannot request a Bound Pokemon in trade.');
+    }
+
     if (!offeredPokemon.isForTrade || !requestedPokemon.isForTrade) {
       throw new ValidationError('One or both of these Pokemon are not available for trade.');
     }

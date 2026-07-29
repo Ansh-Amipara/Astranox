@@ -13,6 +13,7 @@ import { Login } from '@/views/login/ui/Login';
 import { Register } from '@/views/register/ui/Register';
 import { AdminLogin } from '@/views/admin-login/ui/AdminLogin';
 import { AdminDashboard } from '@/views/admin-dashboard/ui/AdminDashboard';
+import { AdminEventManagement } from '@/views/admin-events/ui/AdminEventManagement';
 import { BattleScreen } from '@/views/battle/ui/BattleScreen';
 import { Bag } from '@/views/bag/ui/Bag';
 import { PokemonManagement } from '@/views/pokemon-management/ui/PokemonManagement';
@@ -32,6 +33,7 @@ import { CreateListingPage } from '@/views/marketplace/ui/CreateListingPage';
 import { Pokemart } from '@/views/pokemart/ui/Pokemart';
 import { TeamPage } from '@/views/team/ui/TeamPage';
 import { TradeScreen } from '@/views/trade/ui/TradeScreen';
+import { EventDashboard } from '@/views/events/ui/EventDashboard';
 
 import { NotFound } from '@/views/not-found/ui/NotFound';
 
@@ -70,6 +72,7 @@ export default function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminRootLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="events" element={<AdminEventManagement />} />
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
 
@@ -94,7 +97,7 @@ export default function App() {
           <Route path="rift" element={<RiftPage />} />
           <Route path="explore" element={<ExplorePage />} />
           <Route path="explore/:id" element={<ExploreDetailPage />} />
-
+          <Route path="events" element={<EventDashboard />} />
         </Route>
 
         {/* Fallback */}

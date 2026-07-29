@@ -155,8 +155,9 @@ export class TrainersService {
         // Lower tiers are 100%
         pearlsToAward.push({ type: pot.charAt(0) + pot.slice(1).toLowerCase(), quantity: 1, itemId: getPearlItemId(pot) });
       } else if (i === targetIndex) {
-        // Same tier is 50%
-        if (Math.random() < 0.50) {
+        // Same tier
+        const chance = pokemonToSmelt.isBound ? 0.20 : 0.50;
+        if (Math.random() < chance) {
           pearlsToAward.push({ type: pot.charAt(0) + pot.slice(1).toLowerCase(), quantity: 1, itemId: getPearlItemId(pot) });
         }
       }

@@ -243,8 +243,13 @@ export function TeamPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex flex-col">
-                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate">
+                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate flex items-center gap-2">
                             {pkm.nickname || pkm.species?.name}
+                            {pkm.isBound && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                                🔒 Bound
+                              </span>
+                            )}
                           </h3>
                         </div>
                       </div>

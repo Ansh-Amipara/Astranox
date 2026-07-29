@@ -9,10 +9,12 @@ import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { PokemonInstance, PokemonInstancePayload } from '../../game/instance/types';
 import { createPokemonInstance, getMinPotentialForLevel } from '../../game/instance/PokemonInstance';
 import { toActivePokemon } from '../battles/services/battle-session.service';
+import { EventsService } from '../events/events.service';
 
 export class RiftService {
   private repo = new RiftRepository();
   private prisma = new PrismaClient();
+  private eventsService = new EventsService();
 
   async getRiftState(userId: string) {
     const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
@@ -198,6 +200,8 @@ export class RiftService {
     if (nextFloor > maxFloors) {
       await this.repo.recordRunClear(state.id);
       completedRun = true;
+      // Emit Event Challenge Progress
+      await this.eventsService.emitEvent(save.id, 'CLEAR_RIFT').catch(e => console.error('Failed to emit event:', e));
     }
 
     // Auto-heal party (OwnedPokemon has currentXp, but we'll leave it as is or fix mapping)

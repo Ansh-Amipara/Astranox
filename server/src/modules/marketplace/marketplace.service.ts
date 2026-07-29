@@ -1,5 +1,8 @@
 import { MarketplaceRepository } from './marketplace.repository';
 import { AppError } from '../../common/errors/AppError';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class MarketplaceService {
   private repository: MarketplaceRepository;
@@ -9,6 +12,10 @@ export class MarketplaceService {
   }
 
   async createListing(sellerId: string, pokemonId: string, description?: string) {
+    const pokemon = await prisma.ownedPokemon.findUnique({ where: { id: pokemonId } });
+    if (!pokemon) throw new AppError('Pokemon not found', 404);
+    if (pokemon.isBound) throw new AppError('Bound Pokemon cannot be listed on the marketplace.', 400);
+
     // 7 days expiration
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
@@ -40,6 +47,12 @@ export class MarketplaceService {
     if (!listing) {
       throw new AppError('Listing not found', 404);
     }
+    
+    const offeredPokemon = await prisma.ownedPokemon.findMany({ where: { id: { in: pokemonIds } } });
+    if (offeredPokemon.some(p => p.isBound)) {
+      throw new AppError('You cannot offer a Bound Pokemon.', 400);
+    }
+
     if (listing.status !== 'OPEN') {
       throw new AppError('Listing is not OPEN', 400);
     }

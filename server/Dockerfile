@@ -62,7 +62,6 @@ COPY --from=pruner /app/server/node_modules ./server/node_modules
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/
 COPY --from=builder /app/server/dist ./server/dist
-COPY --from=builder /app/server/public ./server/public
 COPY --from=builder /app/server/package.json ./server/
 COPY --from=builder /app/server/prisma ./server/prisma
 

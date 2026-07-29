@@ -3,6 +3,9 @@ import { IBattleState, StateMachineServices } from '../battle-state.interface';
 import { ValidationError } from '../../../../../common/errors/AppError';
 import { BattleAction } from '../../../../../game/battle-state/types';
 import { getBallBonus } from '../../../../../game/battle/catch-math';
+import { EventsService } from '../../../../events/events.service';
+
+const eventsService = new EventsService();
 
 export class ActiveState implements IBattleState {
   async handleAction(
@@ -267,6 +270,13 @@ export class ActiveState implements IBattleState {
     // --- POST-BATTLE PROCESSING ---
     if (isCaught) {
       await persistence.saveCaughtPokemon(trainerSave, wildPokemon, tx);
+      await eventsService.emitEvent(session.trainerId, 'CAPTURE_POKEMON', { 
+        types: wildPokemon.types || (wildPokemon.species && wildPokemon.species.types) || [] 
+      }).catch(e => console.error(e));
+    } else if (newStatus === BattleStatus.WON && session.battleType === 'WILD') {
+      await eventsService.emitEvent(session.trainerId, 'DEFEAT_WILD_POKEMON', { 
+        types: wildPokemon.types || (wildPokemon.species && wildPokemon.species.types) || [] 
+      }).catch(e => console.error(e));
     }
 
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, result.events);

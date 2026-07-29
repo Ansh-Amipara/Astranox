@@ -7,6 +7,7 @@ import { PokemonInstancePayload } from '../../game/instance/types';
 import { AppError } from '../../common/errors/AppError';
 import { PrismaClient, BattleStatus, BattleType, Prisma } from '@prisma/client';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
+import { EventsService } from '../events/events.service';
 
 const prisma = new PrismaClient(); // For creating battle session directly here, or we can use battle service
 
@@ -35,6 +36,7 @@ function toActivePokemon(inst: any) {
 
 export class TowerService {
   private repository = new TowerRepository();
+  private eventsService = new EventsService();
 
   private async getValidState(trainerId: string) {
     let state = await this.repository.getStateByTrainerId(trainerId);
@@ -149,6 +151,10 @@ export class TowerService {
         }
       })
     ]);
+
+    for (let i = 0; i < skippedCount; i++) {
+      await this.eventsService.emitEvent(trainerId, 'CLEAR_TOWER').catch(e => console.error(e));
+    }
 
     const stateData = await this.getState(trainerId);
     return {
@@ -333,6 +339,7 @@ export class TowerService {
         reward.infinityCoins || 0,
         reward.storedXp || 0
       );
+      await this.eventsService.emitEvent(trainerId, 'CLEAR_TOWER').catch(e => console.error(e));
     } else {
       await this.repository.failFloor(state.id, encounter.id);
     }

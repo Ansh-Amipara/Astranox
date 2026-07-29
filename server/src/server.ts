@@ -26,6 +26,7 @@ import { logger } from './config/logger';
 
 import { marketplaceRoutes } from './modules/marketplace/marketplace.routes';
 import { startMarketplaceWorker } from './modules/marketplace/marketplace.worker';
+import eventsRoutes from './modules/events/events.routes';
 
 const app = express();
 const port = env.API_PORT;
@@ -56,6 +57,7 @@ app.use('/tower', towerRoutes);
 app.use('/rift', riftRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/explore', exploreRoutes);
+app.use('/events', eventsRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {
