@@ -1,8 +1,10 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { EventsRepository } from '../events/events.repository';
 
+@injectable()
 export class AdminEventsController {
-  private repo = new EventsRepository();
+  constructor(private repo: EventsRepository) {}
 
   createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {

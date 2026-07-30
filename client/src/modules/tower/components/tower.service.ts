@@ -12,8 +12,8 @@ export interface TowerEncounter {
   id: string;
   floor: number;
   status: 'ACTIVE' | 'CLEARED' | 'FAILED';
-  enemyTeam: any[];
-  reward: any;
+  enemyTeam: unknown[];
+  reward: unknown;
 }
 
 export const towerService = {
@@ -28,17 +28,17 @@ export const towerService = {
   },
 
   startBattle: async (playerActivePokemonId?: string) => {
-    const { data } = await api.post<{ success: boolean; data: any }>('/tower/battle/start', { playerActivePokemonId });
+    const { data } = await api.post<{ success: boolean; data: unknown }>('/tower/battle/start', { playerActivePokemonId });
     return data.data;
   },
 
   completeBattle: async (result: 'WON' | 'LOST') => {
-    const { data } = await api.post<{ success: boolean; data: any }>('/tower/battle/complete', { result });
+    const { data } = await api.post<{ success: boolean; data: unknown }>('/tower/battle/complete', { result });
     return data.data;
   },
 
   skipFloors: async () => {
-    const { data } = await api.post<{ success: boolean; data: any }>('/tower/skip');
+    const { data } = await api.post<{ success: boolean; data: unknown }>('/tower/skip');
     return data.data;
   }
 };

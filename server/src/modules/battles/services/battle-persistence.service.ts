@@ -1,9 +1,11 @@
+import { injectable } from 'tsyringe';
 import { Prisma } from '@prisma/client';
 import { BattlesRepository } from '../repositories/battles.repository';
 
+@injectable()
 export class BattlePersistenceService {
-  constructor(private repo: BattlesRepository = new BattlesRepository()) {}
-
+  constructor(private repo: BattlesRepository) {}
+  
   async runTurnTransaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
     return this.repo.runTurnTransaction(fn);
   }
@@ -12,12 +14,17 @@ export class BattlePersistenceService {
     return this.repo.getTrainerForTurn(tx, userId);
   }
 
-  async getActiveBattleForUpdate(tx: Prisma.TransactionClient, trainerId: string) {
-    return this.repo.getActiveBattleForUpdate(tx, trainerId);
+  async getActiveBattleForUpdate(trainerId: string) {
+    return this.repo.getActiveBattleByTrainer(trainerId);
   }
 
-  async updateTurnIfCurrent(tx: Prisma.TransactionClient, sessionId: string, currentTurnNumber: number, data: any) {
-    return this.repo.updateTurnIfCurrent(tx, sessionId, currentTurnNumber, data);
+  async updateTurnIfCurrent(trainerId: string, currentTurnNumber: number, data: any) {
+    const session = await this.repo.getActiveBattleByTrainer(trainerId);
+    if (!session || session.turnNumber !== currentTurnNumber) {
+      return false;
+    }
+    await this.repo.updateBattleSession(trainerId, data);
+    return true;
   }
 
   async saveCaughtPokemon(trainerSave: any, wildPokemon: any, tx: Prisma.TransactionClient) {

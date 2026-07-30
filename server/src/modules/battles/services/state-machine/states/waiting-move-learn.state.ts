@@ -71,7 +71,7 @@ export class WaitingMoveLearnState implements IBattleState {
     }
 
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, eventLog);
-    const updated = await persistence.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+    const updated = await persistence.updateTurnIfCurrent(session.trainerId, session.turnNumber, {
       status: nextStatus,
       playerPokemonData: playerPokemon,
       playerPartyData: playerPartyData as any,

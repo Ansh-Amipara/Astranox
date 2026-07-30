@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import { shopController } from './shop.controller';
+import { ShopController } from './shop.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
+import { container } from 'tsyringe';
 
 const router = Router();
+const controller = container.resolve(ShopController);
 
-router.get('/items', requireAuth, shopController.getItems.bind(shopController));
-router.post('/buy', requireAuth, shopController.buyItem.bind(shopController));
-router.post('/sell', requireAuth, shopController.sellItem.bind(shopController));
+router.get('/items', requireAuth, controller.getItems);
+router.post('/buy', requireAuth, controller.buyItem);
+router.post('/sell', requireAuth, controller.sellItem);
 
 export { router as shopRoutes };

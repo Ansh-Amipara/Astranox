@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { TrainersRepository } from '../../trainers/trainers.repository';
 import { ARENA_TRAINERS } from '../../../game/constants/arena-trainers';
 import { BattlesRepository } from '../repositories/battles.repository';
@@ -8,9 +9,9 @@ import { ActivePokemon } from '../../../game/battle-state/types';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../core/db/prisma';
 
-const prisma = new PrismaClient();
+
 
 function generateWildIVs() {
   return {
@@ -86,9 +87,12 @@ export function toActivePokemon(inst: any): ActivePokemon {
   };
 }
 
+@injectable()
 export class BattleSessionService {
-  private repository = new BattlesRepository();
-  private trainersRepo = new TrainersRepository();
+  constructor(
+    private repository: BattlesRepository,
+    private trainersRepo: TrainersRepository
+  ) {}
 
   async getArenaTrainers() {
     return ARENA_TRAINERS;

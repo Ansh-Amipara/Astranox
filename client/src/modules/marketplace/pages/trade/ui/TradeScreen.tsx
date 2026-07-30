@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
+import { OwnedPokemonDto } from '@astranox/shared';
 
 export function TradeScreen() {
   const params = useParams();
@@ -82,13 +83,13 @@ export function TradeScreen() {
               <p className="text-slate-500 italic">You have no Pokémon marked "For Trade". Go to your PC Box to select some.</p>
             ) : (
               <div className="grid grid-cols-3 gap-4">
-                {myTradeable?.map((pkm: any) => (
+                {myTradeable?.map((pkm: OwnedPokemonDto) => (
                   <div 
                     key={pkm.id} 
                     onClick={() => setMySelected(pkm.id)}
                     className={`cursor-pointer border-2 rounded-xl p-2 flex flex-col items-center transition-all ${mySelected === pkm.id ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 shadow-md scale-105' : 'border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-600'}`}
                   >
-                    <img src={pkm.species.spriteUrl} alt={pkm.species.name} className="w-16 h-16 object-contain drop-shadow" style={{ imageRendering: 'pixelated' }} />
+                    <img src={pkm.species.spriteUrl || undefined} alt={pkm.species.name} className="w-16 h-16 object-contain drop-shadow" style={{ imageRendering: 'pixelated' }} />
                     <span className="font-bold text-sm text-center capitalize mt-2">{pkm.nickname || pkm.species.name}</span>
                     <span className="text-xs font-bold text-slate-500">Lv {pkm.level}</span>
                   </div>
@@ -109,13 +110,13 @@ export function TradeScreen() {
               <p className="text-slate-500 italic">This player has no Pokémon marked "For Trade".</p>
             ) : (
               <div className="grid grid-cols-3 gap-4">
-                {friendTradeable?.map((pkm: any) => (
+                {friendTradeable?.map((pkm: OwnedPokemonDto) => (
                   <div 
                     key={pkm.id} 
                     onClick={() => setFriendSelected(pkm.id)}
                     className={`cursor-pointer border-2 rounded-xl p-2 flex flex-col items-center transition-all ${friendSelected === pkm.id ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 shadow-md scale-105' : 'border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-600'}`}
                   >
-                    <img src={pkm.species.spriteUrl} alt={pkm.species.name} className="w-16 h-16 object-contain drop-shadow" style={{ imageRendering: 'pixelated' }} />
+                    <img src={pkm.species.spriteUrl || undefined} alt={pkm.species.name} className="w-16 h-16 object-contain drop-shadow" style={{ imageRendering: 'pixelated' }} />
                     <span className="font-bold text-sm text-center capitalize mt-2">{pkm.nickname || pkm.species.name}</span>
                     <span className="text-xs font-bold text-slate-500">Lv {pkm.level}</span>
                   </div>
@@ -131,7 +132,7 @@ export function TradeScreen() {
             <div className="flex flex-col items-center">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Offer</span>
               {mySelected ? (
-                <img src={myTradeable.find((p: any) => p.id === mySelected)?.species.spriteUrl} className="w-16 h-16 drop-shadow" style={{ imageRendering: 'pixelated' }} />
+                <img src={myTradeable.find((p: OwnedPokemonDto) => p.id === mySelected)?.species.spriteUrl} className="w-16 h-16 drop-shadow" style={{ imageRendering: 'pixelated' }} />
               ) : (
                 <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">?</div>
               )}
@@ -142,7 +143,7 @@ export function TradeScreen() {
             <div className="flex flex-col items-center">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Receive</span>
               {friendSelected ? (
-                <img src={friendTradeable.find((p: any) => p.id === friendSelected)?.species.spriteUrl} className="w-16 h-16 drop-shadow" style={{ imageRendering: 'pixelated' }} />
+                <img src={friendTradeable.find((p: OwnedPokemonDto) => p.id === friendSelected)?.species.spriteUrl} className="w-16 h-16 drop-shadow" style={{ imageRendering: 'pixelated' }} />
               ) : (
                 <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">?</div>
               )}

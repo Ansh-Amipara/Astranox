@@ -1,8 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { injectable } from 'tsyringe';
+
 import type { User } from '@prisma/client';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+
+
+@injectable()
 export class AuthRepository {
   async createUser(data: any): Promise<User> {
     return prisma.user.create({ data });

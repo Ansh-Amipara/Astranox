@@ -4,12 +4,13 @@ import { HealthBar } from '@/shared/ui/HealthBar';
 import { StatusIcons } from '@/shared/ui/StatusIcons';
 import { WeatherEffects } from './WeatherEffects';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
+import { ActivePokemonDto, OwnedPokemonDto } from '@astranox/shared';
 
 interface Props {
-  wild: any;
-  player: any;
-  opponentPartyData: any[];
-  playerPartyData: any[];
+  wild: ActivePokemonDto & { name?: string; isCorrupted?: boolean; statusAilment?: string };
+  player: ActivePokemonDto & { name?: string; nickname?: string; statusAilment?: string };
+  opponentPartyData: (OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string })[];
+  playerPartyData: (OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string })[];
 }
 
 export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, playerPartyData }: Props) {
@@ -51,11 +52,11 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
         {/* Opponent Party Dots */}
         {opponentPartyData && opponentPartyData.length > 0 ? (
           <div className="flex gap-1.5 mb-2 justify-start">
-            {opponentPartyData.map((p: any, idx: number) => (
+            {opponentPartyData.map((p: OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string }, idx: number) => (
               <div
                 key={p.id || idx}
                 className={`w-3 h-3 rounded-full border border-slate-400 dark:border-slate-600 ${p.currentHp > 0 ? 'bg-red-500 shadow-sm' : 'bg-slate-400 dark:bg-slate-700 opacity-40'}`}
-                title={`${p.name || p.speciesName || 'Pokemon'} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
+                title={`${p.name || p.species?.name || 'Pokemon'} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
               ></div>
             ))}
           </div>
@@ -72,7 +73,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       {/* Wild Sprite (Top Right) */}
       <div className="absolute top-12 right-16 z-10">
         <PokemonSprite
-          speciesId={wild.species?.id || wild.speciesId}
+          speciesId={wild.speciesId}
           speciesName={wild.name || wild.speciesName}
           isPlayer={false}
           className=""
@@ -82,7 +83,7 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
       {/* Player Sprite (Bottom Left) */}
       <div className="absolute bottom-12 left-24 z-10">
         <PokemonSprite
-          speciesId={player.species?.id || player.speciesId}
+          speciesId={player.speciesId}
           speciesName={player.name || player.speciesName}
           isPlayer={true}
           className=""
@@ -122,11 +123,11 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
         {/* Player Party Dots */}
         {playerPartyData && playerPartyData.length > 0 && (
           <div className="flex gap-1.5 mb-2 justify-end">
-            {playerPartyData.map((p: any, idx: number) => (
+            {playerPartyData.map((p: OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string }, idx: number) => (
               <div
                 key={p.id || idx}
                 className={`w-3 h-3 rounded-full border border-slate-400 dark:border-slate-600 ${p.currentHp > 0 ? 'bg-green-500 shadow-sm' : 'bg-slate-400 dark:bg-slate-700 opacity-40'}`}
-                title={`${p.name || p.speciesName} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
+                title={`${p.name || p.species?.name} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
               ></div>
             ))}
           </div>

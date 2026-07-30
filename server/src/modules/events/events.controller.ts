@@ -1,11 +1,13 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { EventsService } from './events.service';
 
 interface AuthRequest extends Request {
   user: { id: string; role: 'USER' | 'ADMIN'; username: string; email: string };
 }
+@injectable()
 export class EventsController {
-  private service = new EventsService();
+  constructor(private service: EventsService) {}
 
   getActiveEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {

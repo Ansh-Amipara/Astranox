@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { useCreateOffer } from '../api/queries';
 import { Loader2, X, AlertCircle, Check } from 'lucide-react';
+import { OwnedPokemonDto } from '@astranox/shared';
 
 interface TradeOfferModalProps {
   listingId: string;
@@ -21,7 +22,7 @@ export function TradeOfferModal({ listingId, onClose }: TradeOfferModalProps) {
   const pokemonList = myPokemonResponse?.data || [];
   
   // Filter out pokemon that can't be traded (in party, already in escrow)
-  const tradablePokemon = pokemonList.filter((p: any) => !p.isParty && !p.isEscrowed);
+  const tradablePokemon = pokemonList.filter((p: OwnedPokemonDto) => !p.isParty && !p.isEscrowed);
 
   const toggleSelection = (id: string) => {
     setSelectedIds(prev => 
@@ -63,7 +64,7 @@ export function TradeOfferModal({ listingId, onClose }: TradeOfferModalProps) {
             <div className="text-center py-12 text-slate-500">You have no tradable Pokémon in your PC.</div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {tradablePokemon.map((p: any) => {
+              {tradablePokemon.map((p: OwnedPokemonDto) => {
                 const isSelected = selectedIds.includes(p.id);
                 return (
                   <div 

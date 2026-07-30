@@ -1,5 +1,6 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
-import { shopService } from './shop.service';
+import { ShopService } from './shop.service';
 import { z } from 'zod';
 
 const buyItemSchema = z.object({
@@ -7,39 +8,40 @@ const buyItemSchema = z.object({
   quantity: z.number().int().positive(),
 });
 
+@injectable()
 export class ShopController {
-  async getItems(_req: Request, res: Response, next: NextFunction) {
+  constructor(private shopService: ShopService) {}
+
+  getItems = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const items = await shopService.getItems();
+      const items = await this.shopService.getItems();
       res.json({ success: true, data: items });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async buyItem(req: Request, res: Response, next: NextFunction) {
+  buyItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { itemId, quantity } = buyItemSchema.parse(req.body);
       
-      const trainerSave = await shopService.buyItem(req.user!.id, { itemId, quantity });
+      const trainerSave = await this.shopService.buyItem(req.user!.id, { itemId, quantity });
       
       res.json({ success: true, data: trainerSave });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async sellItem(req: Request, res: Response, next: NextFunction) {
+  sellItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { itemId, quantity } = buyItemSchema.parse(req.body);
 
-      const trainerSave = await shopService.sellItem(req.user!.id, { itemId, quantity });
+      const trainerSave = await this.shopService.sellItem(req.user!.id, { itemId, quantity });
 
       res.json({ success: true, data: trainerSave });
     } catch (error) {
       next(error);
     }
-  }
+  };
 }
-
-export const shopController = new ShopController();

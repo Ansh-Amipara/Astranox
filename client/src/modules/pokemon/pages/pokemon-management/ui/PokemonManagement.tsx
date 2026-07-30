@@ -1,18 +1,20 @@
 import { useState, useRef } from 'react';
+import { OwnedPokemonDto, MoveDto } from '@astranox/shared';
 import { PokemonModalsRef } from '@/modules/pokemon/components/ui/PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { getPotentialBadgeClasses } from '@/utils/pokemonUtils';
+import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 import { toast } from 'sonner';
 import { PokemonActionModals } from '@/modules/pokemon/components/ui/PokemonActionModals';
 import { Pagination } from '@/components/ui/Pagination';
+import { PokemonManagementCard } from './PokemonManagementCard';
 
 export function PokemonManagement() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [selectedForTeam, setSelectedForTeam] = useState<string | null>(null);
-  const [activeMenuPkm, setActiveMenuPkm] = useState<any>(null);
+  const [activeMenuPkm, setActiveMenuPkm] = useState<OwnedPokemonDto | null>(null);
   const modalsRef = useRef<PokemonModalsRef>(null);
 
   const { data: save } = useQuery({
@@ -48,8 +50,8 @@ export function PokemonManagement() {
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
       toast.success('Removed from team!');
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.error?.message || 'Failed to remove from team');
+    onError: (err: unknown) => {
+      toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to remove from team');
     }
   });
 
@@ -63,8 +65,8 @@ export function PokemonManagement() {
       setSelectedForTeam(null);
       toast.success('Added to team!');
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.error?.message || 'Failed to add to team');
+    onError: (err: unknown) => {
+      toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to add to team');
     }
   });
 
@@ -85,7 +87,7 @@ export function PokemonManagement() {
             <div className="text-sm mt-1">
               <p className="font-semibold">Pearls Obtained:</p>
               <ul className="list-disc list-inside">
-                {data.pearls.map((p: any, i: number) => (
+                {data.pearls.map((p: { quantity?: number; type?: string }, i: number) => (
                   <li key={i}>{p.quantity}x {p.type} Pearl</li>
                 ))}
               </ul>
@@ -109,8 +111,8 @@ export function PokemonManagement() {
   const total = pokemonData?.meta?.total || 0;
   const totalPages = Math.ceil(total / 20) || 1;
 
-  const activePartyIds = new Set(save?.party?.map((p: any) => p.id) || []);
-  const isInParty = (pokemon: any) => activePartyIds.has(pokemon.id);
+  const activePartyIds = new Set(save?.party?.map((p: OwnedPokemonDto) => p.id) || []);
+  const isInParty = (pokemon: OwnedPokemonDto) => activePartyIds.has(pokemon.id);
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
@@ -128,109 +130,14 @@ export function PokemonManagement() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allPokemon.map((p: any) => {
-              const inParty = isInParty(p);
-              return (
-                <div
-                  key={p.id}
-                  className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer ${inParty ? 'border-blue-500 shadow-blue-500/20' : 'border-slate-300 dark:border-slate-700'} bg-white dark:bg-slate-900/80 shadow-lg hover:border-blue-500`}
-                  onClick={() => setActiveMenuPkm(p)}
-                >
-                  {inParty && !p.isEscrowed && (
-                    <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
-                      In Party
-                    </div>
-                  )}
-                  {p.isEscrowed && (
-                    <div className="absolute top-3 right-3 bg-purple-500 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
-                      In Trade
-                    </div>
-                  )}
-
-                  <div className="p-6 flex items-start gap-6">
-                    <div className="w-24 h-24 shrink-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                      <img
-                        src={p.species?.spriteUrl || p.spriteUrl || getSpriteUrl(p.speciesId)}
-                        alt={p.name || p.speciesName}
-                        className="w-20 h-20 object-contain drop-shadow-md pixelated"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex flex-col">
-                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate flex items-center gap-2">
-                            {p.nickname || p.name || p.speciesName}
-                            {p.isBound && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
-                                🔒 Bound
-                              </span>
-                            )}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* 2nd Row: Type */}
-                      <div className="mt-2 flex gap-1">
-                        {p.species?.type1 && (
-                          <img src={getTypeSpriteUrl(p.species.type1.name, false)} alt={p.species.type1.name} title={p.species.type1.name} className="h-6 w-auto object-contain drop-shadow-sm" />
-                        )}
-                        {p.species?.type2 && (
-                          <img src={getTypeSpriteUrl(p.species.type2.name, false)} alt={p.species.type2.name} title={p.species.type2.name} className="h-6 w-auto object-contain drop-shadow-sm" />
-                        )}
-                      </div>
-
-                      {/* 3rd Row: Potential and CP */}
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {p.potential && (
-                          <span className={getPotentialBadgeClasses(p.potential)}>
-                            {p.potential.replace('_', ' ')}
-                          </span>
-                        )}
-                        <span className="text-xs px-2 py-1 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
-                          CP {p.cp?.toLocaleString() || 0}
-                        </span>
-                      </div>
-
-                      {/* Level and XP */}
-                      <div className="mt-3 flex items-center gap-3">
-                        <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded border border-blue-100 dark:border-blue-900/50">
-                          <span className="text-xs font-bold uppercase mr-1 opacity-70">Lv.</span>
-                          <span className="text-sm font-black">{p.level}</span>
-                        </div>
-                        {p.potential && p.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[p.potential as string] || 5000) ? (
-                          <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
-                            <span className="text-xs font-bold uppercase mr-1 opacity-70">XP</span>
-                            <span className="text-sm font-bold">{(p.currentXp || 0).toLocaleString()}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
-                        {[0, 1, 2, 3].map(i => {
-                          const move = p.moves?.find((m: any) => m.slot === i)?.move;
-                          return (
-                            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
-                              {move ? (
-                                <>
-                                  <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
-                                  <span className="font-bold text-slate-700 dark:text-slate-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
-                                </>
-                              ) : (
-                                <span className="text-slate-400 dark:text-slate-500 italic text-xs">- Empty -</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {allPokemon.map((p: OwnedPokemonDto) => (
+              <PokemonManagementCard
+                key={p.id}
+                pokemon={p}
+                inParty={isInParty(p)}
+                onClick={setActiveMenuPkm}
+              />
+            ))}
           </div>
         )}
 
@@ -246,7 +153,7 @@ export function PokemonManagement() {
         {/* Options Menu Modal */}
         {activeMenuPkm && (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div role="dialog" aria-modal="true" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <img
                   src={getSpriteUrl(activeMenuPkm.speciesId)}
@@ -254,7 +161,7 @@ export function PokemonManagement() {
                 />
                 <div>
                   <h3 className="font-bold capitalize text-slate-900 dark:text-white flex items-center gap-2">
-                    {activeMenuPkm.nickname || activeMenuPkm.name || activeMenuPkm.species?.name}
+                    {activeMenuPkm.nickname || (activeMenuPkm as unknown as { name?: string })?.name || activeMenuPkm.speciesName}
                     {activeMenuPkm.isBound && (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
                         🔒 Bound
@@ -395,7 +302,7 @@ export function PokemonManagement() {
         {/* Slot Selection Modal */}
         {selectedForTeam && (
           <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800">
+            <div role="dialog" aria-modal="true" className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800">
               <h2 className="text-2xl font-black mb-2">Select Team Slot</h2>
               <p className="text-slate-500 dark:text-slate-400 mb-6">Which slot should this Pokémon take? (1-6)</p>
 
@@ -407,7 +314,7 @@ export function PokemonManagement() {
                     className="py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 font-bold rounded-xl transition-colors flex items-center justify-between"
                   >
                     <span>Slot {slot + 1}</span>
-                    {save?.party?.find((p: any) => p.position === slot) ? (
+                    {save?.party?.find((p: OwnedPokemonDto) => p.position === slot) ? (
                       <span className="text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded">Replace</span>
                     ) : (
                       <span className="text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">Empty</span>

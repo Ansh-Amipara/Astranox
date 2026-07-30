@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { getEventMessage } from '../lib/utils';
+import { useSocket } from '@/contexts/SocketContext';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
+import { BattleSessionDto, TurnEventDto, ActivePokemonDto } from '@astranox/shared';
 
 export function useBattleSession() {
   const queryClient = useQueryClient();
@@ -23,13 +27,13 @@ export function useBattleSession() {
     refetchOnWindowFocus: false
   });
 
-  const turnMutation = useMutation({
-    mutationFn: async (action: string) => {
-      const { data } = await api.post('/battles/turn', { action });
-      return data.data;
-    },
-    onSuccess: (updatedTurnData) => {
-      queryClient.setQueryData(['activeBattle'], (old: any) => {
+  const { socket, isConnected } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleStateUpdate = (updatedTurnData: { status: string; turnNumber?: number; p1State?: ActivePokemonDto; p2State?: ActivePokemonDto; events?: TurnEventDto[]; log?: { turn: number; events: TurnEventDto[] }[] }) => {
+      queryClient.setQueryData(['activeBattle'], (old: BattleSessionDto | undefined) => {
         if (!old) return old;
         return {
           ...old,
@@ -37,27 +41,53 @@ export function useBattleSession() {
           turnNumber: updatedTurnData.turnNumber !== undefined ? updatedTurnData.turnNumber + 1 : old.turnNumber,
           playerPokemonData: updatedTurnData.p1State || old.playerPokemonData,
           opponentPokemonData: updatedTurnData.p2State || old.opponentPokemonData,
-          log: [...(old.log || []), { turn: updatedTurnData.turnNumber ?? old.turnNumber, events: updatedTurnData.events }]
+          log: [...(old.log || []), { turn: updatedTurnData.turnNumber ?? old.turnNumber ?? 0, events: updatedTurnData.events || [] }]
         };
       });
+
       const s = updatedTurnData.status;
       if (s === 'ACTIVE' || s === 'WAITING_SWITCH' || s === 'WAITING_MOVE_LEARN') {
-        queryClient.invalidateQueries({ queryKey: ['activeBattle'] });
+        // Option to refetch, or we just trust the socket update
+        // queryClient.invalidateQueries({ queryKey: ['activeBattle'] });
       }
+    };
+
+    const handleError = (error: { message?: string }) => {
+      console.error('Battle Socket Error:', error);
+    };
+
+    socket.on('battle:state_update', handleStateUpdate);
+    socket.on('battle:error', handleError);
+
+    return () => {
+      socket.off('battle:state_update', handleStateUpdate);
+      socket.off('battle:error', handleError);
+    };
+  }, [socket, queryClient]);
+
+  const turnMutation = useMutation({
+    mutationFn: async (action: string) => {
+      if (!socket || !isConnected) {
+        throw new Error('Socket not connected');
+      }
+      return new Promise<void>((resolve) => {
+        socket.emit('battle:submit_turn', { action });
+        resolve(); // We resolve immediately, state updates come asynchronously via `battle:state_update`
+      });
     }
   });
 
   let lastTurnEvents: string[] = [];
-  let rawEvents: any[] = [];
+  let rawEvents: TurnEventDto[] = [];
   
   if (battleRes) {
     const player = battleRes.playerPokemonData;
     const wild = battleRes.opponentPokemonData;
     const log = battleRes.log || [];
-    const lastTurnLog = log.find((l: any) => l.turn === battleRes.turnNumber - 1);
+    const lastTurnLog = log.find((l: { turn: number; events: TurnEventDto[] }) => l.turn === battleRes.turnNumber - 1);
     rawEvents = lastTurnLog ? lastTurnLog.events : [];
     
-    lastTurnEvents = rawEvents.map((ev: any) => getEventMessage(ev, player, wild)).filter(Boolean);
+    lastTurnEvents = rawEvents.map((ev: TurnEventDto) => getEventMessage(ev, player, wild)).filter(Boolean) as string[];
   }
 
   const isFinished = battleRes ? (battleRes.status === 'WON' || battleRes.status === 'LOST' || battleRes.status === 'FLED' || battleRes.status === 'CAUGHT') : false;

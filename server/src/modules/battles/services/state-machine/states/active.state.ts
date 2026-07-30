@@ -5,7 +5,9 @@ import { BattleAction } from '../../../../../game/battle-state/types';
 import { getBallBonus } from '../../../../../game/battle/catch-math';
 import { EventsService } from '../../../../events/events.service';
 
-const eventsService = new EventsService();
+import { container } from 'tsyringe';
+
+const eventsService = container.resolve(EventsService);
 
 export class ActiveState implements IBattleState {
   async handleAction(
@@ -21,7 +23,7 @@ export class ActiveState implements IBattleState {
       const fledEvent = event.createFledEvent(session.playerActivePokemonId);
       const updatedLog = log.appendTurnLog(session.log, session.turnNumber, [fledEvent]);
 
-      const updated = await persistence.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+      const updated = await persistence.updateTurnIfCurrent(session.trainerId, session.turnNumber, {
         status: BattleStatus.FLED,
         turnNumber: session.turnNumber + 1,
         playerPokemonData: session.playerPokemonData as Prisma.InputJsonValue,
@@ -281,7 +283,7 @@ export class ActiveState implements IBattleState {
 
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, result.events);
 
-    const updated = await persistence.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+    const updated = await persistence.updateTurnIfCurrent(session.trainerId, session.turnNumber, {
       status: newStatus,
       turnNumber: session.turnNumber + 1,
       playerActivePokemonId: session.playerActivePokemonId,

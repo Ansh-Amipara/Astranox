@@ -1,10 +1,12 @@
+import { injectable } from 'tsyringe';
 import { BattleAction } from '../../../game/battle-state/types';
 import { resolveTurn } from '../../../game/battle-state/turn-resolver';
 import { Prisma } from '@prisma/client';
 import { BattleValidatorService } from './battle-validator.service';
 
+@injectable()
 export class BattleTurnService {
-  constructor(private validator: BattleValidatorService = new BattleValidatorService()) {}
+  constructor(private validator: BattleValidatorService) {}
 
   async getOpponentAction(wildPokemon: any, playerPokemon: any, tx: Prisma.TransactionClient): Promise<BattleAction> {
     const opponentMoves = wildPokemon.moves && wildPokemon.moves.length > 0 ? wildPokemon.moves : [{ moveId: 33 }]; // 33 is tackle

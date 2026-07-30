@@ -40,8 +40,10 @@ function timeAgo(date: Date, addSuffix = false): string {
   return text;
 }
 
+import { TradeListingDto } from '@astranox/shared';
+
 interface TradeListingCardProps {
-  listing: any;
+  listing: TradeListingDto & { _count?: { offers: number } };
   onClick: () => void;
 }
 
@@ -83,7 +85,7 @@ export function TradeListingCard({ listing, onClick }: TradeListingCardProps) {
           {pokemon.potential === 'LEGENDARY' && <Sparkles className="w-4 h-4 text-yellow-500" />}
         </h3>
         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">
-          {pokemon.potential.replace(/_/g, ' ')}
+          {pokemon.potential?.replace(/_/g, ' ')}
         </p>
       </div>
 

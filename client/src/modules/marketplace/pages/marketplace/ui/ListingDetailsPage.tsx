@@ -5,6 +5,7 @@ import { TradeOfferModal } from '@/modules/marketplace/components/ui/TradeOfferM
 import { getSpriteUrl } from '@/shared/api/api';
 import { Loader2, ArrowLeft, Check, X, Ban, Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
+import { TradeOfferDto } from '@astranox/shared';
 
 export function ListingDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -111,15 +112,15 @@ export function ListingDetailsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {listing.offers?.map((offer: any) => (
+              {listing.offers?.map((offer: TradeOfferDto) => (
                 <div key={offer.id} className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex-1">
                     <p className="font-bold text-slate-700 dark:text-slate-300 mb-4">
-                      Offer by {offer.bidder.user.username} <span className="text-slate-400 text-sm ml-2">({offer.offeredPokemon.length} Pokémon)</span>
+                      Offer by {offer.bidder?.user?.username} <span className="text-slate-400 text-sm ml-2">({offer.offeredPokemon.length} Pokémon)</span>
                     </p>
                     <div className="flex flex-wrap gap-4">
-                      {offer.offeredPokemon.map((op: any) => (
-                        <div key={op.pokemonId} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                      {offer.offeredPokemon.map((op) => (
+                        <div key={op.pokemon.id} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                           <img src={getSpriteUrl(op.pokemon.species.id)} alt={op.pokemon.species.name} className="w-12 h-12 pixelated" />
                           <div>
                             <p className="font-bold text-slate-800 dark:text-white text-sm capitalize">{op.pokemon.species.name}</p>
@@ -149,7 +150,7 @@ export function ListingDetailsPage() {
                     </div>
                   )}
                   
-                  {!isSeller && user?.username === offer.bidder.user.username && listing.status === 'OPEN' && offer.status === 'PENDING' && (
+                  {!isSeller && user?.username === offer.bidder?.user?.username && listing.status === 'OPEN' && offer.status === 'PENDING' && (
                     <div className="flex gap-2 w-full md:w-auto">
                       <button 
                         onClick={() => cancelOfferMutation.mutate(offer.id)}
@@ -161,7 +162,7 @@ export function ListingDetailsPage() {
                     </div>
                   )}
                   
-                  {(!isSeller && user?.username !== offer.bidder.user.username || offer.status !== 'PENDING') && (
+                  {(!isSeller && user?.username !== offer.bidder?.user?.username || offer.status !== 'PENDING') && (
                     <div className="px-6 py-3 bg-slate-100 dark:bg-slate-900 rounded-xl text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">
                       {offer.status}
                     </div>

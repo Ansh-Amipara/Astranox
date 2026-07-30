@@ -1,3 +1,4 @@
+import { container } from 'tsyringe';
 import { Router } from 'express';
 import { BattlesController } from './battles.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
@@ -6,7 +7,7 @@ import { validate } from '../../core/middleware/validate';
 import { engageCustomSchema, submitTurnSchema } from './battles.schema';
 
 export const battlesRoutes = Router();
-const controller = new BattlesController();
+const controller = container.resolve(BattlesController);
 
 battlesRoutes.use(requireAuth);
 

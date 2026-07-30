@@ -4,8 +4,9 @@ import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { TypeSelect } from '@/components/ui/TypeSelect';
-import { getPotentialBadgeClasses } from '@/utils/pokemonUtils';
+import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 import { ArrowRight } from 'lucide-react';
+import { OwnedPokemonDto, MoveDto, SpeciesDto, TrainerSaveDto, OwnedPokemonMoveDto } from '@astranox/shared';
 
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
@@ -18,7 +19,7 @@ function calculateStat(base: number, iv: number, level: number): number {
   return Math.floor(((2 * base + iv) * level) / 100) + 5;
 }
 
-function calculateCP(detailsPkm: any): number {
+function calculateCP(detailsPkm: OwnedPokemonDto | null): number {
   if (!detailsPkm || !detailsPkm.species) return 0;
   const hp = calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level, detailsPkm.species.isGmax);
   const atk = calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level);
@@ -31,21 +32,20 @@ function calculateCP(detailsPkm: any): number {
 
 
 export type PokemonModalsRef = {
-  openDetails: (pkm: any) => void;
-  openMoves: (pkm: any) => void;
-  openEvolve: (pkm: any) => void;
-  openBoost: (pkm: any) => void;
-  openIVs: (pkm: any) => void;
-  openGiveXp: (pkm: any) => void;
+  openDetails: (pkm: OwnedPokemonDto) => void;
+  openMoves: (pkm: OwnedPokemonDto) => void;
+  openEvolve: (pkm: OwnedPokemonDto) => void;
+  openBoost: (pkm: OwnedPokemonDto) => void;
+  openIVs: (pkm: OwnedPokemonDto) => void;
+  openGiveXp: (pkm: OwnedPokemonDto) => void;
 };
 
 export type PokemonActionModalsProps = {
-
-  activeMenuPkm: any | null;
-  setActiveMenuPkm: (pkm: any | null) => void;
-  save: any;
-  allMoves: any;
-  customActions?: (pkm: any) => React.ReactNode;
+  activeMenuPkm: OwnedPokemonDto | null;
+  setActiveMenuPkm: (pkm: OwnedPokemonDto | null) => void;
+  save: TrainerSaveDto;
+  allMoves: MoveDto[];
+  customActions?: (pkm: OwnedPokemonDto) => React.ReactNode;
 };
 
 
@@ -55,17 +55,31 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
   const queryClient = useQueryClient();
 
-  const [detailsPkm, setDetailsPkm] = useState<any>(null);
-  const [changeMovePkm, setChangeMovePkm] = useState<any>(null);
-  const [evolutionPkm, setEvolutionPkm] = useState<any>(null);
-  const [boostPkm, setBoostPkm] = useState<any>(null);
-  const [boostIvPkm, setBoostIvPkm] = useState<any>(null);
-  const [giveXpPkm, setGiveXpPkm] = useState<any>(null);
-  const [dynamaxPkm, setDynamaxPkm] = useState<any>(null);
+  interface PokemonWithMovesEditing extends OwnedPokemonDto {
+    currentMoves: string[];
+    editingSlot?: number;
+  }
+  
+  interface TransformationOption {
+    id: number;
+    name: string;
+    isStandard?: boolean;
+    isMega?: boolean;
+    isGmax?: boolean;
+    baseSpeciesId?: number | null;
+  }
+
+  const [detailsPkm, setDetailsPkm] = useState<OwnedPokemonDto | null>(null);
+  const [changeMovePkm, setChangeMovePkm] = useState<PokemonWithMovesEditing | null>(null);
+  const [evolutionPkm, setEvolutionPkm] = useState<OwnedPokemonDto | null>(null);
+  const [boostPkm, setBoostPkm] = useState<OwnedPokemonDto | null>(null);
+  const [boostIvPkm, setBoostIvPkm] = useState<OwnedPokemonDto | null>(null);
+  const [giveXpPkm, setGiveXpPkm] = useState<OwnedPokemonDto | null>(null);
+  const [dynamaxPkm, setDynamaxPkm] = useState<OwnedPokemonDto | null>(null);
   const [xpAmountInput, setXpAmountInput] = useState<string>('1000');
   const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
-  const [selectedTransformation, setSelectedTransformation] = useState<any>(null);
+  const [selectedTransformation, setSelectedTransformation] = useState<TransformationOption | null>(null);
 
   const { data: speciesInfo } = useQuery({
     queryKey: ['species', activeMenuPkm?.speciesId || evolutionPkm?.speciesId],
@@ -81,9 +95,9 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   const derivedTransformations = React.useMemo(() => {
     const active = activeMenuPkm || evolutionPkm;
     if (!active) return [];
-    const t = [];
+    const t: TransformationOption[] = [];
     if (active.species?.evolvesToId) {
-      t.push({ isStandard: true, id: active.species.evolvesToId, name: active.species.evolvesTo?.name || 'Evolution' });
+      t.push({ isStandard: true, id: active.species.evolvesToId, name: active.species.evolvesTo?.name || 'Evolution' } as TransformationOption);
     }
     if (speciesInfo?.megas) t.push(...speciesInfo.megas);
     if (speciesInfo?.gmaxes) t.push(...speciesInfo.gmaxes);
@@ -108,7 +122,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
   useImperativeHandle(ref, () => ({
     openDetails: setDetailsPkm,
-    openMoves: (pkm) => setChangeMovePkm({ ...pkm, currentMoves: [0, 1, 2, 3].map(i => pkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') }),
+    openMoves: (pkm) => setChangeMovePkm({ ...pkm, currentMoves: [0, 1, 2, 3].map(i => pkm.moves?.find((m: OwnedPokemonMoveDto) => m.slot === i)?.move?.name || 'tackle') }),
     openEvolve: (pkm) => {
       setEvolutionPkm(pkm);
       setSelectedTransformation(null);
@@ -152,7 +166,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
             <div className="text-sm mt-1">
               <p className="font-semibold">Pearls Obtained:</p>
               <ul className="list-disc list-inside">
-                {data.pearls.map((p: any, i: number) => (
+                {data.pearls.map((p: { type: string; quantity: number }, i: number) => (
                   <li key={i}>{p.quantity}x {p.type} Pearl</li>
                 ))}
               </ul>
@@ -165,7 +179,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   });
 
   const evolveMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: string | { pokemonId: string; targetSpeciesId: number }) => {
       if (typeof data === 'string') {
         await api.post(`/trainers/party/${data}/evolve`);
       } else {
@@ -230,7 +244,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 1. Options Menu Modal --- */}
       {activeMenuPkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-xs flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-xs flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
               <img
                 src={getSpriteUrl(activeMenuPkm.speciesId)}
@@ -261,7 +275,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
               <button
                 onClick={() => {
-                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') });
+                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: OwnedPokemonMoveDto) => m.slot === i)?.move?.name || 'tackle') });
                   setMoveSearch('');
                   setActiveMenuPkm(null);
                 }}
@@ -350,7 +364,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 2. Details Modal --- */}
       {detailsPkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setDetailsPkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <img
@@ -425,7 +439,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 3. Move Management Modal --- */}
       {changeMovePkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setChangeMovePkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
                 Change {changeMovePkm.nickname || changeMovePkm.species?.name}'s Moves
@@ -480,7 +494,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                       <TypeSelect
                         value={typeFilter === 'all' ? '' : typeFilter}
                         onChange={(val) => setTypeFilter(val || 'all')}
-                        types={Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).filter((t: any) => t !== 'shadow' && t !== 'unknown').sort() as string[]}
+                        types={Array.from(new Set(allMoves?.map((m: MoveDto) => m.type) || [])).filter((t: string) => t !== 'shadow' && t !== 'unknown').sort() as string[]}
                         disabled={changeMovePkm.editingSlot === undefined}
                       />
                     </div>
@@ -497,13 +511,13 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   </div>
                 </div>
                 {changeMovePkm.editingSlot !== undefined && allMoves
-                  ?.filter((move: any) =>
+                  ?.filter((move: MoveDto) =>
                     (typeFilter === 'all' || move.type === typeFilter) &&
                     (move.name.toLowerCase().includes(moveSearch.toLowerCase()) ||
                       move.type.toLowerCase().includes(moveSearch.toLowerCase()) ||
                       move.damageClass.toLowerCase().includes(moveSearch.toLowerCase()))
                   )
-                  .sort((a: any, b: any) => {
+                  .sort((a: MoveDto, b: MoveDto) => {
                     if (sortBy === 'power_desc') {
                       return (b.power || 0) - (a.power || 0);
                     }
@@ -513,12 +527,12 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     return a.name.localeCompare(b.name);
                   })
                   .slice(0, 100) // Limit to 100 to prevent lagging the UI when search is empty
-                  .map((move: any) => (
+                  .map((move: MoveDto) => (
                     <button
                       key={move.name}
                       onClick={() => {
                         const newMoves = [...changeMovePkm.currentMoves];
-                        newMoves[changeMovePkm.editingSlot] = move.name;
+                        newMoves[changeMovePkm.editingSlot!] = move.name;
                         setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: undefined });
                         setMoveSearch('');
                       }}
@@ -549,9 +563,9 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 onClick={() => {
                   const moveIds = changeMovePkm.currentMoves
                     .filter(Boolean)
-                    .map((moveName: string) => allMoves?.find((m: any) => m.name === moveName)?.id)
-                    .filter(Boolean);
-                  changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds });
+                    .map((moveName: string) => allMoves?.find((m: MoveDto) => m.name === moveName)?.id)
+                    .filter(Boolean) as number[];
+                  changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds.map(String) });
                 }}
                 disabled={changeMovesMutation.isPending || changeMovePkm.editingSlot !== undefined}
                 className="px-8 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-colors disabled:opacity-50"
@@ -566,7 +580,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !evolveMutation.isPending && setEvolutionPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
               <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10 pointer-events-none" />
 
             <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -597,7 +611,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 
                 {derivedTransformations.length > 1 && (
                   <div className="flex gap-3 mb-2 flex-wrap justify-center">
-                    {derivedTransformations.map((transform: any) => (
+                    {derivedTransformations.map((transform: TransformationOption) => (
                       <button
                         key={transform.id}
                         onClick={() => setSelectedTransformation(transform)}
@@ -620,7 +634,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Evolution Requirement</h4>
               {(() => {
                 if (selectedTransformation?.isGmax) {
-                  const ownedCandy = save.inventory?.find((i: any) => i.itemId === 'dynamax-candy');
+                  const ownedCandy = save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === 'dynamax-candy');
                   const hasCandy = ownedCandy && ownedCandy.quantity > 0;
                   return (
                     <div className="flex flex-col items-center">
@@ -636,12 +650,12 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   let megaStoneName = selectedTransformation.name.replace('-mega', 'ite');
                   if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
                   if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-                  const hasMegaStone = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                  const hasMegaStone = (save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === megaStoneName)?.quantity ?? 0) > 0;
                   return (
                     <div className="flex flex-col items-center">
                       <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{megaStoneName.replace('-', ' ')}</span>
                       <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasMegaStone ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                        In Bag: {save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity || 0}
+                        In Bag: {save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === megaStoneName)?.quantity || 0}
                       </span>
                     </div>
                   );
@@ -662,8 +676,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   return (
                     <div className="flex flex-col items-center">
                       <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
-                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                        In Bag: {save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${(save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity ?? 0) > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        In Bag: {save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
                       </span>
                     </div>
                   );
@@ -686,7 +700,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 let canPerformEvolution = false;
                 
                 if (selectedTransformation?.isGmax) {
-                  canPerformEvolution = save.inventory?.find((i: any) => i.itemId === 'dynamax-candy')?.quantity > 0;
+                  canPerformEvolution = (save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === 'dynamax-candy')?.quantity ?? 0) > 0;
                   return (
                     <button
                       onClick={() => dynamaxMutation.mutate(evolutionPkm.id)}
@@ -702,17 +716,17 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   let megaStoneName = selectedTransformation.name.replace('-mega', 'ite');
                   if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
                   if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-                  canPerformEvolution = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                  canPerformEvolution = (save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === megaStoneName)?.quantity ?? 0) > 0;
                 } else if (selectedTransformation?.isStandard) {
-                  canPerformEvolution = (evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
-                                        (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0);
+                  canPerformEvolution = !!((evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
+                                        (evolutionPkm.species.evolutionItem && (save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity ?? 0) > 0));
                 }
 
                 return (
                   <button
                     onClick={() => {
                       if (selectedTransformation?.isMega) {
-                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedTransformation.id } as any);
+                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedTransformation.id });
                       } else {
                         evolveMutation.mutate(evolutionPkm.id);
                       }
@@ -750,8 +764,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
           'MYTHICAL': { next: 'INFINITY', item: 'infinity-pearl', itemName: 'Infinity Pearl' },
           'INFINITY': { next: 'ETERNAL', item: 'eternal-pearl', itemName: 'Eternal Pearl' },
         };
-        const mapping = potentialMap[boostPkm.potential];
-        const ownedCrystal = save.inventory?.find((i: any) => i.itemId === mapping?.item);
+        const mapping = potentialMap[boostPkm.potential || 'BLACK_IRON'];
+        const ownedCrystal = save.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === mapping?.item);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 
         const themeMap: Record<string, { border: string, shadow: string, bgGradient: string, textGradient: string, textBase: string, arrow: string, buttonBg: string, buttonHover: string }> = {
@@ -777,7 +791,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>
-            <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center`} onClick={e => e.stopPropagation()}>
+            <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center`} role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
               <div className={`absolute inset-0 bg-linear-to-br ${theme.bgGradient} pointer-events-none`} />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -789,7 +803,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
                     <img src={getSpriteUrl(boostPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
                   </div>
-                  <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{boostPkm.potential.replace('_', ' ')}</span>
+                  <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{boostPkm.potential?.replace('_', ' ')}</span>
                 </div>
 
                 <div className={`flex flex-col items-center justify-center ${theme.arrow} animate-pulse`}>
@@ -856,18 +870,18 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
           { key: 'ivSpeed', label: 'Speed' }
         ];
 
-        const ownedCrystal = save.inventory?.find((i: any) => i.itemId === requiredItemId);
+        const ownedCrystal = save.inventory?.find((i: { itemId: string }) => i.itemId === requiredItemId);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
         
         const isMaxed = isGold 
-          ? statOptions.every(opt => (boostIvPkm[opt.key] as number) >= 31)
-          : (boostIvPkm[selectedIvStat] as number) >= 31;
+          ? statOptions.every(opt => ((boostIvPkm as unknown as Record<string, number>)[opt.key]) >= 31)
+          : ((boostIvPkm as unknown as Record<string, number>)[selectedIvStat]) >= 31;
           
-        const statValue = boostIvPkm[selectedIvStat] as number;
+        const statValue = (boostIvPkm as unknown as Record<string, number>)[selectedIvStat];
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
               <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -897,7 +911,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                       onClick={() => setSelectedIvStat(opt.key)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                     >
-                      {opt.label}: {boostIvPkm[opt.key]}
+                      {opt.label}: {(boostIvPkm as unknown as Record<string, number>)[opt.key]}
                     </button>
                   ))}
                 </div>
@@ -998,7 +1012,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
         return (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
               <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <img
                   src={getSpriteUrl(giveXpPkm.speciesId)}

@@ -1,10 +1,13 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, PokemonPotential } from '@prisma/client';
 import { AppError } from '../../core/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 import { getXpForLevel } from '../../game/battle/level-math';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+
+@injectable()
 export class AdminRepository {
   async getAllUsers() {
     return prisma.user.findMany({

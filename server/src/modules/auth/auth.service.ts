@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import bcrypt from 'bcryptjs';
 import { AuthRepository } from './auth.repository';
 import type { LoginDto } from './dto/request/LoginDto';
@@ -7,12 +8,9 @@ import { AuthMapper } from './dto/mapper';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../core/utils/jwt';
 import { ValidationError, UnauthorizedError } from '../../core/errors/AppError';
 
+@injectable()
 export class AuthService {
-  private repo: AuthRepository;
-
-  constructor() {
-    this.repo = new AuthRepository();
-  }
+  constructor(private repo: AuthRepository) {}
 
   async register(input: RegisterDto): Promise<{ message: string }> {
     const existingUser = await this.repo.findByUsername(input.username);

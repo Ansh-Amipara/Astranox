@@ -1,7 +1,10 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, Prisma, TradeListingStatus, TradeOfferStatus } from '@prisma/client';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+
+@injectable()
 export class MarketplaceRepository {
   async createListing(sellerId: string, pokemonId: string, description: string | undefined, expiresAt: Date) {
     return prisma.$transaction(async (tx) => {

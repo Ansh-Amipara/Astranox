@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketplaceApi } from './marketplace.api';
 
-export const useSearchListings = (filters: any) => {
+export const useSearchListings = (filters: Record<string, unknown>) => {
   return useQuery({
     queryKey: ['marketplace', 'search', filters],
     queryFn: () => marketplaceApi.searchListings(filters)

@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
 import { LogOut } from 'lucide-react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ModuleErrorFallback } from '@/shared/ui/ErrorFallback';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
@@ -56,7 +58,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col">
-        {children}
+        <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
+          {children}
+        </ErrorBoundary>
       </main>
     </div>
   );

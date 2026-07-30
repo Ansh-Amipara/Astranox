@@ -38,8 +38,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         user: data.data.user,
         isInitialized: true 
       });
-    } catch (error: any) {
-      if (error?.status === 401 || error?.response?.status === 401) {
+    } catch (error: unknown) {
+      const err = error as { status?: number; response?: { status?: number } };
+      if (err?.status === 401 || err?.response?.status === 401) {
         set({ accessToken: null, user: null, isInitialized: true });
       } else {
         // Critical network or server error during boot

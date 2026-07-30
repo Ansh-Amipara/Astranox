@@ -1,15 +1,13 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { BattlesService } from './battles.service';
 import { ValidationError } from '../../core/errors/AppError';
 import type { EngageCustomDto } from './dto/request/EngageCustomDto';
 import type { SubmitTurnDto } from './dto/request/SubmitTurnDto';
 
+@injectable()
 export class BattlesController {
-  private service: BattlesService;
-
-  constructor() {
-    this.service = new BattlesService();
-  }
+  constructor(private service: BattlesService) {}
 
   getArenaTrainers = async (_req: Request, res: Response, next: NextFunction) => {
     try {

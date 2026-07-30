@@ -1,3 +1,5 @@
+import { injectable } from 'tsyringe';
+@injectable()
 export class BattleEventService {
   createFledEvent(pokemonId: string) {
     return { type: 'fled' as const, pokemonId };

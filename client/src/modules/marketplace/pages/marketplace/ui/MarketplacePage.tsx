@@ -3,6 +3,7 @@ import { useSearchListings, useMyListings, useMyOffers, useCancelOffer } from '@
 import { TradeListingCard } from '@/modules/marketplace/components/ui/TradeListingCard';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { TradeListingDto, TradeOfferDto } from '@astranox/shared';
 
 export function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<'browse' | 'my-listings' | 'my-offers'>('browse');
@@ -24,7 +25,7 @@ export function MarketplacePage() {
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-          {listings.map((listing: any) => (
+          {listings.map((listing: TradeListingDto & { _count?: { offers: number } }) => (
             <TradeListingCard key={listing.id} listing={listing} onClick={() => navigate(`/marketplace/${listing.id}`)} />
           ))}
         </div>
@@ -38,7 +39,7 @@ export function MarketplacePage() {
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-          {listings.map((listing: any) => (
+          {listings.map((listing: TradeListingDto & { _count?: { offers: number } }) => (
             <TradeListingCard key={listing.id} listing={listing} onClick={() => navigate(`/marketplace/${listing.id}`)} />
           ))}
         </div>
@@ -52,7 +53,7 @@ export function MarketplacePage() {
 
       return (
         <div className="space-y-4 mt-6">
-          {offers.map((offer: any) => (
+          {offers.map((offer: TradeOfferDto & { listing: TradeListingDto }) => (
             <div key={offer.id} className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex justify-between items-center cursor-pointer hover:border-blue-500 transition-colors" onClick={() => navigate(`/marketplace/${offer.listingId}`)}>
               <div>
                 <p className="font-bold text-slate-800 dark:text-white">Offer on {offer.listing.pokemon.species.name}</p>

@@ -1,5 +1,9 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, RiftDifficulty, TrainerRank } from '@prisma/client';
+import { prisma } from '../../core/db/prisma';
 
+
+@injectable()
 export class RiftRepository {
   private prisma = new PrismaClient();
 

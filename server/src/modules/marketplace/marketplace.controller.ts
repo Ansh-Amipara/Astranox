@@ -1,8 +1,9 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { MarketplaceService } from './marketplace.service';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
+
 
 const getTrainerId = async (userId: string) => {
   const trainer = await prisma.trainerSave.findUnique({ where: { userId } });
@@ -10,12 +11,9 @@ const getTrainerId = async (userId: string) => {
   return trainer.id;
 };
 
+@injectable()
 export class MarketplaceController {
-  private service: MarketplaceService;
-
-  constructor() {
-    this.service = new MarketplaceService();
-  }
+  constructor(private service: MarketplaceService) {}
 
   createListing = async (req: Request, res: Response, next: NextFunction) => {
     try {

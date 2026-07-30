@@ -26,8 +26,9 @@ export function AdminLogin() {
       
       setAuth(data.data.accessToken, data.data.user);
       navigate('/admin/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || err.message || 'Failed to login');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }

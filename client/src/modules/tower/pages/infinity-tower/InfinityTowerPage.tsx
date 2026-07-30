@@ -4,6 +4,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { useSkipTowerFloors } from '@/modules/tower/components/useTower';
 import { toast } from 'sonner';
+import { OwnedPokemonDto } from '@astranox/shared';
 
 import { Loader2, Coins, AlertCircle, Mountain, Swords, FastForward } from 'lucide-react';
 
@@ -51,8 +52,8 @@ export const InfinityTowerPage: React.FC = () => {
           queryClient.invalidateQueries({ queryKey: ['battleSession'] });
           navigate('/battle?returnUrl=/tower');
         },
-        onError: (err: any) => {
-          toast.error(err.response?.data?.error?.message || 'Failed to start battle');
+        onError: (err: unknown) => {
+          toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to start battle');
         }
       });
     }
@@ -61,16 +62,16 @@ export const InfinityTowerPage: React.FC = () => {
   const handleSkipFloors = () => {
     if (!skipFloors.isPending) {
       skipFloors.mutate(undefined, {
-        onSuccess: (res: any) => {
-          const skipResult = res?.skipResult;
+        onSuccess: (res: unknown) => {
+          const skipResult = (res as { skipResult?: { skippedCount: number, startFloor: number, endFloor: number, accumulatedCoins: number, accumulatedXp: number } })?.skipResult;
           if (skipResult) {
             toast.success(
               `Skipped ${skipResult.skippedCount} floors (Floor ${skipResult.startFloor} ➔ ${skipResult.endFloor})! Rewards: +${skipResult.accumulatedCoins} Coins, +${skipResult.accumulatedXp} XP`
             );
           }
         },
-        onError: (err: any) => {
-          toast.error(err.response?.data?.error?.message || 'Failed to skip floors');
+        onError: (err: unknown) => {
+          toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to skip floors');
         }
       });
     }
@@ -138,7 +139,7 @@ export const InfinityTowerPage: React.FC = () => {
 
               <div className="relative flex flex-col items-center w-full max-w-screen-2xl mx-auto">
                 <div className="flex flex-wrap justify-center gap-8 sm:gap-12 mb-8 w-full">
-                  {activeEncounter.enemyTeam.map((pokemon: any, index: number) => (
+                  {(activeEncounter.enemyTeam as OwnedPokemonDto[]).map((pokemon: OwnedPokemonDto, index: number) => (
                     <div key={index} className="group flex flex-col items-center">
                       <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center mb-3 border border-slate-200 dark:border-slate-700 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-purple-300 dark:group-hover:border-purple-500/50 relative overflow-hidden">
                         <img
@@ -165,7 +166,7 @@ export const InfinityTowerPage: React.FC = () => {
                     <div className="flex flex-col text-left">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Coins</span>
                       <span className="text-xl font-black text-yellow-600 dark:text-yellow-400 leading-none">
-                        +{(activeEncounter.reward as any)?.infinityCoins || 0}
+                        +{(activeEncounter.reward as { infinityCoins?: number })?.infinityCoins || 0}
                       </span>
                     </div>
                   </div>
@@ -178,7 +179,7 @@ export const InfinityTowerPage: React.FC = () => {
                     <div className="flex flex-col text-left">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Stored XP</span>
                       <span className="text-xl font-black text-blue-600 dark:text-blue-400 leading-none">
-                        +{(activeEncounter.reward as any)?.storedXp || 0}
+                        +{(activeEncounter.reward as { storedXp?: number })?.storedXp || 0}
                       </span>
                     </div>
                   </div>

@@ -40,6 +40,16 @@ export const BattleResultModal = memo(function BattleResultModal({
 
   const displayEvents = rewardEvents.length > 0 ? rewardEvents : lastTurnEvents;
 
+  const eventsNode: any = displayEvents.length > 0 ? (
+    <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+      {(displayEvents as string[]).map((msg: string, i: number) => (
+        <p key={i} className="text-center font-semibold text-slate-700 dark:text-slate-300">
+          {msg}
+        </p>
+      ))}
+    </div>
+  ) : null;
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 w-full max-w-xl flex flex-col items-center shadow-2xl animate-in zoom-in-95 duration-300">
@@ -48,15 +58,7 @@ export const BattleResultModal = memo(function BattleResultModal({
         </h2>
 
         {/* Event List */}
-        {displayEvents.length > 0 && (
-          <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-            {displayEvents.map((msg: string, i: number) => (
-              <p key={i} className="text-center font-semibold text-slate-700 dark:text-slate-300">
-                {msg}
-              </p>
-            ))}
-          </div>
-        )}
+        {eventsNode}
 
         {/* Tower Rewards */}
         {battleType === 'TOWER' && status === 'WON' && towerData?.activeEncounter?.reward && (

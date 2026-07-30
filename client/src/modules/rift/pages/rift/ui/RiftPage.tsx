@@ -55,8 +55,8 @@ export const RiftPage: React.FC = () => {
       onSuccess: () => {
         toast.success(`Entered ${selectedRank.replace('_RANK', '')} Rift (${difficulty})`);
       },
-      onError: (err: any) => {
-        toast.error(err.response?.data?.error?.message || 'Failed to start Rift');
+      onError: (err: unknown) => {
+        toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to start Rift');
       }
     });
   };
@@ -66,8 +66,8 @@ export const RiftPage: React.FC = () => {
       onSuccess: () => {
         navigate('/battle?returnUrl=/rift');
       },
-      onError: (err: any) => {
-        toast.error(err.response?.data?.error?.message || 'Failed to start encounter');
+      onError: (err: unknown) => {
+        toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to start encounter');
         queryClient.invalidateQueries({ queryKey: ['riftState'] });
       }
     });

@@ -22,7 +22,7 @@ export function RankPage() {
       queryClient.invalidateQueries({ queryKey: ['battleSession'] });
       navigate('/battle?returnUrl=/rank');
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
       setSuccessMessage(null);
       setError(err.response?.data?.error?.message || 'Failed to start exam');
     }

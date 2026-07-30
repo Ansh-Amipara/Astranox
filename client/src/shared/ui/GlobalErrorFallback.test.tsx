@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { GlobalErrorFallback } from './GlobalErrorFallback';
+import { GlobalErrorFallback } from './ErrorFallback';
 import { vi, describe, beforeEach, it, expect } from 'vitest';
 
 vi.mock('react-router-dom', () => ({

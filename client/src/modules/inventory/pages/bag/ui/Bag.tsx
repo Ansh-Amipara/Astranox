@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { useState } from 'react';
+import { OwnedPokemonDto } from '@astranox/shared';
 import { toast } from 'sonner';
 
 interface InventoryItem {
@@ -35,7 +36,7 @@ export function Bag() {
       toast.success(res.data.message);
       setSelectedItemToUse(null);
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
       toast.error(err.response?.data?.error?.message || 'Failed to use item');
     }
   });
@@ -137,7 +138,7 @@ export function Bag() {
             <p className="text-slate-500 mb-6">Select a Pokémon to use this item on.</p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {save?.party?.map((p: any) => (
+              {save?.party?.map((p: OwnedPokemonDto) => (
                 <button
                   key={p.id}
                   onClick={() => useItemMutation.mutate({ itemId: selectedItemToUse.itemId, targetPokemonId: p.id })}

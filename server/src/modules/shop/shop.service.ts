@@ -1,13 +1,15 @@
-import { PrismaClient } from '@prisma/client';
+import { injectable } from 'tsyringe';
 import { AppError } from '../../core/errors/AppError';
 import { ShopMapper } from './dto/mapper';
 import { TrainerMapper } from '../trainers/dto/mapper';
 import type { ShopItemDto } from './dto/response/ShopItemDto';
 import type { TrainerSaveDto } from '../trainers/dto/response/TrainerSaveDto';
 import type { BuyItemDto } from './dto/request/BuyItemDto';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+
+@injectable()
 export class ShopService {
   async getItems(): Promise<ShopItemDto[]> {
     const items = await prisma.item.findMany({
@@ -184,5 +186,3 @@ export class ShopService {
     return TrainerMapper.toTrainerSaveDto(updatedTrainer!);
   }
 }
-
-export const shopService = new ShopService();

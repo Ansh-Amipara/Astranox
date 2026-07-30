@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { BattleSessionService } from './services/battle-session.service';
 import { BattleValidatorService } from './services/battle-validator.service';
 import { BattleTurnService } from './services/battle-turn.service';
@@ -17,19 +18,29 @@ import type { BattleSessionDto } from './dto/response/BattleSessionDto';
 import type { StartEncounterResultDto } from './dto/response/StartEncounterResultDto';
 import type { TurnResultDto } from './dto/response/TurnResultDto';
 
+@injectable()
 export class BattlesService {
-  private sessionService = new BattleSessionService();
-  
-  private stateMachineServices: StateMachineServices = {
-    validator: new BattleValidatorService(),
-    turn: new BattleTurnService(),
-    reward: new BattleRewardService(),
-    persistence: new BattlePersistenceService(),
-    event: new BattleEventService(),
-    log: new BattleLogService()
-  };
+  private stateMachineServices: StateMachineServices;
 
-  private stateMachine = new BattleStateMachine();
+  constructor(
+    private sessionService: BattleSessionService,
+    private validator: BattleValidatorService,
+    private turn: BattleTurnService,
+    private reward: BattleRewardService,
+    private persistence: BattlePersistenceService,
+    private event: BattleEventService,
+    private log: BattleLogService,
+    private stateMachine: BattleStateMachine
+  ) {
+    this.stateMachineServices = {
+      validator: this.validator,
+      turn: this.turn,
+      reward: this.reward,
+      persistence: this.persistence,
+      event: this.event,
+      log: this.log
+    };
+  }
 
   async getAvailableSpecies(): Promise<AvailableSpeciesDto[]> {
     const species = await this.sessionService.getAvailableSpecies();
@@ -70,7 +81,7 @@ export class BattlesService {
     const trainerSave = await this.stateMachineServices.persistence.getTrainerForTurn(tx, userId);
     if (!trainerSave) throw new NotFoundError('Trainer profile not found.');
     
-    const session = await this.stateMachineServices.persistence.getActiveBattleForUpdate(tx, trainerSave.id);
+    const session = await this.stateMachineServices.persistence.getActiveBattleForUpdate(trainerSave.id);
     if (!session) throw new NotFoundError('No active battle session found.');
     
     return this.stateMachine.processAction(action, session, trainerSave, tx, this.stateMachineServices);

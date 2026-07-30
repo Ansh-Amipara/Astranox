@@ -1,9 +1,14 @@
+import { injectable } from 'tsyringe';
 // Trigger IDE reload
 import { Prisma, PrismaClient, BattleStatus } from '@prisma/client';
+import { prisma } from '../../../core/db/prisma';
+import { CacheService } from '../../../core/services/cache.service';
+import { randomUUID } from 'crypto';
 
-const prisma = new PrismaClient();
-
+@injectable()
 export class BattlesRepository {
+  constructor(private cache: CacheService) {}
+
   async runTurnTransaction<T>(handler: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
@@ -14,17 +19,7 @@ export class BattlesRepository {
         }
       }
     }
-
     throw new Error('Battle transaction retry limit reached.');
-  }
-
-  async getActiveBattleForUpdate(tx: Prisma.TransactionClient, trainerId: string) {
-    return tx.battleSession.findFirst({
-      where: {
-        trainerId,
-        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN] }
-      }
-    });
   }
 
   async getTrainerForTurn(tx: Prisma.TransactionClient, userId: string): Promise<any> {
@@ -44,23 +39,20 @@ export class BattlesRepository {
     });
   }
 
-  async updateTurnIfCurrent(
-    tx: Prisma.TransactionClient,
-    id: string,
-    expectedTurnNumber: number,
-    data: Prisma.BattleSessionUpdateInput
-  ): Promise<boolean> {
-    const result = await tx.battleSession.updateMany({
-      where: {
-        id,
-        turnNumber: expectedTurnNumber,
-        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN] }
-      },
-      data
-    });
-
-    return result.count === 1;
+  async getActiveBattleByTrainer(trainerId: string) {
+    const session = await this.cache.get<any>(`battle:${trainerId}`);
+    if (session && [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN].includes(session.status)) {
+      return session;
+    }
+    return null;
   }
+
+  async getBattleSession(id: string) {
+    // To support querying by ID, we need to know the trainerId or loop. 
+    // Usually we query by trainerId. We will throw here if needed or just use trainerId instead.
+    throw new Error('getBattleSession by ID is deprecated in Redis mode. Use getActiveBattleByTrainer.');
+  }
+
   async createBattleSession(data: {
     trainerId: string;
     playerActivePokemonId: string;
@@ -70,53 +62,39 @@ export class BattlesRepository {
     playerPartyData: any;
     battleType?: any;
   }) {
-    return prisma.battleSession.create({
-      data: {
-        trainerId: data.trainerId,
-        playerActivePokemonId: data.playerActivePokemonId,
-        opponentPokemonData: data.opponentPokemonData,
-        opponentPartyData: data.opponentPartyData,
-        playerPokemonData: data.playerPokemonData,
-        playerPartyData: data.playerPartyData,
-        battleType: data.battleType || 'WILD',
-        log: [],
-        status: BattleStatus.ACTIVE,
-        turnNumber: 1
-      }
-    });
-  }
-
-  async getBattleSession(id: string) {
-    return prisma.battleSession.findUnique({
-      where: { id }
-    });
-  }
-
-  async getActiveBattleByTrainer(trainerId: string) {
-    return prisma.battleSession.findFirst({
-      where: {
-        trainerId,
-        status: { in: [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN] }
-      }
-    });
+    const session = {
+      id: randomUUID(),
+      trainerId: data.trainerId,
+      playerActivePokemonId: data.playerActivePokemonId,
+      opponentPokemonData: data.opponentPokemonData,
+      opponentPartyData: data.opponentPartyData,
+      playerPokemonData: data.playerPokemonData,
+      playerPartyData: data.playerPartyData,
+      battleType: data.battleType || 'WILD',
+      log: [],
+      status: BattleStatus.ACTIVE,
+      turnNumber: 1
+    };
+    
+    // Set with 24-hour TTL
+    await this.cache.set(`battle:${data.trainerId}`, session, 86400);
+    return session;
   }
 
   async updateBattleSession(
-    id: string, 
-    data: { 
-      status?: BattleStatus; 
-      turnNumber?: number; 
-      playerActivePokemonId?: string;
-      opponentPokemonData?: any;
-      opponentPartyData?: any;
-      playerPokemonData?: any;
-      playerPartyData?: any; 
-      log?: any; 
-    }
+    trainerId: string, 
+    data: any
   ) {
-    return prisma.battleSession.update({
-      where: { id },
-      data
-    });
+    const session = await this.cache.get<any>(`battle:${trainerId}`);
+    if (!session) return null;
+
+    const updated = { ...session, ...data };
+    await this.cache.set(`battle:${trainerId}`, updated, 86400);
+    return updated;
+  }
+
+  async clearBattleSession(trainerId: string) {
+    await this.cache.delete(`battle:${trainerId}`);
   }
 }
+

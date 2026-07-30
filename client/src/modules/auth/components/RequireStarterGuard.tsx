@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { apiClient } from '@/shared/api/api-client';
+import { api } from '@/shared/api/api';
 
 export function RequireStarterGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export function RequireStarterGuard({ children }: { children: React.ReactNode })
   const { data: save, isLoading } = useQuery({
     queryKey: ['trainerSave'],
     queryFn: async () => {
-      const { data } = await apiClient.get('/trainers/me');
+      const { data } = await api.get('/trainers/me');
       return data.data;
     },
   });

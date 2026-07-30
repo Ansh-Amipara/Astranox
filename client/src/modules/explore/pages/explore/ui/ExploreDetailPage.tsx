@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ExploreService, ExploreResponse } from '@/services/explore.service';
+import { ExploreService, ExploreResponse } from '@/modules/explore/services/explore.service';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { LOCATIONS, getRealmImagePath } from './ExplorePage';
 
@@ -52,8 +52,9 @@ export function ExploreDetailPage() {
     try {
       const data = await ExploreService.explore(locationId);
       setResult(data);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to explore.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } } };
+      setError(error.response?.data?.error?.message || 'Failed to trigger encounter');
     } finally {
       setLoading(false);
     }

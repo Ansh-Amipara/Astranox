@@ -13,48 +13,27 @@ export default {
           paper: '#FFFFE3',
           blue: '#6D8196',
         },
-        // Override default colors used in the app to adopt the Ink Wash palette
-        white: '#FFFFE3',
-        black: '#4A4A4A',
-        slate: {
-          50: '#FFFFE3',
-          100: '#FFFFE3',
-          200: '#CBCBCB',
-          300: '#CBCBCB',
-          400: '#6D8196',
-          500: '#6D8196',
-          600: '#4A4A4A',
-          700: '#4A4A4A',
-          800: '#4A4A4A',
-          900: '#4A4A4A',
-          950: '#4A4A4A',
+        silt: {
+          khaki: '#CBBD93',
+          pale: '#FFF5B8',
+          peach: '#FFB16E',
+          gold: '#CCA25A',
+        }
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite alternate',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
         },
-        red: {
-          50: '#FFFFE3',
-          100: '#CBCBCB',
-          200: '#CBCBCB',
-          300: '#6D8196',
-          400: '#6D8196',
-          500: '#6D8196',
-          600: '#4A4A4A',
-          700: '#4A4A4A',
-          800: '#4A4A4A',
-          900: '#4A4A4A',
-          950: '#4A4A4A',
-        },
-        blue: {
-          50: '#FFFFE3',
-          100: '#CBCBCB',
-          200: '#CBCBCB',
-          300: '#6D8196',
-          400: '#6D8196',
-          500: '#6D8196',
-          600: '#4A4A4A',
-          700: '#4A4A4A',
-          800: '#4A4A4A',
-          900: '#4A4A4A',
-          950: '#4A4A4A',
-        },
+        glow: {
+          '0%': { boxShadow: '0 0 5px rgba(204, 162, 90, 0.2)' },
+          '100%': { boxShadow: '0 0 20px rgba(204, 162, 90, 0.6), 0 0 40px rgba(204, 162, 90, 0.2)' },
+        }
       }
     },
   },

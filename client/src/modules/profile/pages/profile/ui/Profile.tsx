@@ -21,8 +21,8 @@ export function Profile() {
         toast.success('Username updated successfully');
       }
     },
-    onError: (err: any) => {
-      toast.error(err.message || 'Failed to update username');
+    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
+      toast.error(err.response?.data?.error?.message || 'Failed to update username');
     }
   });
 
@@ -35,7 +35,7 @@ export function Profile() {
     enabled: !!user,
   });
 
-  const playerCp = trainerSave?.party?.reduce((sum: number, p: any) => sum + (p.cp || 0), 0) || 0;
+  const playerCp = trainerSave?.party?.reduce((sum: number, p: { cp?: number }) => sum + (p.cp || 0), 0) || 0;
 
   if (!user) return null;
 

@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: astranox-server
+  namespace: astranox
+  labels:
+    app: astranox-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: astranox-server
+  template:
+    metadata:
+      labels:
+        app: astranox-server
+    spec:
+      containers:
+        - name: astranox-server
+          image: astranox-server:latest # Replace with actual registry image in CI/CD
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: API_PORT
+              value: "3000"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: astranox-secrets
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              value: "redis://redis.astranox.svc.cluster.local:6379"
+            - name: JWT_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: astranox-secrets
+                  key: JWT_ACCESS_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: astranox-secrets
+                  key: JWT_REFRESH_SECRET
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: astranox-secrets
+                  key: SENTRY_DSN
+                  optional: true
+            - name: CORS_ORIGIN
+              value: "https://play.astranox.com"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10

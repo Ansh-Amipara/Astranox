@@ -23,7 +23,7 @@ export function EventDashboard() {
       toast.success('Reward claimed successfully! Check your PC.');
       queryClient.invalidateQueries({ queryKey: ['activeEvent'] });
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { error?: { message?: string } } } }) => {
       toast.error(error?.response?.data?.error?.message || 'Failed to claim reward');
     }
   });

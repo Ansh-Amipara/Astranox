@@ -6,7 +6,7 @@ export const marketplaceApi = {
     return data.data;
   },
 
-  searchListings: async (filters: any) => {
+  searchListings: async (filters: Record<string, unknown>) => {
     const { data } = await api.get('/marketplace/search', { params: filters });
     return data.data;
   },

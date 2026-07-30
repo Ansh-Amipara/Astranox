@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { AdminRepository } from './admin.repository';
 import { ValidationError, NotFoundError, AppError } from '../../core/errors/AppError';
 import { PrismaClient, PokemonPotential } from '@prisma/client';
@@ -12,15 +13,14 @@ import type { OwnedPokemonDto } from '../trainers/dto/response/OwnedPokemonDto';
 import { BattleMapper } from '../battles/dto/mapper';
 import type { AvailableSpeciesDto } from '../battles/dto/response/AvailableSpeciesDto';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+import { CacheService } from '../../core/services/cache.service';
+
+@injectable()
 export class AdminService {
-  private repo: AdminRepository;
-
-  constructor() {
-    this.repo = new AdminRepository();
-  }
+  constructor(private repo: AdminRepository, private cache: CacheService) {}
 
   async getAllUsers(): Promise<AdminUserDto[]> {
     const users = await this.repo.getAllUsers();
@@ -103,5 +103,16 @@ export class AdminService {
       }
     });
     return TrainerMapper.toOwnedPokemonDto(result);
+  }
+
+  async clearCache(adminId: string) {
+    const admin = await prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new AppError('Unauthorized', 403);
+    }
+    await this.cache.clearPattern('pokedex:*');
+    await this.cache.clearPattern('species:*');
+    await this.cache.clearPattern('learnset:*');
+    return { success: true };
   }
 }

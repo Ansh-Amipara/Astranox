@@ -1,14 +1,12 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service';
 import { registerSchema, loginSchema } from '@astranox/shared';
 import { ValidationError, UnauthorizedError } from '../../core/errors/AppError';
 
+@injectable()
 export class AuthController {
-  private service: AuthService;
-
-  constructor() {
-    this.service = new AuthService();
-  }
+  constructor(private service: AuthService) {}
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -42,6 +40,7 @@ export class AuthController {
 
       res.json({ success: true, data: auth });
     } catch (err) {
+      console.error('Login Error in Test:', err);
       next(err);
     }
   };
@@ -64,6 +63,7 @@ export class AuthController {
 
       res.json({ success: true, data: auth });
     } catch (err) {
+      console.error('Refresh Error:', err);
       res.clearCookie('refreshToken');
       res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Session expired' }});
     }

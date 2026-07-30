@@ -1,10 +1,11 @@
+import { container } from 'tsyringe';
 import { Router } from 'express';
 import { TrainersController } from './trainers.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
 import { gameplayLimiter } from '../../core/middleware/rate-limiter';
 
 export const trainersRoutes = Router();
-const controller = new TrainersController();
+const controller = container.resolve(TrainersController);
 
 trainersRoutes.use(requireAuth);
 

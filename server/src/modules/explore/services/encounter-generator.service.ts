@@ -1,10 +1,12 @@
+import { injectable } from 'tsyringe';
 import { ExploreLocation } from '../config/coinRewards.config';
 import { BIOME_POOLS } from '../config/biomePools.config';
 import { LOCATION_LEVEL_RANGES } from '../config/explore.config';
 import { RareEncounterService } from './rare-encounter.service';
 
+@injectable()
 export class EncounterGeneratorService {
-  private rareService = new RareEncounterService();
+  constructor(private rareService: RareEncounterService) {}
 
   generateEncounter(location: ExploreLocation): { speciesName: string, level: number } {
     // 1. Roll rare encounter

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, AlertCircle } from 'lucide-react';
 import { shopApi, api } from '@/shared/api/api';
+import { TrainerSaveDto, InventoryItemDto } from '@astranox/shared';
 
 interface Item {
   id: string;
@@ -38,13 +39,13 @@ export function Pokemart() {
     mutationFn: ({ itemId, quantity }: { itemId: string, quantity: number }) => {
       return shopApi.buyItem(itemId, quantity);
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { data: TrainerSaveDto }) => {
       queryClient.setQueryData(['trainerSave'], data.data);
       setMessage({ type: 'success', text: 'Purchase successful!' });
       setQuantities({});
       setTimeout(() => setMessage(null), 3000);
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { error?: { message?: string } } } }) => {
       setMessage({
         type: 'error',
         text: error.response?.data?.error?.message || 'Failed to buy item'
@@ -57,13 +58,13 @@ export function Pokemart() {
     mutationFn: ({ itemId, quantity }: { itemId: string, quantity: number }) => {
       return shopApi.sellItem(itemId, quantity);
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { data: TrainerSaveDto }) => {
       queryClient.setQueryData(['trainerSave'], data.data);
       setMessage({ type: 'success', text: 'Sale successful!' });
       setQuantities({});
       setTimeout(() => setMessage(null), 3000);
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { error?: { message?: string } } } }) => {
       setMessage({
         type: 'error',
         text: error.response?.data?.error?.message || 'Failed to sell item'
@@ -102,7 +103,7 @@ export function Pokemart() {
   }) || [];
 
   const inventoryQuantityByItemId = new Map<string, number>(
-    (save?.inventory || []).map((entry: any) => [entry.itemId, Number(entry.quantity)] as [string, number])
+    (save?.inventory || []).map((entry: InventoryItemDto) => [entry.itemId, Number(entry.quantity)] as [string, number])
   );
   const visibleItems = mode === 'sell'
     ? storeItems.filter(item => (inventoryQuantityByItemId.get(item.id) || 0) > 0)

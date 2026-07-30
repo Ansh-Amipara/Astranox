@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { rankController } from './rank.controller';
+import { RankController } from './rank.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
+import { container } from 'tsyringe';
 
 const router = Router();
+const controller = container.resolve(RankController);
 
 router.use(requireAuth);
 
-router.get('/status', rankController.getStatus);
-router.post('/exam', rankController.startExam);
+router.get('/status', controller.getStatus);
+router.post('/exam', controller.startExam);
 
 export const rankRoutes = router;

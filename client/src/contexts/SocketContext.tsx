@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { useAuthStore } from '../modules/auth/store/auth.store';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -23,8 +24,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Remove /api from the end if it exists, as socket.io typically connects to the root
     const baseUrl = backendUrl.replace(/\/api$/, '');
 
+    const token = useAuthStore.getState().accessToken;
+
     const newSocket = io(baseUrl, {
       withCredentials: true,
+      auth: {
+        token
+      }
     });
 
     setSocket(newSocket);

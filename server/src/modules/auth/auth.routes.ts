@@ -1,10 +1,11 @@
+import { container } from 'tsyringe';
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
 import { authLimiter } from '../../core/middleware/rate-limiter';
 
 const router = Router();
-const controller = new AuthController();
+const controller = container.resolve(AuthController);
 
 router.post('/register', authLimiter, controller.register);
 router.post('/login', authLimiter, controller.login);

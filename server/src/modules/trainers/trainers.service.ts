@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { TrainersRepository } from './trainers.repository';
 import { ValidationError, NotFoundError } from '../../core/errors/AppError';
 import { TrainerMapper } from './dto/mapper';
@@ -14,12 +15,9 @@ import { PokemonPotential } from '@prisma/client';
 // Allowed pseudo-legendaries
 const ALLOWED_STARTER_IDS = [147, 246, 371, 374, 443, 633, 704, 782, 885];
 
+@injectable()
 export class TrainersService {
-  private repo: TrainersRepository;
-
-  constructor() {
-    this.repo = new TrainersRepository();
-  }
+  constructor(private repo: TrainersRepository) {}
 
   async getMySave(userId: string): Promise<TrainerSaveDto> {
     let save = await this.repo.findByUserId(userId);

@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, TrainerRank } from '@prisma/client';
 import crypto from 'crypto';
 import {
@@ -9,8 +10,11 @@ import {
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { toActivePokemon } from '../../battles/services/battle-session.service';
 import { NotFoundError } from '../../../core/errors/AppError';
+import { prisma } from '../../../core/db/prisma';
 
-const prisma = new PrismaClient();
+
+
+import { CacheService } from '../../../core/services/cache.service';
 
 function generateWildIVs() {
   return {
@@ -23,12 +27,18 @@ function generateWildIVs() {
   };
 }
 
+@injectable()
 export class PokemonGeneratorService {
+  constructor(private cache: CacheService) {}
+
   async generateWildPokemon(speciesName: string, level: number, playerRank: TrainerRank) {
-    const species = await prisma.species.findUnique({
-      where: { name: speciesName.toLowerCase() },
-      include: { type1: true, type2: true }
-    });
+    const speciesKey = `species:${speciesName.toLowerCase()}`;
+    const species = await this.cache.getOrSet(speciesKey, () =>
+      prisma.species.findUnique({
+        where: { name: speciesName.toLowerCase() },
+        include: { type1: true, type2: true }
+      })
+    );
 
     if (!species) {
       throw new NotFoundError(`Species ${speciesName} not found in database.`);
@@ -90,11 +100,14 @@ export class PokemonGeneratorService {
     });
 
     // Populate moves dynamically from Learnset
-    const learnset = await prisma.learnset.findMany({
-      where: { speciesId: species.id, level: { lte: level } },
-      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
-      include: { move: { include: { type: true } } }
-    });
+    const learnsetKey = `learnset:${species.id}:${level}`;
+    const learnset = await this.cache.getOrSet(learnsetKey, () =>
+      prisma.learnset.findMany({
+        where: { speciesId: species.id, level: { lte: level } },
+        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+        include: { move: { include: { type: true } } }
+      })
+    );
 
     const uniqueMoves: any[] = [];
     const seen = new Set();

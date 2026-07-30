@@ -1,10 +1,12 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { ExploreService } from './explore.service';
 import { ExploreLocation } from './config/coinRewards.config';
 import { ValidationError } from '../../core/errors/AppError';
 
+@injectable()
 export class ExploreController {
-  private service = new ExploreService();
+  constructor(private service: ExploreService) {}
 
   explore = async (req: Request, res: Response, next: NextFunction) => {
     try {

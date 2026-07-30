@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { injectable } from 'tsyringe';
 
-const prisma = new PrismaClient();
+import { prisma } from '../../core/db/prisma';
 
+
+@injectable()
 export class ExploreRepository {
   async addAstralCoins(trainerId: string, amount: number) {
     return prisma.trainerSave.update({

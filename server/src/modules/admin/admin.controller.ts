@@ -1,12 +1,10 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { AdminService } from './admin.service';
 
+@injectable()
 export class AdminController {
-  private service: AdminService;
-
-  constructor() {
-    this.service = new AdminService();
-  }
+  constructor(private service: AdminService) {}
 
   getAllUsers = async (_req: Request, res: Response, next: NextFunction) => {
     try {
@@ -67,6 +65,15 @@ export class AdminController {
 
       const pokemon = await this.service.editPokemon(req.user!.id, pokemonId, { potential, addXp, ivs });
       res.json({ success: true, data: pokemon });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  clearCache = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.service.clearCache(req.user!.id);
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }

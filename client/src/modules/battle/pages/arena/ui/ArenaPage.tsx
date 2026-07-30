@@ -35,7 +35,7 @@ export function ArenaPage() {
       queryClient.invalidateQueries({ queryKey: ['battleSession'] });
       navigate('/battle?returnUrl=/arena');
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
       setError(err.response?.data?.error?.message || 'Failed to start arena battle');
     }
   });

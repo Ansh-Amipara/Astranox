@@ -1,5 +1,7 @@
+import { injectable } from 'tsyringe';
 import { COIN_REWARDS, ExploreLocation } from '../config/coinRewards.config';
 
+@injectable()
 export class RewardGeneratorService {
   generateCoins(location: ExploreLocation): number {
     const range = COIN_REWARDS[location];

@@ -1,10 +1,11 @@
 import { memo } from 'react';
 import { ActionMenu } from './ActionMenu';
+import { ActivePokemonDto, TurnEventDto } from '@astranox/shared';
 
 interface Props {
-  player: any;
+  player: ActivePokemonDto;
   status: string;
-  rawEvents: any[];
+  rawEvents: TurnEventDto[];
   isPending: boolean;
   isFinished: boolean;
   isWaitingSwitch: boolean;

@@ -1,8 +1,10 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { RiftService } from './rift.service';
 
+@injectable()
 export class RiftController {
-  private service = new RiftService();
+  constructor(private service: RiftService) {}
 
   getState = async (req: Request, res: Response, next: NextFunction) => {
     try {

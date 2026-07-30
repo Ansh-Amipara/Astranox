@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import { OwnedPokemonDto, TrainerSaveDto, MoveDto, InventoryItemDto } from '@astranox/shared';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { TypeSelect } from '@/components/ui/TypeSelect';
 import { ArrowRight } from 'lucide-react';
-import { getPotentialBadgeClasses } from '@/utils/pokemonUtils';
+import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
   if (base === 1) return 1;
@@ -22,17 +23,17 @@ export function TeamPage() {
   const queryClient = useQueryClient();
 
   // State for different modals
-  const [activeMenuPkm, setActiveMenuPkm] = useState<any>(null);
-  const [detailsPkm, setDetailsPkm] = useState<any>(null);
-  const [changeMovePkm, setChangeMovePkm] = useState<any>(null);
-  const [evolutionPkm, setEvolutionPkm] = useState<any>(null);
-  const [boostPkm, setBoostPkm] = useState<any>(null);
-  const [boostIvPkm, setBoostIvPkm] = useState<any>(null);
-  const [giveXpPkm, setGiveXpPkm] = useState<any>(null);
+  const [activeMenuPkm, setActiveMenuPkm] = useState<OwnedPokemonDto | null>(null);
+  const [detailsPkm, setDetailsPkm] = useState<OwnedPokemonDto | null>(null);
+  const [changeMovePkm, setChangeMovePkm] = useState<(OwnedPokemonDto & { currentMoves?: (string | undefined)[], editingSlot?: number }) | null>(null);
+  const [evolutionPkm, setEvolutionPkm] = useState<(OwnedPokemonDto & { megas?: { id: number, name: string, baseSpeciesId: number, baseSpeciesName: string }[] }) | null>(null);
+  const [boostPkm, setBoostPkm] = useState<OwnedPokemonDto | null>(null);
+  const [boostIvPkm, setBoostIvPkm] = useState<OwnedPokemonDto | null>(null);
+  const [giveXpPkm, setGiveXpPkm] = useState<OwnedPokemonDto | null>(null);
   const [xpAmountInput, setXpAmountInput] = useState<string>('1000');
   const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
-  const [selectedMega, setSelectedMega] = useState<any>(null);
+  const [selectedMega, setSelectedMega] = useState<{ id: number; name: string; baseSpeciesId?: number; baseSpeciesName?: string } | null>(null);
 
   const distributeXpMutation = useMutation({
     mutationFn: async ({ pokemonId, amount }: { pokemonId: string; amount: number }) => {
@@ -89,7 +90,7 @@ export function TeamPage() {
   });
 
   const changeMovesMutation = useMutation({
-    mutationFn: async ({ pokemonId, moves }: { pokemonId: string, moves: string[] }) => {
+    mutationFn: async ({ pokemonId, moves }: { pokemonId: string, moves: number[] }) => {
       await api.patch(`/trainers/party/${pokemonId}/moves`, { moves });
     },
     onSuccess: () => {
@@ -109,7 +110,7 @@ export function TeamPage() {
   });
 
   const swapMutation = useMutation({
-    mutationFn: async ({ from, to }: { from: any, to: any }) => {
+    mutationFn: async ({ from, to }: { from: { isParty: boolean, boxNumber: number | null, position: number }, to: { isParty: boolean, boxNumber: number | null, position: number } }) => {
       await api.post('/trainers/swap', { from, to });
     },
     onSuccess: () => {
@@ -135,7 +136,7 @@ export function TeamPage() {
             <div className="text-sm mt-1">
               <p className="font-semibold">Pearls Obtained:</p>
               <ul className="list-disc list-inside">
-                {data.pearls.map((p: any, i: number) => (
+                {data.pearls.map((p: { quantity?: number; type?: string }, i: number) => (
                   <li key={i}>{p.quantity}x {p.type} Pearl</li>
                 ))}
               </ul>
@@ -148,7 +149,7 @@ export function TeamPage() {
   });
 
   const evolveMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: { pokemonId: string; targetSpeciesId?: string } | string) => {
       if (typeof data === 'string') {
         await api.post(`/trainers/party/${data}/evolve`);
       } else {
@@ -188,20 +189,20 @@ export function TeamPage() {
 
   const party = save?.party || [];
 
-  const handleMoveUp = (pkm: any) => {
+  const handleMoveUp = (pkm: OwnedPokemonDto) => {
     if (pkm.position > 0) {
       swapMutation.mutate({
-        from: { isParty: true, boxNumber: null, position: pkm.position },
-        to: { isParty: true, boxNumber: null, position: pkm.position - 1 }
+        from: { isParty: true, boxNumber: null as number | null, position: pkm.position },
+        to: { isParty: true, boxNumber: null as number | null, position: pkm.position - 1 }
       });
     }
   };
 
-  const handleMoveDown = (pkm: any) => {
+  const handleMoveDown = (pkm: OwnedPokemonDto) => {
     if (pkm.position < 5) {
       swapMutation.mutate({
-        from: { isParty: true, boxNumber: null, position: pkm.position },
-        to: { isParty: true, boxNumber: null, position: pkm.position + 1 }
+        from: { isParty: true, boxNumber: null as number | null, position: pkm.position },
+        to: { isParty: true, boxNumber: null as number | null, position: pkm.position + 1 }
       });
     }
   };
@@ -220,7 +221,7 @@ export function TeamPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => {
-            const pkm = party.find((p: any) => p.position === i);
+            const pkm = party.find((p: OwnedPokemonDto) => p.position === i);
 
             return (
               <div
@@ -296,7 +297,7 @@ export function TeamPage() {
 
                       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
                         {[0, 1, 2, 3].map(i => {
-                          const move = pkm.moves?.find((m: any) => m.slot === i)?.move;
+                          const move = pkm.moves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
                           return (
                             <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
                               {move ? (
@@ -372,7 +373,7 @@ export function TeamPage() {
 
               <button
                 onClick={() => {
-                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: any) => m.slot === i)?.move?.name || 'tackle') });
+                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move?.name || 'tackle'), editingSlot: undefined });
                   setMoveSearch('');
                   setActiveMenuPkm(null);
                 }}
@@ -555,15 +556,13 @@ export function TeamPage() {
               {/* Current Moves */}
               <div className="flex flex-col gap-2">
                 <h3 className="font-bold text-slate-700 dark:text-slate-300">Current Moves</h3>
-                {changeMovePkm.currentMoves.map((m: string, idx: number) => (
+                {changeMovePkm.currentMoves?.map((m: string | undefined, idx: number) => (
                   <div key={idx} className="flex gap-2">
                     <div className="flex-1 bg-slate-100 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 capitalize font-medium flex items-center justify-between text-slate-900 dark:text-slate-100">
                       {m || '-'}
                       <button
                         onClick={() => {
-                          const newMoves = [...changeMovePkm.currentMoves];
-                          newMoves[idx] = ''; // clear slot to indicate editing
-                          setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: idx });
+                          setChangeMovePkm({ ...changeMovePkm, editingSlot: idx });
                         }}
                         className="text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-3 py-1.5 rounded transition-colors"
                       >
@@ -593,7 +592,7 @@ export function TeamPage() {
                       <TypeSelect
                         value={typeFilter === 'all' ? '' : typeFilter}
                         onChange={(val) => setTypeFilter(val || 'all')}
-                        types={Array.from(new Set(allMoves?.map((m: any) => m.type) || [])).filter((t: any) => t !== 'shadow' && t !== 'unknown').sort() as string[]}
+                        types={Array.from<string>(new Set(allMoves?.map((m: MoveDto) => m.type) || [])).filter((t: string) => t !== 'shadow' && t !== 'unknown').sort()}
                         disabled={changeMovePkm.editingSlot === undefined}
                       />
                     </div>
@@ -610,13 +609,13 @@ export function TeamPage() {
                   </div>
                 </div>
                 {changeMovePkm.editingSlot !== undefined && allMoves
-                  ?.filter((move: any) =>
+                  ?.filter((move: MoveDto) =>
                     (typeFilter === 'all' || move.type === typeFilter) &&
                     (move.name.toLowerCase().includes(moveSearch.toLowerCase()) ||
                       move.type.toLowerCase().includes(moveSearch.toLowerCase()) ||
                       move.damageClass.toLowerCase().includes(moveSearch.toLowerCase()))
                   )
-                  .sort((a: any, b: any) => {
+                  .sort((a: MoveDto, b: MoveDto) => {
                     if (sortBy === 'power_desc') {
                       return (b.power || 0) - (a.power || 0);
                     }
@@ -626,12 +625,12 @@ export function TeamPage() {
                     return a.name.localeCompare(b.name);
                   })
                   .slice(0, 100) // Limit to 100 to prevent lagging the UI when search is empty
-                  .map((move: any) => (
+                  .map((move: MoveDto) => (
                     <button
                       key={move.name}
                       onClick={() => {
-                        const newMoves = [...changeMovePkm.currentMoves];
-                        newMoves[changeMovePkm.editingSlot] = move.name;
+                        const newMoves = [...(changeMovePkm.currentMoves || [])];
+                        newMoves[changeMovePkm.editingSlot!] = move.name;
                         setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: undefined });
                         setMoveSearch('');
                       }}
@@ -660,11 +659,11 @@ export function TeamPage() {
               </button>
               <button
                 onClick={() => {
-                  const moveIds = changeMovePkm.currentMoves
+                  const moveIds = (changeMovePkm.currentMoves || [])
                     .filter(Boolean)
-                    .map((moveName: string) => allMoves?.find((m: any) => m.name === moveName)?.id)
+                    .map((moveName: string | undefined) => allMoves?.find((m: MoveDto) => m.name === moveName)?.id)
                     .filter(Boolean);
-                  changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds });
+                  changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds as number[] });
                 }}
                 disabled={changeMovesMutation.isPending || changeMovePkm.editingSlot !== undefined}
                 className="px-8 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-colors disabled:opacity-50"
@@ -700,82 +699,28 @@ export function TeamPage() {
 
               <div className="flex flex-col items-center">
                 <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg relative">
-                  {evolutionPkm.megas?.length > 1 && (
+                  {evolutionPkm.megas?.length && evolutionPkm.megas.length > 1 && (
                     <div className="absolute -top-3 -right-3 flex gap-1">
-                      {evolutionPkm.megas.map((mega: any) => (
+                      {evolutionPkm.megas.map((mega: { id: number, name: string, baseSpeciesId?: number, baseSpeciesName?: string }) => (
                         <button
                           key={mega.id}
                           onClick={() => setSelectedMega(mega)}
-                          className={`w-8 h-8 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-blue-500 bg-blue-100 dark:bg-blue-900/50' : 'border-slate-300 bg-slate-100 dark:bg-slate-800 opacity-50'}`}
+                          className={`w-6 h-6 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-blue-500 bg-blue-500 text-white' : 'border-slate-300 bg-white text-slate-500'} text-[10px] font-bold flex items-center justify-center shadow-md`}
                         >
-                          <img src={getSpriteUrl(mega.id)} className="w-full h-full pixelated object-contain" />
+                          {mega.name.slice(-1).toUpperCase()}
                         </button>
                       ))}
                     </div>
                   )}
-                  {selectedMega || evolutionPkm.species.evolvesToId ? (
-                    <img src={getSpriteUrl(selectedMega ? selectedMega.id : evolutionPkm.species.evolvesToId)} className="w-24 h-24 pixelated object-contain" />
-                  ) : (
-                    <div className="w-24 h-24 flex items-center justify-center text-slate-400 font-bold">NONE</div>
-                  )}
+                  <img src={getSpriteUrl(selectedMega?.id || evolutionPkm.species.evolvesToId || 0)} className="w-24 h-24 pixelated object-contain" />
                 </div>
-                <span className="mt-3 font-bold capitalize text-lg text-blue-600 dark:text-blue-400">{selectedMega ? selectedMega.name.replace('-', ' ') : evolutionPkm.species.evolvesTo?.name || 'Fully Evolved'}</span>
+                <span className="mt-3 font-black text-blue-600 dark:text-blue-400 capitalize text-lg drop-shadow-sm">
+                  {selectedMega ? selectedMega.name.replace('-mega', 'ite').replace('-', ' ') : '???'}
+                </span>
               </div>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Evolution Requirement</h4>
-              {(() => {
-                if (selectedMega) {
-                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
-                  if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
-                  if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-                  const hasMegaStone = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
-                  return (
-                    <div className="flex flex-col items-center">
-                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{megaStoneName.replace('-', ' ')}</span>
-                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasMegaStone ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                        In Bag: {save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity || 0}
-                      </span>
-                    </div>
-                  );
-                }
-
-                if (evolutionPkm.species.evolutionLevel) {
-                  return (
-                    <div className="flex flex-col items-center">
-                      <span className="text-2xl font-black text-slate-800 dark:text-white">Level {evolutionPkm.species.evolutionLevel}</span>
-                      <span className={`text-sm mt-1 font-bold ${evolutionPkm.level >= evolutionPkm.species.evolutionLevel ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                        (Current: {evolutionPkm.level})
-                      </span>
-                    </div>
-                  );
-                }
-
-                if (evolutionPkm.species.evolutionItem) {
-                  return (
-                    <div className="flex flex-col items-center">
-                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
-                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                        In Bag: {save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
-                      </span>
-                    </div>
-                  );
-                }
-
-                return null;
-              })()}
-            </div>
-
-            <div className="flex justify-center gap-4 relative z-10">
-              <button
-                onClick={() => { setEvolutionPkm(null); setSelectedMega(null); }}
-                disabled={evolveMutation.isPending}
-                className="px-6 py-3 font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-all disabled:opacity-50"
-              >
-                Cancel
-              </button>
-
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-8 border border-slate-200 dark:border-slate-700 relative z-10">
               {(() => {
                 let canPerformEvolution = false;
 
@@ -783,26 +728,45 @@ export function TeamPage() {
                   let megaStoneName = selectedMega.name.replace('-mega', 'ite');
                   if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
                   if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-                  canPerformEvolution = save.inventory?.find((i: any) => i.itemId === megaStoneName)?.quantity > 0;
+                  canPerformEvolution = save?.inventory?.find((i: InventoryItemDto) => i.itemId === megaStoneName)?.quantity ? true : false;
                 } else if (evolutionPkm.species.evolvesToId) {
-                  canPerformEvolution = (evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
-                    (evolutionPkm.species.evolutionItem && save.inventory?.find((i: any) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity > 0);
+                  canPerformEvolution = Boolean(evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
+                    Boolean(evolutionPkm.species.evolutionItem && save?.inventory?.find((i: InventoryItemDto) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity);
                 }
 
                 return (
-                  <button
-                    onClick={() => {
-                      if (selectedMega) {
-                        evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id } as any);
-                      } else {
-                        evolveMutation.mutate(evolutionPkm.id);
-                      }
-                    }}
-                    disabled={!canPerformEvolution || evolveMutation.isPending}
-                    className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
-                  >
-                    {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
-                  </button>
+                  <>
+                    <div className="flex flex-col items-center">
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{selectedMega ? selectedMega.name.replace('-mega', 'ite').replace('-', ' ') : evolutionPkm.species.evolutionItem?.replace('-', ' ') || `Level ${evolutionPkm.species.evolutionLevel}`}</span>
+                      <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${canPerformEvolution ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {selectedMega || evolutionPkm.species.evolutionItem ? `In Bag: ${save?.inventory?.find((i: InventoryItemDto) => i.itemId === (selectedMega ? selectedMega.name.replace('-mega', 'ite') : evolutionPkm.species.evolutionItem))?.quantity || 0}` : `(Current Level: ${evolutionPkm.level})`}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-center gap-4 relative z-10 mt-6">
+                      <button
+                        onClick={() => { setEvolutionPkm(null); setSelectedMega(null); }}
+                        disabled={evolveMutation.isPending}
+                        className="px-6 py-3 font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-all disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (selectedMega) {
+                            evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id.toString() });
+                          } else {
+                            evolveMutation.mutate(evolutionPkm.id);
+                          }
+                        }}
+                        disabled={!canPerformEvolution || evolveMutation.isPending}
+                        className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
+                      >
+                        {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
+                      </button>
+                    </div>
+                  </>
                 );
               })()}
             </div>
@@ -831,8 +795,8 @@ export function TeamPage() {
           'MYTHICAL': { next: 'INFINITY', item: 'infinity-pearl', itemName: 'Infinity Pearl' },
           'INFINITY': { next: 'ETERNAL', item: 'eternal-pearl', itemName: 'Eternal Pearl' },
         };
-        const mapping = potentialMap[boostPkm.potential];
-        const ownedCrystal = save.inventory?.find((i: any) => i.itemId === mapping?.item);
+        const mapping = potentialMap[boostPkm.potential || ''];
+        const ownedCrystal = save?.inventory?.find((i: InventoryItemDto) => i.itemId === mapping?.item);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 
         const themeMap: Record<string, { border: string, shadow: string, bgGradient: string, textGradient: string, textBase: string, arrow: string, buttonBg: string, buttonHover: string }> = {
@@ -870,7 +834,7 @@ export function TeamPage() {
                   <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner">
                     <img src={getSpriteUrl(boostPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
                   </div>
-                  <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{boostPkm.potential.replace('_', ' ')}</span>
+                  <span className="mt-3 font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{(boostPkm.potential || '').replace('_', ' ')}</span>
                 </div>
 
                 <div className={`flex flex-col items-center justify-center ${theme.arrow} animate-pulse`}>
@@ -926,23 +890,17 @@ export function TeamPage() {
         const requiredItemId = isGold ? 'gold-bottle-cap' : 'bottle-cap';
         const requiredItemName = isGold ? 'Gold Bottle Cap' : 'Bottle Cap';
 
-        const statOptions = [
-          { key: 'ivHp', label: 'HP' },
-          { key: 'ivAttack', label: 'Attack' },
-          { key: 'ivDefense', label: 'Defense' },
-          { key: 'ivSpAtk', label: 'Sp. Atk' },
-          { key: 'ivSpDef', label: 'Sp. Def' },
-          { key: 'ivSpeed', label: 'Speed' }
-        ];
+        const statOptions = ['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'];
 
-        const ownedCrystal = save.inventory?.find((i: any) => i.itemId === requiredItemId);
+        const ownedCrystal = save?.inventory?.find((i: InventoryItemDto) => i.itemId === requiredItemId);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 
         const isMaxed = isGold
-          ? statOptions.every(opt => (boostIvPkm[opt.key] as number) >= 31)
-          : (boostIvPkm[selectedIvStat] as number) >= 31;
+          ? statOptions.every(opt => (boostIvPkm[opt as keyof OwnedPokemonDto] as number) >= 31)
+          : (boostIvPkm[selectedIvStat as keyof OwnedPokemonDto] as number) >= 31;
 
-        const statValue = boostIvPkm[selectedIvStat] as number;
+        const statKey = selectedIvStat as keyof OwnedPokemonDto;
+        const currentIv = Number(boostIvPkm[statKey]) || 0;
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
@@ -970,13 +928,16 @@ export function TeamPage() {
 
               {!isGold && (
                 <div className="relative z-10 mb-6 flex justify-center flex-wrap gap-2">
-                  {statOptions.map(opt => (
+                  {statOptions.map(stat => (
                     <button
-                      key={opt.key}
-                      onClick={() => setSelectedIvStat(opt.key)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                      key={stat}
+                      onClick={() => setSelectedIvStat(stat)}
+                      className={`flex flex-col items-center px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${selectedIvStat === stat ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                     >
-                      {opt.label}: {boostIvPkm[opt.key]}
+                      <span className="font-bold text-slate-800 dark:text-white capitalize">Learning Move for Slot {selectedIvStat + 1}</span>
+                      <span className={`font-black ml-auto ${Number(boostIvPkm[stat as keyof OwnedPokemonDto]) >= 31 ? 'text-yellow-500' : 'text-slate-600 dark:text-slate-400'}`}>
+                        {Number(boostIvPkm[stat as keyof OwnedPokemonDto])} / 31
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -987,7 +948,7 @@ export function TeamPage() {
                   <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">
                     {isGold ? 'All IVs' : 'Current IV'}
                   </span>
-                  <span className="font-black text-slate-900 dark:text-white text-3xl">{isGold ? 'VARIES' : statValue}</span>
+                  <span className="font-black text-slate-900 dark:text-white text-3xl">{isGold ? 'VARIES' : currentIv}</span>
                 </div>
 
                 {!isMaxed && (
@@ -1135,7 +1096,7 @@ export function TeamPage() {
 
               {distributeXpMutation.isError && (
                 <p className="text-sm font-bold text-red-500 mb-4 text-center">
-                  {(distributeXpMutation.error as any)?.response?.data?.error?.message || 'Failed to distribute XP'}
+                  {(distributeXpMutation.error as unknown as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to distribute XP'}
                 </p>
               )}
 

@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { injectable } from 'tsyringe';
 import { AppError } from '../../core/errors/AppError';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../core/db/prisma';
+import { BattleSessionService } from '../battles/services/battle-session.service';
 
 const RANK_REQUIREMENTS: Record<string, any> = {
   'F_RANK': { minLevel: 1, count1: 1 },
@@ -40,7 +40,10 @@ const RANK_ORDER = [
   'SSS_PLUS_RANK'
 ];
 
+@injectable()
 export class RankService {
+  constructor(private battleSessionService: BattleSessionService) {}
+
   async getRankStatus(userId: string) {
     const trainer = await prisma.trainerSave.findUnique({
       where: { userId },
@@ -118,9 +121,7 @@ export class RankService {
       throw new AppError('You do not meet the requirements for this rank promotion.', 400);
     }
 
-    const { BattleSessionService } = require('../battles/services/battle-session.service');
-    const battleSessionService = new BattleSessionService();
-    const sessionData = await battleSessionService.startRankExamEncounter(userId, status.nextRank);
+    const sessionData = await this.battleSessionService.startRankExamEncounter(userId, status.nextRank);
 
     return {
       battleSession: sessionData,
@@ -128,5 +129,3 @@ export class RankService {
     };
   }
 }
-
-export const rankService = new RankService();

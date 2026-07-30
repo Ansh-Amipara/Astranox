@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { toast } from 'sonner';
+import { SpeciesDto } from '@astranox/shared';
 import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { Dropdown } from '@/components/ui/Dropdown';
 
@@ -28,17 +29,17 @@ export function AdminEventManagement() {
     }
   });
 
-  const uniqueCategories = Array.from(new Set(speciesList.map((s: any) => s.category))).sort();
-  const filteredSpecies = speciesList.filter((s: any) => {
+  const uniqueCategories = Array.from(new Set(speciesList.map((s: SpeciesDto) => s.category))).sort();
+  const filteredSpecies = speciesList.filter((s: SpeciesDto) => {
     if (formState.speciesFilterCategory && s.category !== formState.speciesFilterCategory) return false;
     if (speciesSearch && !s.name.toLowerCase().includes(speciesSearch.toLowerCase())) return false;
     return true;
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (data: any) => {
-      if (data.id) {
-        return api.put(`/admin/events/${data.id}`, data);
+    mutationFn: async (data: unknown) => {
+      if ((data as any).id) {
+        return api.put(`/admin/events/${(data as any).id}`, data);
       }
       return api.post('/admin/events', data);
     },
@@ -48,7 +49,7 @@ export function AdminEventManagement() {
       setIsModalOpen(false);
       setEditingEvent(null);
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
       toast.error(err?.response?.data?.error?.message || 'Failed to save event');
     }
   });
@@ -77,7 +78,7 @@ export function AdminEventManagement() {
     setIsModalOpen(true);
   };
 
-  const openEdit = (evt: any) => {
+  const openEdit = (evt: { id: string, name: string, description: string, startDate: string, endDate: string, rules: any, isActive: boolean, taskType: string, taskConfig?: any, rewardConfig?: any }) => {
     setEditingEvent({
       ...evt,
       startDate: new Date(evt.startDate).toISOString().slice(0, 16),
@@ -127,7 +128,7 @@ export function AdminEventManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {eventsData?.map((evt: any) => (
+              {eventsData?.map((evt: { id: string, name: string, status: string, startDate: string, endDate: string, rules: any, description: string, isActive: boolean, taskType: string }) => (
                 <tr key={evt.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="p-4">
                     {evt.isActive ? (
@@ -332,7 +333,7 @@ export function AdminEventManagement() {
                           onChange={v => setFormState({ ...formState, rewardSpeciesId: v })}
                           options={
                             filteredSpecies.length > 0 
-                              ? filteredSpecies.map((s: any) => ({
+                              ? filteredSpecies.map((s: SpeciesDto) => ({
                                   value: String(s.id),
                                   label: `#${s.id} ${s.name} (${s.category})`
                                 }))

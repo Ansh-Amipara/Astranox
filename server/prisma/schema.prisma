@@ -139,6 +139,9 @@ model OwnedPokemon {
   escrowOffers  EscrowOfferPokemon[] @relation("OfferedPokemon")
 
   createdAt DateTime @default(now())
+
+  @@index([trainerId, isParty])
+  @@index([trainerId, isEscrowed])
 }
 
 model OwnedPokemonMove {
@@ -301,6 +304,9 @@ model BattleSession {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([trainerId, status])
+  @@index([status, battleType])
 }
 
 model AuditLog {
@@ -466,6 +472,9 @@ model TradeListing {
   seller      TrainerSave  @relation("ListingsCreated", fields: [sellerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   pokemon     OwnedPokemon @relation("ListingPokemon", fields: [pokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   offers      TradeOffer[]
+
+  @@index([status, expiresAt])
+  @@index([sellerId, status])
 }
 
 model TradeOffer {
@@ -479,6 +488,9 @@ model TradeOffer {
   listing     TradeListing @relation(fields: [listingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   bidder      TrainerSave  @relation("OffersCreated", fields: [bidderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   offeredPokemon EscrowOfferPokemon[]
+
+  @@index([listingId, status])
+  @@index([bidderId, status])
 }
 
 model EscrowOfferPokemon {

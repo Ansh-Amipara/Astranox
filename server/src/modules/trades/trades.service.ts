@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, TradeStatus } from '@prisma/client';
 import { NotFoundError, ValidationError, ForbiddenError } from '../../core/errors/AppError';
 import { TradeMapper } from './dto/mapper';
@@ -5,9 +6,11 @@ import { TrainerMapper } from '../trainers/dto/mapper';
 import type { TradeRequestDto } from './dto/response/TradeRequestDto';
 import type { OwnedPokemonDto } from '../trainers/dto/response/OwnedPokemonDto';
 import type { RequestTradeDto } from './dto/request/RequestTradeDto';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+
+@injectable()
 export class TradesService {
   async toggleForTrade(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
     const trainer = await prisma.trainerSave.findUnique({ where: { userId } });

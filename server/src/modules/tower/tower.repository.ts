@@ -1,7 +1,10 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, InfinityTowerState, InfinityTowerEncounter, EncounterStatus, Prisma, InfinityCoinTransaction } from '@prisma/client';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
 
+
+@injectable()
 export class TowerRepository {
   async getStateByTrainerId(trainerId: string): Promise<InfinityTowerState | null> {
     return prisma.infinityTowerState.findUnique({
@@ -154,8 +157,19 @@ export class TowerRepository {
       where.evolvesToId = { isSet: true };
     }
 
-    const matching = await prisma.species.findMany({
+    const matchingIds = await prisma.species.findMany({
       where,
+      select: { id: true }
+    });
+
+    if (matchingIds.length === 0) return [];
+
+    // Shuffle and slice
+    const shuffledIds = matchingIds.sort(() => 0.5 - Math.random()).slice(0, count).map(s => s.id);
+
+    // Fetch full data for selected species
+    const matching = await prisma.species.findMany({
+      where: { id: { in: shuffledIds } },
       include: {
         type1: true,
         type2: true,
@@ -169,8 +183,6 @@ export class TowerRepository {
       }
     });
 
-    // Shuffle and slice
-    const shuffled = matching.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    return matching;
   }
 }

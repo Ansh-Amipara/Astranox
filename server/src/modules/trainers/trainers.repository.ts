@@ -1,7 +1,10 @@
+import { injectable } from 'tsyringe';
 import { PrismaClient, TrainerSave, PokemonPotential } from '@prisma/client';
 import { ValidationError } from '../../core/errors/AppError';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
+
+
 
 function generateStarterPotential() {
   const rand = Math.random();
@@ -10,6 +13,7 @@ function generateStarterPotential() {
   return 'GOLD'; // 50% chance (0.50 to 1.0)
 }
 
+@injectable()
 export class TrainersRepository {
   async findByUserId(userId: string): Promise<any> {
     return prisma.trainerSave.findUnique({

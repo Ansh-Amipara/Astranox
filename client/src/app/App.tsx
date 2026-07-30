@@ -6,6 +6,8 @@ import { AuthGuard } from '@/modules/auth/components/AuthGuard';
 import { RequireStarterGuard } from '@/modules/auth/components/RequireStarterGuard';
 import { AdminGuard } from '@/modules/auth/components/AdminGuard';
 import { AdminLayout } from '@/widgets/admin-layout/ui/AdminLayout';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ModuleErrorFallback } from '@/shared/ui/ErrorFallback';
 
 // Views
 import { Home } from '@/modules/core/pages/home/ui/Home';
@@ -42,8 +44,10 @@ function GameLayout() {
     <AuthGuard>
       <RequireStarterGuard>
         <Navbar />
-        <main className="flex-1 flex flex-col">
-          <Outlet />
+        <main className="flex-1 flex flex-col relative">
+          <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </RequireStarterGuard>
     </AuthGuard>
@@ -54,7 +58,9 @@ function AdminRootLayout() {
   return (
     <AdminGuard>
       <AdminLayout>
-        <Outlet />
+        <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
+          <Outlet />
+        </ErrorBoundary>
       </AdminLayout>
     </AdminGuard>
   );

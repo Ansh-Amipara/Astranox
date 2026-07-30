@@ -1,9 +1,11 @@
+import { container } from 'tsyringe';
 import { Router } from 'express';
-import { pokedexController } from './pokedex.controller';
+import { PokedexController } from './pokedex.controller';
 
 const router = Router();
+const controller = container.resolve(PokedexController);
 
-router.get('/', pokedexController.getAllSpecies);
-router.get('/:id', pokedexController.getSpeciesById);
+router.get('/species', controller.getAllSpecies);
+router.get('/species/:id', controller.getSpeciesById);
 
 export default router;

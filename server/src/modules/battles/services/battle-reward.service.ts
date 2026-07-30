@@ -1,5 +1,7 @@
+import { injectable } from 'tsyringe';
 import { Prisma, BattleStatus } from '@prisma/client';
 
+@injectable()
 export class BattleRewardService {
   async processFaintRewards(
     result: any, 

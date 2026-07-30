@@ -72,7 +72,7 @@ api.interceptors.response.use(
     // Standardize error payload for frontend consumption
     const customError = new Error(
       error.response?.data?.error?.message || error.message || 'An unexpected error occurred'
-    ) as Error & { code?: string; status?: number; data?: any };
+    ) as Error & { code?: string; status?: number; data?: unknown };
 
     customError.code = error.response?.data?.error?.code || 'UNKNOWN_ERROR';
     customError.status = error.response?.status;

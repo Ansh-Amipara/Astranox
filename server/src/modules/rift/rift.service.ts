@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { RiftRepository } from './rift.repository';
 import { TrainerRank, RiftDifficulty, PrismaClient } from '@prisma/client';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors/AppError';
@@ -10,14 +11,18 @@ import { PokemonInstance, PokemonInstancePayload } from '../../game/instance/typ
 import { createPokemonInstance, getMinPotentialForLevel } from '../../game/instance/PokemonInstance';
 import { toActivePokemon } from '../battles/services/battle-session.service';
 import { EventsService } from '../events/events.service';
+import { prisma } from '../../core/db/prisma';
 
+
+@injectable()
 export class RiftService {
-  private repo = new RiftRepository();
-  private prisma = new PrismaClient();
-  private eventsService = new EventsService();
+  constructor(
+    private repo: RiftRepository,
+    private eventsService: EventsService
+  ) {}
 
   async getRiftState(userId: string) {
-    const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
+    const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) throw new NotFoundError('Trainer save not found.');
     let state = await this.repo.findStateByTrainerId(save.id);
     if (!state) {
@@ -28,7 +33,7 @@ export class RiftService {
   }
 
   async startRun(userId: string, rank: TrainerRank, difficulty: RiftDifficulty) {
-    const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
+    const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) throw new NotFoundError('Trainer not found');
     
     if (getRiftRankWeight(rank) > getRiftRankWeight(save.rank)) {
@@ -38,7 +43,7 @@ export class RiftService {
     const state = await this.repo.startRun(save.id, rank, difficulty);
 
     // End any active battles in BattleSession just in case
-    await this.prisma.battleSession.deleteMany({
+    await prisma.battleSession.deleteMany({
       where: { trainerId: save.id, status: 'ACTIVE' }
     });
 
@@ -46,7 +51,7 @@ export class RiftService {
   }
 
   async generateEncounter(userId: string) {
-    const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
+    const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) throw new NotFoundError('Trainer not found');
     const state = await this.repo.findStateByTrainerId(save.id);
     if (!state || !state.currentRunStartedAt) throw new ValidationError('No active Rift run.');
@@ -54,7 +59,7 @@ export class RiftService {
     if (state.currentEncounterId) {
       // Return existing encounter battle
       const encounter = await this.repo.getActiveEncounter(state.currentEncounterId);
-      const battle = await this.prisma.battleSession.findFirst({
+      const battle = await prisma.battleSession.findFirst({
         where: { trainerId: save.id, battleType: 'RIFT', status: 'ACTIVE' }
       });
       
@@ -93,10 +98,10 @@ export class RiftService {
     const potential = getMinPotentialForLevel(enemyLevel);
 
     for (const speciesName of currentFloorPool) {
-      const species = await this.prisma.species.findUnique({ where: { name: speciesName }, include: { type1: true, type2: true } });
+      const species = await prisma.species.findUnique({ where: { name: speciesName }, include: { type1: true, type2: true } });
       if (!species) throw new AppError(`Internal Error: Species not found: ${speciesName}`, 500);
 
-      const learnsets = await this.prisma.learnset.findMany({
+      const learnsets = await prisma.learnset.findMany({
         where: { speciesId: species.id, level: { lte: enemyLevel } },
         orderBy: { level: 'desc' },
         take: 4,
@@ -153,7 +158,7 @@ export class RiftService {
        }
     }
 
-    const battle = await this.prisma.battleSession.create({
+    const battle = await prisma.battleSession.create({
       data: {
         trainerId: save.id,
         battleType: 'RIFT',
@@ -170,7 +175,7 @@ export class RiftService {
   }
 
   async completeEncounter(userId: string) {
-    const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
+    const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) throw new NotFoundError('Trainer not found');
     const state = await this.repo.findStateByTrainerId(save.id);
     if (!state || !state.currentRunStartedAt || !state.currentEncounterId) {
@@ -180,7 +185,7 @@ export class RiftService {
     const encounter = await this.repo.getActiveEncounter(state.currentEncounterId);
     if (!encounter) throw new NotFoundError('Encounter not found');
 
-    const battle = await this.prisma.battleSession.findFirst({
+    const battle = await prisma.battleSession.findFirst({
       where: { trainerId: save.id, battleType: 'RIFT' },
       orderBy: { createdAt: 'desc' }
     });
@@ -212,11 +217,11 @@ export class RiftService {
   }
 
   async abandonRun(userId: string) {
-    const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
+    const save = await prisma.trainerSave.findUnique({ where: { userId } });
     if (!save) throw new NotFoundError('Trainer not found');
     await this.repo.endRun(save.id);
 
-    await this.prisma.battleSession.updateMany({
+    await prisma.battleSession.updateMany({
       where: { trainerId: save.id, status: 'ACTIVE', battleType: 'RIFT' },
       data: { status: 'FLED' }
     });

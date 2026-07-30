@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { useCreateListing } from '@/modules/marketplace/components/api/queries';
 import { Loader2, ArrowLeft, Check, AlertCircle } from 'lucide-react';
+import { OwnedPokemonDto, TradeListingDto } from '@astranox/shared';
 
 export function CreateListingPage() {
   const navigate = useNavigate();
@@ -17,12 +18,12 @@ export function CreateListingPage() {
   
   const createListingMutation = useCreateListing();
   const pokemonList = myPokemonResponse?.data || [];
-  const tradablePokemon = pokemonList.filter((p: any) => !p.isParty && !p.isEscrowed);
+  const tradablePokemon = pokemonList.filter((p: OwnedPokemonDto) => !p.isParty && !p.isEscrowed);
 
   const handleSubmit = () => {
     if (!selectedId) return;
     createListingMutation.mutate({ pokemonId: selectedId, description }, {
-      onSuccess: (data: any) => {
+      onSuccess: (data: TradeListingDto) => {
         navigate(`/marketplace/${data.id}`);
       }
     });
@@ -50,7 +51,7 @@ export function CreateListingPage() {
              <div className="text-center py-12 text-slate-500 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">You have no tradable Pokémon in your PC.</div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-h-[40vh] overflow-y-auto p-2">
-              {tradablePokemon.map((p: any) => {
+              {tradablePokemon.map((p: OwnedPokemonDto) => {
                 const isSelected = selectedId === p.id;
                 return (
                   <div 

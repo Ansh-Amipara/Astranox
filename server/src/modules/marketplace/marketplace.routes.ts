@@ -1,10 +1,11 @@
+import { container } from 'tsyringe';
 import { Router } from 'express';
 import { MarketplaceController } from './marketplace.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
 import { gameplayLimiter } from '../../core/middleware/rate-limiter';
 
 export const marketplaceRoutes = Router();
-const controller = new MarketplaceController();
+const controller = container.resolve(MarketplaceController);
 
 marketplaceRoutes.use(requireAuth);
 

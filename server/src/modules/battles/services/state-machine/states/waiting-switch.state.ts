@@ -25,7 +25,7 @@ export class WaitingSwitchState implements IBattleState {
     const switchEvent = event.createSwitchEvent(targetId, targetId, targetData.speciesName, true);
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, [switchEvent]);
 
-    const updated = await persistence.updateTurnIfCurrent(tx, session.id, session.turnNumber, {
+    const updated = await persistence.updateTurnIfCurrent(session.trainerId, session.turnNumber, {
       status: BattleStatus.ACTIVE,
       playerActivePokemonId: targetId,
       playerPokemonData: targetData,

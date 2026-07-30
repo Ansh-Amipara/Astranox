@@ -1,8 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { injectable } from 'tsyringe';
+import { prisma } from '../../core/db/prisma';
+import { CacheService } from '../../core/services/cache.service';
 
-const prisma = new PrismaClient();
-
+@injectable()
 export class PokedexService {
+  constructor(private cache: CacheService) {}
+
   async getAllSpecies(page: number, limit: number, type?: string, category?: string) {
     const skip = (page - 1) * limit;
 
@@ -24,59 +27,65 @@ export class PokedexService {
       }
     }
 
-    const [species, total] = await Promise.all([
-      prisma.species.findMany({
-        skip,
-        take: limit,
-        where,
-        orderBy: [
-          { pokedexNumber: 'asc' },
-          { id: 'asc' }
-        ],
-        include: {
-          type1: true,
-          type2: true,
-        },
-      }),
-      prisma.species.count({ where }),
-    ]);
+    const cacheKey = `pokedex:all:${page}:${limit}:${type || 'none'}:${category || 'none'}`;
+    
+    return this.cache.getOrSet(cacheKey, async () => {
+      const [species, total] = await Promise.all([
+        prisma.species.findMany({
+          skip,
+          take: limit,
+          where,
+          orderBy: [
+            { pokedexNumber: 'asc' },
+            { id: 'asc' }
+          ],
+          include: {
+            type1: true,
+            type2: true,
+          },
+        }),
+        prisma.species.count({ where }),
+      ]);
 
-    return {
-      species,
-      total,
-      page,
-      limit,
-    };
+      return {
+        species,
+        total,
+        page,
+        limit,
+      };
+    }, 86400); // cache for 24 hours
   }
 
   async getSpeciesById(id: number) {
-    const species = await prisma.species.findUnique({
-      where: { id },
-      include: {
-        type1: true,
-        type2: true,
-        evolvesTo: true,
-        evolvesFrom: true,
-      },
-    });
+    const cacheKey = `pokedex:species:${id}`;
     
-    if (species) {
-      const [megas, gmaxes] = await Promise.all([
-        prisma.species.findMany({
-          where: { baseSpeciesId: id, isMega: true },
-          include: { type1: true, type2: true }
-        }),
-        prisma.species.findMany({
-          where: { baseSpeciesId: id, isGmax: true },
-          include: { type1: true, type2: true }
-        })
-      ]);
-      (species as any).megas = megas;
-      (species as any).gmaxes = gmaxes;
-    }
-    
-    return species;
+    return this.cache.getOrSet(cacheKey, async () => {
+      const species = await prisma.species.findUnique({
+        where: { id },
+        include: {
+          type1: true,
+          type2: true,
+          evolvesTo: true,
+          evolvesFrom: true,
+        },
+      });
+      
+      if (species) {
+        const [megas, gmaxes] = await Promise.all([
+          prisma.species.findMany({
+            where: { baseSpeciesId: id, isMega: true },
+            include: { type1: true, type2: true }
+          }),
+          prisma.species.findMany({
+            where: { baseSpeciesId: id, isGmax: true },
+            include: { type1: true, type2: true }
+          })
+        ]);
+        (species as any).megas = megas;
+        (species as any).gmaxes = gmaxes;
+      }
+      
+      return species;
+    }, 86400); // cache for 24 hours
   }
 }
-
-export const pokedexService = new PokedexService();

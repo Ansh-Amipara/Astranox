@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { injectable } from 'tsyringe';
 import { AppError } from '../../core/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient();
+
 
 // Map of XP Candy IDs to the amount of XP they grant
 const XP_CANDY_VALUES: Record<string, number> = {
@@ -13,6 +14,7 @@ const XP_CANDY_VALUES: Record<string, number> = {
   'exp-candy-xl': 30000,
 };
 
+@injectable()
 export class InventoryService {
   /**
    * Helper to determine XP required for a level using Medium Fast growth rate (Level^3)
@@ -122,4 +124,3 @@ export class InventoryService {
   }
 }
 
-export const inventoryService = new InventoryService();

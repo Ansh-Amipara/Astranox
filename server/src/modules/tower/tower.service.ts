@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import crypto from 'crypto';
 import { TowerRepository } from './tower.repository';
 import { generateTowerConfig, estimateTowerFloorCP } from '../../game/tower/generator';
@@ -8,8 +9,10 @@ import { AppError } from '../../core/errors/AppError';
 import { PrismaClient, BattleStatus, BattleType, Prisma } from '@prisma/client';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { EventsService } from '../events/events.service';
+import { prisma } from '../../core/db/prisma';
 
-const prisma = new PrismaClient(); // For creating battle session directly here, or we can use battle service
+
+ // For creating battle session directly here, or we can use battle service
 
 function toActivePokemon(inst: any) {
   return {
@@ -34,9 +37,12 @@ function toActivePokemon(inst: any) {
   };
 }
 
+@injectable()
 export class TowerService {
-  private repository = new TowerRepository();
-  private eventsService = new EventsService();
+  constructor(
+    private repository: TowerRepository,
+    private eventsService: EventsService
+  ) {}
 
   private async getValidState(trainerId: string) {
     let state = await this.repository.getStateByTrainerId(trainerId);

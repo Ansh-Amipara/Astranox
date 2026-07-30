@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { TrainersRepository } from '../trainers/trainers.repository';
 import { BattlesRepository } from '../battles/repositories/battles.repository';
 import { ExploreRepository } from './explore.repository';
@@ -10,14 +11,16 @@ import { NotFoundError, ValidationError } from '../../core/errors/AppError';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { toActivePokemon } from '../battles/services/battle-session.service';
 
+@injectable()
 export class ExploreService {
-  private exploreRepo = new ExploreRepository();
-  private trainersRepo = new TrainersRepository();
-  private battlesRepo = new BattlesRepository();
-  
-  private pokemonGen = new PokemonGeneratorService();
-  private rewardGen = new RewardGeneratorService();
-  private encounterGen = new EncounterGeneratorService();
+  constructor(
+    private exploreRepo: ExploreRepository,
+    private trainersRepo: TrainersRepository,
+    private battlesRepo: BattlesRepository,
+    private pokemonGen: PokemonGeneratorService,
+    private rewardGen: RewardGeneratorService,
+    private encounterGen: EncounterGeneratorService
+  ) {}
 
   async explore(userId: string, location: ExploreLocation) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);

@@ -1,3 +1,4 @@
+import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { TrainersService } from './trainers.service';
 import { ValidationError } from '../../core/errors/AppError';
@@ -7,12 +8,9 @@ import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 import type { BoostPotentialDto } from './dto/request/BoostPotentialDto';
 import type { BoostIvDto } from './dto/request/BoostIvDto';
 
+@injectable()
 export class TrainersController {
-  private service: TrainersService;
-
-  constructor() {
-    this.service = new TrainersService();
-  }
+  constructor(private service: TrainersService) {}
 
   getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {

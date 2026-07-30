@@ -1,5 +1,7 @@
+import { injectable } from 'tsyringe';
 import { RARE_ENCOUNTER_RATES, RARE_POOLS } from '../config/rareEncounter.config';
 
+@injectable()
 export class RareEncounterService {
   rollForRare(): { isRare: boolean; speciesName?: string } {
     const roll = Math.random();

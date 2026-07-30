@@ -1,9 +1,10 @@
+import { container } from 'tsyringe';
 import { Router } from 'express';
 import { EventsController } from './events.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
 
 const eventsRoutes = Router();
-const controller = new EventsController();
+const controller = container.resolve(EventsController);
 
 eventsRoutes.get('/active', requireAuth, controller.getActiveEvent);
 eventsRoutes.post('/:id/claim', requireAuth, controller.claimReward);

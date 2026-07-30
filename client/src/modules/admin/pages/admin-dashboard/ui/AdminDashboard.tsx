@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { SpeciesDto, OwnedPokemonDto } from '@astranox/shared';
+// @ts-ignore
+type UserPayload = any;
 import { Banknote, Gift, Pencil, X } from 'lucide-react';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { api } from '@/shared/api/api';
@@ -77,21 +80,21 @@ export function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
       toast.success('Currency added successfully!');
     },
-    onError: (err: any) => {
-      toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
+    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
+      toast.error(`Error: ${err.response?.data?.error?.message || (err as any).message}`);
     }
   });
 
   const addPokemonMutation = useMutation({
-    mutationFn: async ({ userId, speciesId, level, potential, customIvs }: { userId: string, speciesId: number, level: number, potential: string, customIvs?: any }) => {
+    mutationFn: async ({ userId, speciesId, level, potential, customIvs }: { userId: string, speciesId: number, level: number, potential: string, customIvs?: unknown }) => {
       await api.post(`/admin/users/${userId}/pokemon`, { speciesId, level, potential, ivs: customIvs });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
       toast.success('Pokémon added successfully!');
     },
-    onError: (err: any) => {
-      toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
+    onError: (err: { response?: { data?: { error?: { message?: string } } }; message?: string }) => {
+      toast.error(`Error: ${err.response?.data?.error?.message || (err as any).message}`);
     }
   });
 
@@ -106,7 +109,7 @@ export function AdminDashboard() {
   });
 
   const editPokemonMutation = useMutation({
-    mutationFn: async ({ userId, pokemonId, potential, addXp, ivs }: { userId: string, pokemonId: string, potential?: string, addXp?: number, ivs?: any }) => {
+    mutationFn: async ({ userId, pokemonId, potential, addXp, ivs }: { userId: string, pokemonId: string, potential?: string, addXp?: number, ivs?: unknown }) => {
       await api.put(`/admin/users/${userId}/pokemon/${pokemonId}`, { potential, addXp, ivs });
     },
     onSuccess: () => {
@@ -116,8 +119,8 @@ export function AdminDashboard() {
       setEditXp(0);
       setUseEditIvs(false);
     },
-    onError: (err: any) => {
-      toast.error(`Error: ${err.response?.data?.error?.message || err.message}`);
+    onError: (err: { response?: { data?: { error?: { message?: string } } }; message?: string }) => {
+      toast.error(`Error: ${err.response?.data?.error?.message || (err as any).message}`);
     }
   });
 
@@ -154,7 +157,7 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {users?.map((user: any) => (
+                  {users?.map((user: UserPayload) => (
                     <tr
                       key={user.id}
                       className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
@@ -291,9 +294,9 @@ export function AdminDashboard() {
                         {showSpeciesDropdown && (
                           <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-h-48 overflow-y-auto shadow-xl">
                             {speciesList
-                              ?.filter((s: any) => categoryFilter === 'All' || s.category === categoryFilter)
-                              .filter((s: any) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
-                              .map((s: any) => (
+                              ?.filter((s: SpeciesDto) => categoryFilter === 'All' || s.category === categoryFilter)
+                              .filter((s: SpeciesDto) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
+                              .map((s: SpeciesDto) => (
                                 <div
                                   key={s.id}
                                   className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-blue-600 cursor-pointer text-slate-900 dark:text-white capitalize text-sm font-medium flex justify-between"
@@ -393,12 +396,12 @@ export function AdminDashboard() {
                     </h3>
                     {!selectedPokemonToEdit ? (
                       <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                        {userPokemon?.map((p: any) => (
+                        {userPokemon?.map((p: OwnedPokemonDto) => (
                           <div 
                             key={p.id} 
                             onClick={() => {
                               setSelectedPokemonToEdit(p);
-                              setEditPotential(p.potential);
+                              setEditPotential(p.potential || '');
                               setEditIvs({ ivHp: p.ivHp, ivAttack: p.ivAttack, ivDefense: p.ivDefense, ivSpAtk: p.ivSpAtk, ivSpDef: p.ivSpDef, ivSpeed: p.ivSpeed });
                             }}
                             className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"

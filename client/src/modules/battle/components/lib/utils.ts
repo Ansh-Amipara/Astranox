@@ -1,5 +1,7 @@
-export const getEventMessage = (ev: any, player: any, wild: any) => {
-  const name = ev.pokemonId === player.id ? (player.name || player.speciesName) : (wild.name || wild.speciesName);
+import { ActivePokemonDto, TurnEventDto } from '@astranox/shared';
+
+export const getEventMessage = (ev: TurnEventDto, player: ActivePokemonDto & { name?: string }, wild: ActivePokemonDto & { name?: string }) => {
+  const name = (ev as any).pokemonId === player.id ? (player.name || player.speciesName) : (wild.name || wild.speciesName);
   switch (ev.type) {
     case 'move': return `${name} used ${ev.moveName}!`;
     case 'damage': {
@@ -33,6 +35,6 @@ export const getEventMessage = (ev: any, player: any, wild: any) => {
         if (ev.shakes === 3) return `Shoot! It was so close too!`;
         return `The Pokémon broke free!`;
       }
-    default: return ev.message || ev.text || null;
+    default: return (ev as any).message || (ev as any).text || null;
   }
 };
