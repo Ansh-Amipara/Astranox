@@ -30,6 +30,14 @@ export class ExploreService {
 
     const activeBattle = await this.battlesRepo.getActiveBattleByTrainer(trainerSave.id);
     if (activeBattle) {
+      if (activeBattle.battleType === 'WILD' || activeBattle.battleType === 'TOWER' || activeBattle.battleType === 'RIFT') {
+        return {
+          type: 'POKEMON',
+          encounter: activeBattle.opponentPokemonData,
+          battleSessionId: activeBattle.id,
+          isResume: true
+        };
+      }
       throw new ValidationError('You cannot explore while in a battle.');
     }
 

@@ -18,7 +18,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   disabled,
   ...props
 }, ref) => {
-  
+  if (import.meta.env.DEV) {
+    if (!children && Icon && !props['aria-label'] && !props['aria-labelledby']) {
+      console.warn('Button component: An icon-only button was rendered without an `aria-label`. This is an accessibility violation.');
+    }
+  }
+
   const baseStyles = "inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-silt-gold focus-visible:ring-offset-2 focus-visible:ring-offset-ink-dark";
   
   const variants = {

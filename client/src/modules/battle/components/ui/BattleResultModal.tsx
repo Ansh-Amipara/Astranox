@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useCompleteTowerBattle, useTowerState } from '@/modules/tower/components/useTower';
 import { useCompleteRiftEncounter, useAbandonRiftRun } from '@/modules/rift/components/useRift';
+import { Modal } from '@/shared/ui/Modal';
 
 interface Props {
   isFinished: boolean;
@@ -51,8 +52,8 @@ export const BattleResultModal = memo(function BattleResultModal({
   ) : null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 w-full max-w-xl flex flex-col items-center shadow-2xl animate-in zoom-in-95 duration-300">
+    <Modal isOpen={true} onClose={() => {}} className="max-w-xl" hideHeader>
+      <div className="p-8 flex flex-col items-center">
         <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 tracking-wide uppercase text-center">
           Battle Finished!
         </h2>
@@ -152,6 +153,6 @@ export const BattleResultModal = memo(function BattleResultModal({
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 });

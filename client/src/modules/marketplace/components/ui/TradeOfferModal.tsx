@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { useCreateOffer } from '../api/queries';
-import { Loader2, X, AlertCircle, Check } from 'lucide-react';
+import { Loader2, AlertCircle, Check } from 'lucide-react';
 import { OwnedPokemonDto } from '@astranox/shared';
+import { Modal } from '@/shared/ui/Modal';
 
 interface TradeOfferModalProps {
   listingId: string;
@@ -40,17 +41,8 @@ export function TradeOfferModal({ listingId, onClose }: TradeOfferModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white">Build Your Offer</h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
+    <Modal isOpen={true} onClose={onClose} title="Build Your Offer" className="max-w-4xl">
+      <div className="flex flex-col h-full overflow-hidden">
         {/* Content */}
         <div className="p-6 flex-1 overflow-y-auto">
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50 flex gap-3 text-blue-700 dark:text-blue-400 text-sm font-medium">
@@ -94,7 +86,7 @@ export function TradeOfferModal({ listingId, onClose }: TradeOfferModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 rounded-b-3xl">
+        <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
           <p className="text-slate-600 dark:text-slate-400 font-bold">
             {selectedIds.length} Pokémon selected
           </p>
@@ -108,6 +100,6 @@ export function TradeOfferModal({ listingId, onClose }: TradeOfferModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

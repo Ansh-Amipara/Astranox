@@ -3,10 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { TypeSelect } from '@/components/ui/TypeSelect';
+import { TypeSelect } from '@/shared/ui/TypeSelect';
 import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 import { ArrowRight } from 'lucide-react';
 import { OwnedPokemonDto, MoveDto, SpeciesDto, TrainerSaveDto, OwnedPokemonMoveDto } from '@astranox/shared';
+import { Modal } from '@/shared/ui/Modal';
 
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
@@ -243,8 +244,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
     <>
       {/* --- 1. Options Menu Modal --- */}
       {activeMenuPkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 w-full max-w-xs flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+        <Modal isOpen={true} onClose={() => setActiveMenuPkm(null)} className="max-w-xs" hideHeader>
+          <div className="p-4 flex flex-col">
             <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
               <img
                 src={getSpriteUrl(activeMenuPkm.speciesId)}
@@ -358,13 +359,13 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               Cancel
             </button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* --- 2. Details Modal --- */}
       {detailsPkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setDetailsPkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+        <Modal isOpen={true} onClose={() => setDetailsPkm(null)} className="max-w-md" hideHeader>
+          <div className="p-6 flex flex-col max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <img
@@ -433,13 +434,13 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* --- 3. Move Management Modal --- */}
       {changeMovePkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setChangeMovePkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+        <Modal isOpen={true} onClose={() => setChangeMovePkm(null)} className="max-w-2xl" hideHeader>
+          <div className="p-6 flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
                 Change {changeMovePkm.nickname || changeMovePkm.species?.name}'s Moves
@@ -574,13 +575,13 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !evolveMutation.isPending && setEvolutionPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+        <Modal isOpen={true} onClose={() => { if (!evolveMutation.isPending) setEvolutionPkm(null); }} className="max-w-md" hideHeader>
+            <div className="p-8 flex flex-col relative overflow-hidden text-center">
               <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10 pointer-events-none" />
 
             <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -740,7 +741,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
               })()}
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* --- 5. Boost Potential Modal --- */}
@@ -790,8 +791,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         const theme = themeMap[mapping?.next] || themeMap['GOLD'];
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>
-            <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center`} role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+          <Modal isOpen={true} onClose={() => { if (!boostMutation.isPending) setBoostPkm(null); }} className="max-w-md" hideHeader>
+            <div className={`p-8 flex flex-col relative overflow-hidden text-center`}>
               <div className={`absolute inset-0 bg-linear-to-br ${theme.bgGradient} pointer-events-none`} />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -849,7 +850,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 )}
               </div>
             </div>
-          </div>
+          </Modal>
         );
       })()}
 
@@ -880,8 +881,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         const statValue = (boostIvPkm as unknown as Record<string, number>)[selectedIvStat];
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+          <Modal isOpen={true} onClose={() => { if (!boostIvMutation.isPending) setBoostIvPkm(null); }} className="max-w-lg" hideHeader>
+            <div className="p-8 flex flex-col relative overflow-hidden text-center">
               <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -978,7 +979,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 )}
               </div>
             </div>
-          </div>
+          </Modal>
         );
       })()}
 
@@ -1011,8 +1012,8 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         };
 
         return (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+          <Modal isOpen={true} onClose={() => setGiveXpPkm(null)} className="max-w-md" hideHeader>
+            <div className="p-6 flex flex-col">
               <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <img
                   src={getSpriteUrl(giveXpPkm.speciesId)}
@@ -1095,7 +1096,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 </button>
               </div>
             </div>
-          </div>
+          </Modal>
         );
       })()}
 

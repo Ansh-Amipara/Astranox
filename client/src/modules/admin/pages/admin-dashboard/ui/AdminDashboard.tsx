@@ -5,7 +5,7 @@ import { SpeciesDto, OwnedPokemonDto } from '@astranox/shared';
 // @ts-ignore
 type UserPayload = any;
 import { Banknote, Gift, Pencil, X } from 'lucide-react';
-import { Dropdown } from '@/components/ui/Dropdown';
+import { Dropdown } from '@/shared/ui/Dropdown';
 import { api } from '@/shared/api/api';
 
 export function AdminDashboard() {
@@ -170,6 +170,7 @@ export function AdminDashboard() {
                       <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</td>
                       <td className="p-4 text-right flex justify-end gap-2">
                         <button
+                          aria-label="Inject Currency"
                           className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                           onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('currency'); }}
                           title="Inject Currency"
@@ -177,6 +178,7 @@ export function AdminDashboard() {
                           <Banknote className="w-5 h-5" />
                         </button>
                         <button
+                          aria-label="Send Pokémon"
                           className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
                           onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('sendPokemon'); }}
                           title="Send Pokémon"
@@ -184,6 +186,7 @@ export function AdminDashboard() {
                           <Gift className="w-5 h-5" />
                         </button>
                         <button
+                          aria-label="Edit Pokémon"
                           className="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20"
                           onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('editPokemon'); }}
                           title="Edit Pokémon"
@@ -203,6 +206,7 @@ export function AdminDashboard() {
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => { setSelectedUser(null); setModalMode(null); }}>
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none" onClick={(e) => e.stopPropagation()}>
                 <button
+                  aria-label="Close"
                   onClick={() => { setSelectedUser(null); setModalMode(null); }}
                   className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-full p-1"
                 >

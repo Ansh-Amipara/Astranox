@@ -7,7 +7,7 @@ import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 import { toast } from 'sonner';
 import { PokemonActionModals } from '@/modules/pokemon/components/ui/PokemonActionModals';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/shared/ui/Pagination';
 import { PokemonManagementCard } from './PokemonManagementCard';
 
 export function PokemonManagement() {

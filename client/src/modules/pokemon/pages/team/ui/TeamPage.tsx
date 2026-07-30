@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { TypeSelect } from '@/components/ui/TypeSelect';
+import { TypeSelect } from '@/shared/ui/TypeSelect';
 import { ArrowRight } from 'lucide-react';
 import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 // --- Stat Calculation Utilities ---

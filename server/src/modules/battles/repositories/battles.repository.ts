@@ -1,10 +1,11 @@
-import { injectable } from 'tsyringe';
+import { injectable, singleton } from 'tsyringe';
 // Trigger IDE reload
 import { Prisma, PrismaClient, BattleStatus } from '@prisma/client';
 import { prisma } from '../../../core/db/prisma';
 import { CacheService } from '../../../core/services/cache.service';
 import { randomUUID } from 'crypto';
 
+@singleton()
 @injectable()
 export class BattlesRepository {
   constructor(private cache: CacheService) {}

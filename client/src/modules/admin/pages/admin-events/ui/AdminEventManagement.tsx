@@ -4,7 +4,8 @@ import { api } from '@/shared/api/api';
 import { toast } from 'sonner';
 import { SpeciesDto } from '@astranox/shared';
 import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/fi';
-import { Dropdown } from '@/components/ui/Dropdown';
+import { Dropdown } from '@/shared/ui/Dropdown';
+import { Modal } from '@/shared/ui/Modal';
 
 export function AdminEventManagement() {
   const queryClient = useQueryClient();
@@ -153,10 +154,10 @@ export function AdminEventManagement() {
                     <div>End: {new Date(evt.endDate).toLocaleDateString()}</div>
                   </td>
                   <td className="p-4 text-right">
-                    <button onClick={() => openEdit(evt)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
+                    <button aria-label="Edit event" onClick={() => openEdit(evt)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
                       <FiEdit2 />
                     </button>
-                    <button onClick={() => { if(window.confirm('Delete event?')) deleteMutation.mutate(evt.id) }} className="p-2 text-slate-400 hover:text-red-500 transition-colors ml-2">
+                    <button aria-label="Delete event" onClick={() => { if(window.confirm('Delete event?')) deleteMutation.mutate(evt.id) }} className="p-2 text-slate-400 hover:text-red-500 transition-colors ml-2">
                       <FiTrash2 />
                     </button>
                   </td>
@@ -173,16 +174,9 @@ export function AdminEventManagement() {
       )}
 
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-xl font-black text-slate-900 dark:text-white">
-                {editingEvent?.id ? 'Edit Event' : 'Create Event'}
-              </h2>
-            </div>
-            
-            <div className="p-6 overflow-y-auto flex-1">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingEvent?.id ? 'Edit Event' : 'Create Event'} className="max-w-2xl">
+        <div className="flex flex-col max-h-[90vh] overflow-hidden">
+          <div className="p-6 overflow-y-auto flex-1">
               <form id="event-form" onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
@@ -410,8 +404,7 @@ export function AdminEventManagement() {
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
     </div>
   );
 }
