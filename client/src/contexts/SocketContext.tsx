@@ -18,18 +18,24 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  const accessToken = useAuthStore((state) => state.accessToken);
+
   useEffect(() => {
+    if (!accessToken) {
+      setSocket(null);
+      setIsConnected(false);
+      return;
+    }
+
     // Determine backend URL (usually same as API base, but socket.io handles it well if we just point to the base URL)
     const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:4005';
     // Remove /api from the end if it exists, as socket.io typically connects to the root
     const baseUrl = backendUrl.replace(/\/api$/, '');
 
-    const token = useAuthStore.getState().accessToken;
-
     const newSocket = io(baseUrl, {
       withCredentials: true,
       auth: {
-        token
+        token: accessToken
       }
     });
 
@@ -46,7 +52,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => {
       newSocket.close();
     };
-  }, []);
+  }, [accessToken]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

@@ -99,7 +99,7 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
 
           <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
             {[0, 1, 2, 3].map(i => {
-              const move = p.moves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
+              const move = p.equippedMoves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
               return (
                 <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
                   {move ? (

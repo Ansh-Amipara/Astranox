@@ -87,13 +87,8 @@ export class ActiveState implements IBattleState {
         move: {
           name: playerMoveData.name,
           power: playerMoveData.power,
-          accuracy: playerMoveData.accuracy,
           type: playerMoveData.type.name,
-          priority: playerMoveData.priority,
-          damageClass: playerMoveData.damageClass as any,
-          ailment: playerMoveData.ailment,
-          ailmentChance: playerMoveData.ailmentChance,
-          flinchChance: playerMoveData.flinchChance
+          damageClass: playerMoveData.damageClass as any
         }
       };
     }
@@ -250,24 +245,7 @@ export class ActiveState implements IBattleState {
       }
     }
 
-    // --- MOVE LEARNING INTERCEPTION ---
-    // If the battle is effectively over (WON or LOST), check if we have any queued moves to learn.
-    // The user requested move learning to happen strictly at the end of the battle.
-    if (newStatus === BattleStatus.WON || newStatus === BattleStatus.LOST) {
-      const pendingLearns = (result.p1State as any).pendingMoveLearns || [];
-      if (pendingLearns.length > 0) {
-        // Store the actual final status we want to reach after learning moves
-        (result.p1State as any).finalStatusAfterMoveLearn = newStatus;
-        newStatus = BattleStatus.WAITING_MOVE_LEARN;
-        const nextLearn = pendingLearns[0];
-        result.events.push({ 
-          type: 'prompt_learn_move', 
-          pokemonId: result.p1State.id, 
-          moveId: nextLearn.moveId, 
-          moveName: nextLearn.moveName 
-        });
-      }
-    }
+
 
     // --- POST-BATTLE PROCESSING ---
     if (isCaught) {

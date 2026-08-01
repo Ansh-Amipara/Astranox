@@ -19,6 +19,9 @@ export async function seedMoves() {
       const moveRes = await fetch(result.url);
       const moveData = await moveRes.json();
       
+      if (moveData.power == null || moveData.power < 1) return;
+      if (moveData.type.name === 'shadow' || moveData.type.name === 'unknown') return;
+
       const typeId = parseInt(moveData.type.url.split('/').filter(Boolean).pop()!);
       
       await prisma.move.upsert({
@@ -27,26 +30,14 @@ export async function seedMoves() {
           name: moveData.name,
           typeId: typeId,
           power: moveData.power,
-          accuracy: moveData.accuracy,
-          priority: moveData.priority,
-          damageClass: moveData.damage_class?.name || 'status',
-          ailment: moveData.meta?.ailment?.name,
-          ailmentChance: moveData.meta?.ailment_chance,
-          flinchChance: moveData.meta?.flinch_chance,
-          statChanges: moveData.stat_changes,
+          damageClass: moveData.damage_class?.name || 'physical',
         },
         create: {
           id: moveData.id,
           name: moveData.name,
           typeId: typeId,
           power: moveData.power,
-          accuracy: moveData.accuracy,
-          priority: moveData.priority,
-          damageClass: moveData.damage_class?.name || 'status',
-          ailment: moveData.meta?.ailment?.name,
-          ailmentChance: moveData.meta?.ailment_chance,
-          flinchChance: moveData.meta?.flinch_chance,
-          statChanges: moveData.stat_changes,
+          damageClass: moveData.damage_class?.name || 'physical',
         },
       });
     });

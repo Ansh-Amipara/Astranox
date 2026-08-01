@@ -39,8 +39,6 @@ export class WaitingMoveLearnState implements IBattleState {
           name: moveData.name,
           type: moveData.type.name,
           power: moveData.power,
-          accuracy: moveData.accuracy,
-          priority: moveData.priority,
           damageClass: moveData.damageClass
         };
         eventLog.push(event.createLearnedMoveEvent(playerPokemon.id, moveData.name));

@@ -20,8 +20,5 @@ export const LOCATION_LEVEL_RANGES: Record<ExploreLocation, { min: number; max: 
   CRYSTAL_CAVE: { min: 35, max: 55 },
   ANCIENT_TEMPLE: { min: 40, max: 60 },
   SKY_ISLANDS: { min: 45, max: 70 },
-  ALOLA_REGION: { min: 20, max: 40 },
-  HISUI_REGION: { min: 20, max: 40 },
-  GALAR_REGION: { min: 20, max: 40 },
-  PALDEA_REGION: { min: 20, max: 40 }
+  ASTRALIS_FRONTIER: { min: 20, max: 50 }
 };

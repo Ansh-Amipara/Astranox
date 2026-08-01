@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ExploreService, ExploreResponse } from '@/modules/explore/services/explore.service';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { LOCATIONS, getRealmImagePath } from './ExplorePage';
+import { toast } from 'sonner';
 
 const REGION_TYPES: Record<string, string[]> = {
   PLAINS: ['Normal', 'Flying', 'Grass'],
@@ -18,10 +19,7 @@ const REGION_TYPES: Record<string, string[]> = {
   ANCIENT_TEMPLE: ['Psychic', 'Dragon', 'Rock'],
   CRYSTAL_CAVE: ['Rock', 'Ice', 'Fairy'],
   SKY_ISLANDS: ['Flying', 'Dragon', 'Fairy'],
-  ALOLA_REGION: ['Water', 'Fire', 'Grass'],
-  HISUI_REGION: ['Fighting', 'Ghost', 'Ice'],
-  GALAR_REGION: ['Steel', 'Dragon', 'Dark'],
-  PALDEA_REGION: ['Dragon', 'Fighting', 'Fairy']
+  ASTRALIS_FRONTIER: ['Various', 'Regional']
 };
 
 export function ExploreDetailPage() {
@@ -51,7 +49,13 @@ export function ExploreDetailPage() {
     setError(null);
     try {
       const data = await ExploreService.explore(locationId);
-      setResult(data);
+      if (data.type === 'NOTHING') {
+        toast(data.message, { icon: '💨' });
+      } else if (data.type === 'COINS') {
+        toast.success(data.message, { icon: '💰' });
+      } else {
+        setResult(data);
+      }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } } };
       setError(error.response?.data?.error?.message || 'Failed to trigger encounter');
@@ -130,27 +134,7 @@ export function ExploreDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
 
-            {result.type === 'NOTHING' && (
-              <div className="text-center text-slate-900 dark:text-white">
-                <div className="text-6xl mb-4">💨</div>
-                <h2 className="text-2xl font-black mb-2">Nothing Found</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">{result.message}</p>
-                <button onClick={() => setResult(null)} className="w-full py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors">
-                  Continue
-                </button>
-              </div>
-            )}
 
-            {result.type === 'COINS' && (
-              <div className="text-center text-slate-900 dark:text-white">
-                <div className="text-6xl mb-4 text-ink-blue">💰</div>
-                <h2 className="text-2xl font-black mb-2 text-ink-dark dark:text-ink-paper">Coins Found!</h2>
-                <p className="text-slate-600 dark:text-slate-300 mb-6 font-medium">{result.message}</p>
-                <button onClick={() => setResult(null)} className="w-full py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors">
-                  Awesome!
-                </button>
-              </div>
-            )}
 
             {result.type === 'POKEMON' && result.encounter && (
               <div className="text-center text-slate-900 dark:text-white">

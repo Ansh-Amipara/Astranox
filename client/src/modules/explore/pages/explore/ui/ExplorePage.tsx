@@ -5,7 +5,7 @@ export const LOCATIONS = [
   'PLAINS', 'FOREST', 'VOLCANO', 'OCEAN', 'FROZEN_PEAKS',
   'DESERT', 'MOUNTAIN', 'HAUNTED_RUINS', 'FAIRY_GARDEN',
   'SWAMP', 'ANCIENT_TEMPLE', 'CRYSTAL_CAVE', 'SKY_ISLANDS',
-  'ALOLA_REGION', 'HISUI_REGION', 'GALAR_REGION', 'PALDEA_REGION'
+  'ASTRALIS_FRONTIER'
 ];
 
 export function getRealmImagePath(locationId: string): string {

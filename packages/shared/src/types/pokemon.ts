@@ -34,7 +34,7 @@ export interface OwnedPokemonDto {
   readonly ivSpAtk: number;
   readonly ivSpDef: number;
   readonly ivSpeed: number;
-  readonly moves: ReadonlyArray<OwnedPokemonMoveDto>;
+  readonly equippedMoves: ReadonlyArray<OwnedPokemonMoveDto>;
   readonly species: {
     readonly id: number;
     readonly name: string;

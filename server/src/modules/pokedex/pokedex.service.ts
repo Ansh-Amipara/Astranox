@@ -4,12 +4,16 @@ import { CacheService } from '../../core/services/cache.service';
 
 @injectable()
 export class PokedexService {
-  constructor(private cache: CacheService) {}
+  constructor(private cache: CacheService) { }
 
-  async getAllSpecies(page: number, limit: number, type?: string, category?: string) {
+  async getAllSpecies(page: number, limit: number, type?: string, category?: string, search?: string) {
     const skip = (page - 1) * limit;
 
     const where: any = {};
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
     if (type) {
       where.OR = [
         { type1: { name: type } },
@@ -27,8 +31,8 @@ export class PokedexService {
       }
     }
 
-    const cacheKey = `pokedex:all:${page}:${limit}:${type || 'none'}:${category || 'none'}`;
-    
+    const cacheKey = `pokedex:all:${page}:${limit}:${type || 'none'}:${category || 'none'}:${search || 'none'}`;
+
     return this.cache.getOrSet(cacheKey, async () => {
       const [species, total] = await Promise.all([
         prisma.species.findMany({
@@ -58,7 +62,7 @@ export class PokedexService {
 
   async getSpeciesById(id: number) {
     const cacheKey = `pokedex:species:${id}`;
-    
+
     return this.cache.getOrSet(cacheKey, async () => {
       const species = await prisma.species.findUnique({
         where: { id },
@@ -67,9 +71,10 @@ export class PokedexService {
           type2: true,
           evolvesTo: true,
           evolvesFrom: true,
+          learnsets: { include: { move: true } },
         },
       });
-      
+
       if (species) {
         const [megas, gmaxes] = await Promise.all([
           prisma.species.findMany({
@@ -83,8 +88,19 @@ export class PokedexService {
         ]);
         (species as any).megas = megas;
         (species as any).gmaxes = gmaxes;
+
+        // Inherit G-Max learnset from base
+        if (species.isGmax && species.baseSpeciesId && (!species.learnsets || species.learnsets.length === 0)) {
+          const baseSpecies = await prisma.species.findUnique({
+            where: { id: species.baseSpeciesId },
+            include: { learnsets: { include: { move: true } } },
+          });
+          if (baseSpecies && baseSpecies.learnsets) {
+            species.learnsets = baseSpecies.learnsets;
+          }
+        }
       }
-      
+
       return species;
     }, 86400); // cache for 24 hours
   }

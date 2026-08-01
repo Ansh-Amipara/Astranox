@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { OwnedPokemonDto, TrainerSaveDto, MoveDto, InventoryItemDto } from '@astranox/shared';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { TypeSelect } from '@/shared/ui/TypeSelect';
+import { Dropdown } from '@/shared/ui/Dropdown';
 import { ArrowRight } from 'lucide-react';
 import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 // --- Stat Calculation Utilities ---
@@ -20,12 +21,12 @@ function calculateStat(base: number, iv: number, level: number): number {
 
 
 export function TeamPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // State for different modals
   const [activeMenuPkm, setActiveMenuPkm] = useState<OwnedPokemonDto | null>(null);
   const [detailsPkm, setDetailsPkm] = useState<OwnedPokemonDto | null>(null);
-  const [changeMovePkm, setChangeMovePkm] = useState<(OwnedPokemonDto & { currentMoves?: (string | undefined)[], editingSlot?: number }) | null>(null);
   const [evolutionPkm, setEvolutionPkm] = useState<(OwnedPokemonDto & { megas?: { id: number, name: string, baseSpeciesId: number, baseSpeciesName: string }[] }) | null>(null);
   const [boostPkm, setBoostPkm] = useState<OwnedPokemonDto | null>(null);
   const [boostIvPkm, setBoostIvPkm] = useState<OwnedPokemonDto | null>(null);
@@ -51,7 +52,7 @@ export function TeamPage() {
     queryFn: async () => {
       const id = activeMenuPkm?.speciesId || evolutionPkm?.speciesId;
       if (!id) return null;
-      const { data } = await api.get(`/pokedex/${id}`);
+      const { data } = await api.get(`/pokedex/species/${id}`);
       return data.data;
     },
     enabled: !!(activeMenuPkm || evolutionPkm)
@@ -69,9 +70,7 @@ export function TeamPage() {
     }
   }, [evolutionPkm, speciesInfo, selectedMega]);
 
-  const [moveSearch, setMoveSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
+
 
   const { data: save, isLoading } = useQuery({
     queryKey: ['trainerSave'],
@@ -81,23 +80,7 @@ export function TeamPage() {
     },
   });
 
-  const { data: allMoves } = useQuery({
-    queryKey: ['allMoves'],
-    queryFn: async () => {
-      const { data } = await api.get('/trainers/moves');
-      return data.data;
-    }
-  });
 
-  const changeMovesMutation = useMutation({
-    mutationFn: async ({ pokemonId, moves }: { pokemonId: string, moves: number[] }) => {
-      await api.patch(`/trainers/party/${pokemonId}/moves`, { moves });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      setChangeMovePkm(null);
-    }
-  });
 
   const removeMutation = useMutation({
     mutationFn: async (pokemonId: string) => {
@@ -127,7 +110,7 @@ export function TeamPage() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       setActiveMenuPkm(null);
-      
+
       toast.success(
         <div className="flex flex-col gap-1">
           <p className="font-bold">Smelt Successful!</p>
@@ -297,7 +280,7 @@ export function TeamPage() {
 
                       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
                         {[0, 1, 2, 3].map(i => {
-                          const move = pkm.moves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
+                          const move = pkm.equippedMoves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
                           return (
                             <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
                               {move ? (
@@ -373,8 +356,7 @@ export function TeamPage() {
 
               <button
                 onClick={() => {
-                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move?.name || 'tackle'), editingSlot: undefined });
-                  setMoveSearch('');
+                  navigate(`/pokemon/${activeMenuPkm.id}/moves`, { state: { pokemon: activeMenuPkm } });
                   setActiveMenuPkm(null);
                 }}
                 className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
@@ -419,7 +401,7 @@ export function TeamPage() {
                   setXpAmountInput('1000');
                   setActiveMenuPkm(null);
                 }}
-                className="w-full text-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 rounded-xl font-bold transition-colors text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
+                className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white flex items-center justify-center gap-1.5"
               >
                 Give XP
               </button>
@@ -439,15 +421,7 @@ export function TeamPage() {
                 disabled={party.length <= 1 || removeMutation.isPending}
                 className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {removeMutation.isPending ? 'Sending...' : 'Send to PC'}
-              </button>
-
-              <button
-                disabled={true}
-                title="Cannot smelt a Pokémon that is currently in your party. Remove it from your party first."
-                className="w-full text-center px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold transition-colors text-slate-900 dark:text-white opacity-50 cursor-not-allowed"
-              >
-                Smelt Pokemon
+                {removeMutation.isPending ? 'Removing...' : 'Remove From Team'}
               </button>
             </div>
 
@@ -537,144 +511,6 @@ export function TeamPage() {
       )}
 
       {/* --- 3. Move Management Modal (Unchanged structurally, just uses new state) --- */}
-      {changeMovePkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setChangeMovePkm(null)}>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
-                Change {changeMovePkm.nickname || changeMovePkm.species?.name}'s Moves
-              </h2>
-              <button
-                onClick={() => setChangeMovePkm(null)}
-                className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-xl"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-hidden">
-              {/* Current Moves */}
-              <div className="flex flex-col gap-2">
-                <h3 className="font-bold text-slate-700 dark:text-slate-300">Current Moves</h3>
-                {changeMovePkm.currentMoves?.map((m: string | undefined, idx: number) => (
-                  <div key={idx} className="flex gap-2">
-                    <div className="flex-1 bg-slate-100 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 capitalize font-medium flex items-center justify-between text-slate-900 dark:text-slate-100">
-                      {m || '-'}
-                      <button
-                        onClick={() => {
-                          setChangeMovePkm({ ...changeMovePkm, editingSlot: idx });
-                        }}
-                        className="text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-3 py-1.5 rounded transition-colors"
-                      >
-                        Swap
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Move Selection */}
-              <div className="flex flex-col gap-2 overflow-y-auto pr-2 border-l border-slate-200 dark:border-slate-700 pl-4 custom-scrollbar">
-                <div className="flex flex-col gap-2 sticky top-0 bg-white dark:bg-slate-900 pb-2 z-10 border-b border-slate-200 dark:border-slate-800">
-                  <h3 className="font-bold text-slate-700 dark:text-slate-300">
-                    {changeMovePkm.editingSlot !== undefined ? 'Select a move...' : 'Select "Swap" on a slot first'}
-                  </h3>
-                  <input
-                    type="text"
-                    placeholder="Search moves by name or type..."
-                    value={moveSearch}
-                    onChange={(e) => setMoveSearch(e.target.value)}
-                    disabled={changeMovePkm.editingSlot === undefined}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed mb-2"
-                  />
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <TypeSelect
-                        value={typeFilter === 'all' ? '' : typeFilter}
-                        onChange={(val) => setTypeFilter(val || 'all')}
-                        types={Array.from<string>(new Set(allMoves?.map((m: MoveDto) => m.type) || [])).filter((t: string) => t !== 'shadow' && t !== 'unknown').sort()}
-                        disabled={changeMovePkm.editingSlot === undefined}
-                      />
-                    </div>
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      disabled={changeMovePkm.editingSlot === undefined}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-xs disabled:opacity-50"
-                    >
-                      <option value="name">Sort by Name</option>
-                      <option value="power_desc">Power (High to Low)</option>
-                      <option value="power_asc">Power (Low to High)</option>
-                    </select>
-                  </div>
-                </div>
-                {changeMovePkm.editingSlot !== undefined && allMoves
-                  ?.filter((move: MoveDto) =>
-                    (typeFilter === 'all' || move.type === typeFilter) &&
-                    (move.name.toLowerCase().includes(moveSearch.toLowerCase()) ||
-                      move.type.toLowerCase().includes(moveSearch.toLowerCase()) ||
-                      move.damageClass.toLowerCase().includes(moveSearch.toLowerCase()))
-                  )
-                  .sort((a: MoveDto, b: MoveDto) => {
-                    if (sortBy === 'power_desc') {
-                      return (b.power || 0) - (a.power || 0);
-                    }
-                    if (sortBy === 'power_asc') {
-                      return (a.power || 0) - (b.power || 0);
-                    }
-                    return a.name.localeCompare(b.name);
-                  })
-                  .slice(0, 100) // Limit to 100 to prevent lagging the UI when search is empty
-                  .map((move: MoveDto) => (
-                    <button
-                      key={move.name}
-                      onClick={() => {
-                        const newMoves = [...(changeMovePkm.currentMoves || [])];
-                        newMoves[changeMovePkm.editingSlot!] = move.name;
-                        setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: undefined });
-                        setMoveSearch('');
-                      }}
-                      className="flex flex-col p-3 rounded-lg border border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-blue-400 bg-white dark:bg-slate-800/50 text-left transition-colors"
-                    >
-                      <div className="flex justify-start gap-2 items-center w-full mb-1">
-                        <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
-                        <span className="font-bold capitalize text-slate-900 dark:text-white truncate">{move.name.replace('-', ' ')}</span>
-                      </div>
-                      <div className="flex gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-                        <span>PWR: {move.power || '-'}</span>
-                        <span>ACC: {move.accuracy || '-'}</span>
-                        <span className="capitalize">{move.damageClass}</span>
-                      </div>
-                    </button>
-                  ))}
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <button
-                onClick={() => setChangeMovePkm(null)}
-                className="px-6 py-2.5 font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  const moveIds = (changeMovePkm.currentMoves || [])
-                    .filter(Boolean)
-                    .map((moveName: string | undefined) => allMoves?.find((m: MoveDto) => m.name === moveName)?.id)
-                    .filter(Boolean);
-                  changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds as number[] });
-                }}
-                disabled={changeMovesMutation.isPending || changeMovePkm.editingSlot !== undefined}
-                className="px-8 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-colors disabled:opacity-50"
-              >
-                {changeMovesMutation.isPending ? 'Saving...' : 'Save Moves'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !evolveMutation.isPending && setEvolutionPkm(null)}>

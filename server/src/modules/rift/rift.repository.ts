@@ -111,7 +111,7 @@ export class RiftRepository {
       orderBy: { position: 'asc' },
       include: {
         species: { include: { type1: true, type2: true } },
-        moves: { include: { move: { include: { type: true } } } }
+        equippedMoves: { include: { move: { include: { type: true } } } }
       }
     });
   }

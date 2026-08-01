@@ -32,7 +32,7 @@ export class BattlesRepository {
           orderBy: { position: 'asc' },
           include: {
             species: { include: { type1: true, type2: true } },
-            moves: { include: { move: true } }
+            equippedMoves: { include: { move: true } }
           }
         },
         inventory: { include: { item: true } }
@@ -42,7 +42,7 @@ export class BattlesRepository {
 
   async getActiveBattleByTrainer(trainerId: string) {
     const session = await this.cache.get<any>(`battle:${trainerId}`);
-    if (session && [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH, BattleStatus.WAITING_MOVE_LEARN].includes(session.status)) {
+    if (session && [BattleStatus.ACTIVE, BattleStatus.WAITING_SWITCH].includes(session.status)) {
       return session;
     }
     return null;

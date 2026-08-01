@@ -43,50 +43,6 @@ export class BattleRewardService {
     if (newLevel > oldLevel) {
       result.p1State.level = newLevel;
       result.events.push({ type: 'level_up', pokemonId: result.p1State.id, level: newLevel });
-
-      // Check for new moves
-      const newMoves = await tx.learnset.findMany({
-        where: {
-          speciesId: result.p1State.speciesId,
-          level: { gt: oldLevel, lte: newLevel }
-        },
-        include: { move: true },
-        orderBy: { level: 'asc' }
-      });
-
-      for (const learn of newMoves) {
-        const alreadyKnows = await tx.ownedPokemonMove.findFirst({
-          where: { ownedPokemonId: result.p1State.id, moveId: learn.moveId }
-        });
-        if (alreadyKnows) continue;
-
-        const currentMovesCount = await tx.ownedPokemonMove.count({
-          where: { ownedPokemonId: result.p1State.id }
-        });
-
-        if (!(result.p1State as any).pendingMoveLearns) {
-          (result.p1State as any).pendingMoveLearns = [];
-        }
-        
-        const pendingCount = (result.p1State as any).pendingMoveLearns.length;
-        const totalMoves = currentMovesCount + pendingCount;
-
-        if (totalMoves < 4) {
-          await tx.ownedPokemonMove.create({
-            data: {
-              ownedPokemonId: result.p1State.id,
-              moveId: learn.moveId,
-              slot: totalMoves
-            }
-          });
-          result.events.push({ type: 'learned_move', pokemonId: result.p1State.id, moveName: learn.move.name });
-        } else {
-          (result.p1State as any).pendingMoveLearns.push({
-            moveId: learn.moveId,
-            moveName: learn.move.name
-          });
-        }
-      }
     }
 
     return { newStatus };

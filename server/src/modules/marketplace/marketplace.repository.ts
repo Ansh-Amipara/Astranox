@@ -42,7 +42,7 @@ export class MarketplaceRepository {
       where: { id: listingId },
       include: {
         pokemon: {
-          include: { species: true, moves: { include: { move: true } } }
+          include: { species: true, equippedMoves: { include: { move: true } } }
         },
         seller: {
           include: { user: { select: { username: true } } }
@@ -52,7 +52,7 @@ export class MarketplaceRepository {
           include: {
             bidder: { include: { user: { select: { username: true } } } },
             offeredPokemon: {
-              include: { pokemon: { include: { species: true, moves: { include: { move: true } } } } }
+              include: { pokemon: { include: { species: true, equippedMoves: { include: { move: true } } } } }
             }
           }
         }

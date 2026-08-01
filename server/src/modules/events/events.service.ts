@@ -75,15 +75,23 @@ export class EventsService {
     const form = rewardConfig.form || 'Normal';
 
     // Fetch learnsets
-    const learnsets = await this.prisma.learnset.findMany({
-      where: { speciesId: species.id, level: { lte: level } },
-      orderBy: { level: 'desc' },
-      take: 4,
-      include: { move: { include: { type: true } } }
+    const learnsets = await this.prisma.pokemonLearnset.findMany({
+        where: { speciesId: species.id, unlockLevel: { lte: level } },
+        orderBy: { unlockLevel: 'asc' },
+        include: { move: { include: { type: true } } }
     });
 
-    const moves = learnsets.map(l => ({
-      currentSlot: l.learnOrder,
+    const uniqueMoves: typeof learnsets = [];
+    const seen = new Set<number>();
+    for (let i = learnsets.length - 1; i >= 0; i--) {
+        if (!seen.has(learnsets[i].moveId)) {
+            seen.add(learnsets[i].moveId);
+            uniqueMoves.unshift(learnsets[i]);
+        }
+    }
+
+    const moves = uniqueMoves.slice(-4).map((l, index) => ({
+      currentSlot: index + 1,
       moveId: l.move.id,
       name: l.move.name,
       type: l.move.type.name
@@ -162,7 +170,7 @@ export class EventsService {
           ivSpAtk: instance.ivs.spAtk,
           ivSpDef: instance.ivs.spDef,
           ivSpeed: instance.ivs.speed,
-          moves: {
+          equippedMoves: {
             create: instance.moves.map(m => ({ moveId: m.moveId, slot: m.currentSlot }))
           }
         }

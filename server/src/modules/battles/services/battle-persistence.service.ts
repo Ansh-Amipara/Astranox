@@ -59,7 +59,7 @@ export class BattlePersistenceService {
     });
 
     if (wildPokemon.moves && wildPokemon.moves.length > 0) {
-      await tx.ownedPokemonMove.createMany({
+      await tx.pokemonEquippedMoves.createMany({
         data: wildPokemon.moves.map((m: any) => ({
           ownedPokemonId: newPokemon.id,
           moveId: m.moveId,
@@ -93,10 +93,10 @@ export class BattlePersistenceService {
   }
 
   async learnMove(playerPokemonId: string, pendingMoveId: number, slotToReplace: number, tx: Prisma.TransactionClient) {
-     await tx.ownedPokemonMove.deleteMany({
+     await tx.pokemonEquippedMoves.deleteMany({
        where: { ownedPokemonId: playerPokemonId, slot: slotToReplace }
      });
-     await tx.ownedPokemonMove.create({
+     await tx.pokemonEquippedMoves.create({
        data: {
          ownedPokemonId: playerPokemonId,
          moveId: pendingMoveId,

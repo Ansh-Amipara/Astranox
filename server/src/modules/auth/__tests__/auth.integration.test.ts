@@ -53,7 +53,7 @@ describe('Auth Module Integration', () => {
       expect(res.body.data.accessToken).toBeDefined();
       expect(res.body.data.user.username).toBe(validRegisterPayload.username);
       
-      const cookies = res.headers['set-cookie'] as string[];
+      const cookies = res.headers['set-cookie'] as unknown as string[];
       expect(cookies.some(c => c.includes('refreshToken='))).toBe(true);
       expect(cookies.some(c => c.includes('HttpOnly'))).toBe(true);
     });

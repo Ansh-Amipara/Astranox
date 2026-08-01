@@ -1,6 +1,6 @@
 export interface SlotPositionDto {
   readonly isParty: boolean;
-  readonly boxNumber: number | null;
+
   readonly position: number;
 }
 

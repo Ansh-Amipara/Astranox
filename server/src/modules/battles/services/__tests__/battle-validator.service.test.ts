@@ -11,8 +11,8 @@ describe('BattleValidatorService', () => {
       expect(() => validator.validateActionFormat('move:123')).not.toThrow();
       expect(() => validator.validateActionFormat('item:poke-ball')).not.toThrow();
       expect(() => validator.validateActionFormat('switch:123e4567-e89b-12d3-a456-426614174000')).not.toThrow();
-      expect(() => validator.validateActionFormat('learn_move:1')).not.toThrow();
-      expect(() => validator.validateActionFormat('skip_move')).not.toThrow();
+
+
     });
 
     it('throws ValidationError on invalid action formats', () => {

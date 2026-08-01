@@ -54,12 +54,7 @@ export class TrainersService {
     return TrainerMapper.toTrainerSaveDto(updatedSave);
   }
 
-  async getBox(userId: string, boxNumber: number): Promise<OwnedPokemonDto[]> {
-    const save = await this.repo.findByUserId(userId);
-    if (!save) throw new NotFoundError('Save not found');
-    const box = await this.repo.getBox(save.id, boxNumber);
-    return box.map(TrainerMapper.toOwnedPokemonDto);
-  }
+
 
   async getAllPokemon(userId: string, page: number, limit: number): Promise<{ data: OwnedPokemonDto[], total: number }> {
     const save = await this.repo.findByUserId(userId);
@@ -69,6 +64,14 @@ export class TrainersService {
       data: result.data.map(TrainerMapper.toOwnedPokemonDto),
       total: result.total
     };
+  }
+
+  async getPokemonById(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) throw new NotFoundError('Pokemon not found');
+    return TrainerMapper.toOwnedPokemonDto(pokemon);
   }
 
   async removeFromParty(userId: string, pokemonId: string): Promise<void> {
@@ -102,9 +105,23 @@ export class TrainersService {
       throw new ValidationError('Moves must be an array of at most 4 move IDs.');
     }
 
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    const availableMoves = await this.repo.getAvailableMovesForPokemon(save.id, pokemon.speciesId, pokemon.level);
+    const availableMoveSet = new Set(availableMoves);
+
+    for (const moveId of dto.moves as number[]) {
+      if (!availableMoveSet.has(moveId)) {
+        throw new ValidationError(`Move ${moveId} is not unlocked for this Pokémon. It must be learned naturally or purchased from the Astral Move Shop.`);
+      }
+    }
+
     const result = await this.repo.changeMoves(save.id, pokemonId, dto.moves as number[]);
     if (!result) {
-      throw new NotFoundError('Pokemon not found or does not belong to you.');
+      throw new NotFoundError('Failed to change moves.');
     }
     
     return result;

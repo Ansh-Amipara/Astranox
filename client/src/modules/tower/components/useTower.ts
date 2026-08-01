@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { towerService } from './tower.service';
 
-export const useTowerState = () => {
+export const useTowerState = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['towerState'],
-    queryFn: towerService.getState
+    queryFn: towerService.getState,
+    enabled: options?.enabled
   });
 };
 

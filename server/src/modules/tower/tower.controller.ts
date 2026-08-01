@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { TowerService } from './tower.service';
-import { z } from 'zod';
+
 import { prisma } from '../../core/db/prisma';
 
 @injectable()
@@ -37,10 +37,7 @@ export class TowerController {
   startBattle = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const trainerId = await this.getTrainerId(req.user!.id);
-      const bodySchema = z.object({
-        playerActivePokemonId: z.string().optional()
-      });
-      const { playerActivePokemonId } = bodySchema.parse(req.body);
+      const { playerActivePokemonId } = req.body;
       const battle = await this.service.startBattle(trainerId, playerActivePokemonId);
       res.json({ success: true, data: battle });
     } catch (error) {
@@ -51,10 +48,7 @@ export class TowerController {
   completeBattle = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const trainerId = await this.getTrainerId(req.user!.id);
-      const bodySchema = z.object({
-        result: z.enum(['WON', 'LOST'])
-      });
-      const { result } = bodySchema.parse(req.body);
+      const { result } = req.body;
       const newState = await this.service.completeBattle(trainerId, result);
       res.json({ success: true, data: newState });
     } catch (error) {

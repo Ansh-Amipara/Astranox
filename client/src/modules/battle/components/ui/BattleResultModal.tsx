@@ -27,7 +27,7 @@ export const BattleResultModal = memo(function BattleResultModal({
   const completeTower = useCompleteTowerBattle();
   const completeRift = useCompleteRiftEncounter();
   const abandonRift = useAbandonRiftRun();
-  const { data: towerData } = useTowerState();
+  const { data: towerData } = useTowerState({ enabled: battleType === 'TOWER' });
 
   if (!isFinished) return null;
 

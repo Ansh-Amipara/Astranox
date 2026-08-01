@@ -52,13 +52,13 @@ export type BattleAction =
       move: {
         name: string;
         power: number | null;
-        accuracy: number | null;
+        
         type: string;
-        priority: number;
+        
         damageClass: 'physical' | 'special' | 'status';
-        ailment?: string | null;
-        ailmentChance?: number | null;
-        flinchChance?: number | null;
+        
+        
+        
         statChanges?: any | null;
       };
       typeEffectivenessMultiplier: number;

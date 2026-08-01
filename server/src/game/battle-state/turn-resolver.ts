@@ -147,7 +147,7 @@ function executeMove(
   events.push({ type: 'move', pokemonId: attacker.id, moveName: action.move.name });
 
   // C. Accuracy Check
-  if (!checkAccuracy(action.move.accuracy, ctx.rngAccuracyOverride)) {
+  if (!checkAccuracy((action.move as any).accuracy || 100, ctx.rngAccuracyOverride)) {
     events.push({ type: 'miss', pokemonId: attacker.id });
     return { fainted: false, flinched: false };
   }
@@ -192,20 +192,20 @@ function executeMove(
   // E. Secondary Effects (Status Ailment)
   let flinched = false;
 
-  if (action.move.ailment && action.move.ailment !== 'none' && !defender.status) {
-    const chance = action.move.ailmentChance || 100;
+  if ((action.move as any).ailment && (action.move as any).ailment !== 'none' && !defender.status) {
+    const chance = (action.move as any).ailmentChance || 100;
     const roll = ctx.rngStatusOverride ?? Math.floor(Math.random() * 100) + 1;
     
     if (roll <= chance) {
       // Very basic type immunity logic for ailments (e.g. fire types can't be burned)
       const isImmune = 
-        (action.move.ailment === 'burn' && defender.types.includes('fire')) ||
-        (action.move.ailment === 'poison' && (defender.types.includes('poison') || defender.types.includes('steel'))) ||
-        (action.move.ailment === 'paralysis' && defender.types.includes('electric')) ||
-        (action.move.ailment === 'freeze' && defender.types.includes('ice'));
+        ((action.move as any).ailment === 'burn' && defender.types.includes('fire')) ||
+        ((action.move as any).ailment === 'poison' && (defender.types.includes('poison') || defender.types.includes('steel'))) ||
+        ((action.move as any).ailment === 'paralysis' && defender.types.includes('electric')) ||
+        ((action.move as any).ailment === 'freeze' && defender.types.includes('ice'));
 
       if (!isImmune) {
-        defender.status = action.move.ailment as StatusAilment;
+        defender.status = (action.move as any).ailment as StatusAilment;
         
         if (defender.status === 'sleep') {
           defender.sleepTurns = Math.floor(Math.random() * 3) + 1; // 1 to 3 turns
@@ -221,9 +221,9 @@ function executeMove(
   }
 
   // F. Flinch Chance
-  if (action.move.flinchChance) {
+  if ((action.move as any).flinchChance) {
     const roll = ctx.rngFlinchOverride ?? Math.floor(Math.random() * 100) + 1;
-    if (roll <= action.move.flinchChance) {
+    if (roll <= (action.move as any).flinchChance) {
       flinched = true;
     }
   }

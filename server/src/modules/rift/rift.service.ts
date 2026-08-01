@@ -101,19 +101,28 @@ export class RiftService {
       const species = await prisma.species.findUnique({ where: { name: speciesName }, include: { type1: true, type2: true } });
       if (!species) throw new AppError(`Internal Error: Species not found: ${speciesName}`, 500);
 
-      const learnsets = await prisma.learnset.findMany({
-        where: { speciesId: species.id, level: { lte: enemyLevel } },
-        orderBy: { level: 'desc' },
+      const learnsets = await prisma.pokemonLearnset.findMany({
+        where: { speciesId: species.id, unlockLevel: { lte: enemyLevel } },
+        orderBy: { unlockLevel: 'desc' },
         take: 4,
         include: { move: { include: { type: true } } }
       });
 
-      const moves = learnsets.map(l => ({
-        currentSlot: l.learnOrder,
-        moveId: l.move.id,
-        name: l.move.name,
-        type: l.move.type.name
-      }));
+      const uniqueMoves: typeof learnsets = [];
+    const seen = new Set<number>();
+    for (let i = learnsets.length - 1; i >= 0; i--) {
+        if (!seen.has(learnsets[i].moveId)) {
+            seen.add(learnsets[i].moveId);
+            uniqueMoves.unshift(learnsets[i]);
+        }
+    }
+
+    const moves = uniqueMoves.slice(-4).map((l, index) => ({
+      currentSlot: index + 1,
+      moveId: (l as any).move.id,
+      name: (l as any).move.name,
+      type: (l as any).move.type.name
+    }));
 
       const speciesContext = {
         id: species.id,

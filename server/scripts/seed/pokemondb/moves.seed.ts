@@ -29,10 +29,8 @@ export async function seedPokemonDBMoves(prisma: PrismaClient) {
     const category = $(cells[2]).text().trim().toLowerCase();
     
     let power = parseInt($(cells[3]).text().trim(), 10);
-    let accuracy = parseInt($(cells[4]).text().trim(), 10);
     
-    if (isNaN(power)) power = null as any;
-    if (isNaN(accuracy)) accuracy = null as any;
+    if (isNaN(power) || power < 1) continue;
 
     const typeId = typeToId.get(typeName);
     if (!typeId) {
@@ -48,7 +46,6 @@ export async function seedPokemonDBMoves(prisma: PrismaClient) {
           data: {
             typeId,
             power,
-            accuracy,
             damageClass: category,
           }
         });
@@ -59,8 +56,6 @@ export async function seedPokemonDBMoves(prisma: PrismaClient) {
             name,
             typeId,
             power,
-            accuracy,
-            priority: 0,
             damageClass: category
           }
         });

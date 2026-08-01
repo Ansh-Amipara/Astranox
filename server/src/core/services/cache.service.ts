@@ -3,6 +3,7 @@ import { singleton } from 'tsyringe';
 import { env } from '../../config/env';
 import { logger } from '../../config/logger';
 
+// Triggering ts-node-dev restart to clear memory cache
 @singleton()
 export class CacheService {
   private redis: Redis | null = null;

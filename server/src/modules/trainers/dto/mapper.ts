@@ -1,6 +1,6 @@
 import type { TrainerSaveDto, InventoryItemDto } from './response/TrainerSaveDto';
 import type { OwnedPokemonDto, PokemonSummaryDto } from './response/OwnedPokemonDto';
-import type { MoveDto, OwnedPokemonMoveDto } from './response/MoveDto';
+import type { MoveDto, PokemonEquippedMovesDto } from './response/MoveDto';
 import { calculatePokemonCP } from '../../../game/instance/cp';
 
 export class TrainerMapper {
@@ -17,6 +17,7 @@ export class TrainerMapper {
       updatedAt: entity.updatedAt,
       party: Array.isArray(entity.party) ? entity.party.map(TrainerMapper.toOwnedPokemonDto) : [],
       inventory: Array.isArray(entity.inventory) ? entity.inventory.map(TrainerMapper.toInventoryItemDto) : [],
+      unlockedMoves: Array.isArray(entity.unlockedMoves) ? entity.unlockedMoves.map((m: any) => m.moveId) : [],
     };
   }
 
@@ -71,14 +72,14 @@ export class TrainerMapper {
       currentXp: entity.currentXp,
       isParty: entity.isParty,
       position: entity.position,
-      boxNumber: entity.boxNumber,
+
       ivHp: entity.ivHp,
       ivAttack: entity.ivAttack,
       ivDefense: entity.ivDefense,
       ivSpAtk: entity.ivSpAtk,
       ivSpDef: entity.ivSpDef,
       ivSpeed: entity.ivSpeed,
-      moves: Array.isArray(entity.moves) ? entity.moves.map(TrainerMapper.toOwnedPokemonMoveDto) : [],
+      equippedMoves: Array.isArray(entity.equippedMoves) ? entity.equippedMoves.map(TrainerMapper.toPokemonEquippedMovesDto) : [],
       species: {
         id: entity.species?.id,
         name: entity.species?.name,
@@ -135,7 +136,7 @@ export class TrainerMapper {
       potential: entity.potential,
       types,
       isParty: entity.isParty,
-      boxNumber: entity.boxNumber,
+
       position: entity.position,
     };
   }
@@ -144,7 +145,7 @@ export class TrainerMapper {
     return entities.map(TrainerMapper.toPokemonSummaryDto);
   }
 
-  static toOwnedPokemonMoveDto(entity: any): OwnedPokemonMoveDto {
+  static toPokemonEquippedMovesDto(entity: any): PokemonEquippedMovesDto {
     return {
       moveId: entity.moveId,
       slot: entity.slot,
@@ -158,7 +159,7 @@ export class TrainerMapper {
       name: entity.name,
       type: entity.type?.name || 'normal',
       power: entity.power,
-      accuracy: entity.accuracy,
+      
       damageClass: entity.damageClass,
     };
   }

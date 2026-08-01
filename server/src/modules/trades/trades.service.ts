@@ -44,7 +44,7 @@ export class TradesService {
         isForTrade: true
       },
       include: {
-        species: { include: { type1: true, type2: true } }, moves: { include: { move: { include: { type: true } } } }
+        species: { include: { type1: true, type2: true } }, equippedMoves: { include: { move: { include: { type: true } } } }
       },
       orderBy: { level: 'desc' }
     });

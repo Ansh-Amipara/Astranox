@@ -2,23 +2,26 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { api } from '@/shared/api/api';
-import { TypeSelect } from '@/shared/ui/TypeSelect';
+import { Dropdown } from '@/shared/ui/Dropdown';
+import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { CategorySelect } from '@/shared/ui/CategorySelect';
 import { PokedexRow } from './PokedexRow';
 import { SpeciesDto } from '@astranox/shared';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 
 export const PokedexPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const limit = 50;
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['pokedex', limit, selectedType, selectedCategory],
+    queryKey: ['pokedex', limit, selectedType, selectedCategory, searchQuery],
     queryFn: async ({ pageParam = 1 }) => {
       const typeParam = selectedType ? `&type=${selectedType}` : '';
       const catParam = selectedCategory !== 'all' ? `&category=${selectedCategory}` : '';
-      const res = await api.get(`/pokedex/species?page=${pageParam}&limit=${limit}${typeParam}${catParam}`);
+      const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
+      const res = await api.get(`/pokedex/species?page=${pageParam}&limit=${limit}${typeParam}${catParam}${searchParam}`);
       return res.data;
     },
     getNextPageParam: (lastPage) => {
@@ -39,6 +42,15 @@ export const PokedexPage: React.FC = () => {
   const pokemonTypes = [
     'normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison',
     'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'
+  ];
+
+  const typeOptions = [
+    { value: '', label: 'All Types', className: 'col-span-2 justify-center' },
+    ...pokemonTypes.map(t => ({
+      value: t.toLowerCase(),
+      label: t,
+      icon: <img src={getTypeSpriteUrl(t, true)} alt={t} className="h-5 w-auto object-contain drop-shadow-sm" />
+    }))
   ];
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -85,34 +97,51 @@ export const PokedexPage: React.FC = () => {
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
-        <div className="flex flex-col xl:flex-row xl:items-end justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center whitespace-nowrap">
-              National Pokédex
-            </h1>
+        {/* Row 1: Pokedex and Total */}
+        <div className="flex flex-row items-center justify-between gap-4">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center whitespace-nowrap">
+            National Pokédex
+          </h1>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none flex items-center justify-center gap-2 h-10 whitespace-nowrap">
+            Total: <span className="text-blue-600 dark:text-blue-400 font-black">{totalItems}</span>
           </div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-            {/* Filters */}
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-col">
-                <TypeSelect
-                  value={selectedType}
-                  onChange={setSelectedType}
-                  types={pokemonTypes}
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <CategorySelect
-                  value={selectedCategory}
-                  onChange={setSelectedCategory}
-                />
+        {/* Row 2: Search and Filters */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
+          <div className="flex-1 w-full max-w-md">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search Pokémon..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-10 pl-10 pr-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+              />
+              <div className="absolute left-3 top-2.5 text-slate-400">
+                <Search size={20} />
               </div>
             </div>
+          </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none flex items-center justify-center gap-2 h-10 whitespace-nowrap">
-              Total: <span className="text-blue-600 dark:text-blue-400 font-black">{totalItems}</span>
+          <div className="flex flex-row items-center gap-4">
+            <div className="flex flex-col">
+              <Dropdown
+                value={selectedType}
+                onChange={setSelectedType}
+                options={typeOptions}
+                placeholder="All Types"
+                className="sm:w-48"
+                dropdownClassName="w-full sm:w-64 max-h-80"
+                optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <CategorySelect
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+              />
             </div>
           </div>
         </div>

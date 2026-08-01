@@ -12,7 +12,7 @@ const controller = container.resolve(BattlesController);
 battlesRoutes.use(requireAuth);
 
 battlesRoutes.post('/engage-custom', battleActionLimiter, validate(engageCustomSchema), controller.engageCustom);
-battlesRoutes.post('/realm-encounter', battleActionLimiter, controller.startRealmEncounter);
+
 
 battlesRoutes.get('/arena-trainers', controller.getArenaTrainers);
 battlesRoutes.post('/arena-encounter', battleActionLimiter, controller.startArenaEncounter);

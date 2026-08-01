@@ -8,7 +8,7 @@ describe('BattleStateMachine', () => {
     const machine = new BattleStateMachine();
     expect(machine['states'][BattleStatus.ACTIVE]).toBeDefined();
     expect(machine['states'][BattleStatus.WAITING_SWITCH]).toBeDefined();
-    expect(machine['states'][BattleStatus.WAITING_MOVE_LEARN]).toBeDefined();
+
   });
 
   it('should route processAction to the correct state handler', async () => {

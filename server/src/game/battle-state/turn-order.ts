@@ -15,7 +15,7 @@ export function determineFirstStriker(
   const getActionPriority = (a: BattleAction) => {
     if (a.type === 'switch') return 7;
     if (a.type === 'item') return 6;
-    return a.move.priority;
+    return 0;
   };
 
   const p1Priority = getActionPriority(p1Action);
@@ -38,7 +38,7 @@ export function determineFirstStriker(
 
 function getEffectiveSpeed(pokemon: ActivePokemon): number {
   let speed = pokemon.speed;
-  
+
   // Paralysis reduces speed by 50% in Gen 7+
   if (pokemon.status === 'paralysis') {
     speed = Math.floor(speed * 0.5);

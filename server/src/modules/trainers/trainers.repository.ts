@@ -24,12 +24,13 @@ export class TrainersRepository {
           orderBy: { position: 'asc' },
           include: { 
             species: { include: { type1: true, type2: true } },
-            moves: { include: { move: { include: { type: true } } } }
+            equippedMoves: { include: { move: { include: { type: true } } } }
           }
         },
         inventory: {
           include: { item: true }
-        }
+        },
+        unlockedMoves: true
       }
     });
   }
@@ -43,12 +44,13 @@ export class TrainersRepository {
           orderBy: { position: 'asc' },
           include: { 
             species: { include: { type1: true, type2: true } },
-            moves: { include: { move: { include: { type: true } } } }
+            equippedMoves: { include: { move: { include: { type: true } } } }
           }
         },
         inventory: {
           include: { item: true }
-        }
+        },
+        unlockedMoves: true
       }
     });
   }
@@ -75,9 +77,9 @@ export class TrainersRepository {
         }
       });
 
-      const learnset = await tx.learnset.findMany({
-        where: { speciesId, level: { lte: 5 } },
-        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }]
+      const learnset = await tx.pokemonLearnset.findMany({
+        where: { speciesId, unlockLevel: { lte: 5 } },
+        orderBy: { unlockLevel: 'asc' }
       });
 
       const uniqueMoves: any[] = [];
@@ -91,7 +93,7 @@ export class TrainersRepository {
 
       const latestMoves = uniqueMoves.slice(-4);
       if (latestMoves.length > 0) {
-        await tx.ownedPokemonMove.createMany({
+        await tx.pokemonEquippedMoves.createMany({
           data: latestMoves.map((m: any, i: number) => ({
             ownedPokemonId: starter.id,
             moveId: m.moveId,
@@ -109,7 +111,7 @@ export class TrainersRepository {
             orderBy: { position: 'asc' },
             include: { 
               species: { include: { type1: true, type2: true } },
-              moves: { include: { move: { include: { type: true } } } }
+              equippedMoves: { include: { move: { include: { type: true } } } }
             }
           },
           inventory: {
@@ -119,22 +121,6 @@ export class TrainersRepository {
       });
 
       return save;
-    });
-  }
-
-  async getBox(trainerId: string, boxNumber: number) {
-    return prisma.ownedPokemon.findMany({
-      where: {
-        trainerId,
-        isParty: false,
-        isEscrowed: false,
-        boxNumber,
-      },
-      orderBy: { position: 'asc' },
-      include: { 
-        species: { include: { type1: true, type2: true } },
-        moves: { include: { move: { include: { type: true } } } }
-      }
     });
   }
 
@@ -148,7 +134,7 @@ export class TrainersRepository {
         take: limit,
         include: { 
           species: { include: { type1: true, type2: true } },
-          moves: { include: { move: { include: { type: true } } } }
+          equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
       prisma.ownedPokemon.count({ where: { trainerId, isEscrowed: false } })
@@ -178,7 +164,7 @@ export class TrainersRepository {
       
       await tx.ownedPokemon.update({
         where: { id: pokemonId },
-        data: { isParty: false, boxNumber: null as any, position: nextPosition }
+        data: { isParty: false, position: nextPosition }
       });
     });
   }
@@ -197,29 +183,29 @@ export class TrainersRepository {
       if (existingPartyPokemon) {
         await tx.ownedPokemon.update({
           where: { id: existingPartyPokemon.id },
-          data: { isParty: false, boxNumber: fromPokemon.boxNumber as any, position: fromPokemon.position }
+          data: { isParty: false, position: fromPokemon.position }
         });
       }
 
       await tx.ownedPokemon.update({
         where: { id: pokemonId },
-        data: { isParty: true, boxNumber: null as any, position: targetPosition }
+        data: { isParty: true, position: targetPosition }
       });
     });
   }
 
   async swapSlots(
     trainerId: string,
-    from: { isParty: boolean; boxNumber: number | null; position: number },
-    to: { isParty: boolean; boxNumber: number | null; position: number }
+    from: { isParty: boolean; position: number },
+    to: { isParty: boolean; position: number }
   ) {
     return prisma.$transaction(async (tx) => {
       // Find both pokemon
       const fromPokemon = await tx.ownedPokemon.findFirst({
-        where: { trainerId, isParty: from.isParty, boxNumber: from.boxNumber, position: from.position, isEscrowed: false }
+        where: { trainerId, isParty: from.isParty, position: from.position, isEscrowed: false }
       });
       const toPokemon = await tx.ownedPokemon.findFirst({
-        where: { trainerId, isParty: to.isParty, boxNumber: to.boxNumber, position: to.position, isEscrowed: false }
+        where: { trainerId, isParty: to.isParty, position: to.position, isEscrowed: false }
       });
 
       if (from.isParty && !to.isParty && !toPokemon && fromPokemon) {
@@ -234,14 +220,14 @@ export class TrainersRepository {
       if (fromPokemon) {
         await tx.ownedPokemon.update({
           where: { id: fromPokemon.id },
-          data: { isParty: to.isParty, boxNumber: to.boxNumber as any, position: to.position }
+          data: { isParty: to.isParty, position: to.position }
         });
       }
 
       if (toPokemon) {
         await tx.ownedPokemon.update({
           where: { id: toPokemon.id },
-          data: { isParty: from.isParty, boxNumber: from.boxNumber as any, position: from.position }
+          data: { isParty: from.isParty, position: from.position }
         });
       }
 
@@ -257,7 +243,6 @@ export class TrainersRepository {
         name: true,
         type: { select: { name: true } },
         power: true,
-        accuracy: true,
         damageClass: true
       }
     });
@@ -272,12 +257,12 @@ export class TrainersRepository {
     if (!pokemon) return null;
 
     return prisma.$transaction(async (tx) => {
-      await tx.ownedPokemonMove.deleteMany({
+      await tx.pokemonEquippedMoves.deleteMany({
         where: { ownedPokemonId: pokemonId }
       });
 
       if (moveIds.length > 0) {
-        await tx.ownedPokemonMove.createMany({
+        await tx.pokemonEquippedMoves.createMany({
           data: moveIds.map((moveId, i) => ({
             ownedPokemonId: pokemonId,
             moveId,
@@ -294,7 +279,7 @@ export class TrainersRepository {
     return prisma.$transaction(async (tx) => {
       // Manually delete dependent records to avoid referential integrity errors since schema uses NoAction
       await Promise.all([
-        tx.ownedPokemonMove.deleteMany({ where: { ownedPokemonId: pokemonId } }),
+        tx.pokemonEquippedMoves.deleteMany({ where: { ownedPokemonId: pokemonId } }),
         tx.tradeRequest.deleteMany({
           where: {
             OR: [
@@ -356,7 +341,7 @@ export class TrainersRepository {
       where: { id: pokemonId, trainerId },
       include: {
         species: true,
-        moves: { include: { move: true } }
+        equippedMoves: { include: { move: true } }
       }
     });
   }
@@ -405,7 +390,7 @@ export class TrainersRepository {
         data: { potential: nextPotential },
         include: {
           species: { include: { type1: true, type2: true } },
-          moves: { include: { move: { include: { type: true } } } }
+          equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
       prisma.inventoryItem.update({
@@ -423,7 +408,7 @@ export class TrainersRepository {
         data: { [statName]: newValue },
         include: {
           species: { include: { type1: true, type2: true } },
-          moves: { include: { move: { include: { type: true } } } }
+          equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
       prisma.inventoryItem.update({
@@ -448,7 +433,7 @@ export class TrainersRepository {
         },
         include: {
           species: { include: { type1: true, type2: true } },
-          moves: { include: { move: { include: { type: true } } } }
+          equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
       prisma.inventoryItem.update({
@@ -464,7 +449,7 @@ export class TrainersRepository {
       where: { id: pokemonId },
       include: {
         species: { include: { type1: true, type2: true } },
-        moves: { include: { move: { include: { type: true } } } }
+        equippedMoves: { include: { move: { include: { type: true } } } }
       }
     });
   }
@@ -480,7 +465,7 @@ export class TrainersRepository {
             orderBy: { position: 'asc' },
             include: { 
               species: { include: { type1: true, type2: true } },
-              moves: { include: { move: { include: { type: true } } } }
+              equippedMoves: { include: { move: { include: { type: true } } } }
             }
           },
           inventory: {
@@ -497,12 +482,43 @@ export class TrainersRepository {
         },
         include: {
           species: { include: { type1: true, type2: true } },
-          moves: { include: { move: { include: { type: true } } } }
+          equippedMoves: { include: { move: { include: { type: true } } } }
         }
       });
 
       return { trainer: updatedTrainer, pokemon: updatedPokemon };
     });
   }
-}
 
+  async getAvailableMovesForPokemon(trainerId: string, speciesId: number, currentLevel: number) {
+    // 1. Natural Learnset
+    const species = await prisma.species.findUnique({
+      where: { id: speciesId },
+      select: { isGmax: true, baseSpeciesId: true }
+    });
+    
+    const learnsetSpeciesId = species?.isGmax && species?.baseSpeciesId ? species.baseSpeciesId : speciesId;
+
+    const naturalMoves = await prisma.pokemonLearnset.findMany({
+      where: {
+        speciesId: learnsetSpeciesId,
+        unlockLevel: { lte: currentLevel }
+      },
+      select: { moveId: true }
+    });
+
+    // 2. Purchased Moves
+    const purchasedMoves = await prisma.playerUnlockedMoves.findMany({
+      where: { trainerId: trainerId },
+      select: { moveId: true }
+    });
+
+    // Combine unique move IDs
+    const moveIds = new Set([
+      ...naturalMoves.map(m => m.moveId),
+      ...purchasedMoves.map(m => m.moveId)
+    ]);
+
+    return Array.from(moveIds);
+  }
+}

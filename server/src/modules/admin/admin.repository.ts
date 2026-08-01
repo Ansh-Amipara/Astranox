@@ -118,9 +118,9 @@ export class AdminRepository {
         }
       });
 
-      const learnset = await tx.learnset.findMany({
-        where: { speciesId, level: { lte: level } },
-        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }]
+      const learnset = await tx.pokemonLearnset.findMany({
+        where: { speciesId, unlockLevel: { lte: level } },
+        orderBy: { unlockLevel: 'asc' }
       });
 
       const uniqueMoves: any[] = [];
@@ -134,7 +134,7 @@ export class AdminRepository {
 
       const latestMoves = uniqueMoves.slice(-4);
       if (latestMoves.length > 0) {
-        await tx.ownedPokemonMove.createMany({
+        await tx.pokemonEquippedMoves.createMany({
           data: latestMoves.map((m: any, i: number) => ({
             ownedPokemonId: pokemon.id,
             moveId: m.moveId,

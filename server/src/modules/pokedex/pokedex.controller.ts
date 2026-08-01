@@ -13,8 +13,9 @@ export class PokedexController {
       const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 20));
       const type = req.query.type as string | undefined;
       const category = req.query.category as string | undefined;
+      const search = req.query.search as string | undefined;
 
-      const result = await this.pokedexService.getAllSpecies(page, limit, type, category);
+      const result = await this.pokedexService.getAllSpecies(page, limit, type, category, search);
 
       res.json({
         success: true,

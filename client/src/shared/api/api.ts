@@ -98,8 +98,24 @@ export const shopApi = {
     const { data } = await api.post('/shop/buy', { itemId, quantity });
     return data;
   },
+  buyBulk: async (items: { itemId: string, quantity: number }[]) => {
+    const { data } = await api.post('/shop/buy-bulk', { items });
+    return data;
+  },
   sellItem: async (itemId: string, quantity: number) => {
     const { data } = await api.post('/shop/sell', { itemId, quantity });
+    return data;
+  },
+  sellBulk: async (items: { itemId: string, quantity: number }[]) => {
+    const { data } = await api.post('/shop/sell-bulk', { items });
+    return data;
+  },
+  getMoves: async () => {
+    const { data } = await api.get('/shop/moves');
+    return data.data;
+  },
+  buyMove: async (moveId: number) => {
+    const { data } = await api.post('/shop/moves/buy', { moveId });
     return data;
   }
 };

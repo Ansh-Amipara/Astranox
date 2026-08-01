@@ -11,10 +11,7 @@ import { SWAMP_POKEMON } from './pools/swamp.pool';
 import { ANCIENT_TEMPLE_POKEMON } from './pools/ancientTemple.pool';
 import { CRYSTAL_CAVE_POKEMON } from './pools/crystalCave.pool';
 import { SKY_ISLANDS_POKEMON } from './pools/skyIslands.pool';
-import { ALOLA_POKEMON } from './pools/alola.pool';
-import { HISUI_POKEMON } from './pools/hisui.pool';
-import { GALAR_POKEMON } from './pools/galar.pool';
-import { PALDEA_POKEMON } from './pools/paldea.pool';
+import { ASTRALIS_FRONTIER_POKEMON } from './pools/astralisFrontier.pool';
 import { ExploreLocation } from './coinRewards.config';
 
 export const BIOME_POOLS: Record<ExploreLocation, string[]> = {
@@ -31,8 +28,5 @@ export const BIOME_POOLS: Record<ExploreLocation, string[]> = {
   ANCIENT_TEMPLE: ANCIENT_TEMPLE_POKEMON,
   CRYSTAL_CAVE: CRYSTAL_CAVE_POKEMON,
   SKY_ISLANDS: SKY_ISLANDS_POKEMON,
-  ALOLA_REGION: ALOLA_POKEMON,
-  HISUI_REGION: HISUI_POKEMON,
-  GALAR_REGION: GALAR_POKEMON,
-  PALDEA_REGION: PALDEA_POKEMON
+  ASTRALIS_FRONTIER: ASTRALIS_FRONTIER_POKEMON
 };

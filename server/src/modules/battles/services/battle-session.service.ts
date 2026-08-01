@@ -157,9 +157,9 @@ export class BattleSessionService {
     });
 
     // Populate moves dynamically from Learnset
-    const learnset = await prisma.learnset.findMany({
-      where: { speciesId: species.id, level: { lte: level } },
-      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+    const learnset = await prisma.pokemonLearnset.findMany({
+      where: { speciesId: species.id, unlockLevel: { lte: level } },
+      orderBy: { unlockLevel: 'asc' },
       include: { move: { include: { type: true } } }
     });
 
@@ -300,9 +300,9 @@ export class BattleSessionService {
     });
 
     // Populate moves dynamically from Learnset
-    const learnset = await prisma.learnset.findMany({
-      where: { speciesId: species.id, level: { lte: level } },
-      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+    const learnset = await prisma.pokemonLearnset.findMany({
+      where: { speciesId: species.id, unlockLevel: { lte: level } },
+      orderBy: { unlockLevel: 'asc' },
       include: { move: { include: { type: true } } }
     });
 
@@ -402,9 +402,9 @@ export class BattleSessionService {
       wildInstance.currentHp = wildInstance.maxHp;
     }
 
-    const learnset = await prisma.learnset.findMany({
-      where: { speciesId: species.id, level: { lte: level } },
-      orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+    const learnset = await prisma.pokemonLearnset.findMany({
+      where: { speciesId: species.id, unlockLevel: { lte: level } },
+      orderBy: { unlockLevel: 'asc' },
       include: { move: { include: { type: true } } }
     });
 
@@ -532,9 +532,9 @@ export class BattleSessionService {
         moves: []
       });
 
-      const learnset = await prisma.learnset.findMany({
-        where: { speciesId: species.id, level: { lte: level } },
-        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+      const learnset = await prisma.pokemonLearnset.findMany({
+        where: { speciesId: species.id, unlockLevel: { lte: level } },
+        orderBy: { unlockLevel: 'asc' },
         include: { move: { include: { type: true } } }
       });
 
@@ -660,9 +660,9 @@ export class BattleSessionService {
         moves: []
       });
 
-      const learnset = await prisma.learnset.findMany({
-        where: { speciesId: species.id, level: { lte: level } },
-        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+      const learnset = await prisma.pokemonLearnset.findMany({
+        where: { speciesId: species.id, unlockLevel: { lte: level } },
+        orderBy: { unlockLevel: 'asc' },
         include: { move: { include: { type: true } } }
       });
 

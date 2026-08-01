@@ -32,13 +32,25 @@ export class PokemonGeneratorService {
   constructor(private cache: CacheService) {}
 
   async generateWildPokemon(speciesName: string, level: number, playerRank: TrainerRank) {
-    const speciesKey = `species:${speciesName.toLowerCase()}`;
-    const species = await this.cache.getOrSet(speciesKey, () =>
+    const formattedSpeciesName = speciesName.toLowerCase().replace(/-/g, ' ');
+    const speciesKey = `species:${formattedSpeciesName}`;
+    let species = await this.cache.getOrSet(speciesKey, () =>
       prisma.species.findUnique({
-        where: { name: speciesName.toLowerCase() },
+        where: { name: formattedSpeciesName },
         include: { type1: true, type2: true }
       })
     );
+
+    if (!species && formattedSpeciesName.includes(' ')) {
+      const baseName = formattedSpeciesName.split(' ')[0];
+      const baseKey = `species:${baseName}`;
+      species = await this.cache.getOrSet(baseKey, () =>
+        prisma.species.findUnique({
+          where: { name: baseName },
+          include: { type1: true, type2: true }
+        })
+      );
+    }
 
     if (!species) {
       throw new NotFoundError(`Species ${speciesName} not found in database.`);
@@ -100,11 +112,12 @@ export class PokemonGeneratorService {
     });
 
     // Populate moves dynamically from Learnset
-    const learnsetKey = `learnset:${species.id}:${level}`;
+    const learnsetSpeciesId = species.isGmax && species.baseSpeciesId ? species.baseSpeciesId : species.id;
+    const learnsetKey = `learnset:${learnsetSpeciesId}:${level}`;
     const learnset = await this.cache.getOrSet(learnsetKey, () =>
-      prisma.learnset.findMany({
-        where: { speciesId: species.id, level: { lte: level } },
-        orderBy: [{ level: 'asc' }, { learnOrder: 'asc' }],
+      prisma.pokemonLearnset.findMany({
+        where: { speciesId: learnsetSpeciesId, unlockLevel: { lte: level } },
+        orderBy: { unlockLevel: 'asc' },
         include: { move: { include: { type: true } } }
       })
     );

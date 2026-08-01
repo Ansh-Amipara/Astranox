@@ -41,6 +41,9 @@ export async function seedSpecies() {
     return parseInt(urlParts[urlParts.length - 1]);
   });
 
+  const validMoves = await prisma.move.findMany({ select: { id: true } });
+  const validMoveIds = new Set(validMoves.map(m => m.id));
+
   await runInBatches(ids, 20, async (id: number) => {
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
@@ -136,6 +139,7 @@ export async function seedSpecies() {
       const learnsetEntries: any[] = [];
       for (const moveData of data.moves) {
         const moveId = parseInt(moveData.move.url.split('/').filter(Boolean).pop()!);
+        if (!validMoveIds.has(moveId)) continue;
 
         // Find Gen 9 or fallback
         const vgDetails = moveData.version_group_details;
@@ -148,35 +152,30 @@ export async function seedSpecies() {
           learnsetEntries.push({
             speciesId: id,
             moveId,
-            level: targetDetail.level_learned_at,
+            unlockLevel: targetDetail.level_learned_at,
           });
         }
       }
 
-      // Sort by level ASC, then assign learnOrder
-      learnsetEntries.sort((a, b) => a.level - b.level);
+      // Sort by level ASC
+      learnsetEntries.sort((a, b) => a.unlockLevel - b.unlockLevel);
 
       const uniqueMoves = new Set();
       const finalLearnset = [];
-      let currentOrder = 1;
 
       for (const entry of learnsetEntries) {
-        // Prevent duplicate move entries for the same species/level (sometimes happens in PokeAPI)
-        const key = `${entry.moveId}-${entry.level}`;
+        // Prevent duplicate move entries for the same species/level
+        const key = `${entry.moveId}-${entry.unlockLevel}`;
         if (!uniqueMoves.has(key)) {
           uniqueMoves.add(key);
-          finalLearnset.push({
-            ...entry,
-            learnOrder: currentOrder++
-          });
+          finalLearnset.push(entry);
         }
       }
 
-      // Insert Learnset
+      // Insert PokemonLearnset
       if (finalLearnset.length > 0) {
-        // We delete existing learnsets for this species to ensure idempotency
-        await prisma.learnset.deleteMany({ where: { speciesId: id } });
-        await prisma.learnset.createMany({
+        await prisma.pokemonLearnset.deleteMany({ where: { speciesId: id } });
+        await prisma.pokemonLearnset.createMany({
           data: finalLearnset
         });
       }

@@ -4,7 +4,7 @@ import { ActivePokemon, BattleAction } from '../../../game/battle-state/types';
 
 @injectable()
 export class BattleValidatorService {
-  private BATTLE_ACTION_PATTERN = /^(run|move:[1-9]\d*|switch:[a-zA-Z0-9_-]+|item:(poke-ball|great-ball|ultra-ball|luxury-ball|master-ball)|learn_move:[0-3]|skip_move)$/;
+  private BATTLE_ACTION_PATTERN = /^(run|move:[1-9]\d*|switch:[a-zA-Z0-9_-]+|item:(poke-ball|great-ball|ultra-ball|luxury-ball|master-ball))$/;
 
   validateActionFormat(action: string) {
     if (!this.BATTLE_ACTION_PATTERN.test(action)) {

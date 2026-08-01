@@ -24,9 +24,7 @@ export class BattleTurnService {
       move: {
         name: wildMoveData!.name,
         power: wildMoveData!.power,
-        accuracy: wildMoveData!.accuracy,
         type: wildMoveData!.type.name,
-        priority: wildMoveData!.priority,
         damageClass: wildMoveData!.damageClass as any
       }
     };

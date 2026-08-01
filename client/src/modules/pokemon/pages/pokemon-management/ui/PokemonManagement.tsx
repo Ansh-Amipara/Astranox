@@ -28,7 +28,7 @@ export function PokemonManagement() {
   const { data: pokemonData, isLoading } = useQuery({
     queryKey: ['allPokemon', page],
     queryFn: async () => {
-      const { data } = await api.get(`/trainers/pokemon?page=${page}&limit=20`);
+      const { data } = await api.get(`/trainers/pokemon?page=${page}&limit=15`);
       return data;
     },
   });
@@ -109,7 +109,7 @@ export function PokemonManagement() {
 
   const allPokemon = pokemonData?.data || [];
   const total = pokemonData?.meta?.total || 0;
-  const totalPages = Math.ceil(total / 20) || 1;
+  const totalPages = Math.ceil(total / 15) || 1;
 
   const activePartyIds = new Set(save?.party?.map((p: OwnedPokemonDto) => p.id) || []);
   const isInParty = (pokemon: OwnedPokemonDto) => activePartyIds.has(pokemon.id);
@@ -228,7 +228,7 @@ export function PokemonManagement() {
                       modalsRef.current?.openGiveXp(activeMenuPkm);
                       setActiveMenuPkm(null);
                     }}
-                    className="w-full text-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 rounded-xl font-bold transition-colors text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
+                    className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white flex items-center justify-center gap-1.5"
                   >
                     Give XP
                   </button>

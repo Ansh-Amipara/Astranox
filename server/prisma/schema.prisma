@@ -80,6 +80,7 @@ model TrainerSave {
   party        OwnedPokemon[]
   inventory    InventoryItem[]
   battles      BattleSession[]
+  unlockedMoves PlayerUnlockedMoves[] @relation("UnlockedMoves")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,7 +128,7 @@ model OwnedPokemon {
   currentXp Int @default(0)
 
   // Moves (Phase 18 Refactored)
-  moves OwnedPokemonMove[]
+  equippedMoves PokemonEquippedMoves[] @relation("EquippedMoves")
 
   // Trading
   isForTrade Boolean @default(false)
@@ -144,16 +145,37 @@ model OwnedPokemon {
   @@index([trainerId, isEscrowed])
 }
 
-model OwnedPokemonMove {
+model PokemonEquippedMoves {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   ownedPokemonId String       @db.ObjectId
   moveId         Int
   slot           Int          @default(0) // 0 to 3 for the four move slots
 
-  ownedPokemon OwnedPokemon @relation(fields: [ownedPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ownedPokemon OwnedPokemon @relation("EquippedMoves", fields: [ownedPokemonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   move         Move         @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([ownedPokemonId, slot])
+}
+
+model PlayerUnlockedMoves {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  trainerId String @db.ObjectId
+  moveId    Int
+
+  purchasedAt DateTime @default(now())
+
+  trainer TrainerSave @relation("UnlockedMoves", fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  move    Move        @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([trainerId, moveId])
+}
+
+model AstralMoveShop {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  moveId Int @unique
+  price  Int
+
+  move Move @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Type {
@@ -196,17 +218,12 @@ model Move {
   typeId      Int
   type        Type   @relation(fields: [typeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   power       Int?
-  accuracy    Int?
-  priority    Int
   damageClass String
 
-  ailment       String?
-  ailmentChance Int?
-  flinchChance  Int?
-  statChanges   Json?
-
-  learnsets             Learnset[]
-  ownedPokemonMove      OwnedPokemonMove[]
+  learnsets             PokemonLearnset[]
+  equippedMoves         PokemonEquippedMoves[]
+  shopEntries           AstralMoveShop[]
+  playerUnlocks         PlayerUnlockedMoves[]
 }
 
 model Species {
@@ -244,22 +261,21 @@ model Species {
   evolvesFrom    Species[] @relation("Evolution")
 
   owned        OwnedPokemon[]
-  learnsets    Learnset[]
+  learnsets    PokemonLearnset[]
 }
 
-model Learnset {
+model PokemonLearnset {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   speciesId  Int
   moveId     Int
 
-  level      Int
-  learnOrder Int
+  unlockLevel Int
 
   species Species @relation(fields: [speciesId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   move    Move    @relation(fields: [moveId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([speciesId, moveId, level])
+  @@unique([speciesId, moveId, unlockLevel])
 }
 
 // ----------------------------------------------------------------------
@@ -269,7 +285,6 @@ model Learnset {
 enum BattleStatus {
   ACTIVE
   WAITING_SWITCH
-  WAITING_MOVE_LEARN
   WON
   LOST
   FLED

@@ -25,6 +25,7 @@ import { RankPage } from '@/modules/social/pages/rank/ui/RankPage';
 import { InfoPage } from '@/modules/core/pages/info/ui/InfoPage';
 import { ArenaPage } from '@/modules/battle/pages/arena/ui/ArenaPage';
 import { InfinityTowerPage } from '@/modules/tower/pages/infinity-tower/InfinityTowerPage';
+import { ChangeMovesPage } from '@/modules/pokemon/pages/change-moves/ui/ChangeMovesPage';
 import { RiftPage } from '@/modules/rift/pages/rift/ui/RiftPage';
 import { ExplorePage } from '@/modules/explore/pages/explore/ui/ExplorePage';
 import { ExploreDetailPage } from '@/modules/explore/pages/explore/ui/ExploreDetailPage';
@@ -88,6 +89,7 @@ export default function App() {
           <Route path="battle" element={<BattleScreen />} />
           <Route path="inventory" element={<Bag />} />
           <Route path="pokemon" element={<PokemonManagement />} />
+          <Route path="pokemon/:id/moves" element={<ChangeMovesPage />} />
           <Route path="pokedex" element={<PokedexPage />} />
           <Route path="profile" element={<Profile />} />
           <Route path="rank" element={<RankPage />} />

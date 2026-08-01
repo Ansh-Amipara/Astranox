@@ -69,19 +69,6 @@ export function BattleScreen() {
         <h2 className="text-2xl font-black">No Active Battle</h2>
         <p className="text-slate-500 max-w-sm text-sm">You currently do not have an ongoing battle session. Start a new encounter below!</p>
         <div className="flex gap-3">
-          <button
-            onClick={async () => {
-              try {
-                await api.post('/battles/realm-encounter', {});
-                window.location.reload();
-              } catch (e) {
-                console.error(e);
-              }
-            }}
-            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-extrabold transition-all shadow-lg shadow-red-500/20"
-          >
-            Start Encounter
-          </button>
           <button onClick={() => navigate(returnUrl)} className="px-5 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors">
             Return
           </button>

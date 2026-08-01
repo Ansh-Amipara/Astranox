@@ -21,7 +21,7 @@ export class ExploreController {
         'PLAINS', 'FOREST', 'VOLCANO', 'OCEAN', 'FROZEN_PEAKS', 
         'DESERT', 'MOUNTAIN', 'HAUNTED_RUINS', 'FAIRY_GARDEN', 
         'SWAMP', 'ANCIENT_TEMPLE', 'CRYSTAL_CAVE', 'SKY_ISLANDS',
-        'ALOLA_REGION', 'HISUI_REGION', 'GALAR_REGION', 'PALDEA_REGION'
+        'ASTRALIS_FRONTIER'
       ];
 
       if (!validLocations.includes(location as ExploreLocation)) {

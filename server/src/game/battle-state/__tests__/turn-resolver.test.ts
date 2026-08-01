@@ -32,9 +32,7 @@ describe('Turn Resolver Engine', () => {
     move: {
       name: 'Tackle',
       power,
-      accuracy: 100,
       type: 'normal',
-      priority,
       damageClass: 'physical'
     }
   });
@@ -49,15 +47,6 @@ describe('Turn Resolver Engine', () => {
     expect(result.events[0].type).toBe('move');
   });
 
-  it('determines first striker by priority over speed', () => {
-    const p1 = createMockPokemon('p1', 5, 20, ['normal']);
-    const p2 = createMockPokemon('p2', 5, 10, ['normal']);
-    
-    // p2 uses Quick Attack (priority 1)
-    const result = resolveTurn(p1, createMockAction('p1', 0), p2, createMockAction('p2', 1));
-    
-    expect((result.events[0] as any).pokemonId).toBe('p2'); // p2 moves first despite being slower
-  });
 
 
 

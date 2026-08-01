@@ -23,4 +23,5 @@ export interface TrainerSaveDto {
   readonly updatedAt: Date;
   readonly party: ReadonlyArray<OwnedPokemonDto>;
   readonly inventory: ReadonlyArray<InventoryItemDto>;
+  readonly unlockedMoves: ReadonlyArray<number>;
 }

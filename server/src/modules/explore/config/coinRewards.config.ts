@@ -12,10 +12,7 @@ export type ExploreLocation =
   | 'ANCIENT_TEMPLE'
   | 'CRYSTAL_CAVE'
   | 'SKY_ISLANDS'
-  | 'ALOLA_REGION'
-  | 'HISUI_REGION'
-  | 'GALAR_REGION'
-  | 'PALDEA_REGION';
+  | 'ASTRALIS_FRONTIER';
 
 export const COIN_REWARDS: Record<ExploreLocation, { min: number; max: number }> = {
   PLAINS: { min: 100, max: 300 },
@@ -31,8 +28,5 @@ export const COIN_REWARDS: Record<ExploreLocation, { min: number; max: number }>
   ANCIENT_TEMPLE: { min: 2000, max: 4000 },
   CRYSTAL_CAVE: { min: 2500, max: 5000 },
   SKY_ISLANDS: { min: 3000, max: 8000 },
-  ALOLA_REGION: { min: 1000, max: 2000 },
-  HISUI_REGION: { min: 1500, max: 3000 },
-  GALAR_REGION: { min: 1200, max: 2500 },
-  PALDEA_REGION: { min: 1500, max: 3000 }
+  ASTRALIS_FRONTIER: { min: 2000, max: 5000 }
 };

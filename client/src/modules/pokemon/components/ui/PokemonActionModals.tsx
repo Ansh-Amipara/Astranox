@@ -3,11 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { TypeSelect } from '@/shared/ui/TypeSelect';
+import { Dropdown } from '@/shared/ui/Dropdown';
 import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
 import { ArrowRight } from 'lucide-react';
 import { OwnedPokemonDto, MoveDto, SpeciesDto, TrainerSaveDto, OwnedPokemonMoveDto } from '@astranox/shared';
 import { Modal } from '@/shared/ui/Modal';
+import { useNavigate } from 'react-router-dom';
 
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
@@ -55,6 +56,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 }, ref) => {
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   interface PokemonWithMovesEditing extends OwnedPokemonDto {
     currentMoves: string[];
@@ -71,7 +73,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
   }
 
   const [detailsPkm, setDetailsPkm] = useState<OwnedPokemonDto | null>(null);
-  const [changeMovePkm, setChangeMovePkm] = useState<PokemonWithMovesEditing | null>(null);
+  // Removed changeMovePkm state
   const [evolutionPkm, setEvolutionPkm] = useState<OwnedPokemonDto | null>(null);
   const [boostPkm, setBoostPkm] = useState<OwnedPokemonDto | null>(null);
   const [boostIvPkm, setBoostIvPkm] = useState<OwnedPokemonDto | null>(null);
@@ -87,11 +89,13 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
     queryFn: async () => {
       const id = activeMenuPkm?.speciesId || evolutionPkm?.speciesId;
       if (!id) return null;
-      const { data } = await api.get(`/pokedex/${id}`);
+      const { data } = await api.get(`/pokedex/species/${id}`);
       return data.data;
     },
     enabled: !!(activeMenuPkm || evolutionPkm)
   });
+
+  // allowedMoveIds moved to ChangeMovesPage
 
   const derivedTransformations = React.useMemo(() => {
     const active = activeMenuPkm || evolutionPkm;
@@ -123,7 +127,10 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
   useImperativeHandle(ref, () => ({
     openDetails: setDetailsPkm,
-    openMoves: (pkm) => setChangeMovePkm({ ...pkm, currentMoves: [0, 1, 2, 3].map(i => pkm.moves?.find((m: OwnedPokemonMoveDto) => m.slot === i)?.move?.name || 'tackle') }),
+    openMoves: (pkm) => {
+      navigate(`/pokemon/${pkm.id}/moves`, { state: { pokemon: pkm } });
+      setActiveMenuPkm(null);
+    },
     openEvolve: (pkm) => {
       setEvolutionPkm(pkm);
       setSelectedTransformation(null);
@@ -135,18 +142,6 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       setXpAmountInput('1000');
     }
   }));
-
-  const changeMovesMutation = useMutation({
-
-    mutationFn: async ({ pokemonId, moves }: { pokemonId: string, moves: string[] }) => {
-      await api.patch(`/trainers/party/${pokemonId}/moves`, { moves });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
-      setChangeMovePkm(null);
-    }
-  });
 
   const smeltMutation = useMutation({
     mutationFn: async (pokemonId: string) => {
@@ -276,9 +271,10 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
               <button
                 onClick={() => {
-                  setChangeMovePkm({ ...activeMenuPkm, currentMoves: [0, 1, 2, 3].map(i => activeMenuPkm.moves?.find((m: OwnedPokemonMoveDto) => m.slot === i)?.move?.name || 'tackle') });
-                  setMoveSearch('');
-                  setActiveMenuPkm(null);
+                  if (activeMenuPkm) {
+                    navigate(`/pokemon/${activeMenuPkm.id}/moves`, { state: { pokemon: activeMenuPkm } });
+                    setActiveMenuPkm(null);
+                  }
                 }}
                 className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
               >
@@ -437,146 +433,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
         </Modal>
       )}
 
-      {/* --- 3. Move Management Modal --- */}
-      {changeMovePkm && (
-        <Modal isOpen={true} onClose={() => setChangeMovePkm(null)} className="max-w-2xl" hideHeader>
-          <div className="p-6 flex flex-col max-h-[90vh]">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
-                Change {changeMovePkm.nickname || changeMovePkm.species?.name}'s Moves
-              </h2>
-              <button
-                onClick={() => setChangeMovePkm(null)}
-                className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-xl"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-hidden">
-              {/* Current Moves */}
-              <div className="flex flex-col gap-2">
-                <h3 className="font-bold text-slate-700 dark:text-slate-300">Current Moves</h3>
-                {changeMovePkm.currentMoves.map((m: string, idx: number) => (
-                  <div key={idx} className="flex gap-2">
-                    <div className="flex-1 bg-slate-100 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 capitalize font-medium flex items-center justify-between text-slate-900 dark:text-slate-100">
-                      {m || '-'}
-                      <button
-                        onClick={() => {
-                          const newMoves = [...changeMovePkm.currentMoves];
-                          newMoves[idx] = ''; // clear slot to indicate editing
-                          setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: idx });
-                        }}
-                        className="text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-3 py-1.5 rounded transition-colors"
-                      >
-                        Swap
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Move Selection */}
-              <div className="flex flex-col gap-2 overflow-y-auto pr-2 border-l border-slate-200 dark:border-slate-700 pl-4 custom-scrollbar">
-                <div className="flex flex-col gap-2 sticky top-0 bg-white dark:bg-slate-900 pb-2 z-10 border-b border-slate-200 dark:border-slate-800">
-                  <h3 className="font-bold text-slate-700 dark:text-slate-300">
-                    {changeMovePkm.editingSlot !== undefined ? 'Select a move...' : 'Select "Swap" on a slot first'}
-                  </h3>
-                  <input
-                    type="text"
-                    placeholder="Search moves by name or type..."
-                    value={moveSearch}
-                    onChange={(e) => setMoveSearch(e.target.value)}
-                    disabled={changeMovePkm.editingSlot === undefined}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed mb-2"
-                  />
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <TypeSelect
-                        value={typeFilter === 'all' ? '' : typeFilter}
-                        onChange={(val) => setTypeFilter(val || 'all')}
-                        types={Array.from(new Set(allMoves?.map((m: MoveDto) => m.type) || [])).filter((t: string) => t !== 'shadow' && t !== 'unknown').sort() as string[]}
-                        disabled={changeMovePkm.editingSlot === undefined}
-                      />
-                    </div>
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      disabled={changeMovePkm.editingSlot === undefined}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500 transition-colors text-xs disabled:opacity-50"
-                    >
-                      <option value="name">Sort by Name</option>
-                      <option value="power_desc">Power (High to Low)</option>
-                      <option value="power_asc">Power (Low to High)</option>
-                    </select>
-                  </div>
-                </div>
-                {changeMovePkm.editingSlot !== undefined && allMoves
-                  ?.filter((move: MoveDto) =>
-                    (typeFilter === 'all' || move.type === typeFilter) &&
-                    (move.name.toLowerCase().includes(moveSearch.toLowerCase()) ||
-                      move.type.toLowerCase().includes(moveSearch.toLowerCase()) ||
-                      move.damageClass.toLowerCase().includes(moveSearch.toLowerCase()))
-                  )
-                  .sort((a: MoveDto, b: MoveDto) => {
-                    if (sortBy === 'power_desc') {
-                      return (b.power || 0) - (a.power || 0);
-                    }
-                    if (sortBy === 'power_asc') {
-                      return (a.power || 0) - (b.power || 0);
-                    }
-                    return a.name.localeCompare(b.name);
-                  })
-                  .slice(0, 100) // Limit to 100 to prevent lagging the UI when search is empty
-                  .map((move: MoveDto) => (
-                    <button
-                      key={move.name}
-                      onClick={() => {
-                        const newMoves = [...changeMovePkm.currentMoves];
-                        newMoves[changeMovePkm.editingSlot!] = move.name;
-                        setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: undefined });
-                        setMoveSearch('');
-                      }}
-                      className="flex flex-col p-3 rounded-lg border border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-blue-400 bg-white dark:bg-slate-800/50 text-left transition-colors"
-                    >
-                      <div className="flex justify-start gap-2 items-center w-full mb-1">
-                        <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
-                        <span className="font-bold capitalize text-slate-900 dark:text-white truncate">{move.name.replace('-', ' ')}</span>
-                      </div>
-                      <div className="flex gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-                        <span>PWR: {move.power || '-'}</span>
-                        <span>ACC: {move.accuracy || '-'}</span>
-                        <span className="capitalize">{move.damageClass}</span>
-                      </div>
-                    </button>
-                  ))}
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <button
-                onClick={() => setChangeMovePkm(null)}
-                className="px-6 py-2.5 font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  const moveIds = changeMovePkm.currentMoves
-                    .filter(Boolean)
-                    .map((moveName: string) => allMoves?.find((m: MoveDto) => m.name === moveName)?.id)
-                    .filter(Boolean) as number[];
-                  changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds.map(String) });
-                }}
-                disabled={changeMovesMutation.isPending || changeMovePkm.editingSlot !== undefined}
-                className="px-8 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-colors disabled:opacity-50"
-              >
-                {changeMovesMutation.isPending ? 'Saving...' : 'Save Moves'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      {/* --- 3. Move Management Modal (Removed in favor of ChangeMovesPage) --- */}
 
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (

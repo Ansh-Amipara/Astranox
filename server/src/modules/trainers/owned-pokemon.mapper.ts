@@ -1,4 +1,4 @@
-import { OwnedPokemon, Species, Type, OwnedPokemonMove, Move } from '@prisma/client';
+import { OwnedPokemon, Species, Type, PokemonEquippedMoves, Move } from '@prisma/client';
 import { PokemonInstance, SpeciesContext } from '../../game/instance/types';
 import { createPokemonInstance } from '../../game/instance/PokemonInstance';
 
@@ -8,7 +8,7 @@ type OwnedPokemonWithRelations = OwnedPokemon & {
     type1: Type;
     type2: Type | null;
   };
-  moves: (OwnedPokemonMove & { move: Move & { type: Type } })[];
+  equippedMoves: (PokemonEquippedMoves & { move: Move & { type: Type } })[];
 };
 
 /**
@@ -57,7 +57,7 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
       speed: dbModel.ivSpeed,
     },
     species: speciesContext,
-    moves: dbModel.moves ? dbModel.moves.sort((a, b) => a.slot - b.slot).map(m => ({ 
+    moves: dbModel.equippedMoves ? dbModel.equippedMoves.sort((a, b) => a.slot - b.slot).map(m => ({ 
       moveId: m.moveId, 
       currentSlot: m.slot,
       name: m.move.name,
