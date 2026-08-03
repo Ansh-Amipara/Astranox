@@ -41,13 +41,13 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
   } = props;
 
   return (
-    <div className="relative h-[calc(100vh-64px)] bg-slate-100 dark:bg-slate-950 transition-colors duration-200 flex flex-col overflow-hidden">
+    <div className="relative h-[calc(100dvh-64px)] bg-slate-100 dark:bg-slate-950 transition-colors duration-200 flex flex-col overflow-hidden">
       
       {/* Top Row: Arena and Battle Log */}
-      <div className="flex-1 flex flex-row min-h-0">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
         
         {/* Left Column: Arena */}
-        <div className="flex-1 flex flex-col min-w-0 h-full relative">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 relative">
           {/* Toast */}
           {toastMsg && (
             <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white px-6 py-3 rounded-lg border border-slate-200 dark:border-slate-700 z-[100] shadow-xl">

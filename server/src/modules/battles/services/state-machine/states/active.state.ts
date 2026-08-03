@@ -278,7 +278,9 @@ export class ActiveState implements IBattleState {
       turnNumber: session.turnNumber,
       events: result.events,
       p1State: result.p1State,
-      p2State: result.p2State
+      p2State: result.p2State,
+      playerPartyData,
+      opponentPartyData
     };
   }
 }

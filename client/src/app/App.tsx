@@ -47,7 +47,7 @@ function GameLayout() {
     <AuthGuard>
       <RequireStarterGuard>
         <Navbar />
-        <main className="flex-1 flex flex-col relative">
+        <main className="flex-1 flex flex-col relative w-full overflow-x-hidden">
           <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
             <Outlet />
           </ErrorBoundary>

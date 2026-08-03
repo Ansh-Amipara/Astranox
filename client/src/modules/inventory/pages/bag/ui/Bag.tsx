@@ -15,9 +15,13 @@ interface InventoryItem {
   };
 }
 
+import { FiChevronDown } from 'react-icons/fi';
+import { Dropdown } from '@/shared/ui/Dropdown';
+
 export function Bag() {
   const queryClient = useQueryClient();
   const [selectedItemToUse, setSelectedItemToUse] = useState<InventoryItem | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const { data: save, isLoading } = useQuery({
     queryKey: ['trainerSave'],
     queryFn: async () => {
@@ -53,24 +57,48 @@ export function Bag() {
     (inv: InventoryItem) => inv.quantity > 0
   );
 
+  const categories = ['all', ...Array.from(new Set(inventory.map(inv => inv.item.category === 'infinity-only' ? 'potential' : inv.item.category)))].sort();
+  const filteredInventory = selectedCategory === 'all' 
+    ? inventory 
+    : inventory.filter(inv => {
+        const cat = inv.item.category === 'infinity-only' ? 'potential' : inv.item.category;
+        return cat === selectedCategory;
+      });
+
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
-      <div className="flex justify-between items-end mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             My Bag
           </h1>
         </div>
+
+        {inventory.length > 0 && (
+          <div className="w-full sm:w-56">
+            <Dropdown
+              value={selectedCategory}
+              options={categories.map(cat => ({
+                value: cat,
+                label: cat === 'all' ? 'All Items' : cat.replace('-', ' ')
+              }))}
+              onChange={(val) => setSelectedCategory(val)}
+              className="w-full"
+            />
+          </div>
+        )}
       </div>
 
-      {inventory.length === 0 ? (
+      {filteredInventory.length === 0 ? (
         <div className="bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-12 text-center">
-          <p className="text-slate-500 dark:text-slate-400 text-lg">Your bag is empty.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
+            {inventory.length === 0 ? 'Your bag is empty.' : 'No items found in this category.'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {inventory.map((inv) => (
+          {filteredInventory.map((inv) => (
             <div key={inv.itemId} className="bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm flex items-start gap-4">
               <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-center p-2 border border-slate-100 dark:border-slate-800 shadow-inner shrink-0">
                 {inv.item.spriteUrl ? (

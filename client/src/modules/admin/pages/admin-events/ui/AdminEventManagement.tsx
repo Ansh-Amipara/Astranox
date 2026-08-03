@@ -111,15 +111,15 @@ export function AdminEventManagement() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white">Event Management</h1>
-        </div>
+      <div className="flex justify-between items-center mb-8 gap-4">
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white leading-tight">
+          Events
+        </h1>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors whitespace-nowrap"
         >
-          <FiPlus /> New Event
+          <FiPlus className="w-5 h-5" /> New
         </button>
       </div>
 
@@ -128,59 +128,82 @@ export function AdminEventManagement() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 text-sm uppercase font-bold tracking-wider">
+        <div className="md:overflow-x-auto">
+          <table className="w-full text-left border-collapse block md:table md:min-w-[800px]">
+            <thead className="hidden md:table-header-group bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 text-sm uppercase font-bold tracking-wider">
               <tr>
-                <th className="p-4">Status</th>
-                <th className="p-4">Name</th>
-                <th className="p-4">Task Type</th>
-                <th className="p-4">Dates</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 whitespace-nowrap">Status</th>
+                <th className="p-4 whitespace-nowrap">Name</th>
+                <th className="p-4 whitespace-nowrap">Task Type</th>
+                <th className="p-4 whitespace-nowrap">Dates</th>
+                <th className="p-4 text-right whitespace-nowrap">Reward</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {eventsData?.map((evt: { id: string, name: string, status: string, startDate: string, endDate: string, rules: any, description: string, isActive: boolean, taskType: string }) => (
-                <tr key={evt.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="p-4">
-                    {new Date() >= new Date(evt.startDate) && new Date() <= new Date(evt.endDate) ? (
-                      <span className="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded w-fit text-xs">
-                        <FiCheckCircle /> Active
-                      </span>
-                    ) : new Date() < new Date(evt.startDate) ? (
-                      <span className="flex items-center gap-1 text-blue-600 font-bold bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded w-fit text-xs">
-                        <FiCircle /> Future
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded w-fit text-xs">
-                        <FiCircle /> Inactive
-                      </span>
-                    )}
+            <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50 md:bg-transparent dark:bg-slate-950 md:dark:bg-transparent">
+              {eventsData?.map((evt: { id: string, name: string, status: string, startDate: string, endDate: string, rules: any, description: string, isActive: boolean, taskType: string, rewardConfig?: any }) => (
+                <tr key={evt.id} className="block md:table-row bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 md:border-none rounded-xl md:rounded-none overflow-hidden shadow-sm md:shadow-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                    <div className="flex justify-between items-center md:block">
+                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Status</span>
+                      {new Date() >= new Date(evt.startDate) && new Date() <= new Date(evt.endDate) ? (
+                        <span className="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded w-fit text-xs">
+                          <FiCheckCircle /> Active
+                        </span>
+                      ) : new Date() < new Date(evt.startDate) ? (
+                        <span className="flex items-center gap-1 text-blue-600 font-bold bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded w-fit text-xs">
+                          <FiCircle /> Future
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded w-fit text-xs">
+                          <FiCircle /> Inactive
+                        </span>
+                      )}
+                    </div>
                   </td>
-                  <td className="p-4">
-                    <div className="font-bold text-slate-900 dark:text-white">{evt.name}</div>
-                    <div className="text-sm text-slate-500 truncate max-w-xs">{evt.description}</div>
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                    <div className="flex justify-between items-center md:block">
+                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider mr-4">Name</span>
+                      <div className="text-right md:text-left">
+                        <div className="font-bold text-slate-900 dark:text-white">{evt.name}</div>
+                        <div className="text-sm text-slate-500 truncate max-w-[150px] md:max-w-xs">{evt.description}</div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="p-4 font-mono text-sm text-purple-600 dark:text-purple-400">
-                    {evt.taskType}
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                    <div className="flex justify-between items-center md:block">
+                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Task Type</span>
+                      <span className="font-mono text-sm text-purple-600 dark:text-purple-400">{evt.taskType}</span>
+                    </div>
                   </td>
-                  <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
-                    <div>Start: {new Date(evt.startDate).toLocaleDateString('en-GB')}</div>
-                    <div>End: {new Date(evt.endDate).toLocaleDateString('en-GB')}</div>
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                    <div className="flex justify-between items-center md:block">
+                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Dates</span>
+                      <div className="text-sm text-slate-600 dark:text-slate-400 text-right md:text-left">
+                        <div>Start: {new Date(evt.startDate).toLocaleDateString('en-GB')}</div>
+                        <div>End: {new Date(evt.endDate).toLocaleDateString('en-GB')}</div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="p-4 text-right">
-                    <button aria-label="Edit event" onClick={() => openEdit(evt)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
-                      <FiEdit2 />
-                    </button>
-                    <button aria-label="Delete event" onClick={() => { if (window.confirm('Delete event?')) deleteMutation.mutate(evt.id) }} className="p-2 text-slate-400 hover:text-red-500 transition-colors ml-2">
-                      <FiTrash2 />
-                    </button>
+                  <td className="block md:table-cell p-3 md:p-4 bg-slate-50 dark:bg-slate-800/30 md:bg-transparent">
+                    <div className="flex justify-between md:justify-end items-center gap-2">
+                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Reward</span>
+                      <div className="text-right flex flex-col items-end">
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          {evt.rewardConfig?.speciesId 
+                            ? speciesList.find((s: any) => s.id === evt.rewardConfig.speciesId)?.name || `Species #${evt.rewardConfig.speciesId}`
+                            : 'No Pokémon'}
+                        </span>
+                        <span className="text-xs font-bold text-amber-500 uppercase">
+                          {evt.rewardConfig?.potential || 'NONE'}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ))}
               {(!eventsData || eventsData.length === 0) && (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">No events found.</td>
+                <tr className="block md:table-row">
+                  <td colSpan={5} className="block md:table-cell p-8 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-xl md:rounded-none">No events found.</td>
                 </tr>
               )}
             </tbody>
@@ -242,7 +265,7 @@ export function AdminEventManagement() {
 
               <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
                 <h3 className="font-black text-slate-900 dark:text-white">Task Configuration</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Task Type</label>
                     <Dropdown
@@ -295,7 +318,7 @@ export function AdminEventManagement() {
                 <h3 className="font-black text-slate-900 dark:text-white">Reward Configuration</h3>
 
                 <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Search Species</label>
                       <input
@@ -334,7 +357,7 @@ export function AdminEventManagement() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Category</label>
                       <Dropdown

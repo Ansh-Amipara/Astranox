@@ -4,4 +4,6 @@ export type TurnResultDto = Readonly<{
   events: any[];
   p1State?: any;
   p2State?: any;
+  playerPartyData?: any[];
+  opponentPartyData?: any[];
 }>;

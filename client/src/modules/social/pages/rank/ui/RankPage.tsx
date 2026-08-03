@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/shared/api/api';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowDown, CheckCircle } from 'lucide-react';
 
 export function RankPage() {
   const navigate = useNavigate();
@@ -67,17 +67,17 @@ export function RankPage() {
       )}
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 flex flex-col items-center">
-        <div className="w-full flex justify-between items-center mb-8 border-b border-slate-100 dark:border-slate-700 pb-8">
-          <div className="flex flex-col items-center flex-1">
+        <div className="w-full flex flex-col justify-center items-center mb-8 border-b border-slate-100 dark:border-slate-700 pb-8 gap-4">
+          <div className="flex flex-col items-center w-full">
             <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Current Rank</span>
-            <span className="text-4xl font-black text-slate-800 dark:text-white">{formatRank(currentRank)}</span>
+            <span className="text-4xl font-black text-slate-800 dark:text-white text-center">{formatRank(currentRank)}</span>
           </div>
-          <div className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded-full mx-4">
-            <ArrowRight className="w-6 h-6 text-slate-400" />
+          <div className="w-12 h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded-full my-2">
+            <ArrowDown className="w-6 h-6 text-slate-400" />
           </div>
-          <div className="flex flex-col items-center flex-1">
+          <div className="flex flex-col items-center w-full">
             <span className="text-sm font-bold text-blue-500 uppercase tracking-widest mb-2">Next Rank</span>
-            <span className="text-4xl font-black text-blue-600 dark:text-blue-400">{nextRank ? formatRank(nextRank) : 'MAX RANK'}</span>
+            <span className="text-4xl font-black text-blue-600 dark:text-blue-400 text-center">{nextRank ? formatRank(nextRank) : 'MAX RANK'}</span>
           </div>
         </div>
 

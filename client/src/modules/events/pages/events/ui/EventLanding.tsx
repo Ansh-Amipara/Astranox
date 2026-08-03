@@ -13,7 +13,7 @@ export function EventLanding() {
   });
 
   return (
-    <div className="flex-1 p-4 md:p-8 bg-slate-50 dark:bg-slate-950 min-h-[calc(100vh-64px)] flex flex-col items-center justify-center">
+    <div className="flex-1 p-4 md:p-8 bg-slate-50 dark:bg-slate-950 min-h-[calc(100vh-64px)] flex flex-col items-center pt-8 md:pt-12">
       <div className="text-center bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 max-w-lg w-full space-y-8">
         <div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2">Events</h1>

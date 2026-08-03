@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { FiArchive } from 'react-icons/fi';
+import { FiArchive, FiArrowLeft } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 export function EventHistory() {
 
@@ -44,6 +45,9 @@ export function EventHistory() {
 
         {/* Header */}
         <div className="text-left border-b border-slate-200 dark:border-slate-800 pb-6">
+          <Link to="/events" className="inline-flex items-center gap-2 text-slate-900 hover:text-slate-700 dark:text-white dark:hover:text-slate-300 font-bold mb-4 transition-colors">
+            <FiArrowLeft className="w-5 h-5" /> Back to Events
+          </Link>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-2">Event History</h1>
         </div>
 

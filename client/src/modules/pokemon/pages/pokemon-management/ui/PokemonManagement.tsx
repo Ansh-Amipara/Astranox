@@ -119,8 +119,6 @@ export function PokemonManagement() {
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
           <h1 className="text-3xl font-black tracking-tight">My Pokémon</h1>
-
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
 
 
@@ -129,7 +127,7 @@ export function PokemonManagement() {
             <p className="text-slate-500">You don't have any Pokémon yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {allPokemon.map((p: OwnedPokemonDto) => (
               <PokemonManagementCard
                 key={p.id}
@@ -138,6 +136,12 @@ export function PokemonManagement() {
                 onClick={setActiveMenuPkm}
               />
             ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex justify-center pt-8 pb-4">
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
         )}
 

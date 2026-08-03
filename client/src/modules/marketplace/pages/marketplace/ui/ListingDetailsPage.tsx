@@ -12,8 +12,9 @@ export function ListingDetailsPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { data: listing, isLoading } = useListingDetails(id!);
-  
+
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const acceptMutation = useAcceptOffer();
   const rejectMutation = useRejectOffer();
@@ -46,55 +47,50 @@ export function ListingDetailsPage() {
           <ArrowLeft className="w-5 h-5" /> Back to Marketplace
         </button>
 
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-8 flex flex-col md:flex-row items-center gap-8">
-          <div className="w-48 h-48 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-8 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+          <div className="w-48 h-48 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0">
             <img src={getSpriteUrl(listing.pokemon.species.id)} alt={listing.pokemon.species.name} className="w-40 h-40 object-contain pixelated" />
           </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white capitalize flex items-center gap-2">
+          <div className="flex-1 w-full">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+              <div className="w-full md:w-auto">
+                <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white capitalize flex items-center gap-2 flex-wrap">
                   {listing.pokemon.species.name}
-                  {listing.pokemon.potential === 'LEGENDARY' && <Sparkles className="w-6 h-6 text-yellow-500" />}
+                  {listing.pokemon.potential === 'LEGENDARY' && <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-yellow-500 shrink-0" />}
                 </h1>
-                <p className="text-lg font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest">
+                <p className="text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest flex-wrap">
                   Lv. {listing.pokemon.level} • {listing.pokemon.potential.replace(/_/g, ' ')}
                 </p>
                 <p className="text-sm text-slate-400 mt-4">
                   Listed by <span className="font-bold text-slate-700 dark:text-slate-300">{listing.seller.user.username}</span>
                 </p>
                 {listing.description && (
-                  <p className="mt-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-xl text-slate-600 dark:text-slate-300 italic border border-slate-200 dark:border-slate-800">
+                  <p className="mt-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-xl text-slate-600 dark:text-slate-300 italic border border-slate-200 dark:border-slate-800 text-sm md:text-base">
                     "{listing.description}"
                   </p>
                 )}
               </div>
-              <div className="text-right">
-                <span className={`px-4 py-2 rounded-xl text-sm font-black tracking-wider uppercase ${
-                  listing.status === 'OPEN' && !isExpired ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
-                }`}>
+              <div className="flex flex-row md:flex-col justify-between md:justify-start items-center md:items-end w-full md:w-auto mt-2 md:mt-0 gap-4 md:gap-0 border-t md:border-t-0 border-slate-100 dark:border-slate-700 pt-4 md:pt-0">
+                <span className={`px-4 py-2 rounded-xl text-xs md:text-sm font-black tracking-wider uppercase shrink-0 ${listing.status === 'OPEN' && !isExpired ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
+                  }`}>
                   {isExpired && listing.status === 'OPEN' ? 'EXPIRED' : listing.status}
                 </span>
                 {canCancel && (
-                  <button 
-                    onClick={() => {
-                      if (confirm('Are you sure you want to cancel this listing?')) {
-                        cancelMutation.mutate(listing.id);
-                      }
-                    }}
+                  <button
+                    onClick={() => setIsCancelModalOpen(true)}
                     disabled={cancelMutation.isPending}
-                    className="block mt-4 text-sm font-bold text-red-500 hover:text-red-700 transition-colors ml-auto"
+                    className="block mt-0 md:mt-4 text-sm font-bold text-red-500 hover:text-red-700 transition-colors shrink-0"
                   >
                     Cancel Listing
                   </button>
                 )}
               </div>
             </div>
-            
+
             {!isSeller && listing.status === 'OPEN' && !isExpired && (
-              <button 
+              <button
                 onClick={() => setIsOfferModalOpen(true)}
-                className="mt-6 w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition-colors shadow-lg shadow-blue-500/30"
+                className="mt-6 w-full px-8 py-3 md:py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl transition-colors shadow-lg shadow-blue-500/30 text-lg"
               >
                 Submit Offer
               </button>
@@ -105,7 +101,7 @@ export function ListingDetailsPage() {
         {/* Offers Section */}
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6">Current Offers ({listing.offers?.length || 0})</h2>
-          
+
           {listing.offers?.length === 0 ? (
             <div className="text-center py-12 text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
               No offers have been made yet.
@@ -130,17 +126,17 @@ export function ListingDetailsPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   {isSeller && listing.status === 'OPEN' && offer.status === 'PENDING' && (
                     <div className="flex gap-2 w-full md:w-auto">
-                      <button 
+                      <button
                         onClick={() => acceptMutation.mutate(offer.id)}
                         disabled={acceptMutation.isPending || rejectMutation.isPending}
                         className="flex-1 md:flex-none px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                       >
                         <Check className="w-5 h-5" /> Accept
                       </button>
-                      <button 
+                      <button
                         onClick={() => rejectMutation.mutate(offer.id)}
                         disabled={acceptMutation.isPending || rejectMutation.isPending}
                         className="flex-1 md:flex-none px-6 py-3 bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
@@ -149,10 +145,10 @@ export function ListingDetailsPage() {
                       </button>
                     </div>
                   )}
-                  
+
                   {!isSeller && user?.username === offer.bidder?.user?.username && listing.status === 'OPEN' && offer.status === 'PENDING' && (
                     <div className="flex gap-2 w-full md:w-auto">
-                      <button 
+                      <button
                         onClick={() => cancelOfferMutation.mutate(offer.id)}
                         disabled={cancelOfferMutation.isPending}
                         className="flex-1 md:flex-none px-6 py-3 bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
@@ -161,7 +157,7 @@ export function ListingDetailsPage() {
                       </button>
                     </div>
                   )}
-                  
+
                   {(!isSeller && user?.username !== offer.bidder?.user?.username || offer.status !== 'PENDING') && (
                     <div className="px-6 py-3 bg-slate-100 dark:bg-slate-900 rounded-xl text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">
                       {offer.status}
@@ -175,10 +171,50 @@ export function ListingDetailsPage() {
       </div>
 
       {isOfferModalOpen && (
-        <TradeOfferModal 
-          listingId={listing.id} 
-          onClose={() => setIsOfferModalOpen(false)} 
+        <TradeOfferModal
+          listingId={listing.id}
+          onClose={() => setIsOfferModalOpen(false)}
         />
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {isCancelModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Cancel Listing?</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8">
+              Are you sure you want to cancel this listing? Your Pokémon will be returned to your PC immediately.
+            </p>
+
+            <div className="flex w-full gap-4">
+              <button 
+                onClick={() => setIsCancelModalOpen(false)}
+                disabled={cancelMutation.isPending}
+                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors disabled:opacity-50"
+              >
+                No
+              </button>
+              <button 
+                onClick={() => {
+                  cancelMutation.mutate(listing.id, {
+                    onSuccess: () => setIsCancelModalOpen(false)
+                  });
+                }}
+                disabled={cancelMutation.isPending}
+                className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {cancelMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Cancelling...
+                  </>
+                ) : (
+                  'Yes'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -64,12 +64,12 @@ export function ArenaPage() {
         )}
 
         {/* Tab Bar */}
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg overflow-x-auto w-full sm:w-max mb-6">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-full sm:w-max mb-6 gap-1 overflow-x-auto hide-scrollbar">
           {RANKS.map((rank) => (
             <button
               key={rank}
               onClick={() => setActiveRank(rank)}
-              className={`px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${activeRank === rank
+              className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-bold capitalize whitespace-nowrap transition-colors flex items-center justify-center ${activeRank === rank
                   ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}

@@ -32,30 +32,43 @@ export const BattleResultModal = memo(function BattleResultModal({
   if (!isFinished) return null;
 
   const rewardEvents = lastTurnEvents.filter((msg: string) => 
-    msg.toLowerCase().includes('reward') || 
+    (msg.toLowerCase().includes('reward') || 
     msg.toLowerCase().includes('item') || 
     msg.toLowerCase().includes('passed') || 
     msg.toLowerCase().includes('promoted') ||
-    msg.toLowerCase().includes('xp')
+    msg.toLowerCase().includes('xp') ||
+    msg.toLowerCase().includes('coins')) &&
+    !msg.toLowerCase().includes('exp. points')
   );
 
-  const displayEvents = rewardEvents.length > 0 ? rewardEvents : lastTurnEvents;
+  const displayEvents = rewardEvents;
 
   const eventsNode: any = displayEvents.length > 0 ? (
-    <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-      {(displayEvents as string[]).map((msg: string, i: number) => (
-        <p key={i} className="text-center font-semibold text-slate-700 dark:text-slate-300">
-          {msg}
-        </p>
-      ))}
+    <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1 max-h-48 overflow-y-auto custom-scrollbar">
+      <span className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Got:</span>
+      {(displayEvents as string[]).map((msg: string, i: number) => {
+        const cleanMsg = msg.replace(/Battle Won! Reward:\s*/gi, '')
+                            .replace(/Reward:\s*/gi, '')
+                            .replace(/\+/g, '')
+                            .trim();
+        return (
+          <p key={i} className="text-center font-bold text-slate-700 dark:text-slate-300">
+            {cleanMsg}
+          </p>
+        );
+      })}
     </div>
   ) : null;
 
   return (
     <Modal isOpen={true} onClose={() => {}} className="max-w-xl" hideHeader>
       <div className="p-8 flex flex-col items-center">
-        <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 tracking-wide uppercase text-center">
-          Battle Finished!
+        <h2 className={`text-3xl font-black mb-6 tracking-wide uppercase text-center ${
+          status === 'WON' || status === 'CAUGHT' ? 'text-green-600 dark:text-green-400' :
+          status === 'FLED' ? 'text-blue-600 dark:text-blue-400' :
+          'text-red-600 dark:text-red-400'
+        }`}>
+          {status === 'WON' ? 'VICTORY!' : status === 'CAUGHT' ? 'GOTCHA!' : status === 'FLED' ? 'FLED!' : 'DEFEATED!'}
         </h2>
 
         {/* Event List */}
@@ -97,9 +110,9 @@ export const BattleResultModal = memo(function BattleResultModal({
             ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
             : 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
         }`}>
-          {status === 'WON' ? (battleType === 'TOWER' ? 'Victory! You cleared the floor!' : battleType === 'RIFT' ? 'Victory! You cleared the Rift floor!' : battleType === 'NPC' ? 'Victory! You defeated the Rank Examiner!' : `You defeated the wild ${wildSpeciesName}!`) : 
-           status === 'CAUGHT' ? `Gotcha! ${wildSpeciesName} was caught!` :
-           status === 'FLED' ? 'Got away safely!' : 'Defeated! Better luck next time!'}
+          {status === 'WON' ? (battleType === 'TOWER' ? 'You cleared the floor!' : battleType === 'RIFT' ? 'You cleared the Rift floor!' : battleType === 'NPC' ? 'You defeated the opponent!' : `You defeated the wild ${wildSpeciesName}!`) : 
+           status === 'CAUGHT' ? `You caught ${wildSpeciesName}!` :
+           status === 'FLED' ? 'Got away safely!' : 'Better luck next time!'}
         </div>
 
         <div className="flex gap-4 w-full">

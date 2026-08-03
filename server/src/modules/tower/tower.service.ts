@@ -37,11 +37,14 @@ function toActivePokemon(inst: any) {
   };
 }
 
+import { BattlesRepository } from '../battles/repositories/battles.repository';
+
 @injectable()
 export class TowerService {
   constructor(
     private repository: TowerRepository,
-    private eventsService: EventsService
+    private eventsService: EventsService,
+    private battlesRepository: BattlesRepository
   ) {}
 
   private async getValidState(trainerId: string) {
@@ -187,7 +190,7 @@ export class TowerService {
     }
 
     const config = generateTowerConfig(state.currentFloor);
-    const speciesList = await this.repository.getRandomSpecies(config.teamSize, config.evolutionStage, config.allowLegendary);
+    const speciesList = await this.repository.getRandomSpecies(config.teamSize, config);
 
     if (speciesList.length === 0) {
       throw new AppError('Could not generate enemy team - no species found', 500);
@@ -309,18 +312,14 @@ export class TowerService {
     const mappedPlayerActive = toActivePokemon(playerActiveData);
     const mappedPlayerParty = playerPartyData.map(toActivePokemon);
 
-    const battle = await prisma.battleSession.create({
-      data: {
-        trainerId,
-        status: BattleStatus.ACTIVE,
-        battleType: "TOWER" as unknown as BattleType,
-        playerActivePokemonId: mappedPlayerActive.id,
-        opponentPokemonData: mappedOpponentActive as unknown as Prisma.InputJsonValue,
-        opponentPartyData: mappedEnemyTeam as unknown as Prisma.InputJsonValue,
-        playerPokemonData: mappedPlayerActive as unknown as Prisma.InputJsonValue,
-        playerPartyData: mappedPlayerParty as unknown as Prisma.InputJsonValue,
-        log: []
-      }
+    const battle = await this.battlesRepository.createBattleSession({
+      trainerId,
+      playerActivePokemonId: mappedPlayerActive.id,
+      opponentPokemonData: mappedOpponentActive,
+      opponentPartyData: mappedEnemyTeam,
+      playerPokemonData: mappedPlayerActive,
+      playerPartyData: mappedPlayerParty,
+      battleType: "TOWER"
     });
 
     return battle;
@@ -351,12 +350,7 @@ export class TowerService {
     }
 
     // Clean up active battle sessions for TOWER
-    await prisma.battleSession.deleteMany({
-      where: {
-        trainerId,
-        battleType: "TOWER" as unknown as BattleType
-      }
-    });
+    await this.battlesRepository.clearBattleSession(trainerId);
 
     return this.getState(trainerId);
   }

@@ -12,13 +12,17 @@ import { createPokemonInstance, getMinPotentialForLevel } from '../../game/insta
 import { toActivePokemon } from '../battles/services/battle-session.service';
 import { EventsService } from '../events/events.service';
 import { prisma } from '../../core/db/prisma';
+import { BattlesRepository } from '../battles/repositories/battles.repository';
+import { CacheService } from '../../core/services/cache.service';
 
 
 @injectable()
 export class RiftService {
   constructor(
     private repo: RiftRepository,
-    private eventsService: EventsService
+    private eventsService: EventsService,
+    private battlesRepo: BattlesRepository,
+    private cache: CacheService
   ) {}
 
   async getRiftState(userId: string) {
@@ -43,9 +47,7 @@ export class RiftService {
     const state = await this.repo.startRun(save.id, rank, difficulty);
 
     // End any active battles in BattleSession just in case
-    await prisma.battleSession.deleteMany({
-      where: { trainerId: save.id, status: 'ACTIVE' }
-    });
+    await this.battlesRepo.clearBattleSession(save.id);
 
     return state;
   }
@@ -59,9 +61,7 @@ export class RiftService {
     if (state.currentEncounterId) {
       // Return existing encounter battle
       const encounter = await this.repo.getActiveEncounter(state.currentEncounterId);
-      const battle = await prisma.battleSession.findFirst({
-        where: { trainerId: save.id, battleType: 'RIFT', status: 'ACTIVE' }
-      });
+      const battle = await this.battlesRepo.getActiveBattleByTrainer(save.id);
       
       if (!battle) {
         // The battle was lost, fled, or otherwise ended, but the run wasn't properly abandoned.
@@ -167,17 +167,14 @@ export class RiftService {
        }
     }
 
-    const battle = await prisma.battleSession.create({
-      data: {
-        trainerId: save.id,
-        battleType: 'RIFT',
-        playerActivePokemonId: activePlayerPokemon.id,
-        opponentPokemonData: toActivePokemon(enemyTeam[0]) as any,
-        playerPokemonData: toActivePokemon(activePlayerPokemon) as any,
-        playerPartyData: playerPartyData.map(p => toActivePokemon(p)) as any,
-        opponentPartyData: enemyTeam.map(p => toActivePokemon(p)) as any,
-        log: [{ text: `A corrupted team emerged from the Void!`, type: 'text' }]
-      }
+    const battle = await this.battlesRepo.createBattleSession({
+      trainerId: save.id,
+      battleType: 'RIFT',
+      playerActivePokemonId: activePlayerPokemon.id,
+      opponentPokemonData: toActivePokemon(enemyTeam[0]) as any,
+      playerPokemonData: toActivePokemon(activePlayerPokemon) as any,
+      playerPartyData: playerPartyData.map(p => toActivePokemon(p)) as any,
+      opponentPartyData: enemyTeam.map(p => toActivePokemon(p)) as any,
     });
 
     return { encounter, battle };
@@ -194,14 +191,14 @@ export class RiftService {
     const encounter = await this.repo.getActiveEncounter(state.currentEncounterId);
     if (!encounter) throw new NotFoundError('Encounter not found');
 
-    const battle = await prisma.battleSession.findFirst({
-      where: { trainerId: save.id, battleType: 'RIFT' },
-      orderBy: { createdAt: 'desc' }
-    });
+    const battle = await this.cache.get<any>(`battle:${save.id}`);
 
     if (!battle || battle.status !== 'WON') {
       throw new ValidationError('Battle is not won yet.');
     }
+    
+    // Clear battle session from cache after winning
+    await this.battlesRepo.clearBattleSession(save.id);
 
     const infinityCoins = (encounter.reward as any).infinityCoins || 0;
     const nextFloor = state.currentFloor + 1;
@@ -230,10 +227,10 @@ export class RiftService {
     if (!save) throw new NotFoundError('Trainer not found');
     await this.repo.endRun(save.id);
 
-    await prisma.battleSession.updateMany({
-      where: { trainerId: save.id, status: 'ACTIVE', battleType: 'RIFT' },
-      data: { status: 'FLED' }
-    });
+    const battle = await this.cache.get<any>(`battle:${save.id}`);
+    if (battle && battle.battleType === 'RIFT') {
+       await this.battlesRepo.clearBattleSession(save.id);
+    }
 
     // Heal party on exit
     // Removed because DB doesn't track currentHp.

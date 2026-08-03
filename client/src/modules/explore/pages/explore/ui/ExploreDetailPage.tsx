@@ -4,6 +4,7 @@ import { ExploreService, ExploreResponse } from '@/modules/explore/services/expl
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { LOCATIONS, getRealmImagePath } from './ExplorePage';
 import { toast } from 'sonner';
+import { ArrowLeft } from 'lucide-react';
 
 const REGION_TYPES: Record<string, string[]> = {
   PLAINS: ['Normal', 'Flying', 'Grass'],
@@ -91,6 +92,14 @@ export function ExploreDetailPage() {
         </div>
       )}
 
+      {/* Leave Button */}
+      <button 
+        onClick={() => navigate('/explore')} 
+        className="absolute top-4 left-4 z-20 px-4 py-2 bg-slate-900/50 hover:bg-slate-900/80 backdrop-blur-md border border-white/10 text-white rounded-xl font-bold transition-all shadow-lg flex items-center gap-2"
+      >
+        <ArrowLeft className="w-5 h-5" /> Leave
+      </button>
+
       {/* Centered Popup Card */}
       <div className="relative z-10 w-full max-w-lg bg-white/95 dark:bg-ink-dark/95 backdrop-blur-xl border border-white/20 dark:border-ink-light/20 rounded-3xl shadow-2xl p-8 text-center flex flex-col items-center">
 
@@ -111,18 +120,11 @@ export function ExploreDetailPage() {
             </span>
           ))}
         </div>
-        <div className="w-full flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={() => navigate('/explore')}
-            disabled={loading}
-            className="flex-1 py-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-black text-xl rounded-2xl transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50"
-          >
-            Leave
-          </button>
+        <div className="w-full">
           <button
             onClick={handleExplore}
             disabled={loading}
-            className="flex-1 py-4 bg-ink-blue hover:bg-ink-dark text-white font-black text-xl rounded-2xl shadow-[0_0_20px_rgba(109,129,150,0.3)] hover:shadow-[0_0_30px_rgba(109,129,150,0.5)] transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50"
+            className="w-full py-4 bg-ink-blue hover:bg-ink-dark text-white font-black text-xl rounded-2xl shadow-[0_0_20px_rgba(109,129,150,0.3)] hover:shadow-[0_0_30px_rgba(109,129,150,0.5)] transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50"
           >
             {loading ? 'Exploring...' : 'Explore'}
           </button>
@@ -157,9 +159,6 @@ export function ExploreDetailPage() {
                 <div className="flex items-center justify-center gap-4 text-sm font-bold mb-6">
                   <span className="bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-md text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                     Lv. {result.encounter.level}
-                  </span>
-                  <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-md uppercase tracking-wider">
-                    {result.encounter.potential.replace('_', ' ')}
                   </span>
                 </div>
 

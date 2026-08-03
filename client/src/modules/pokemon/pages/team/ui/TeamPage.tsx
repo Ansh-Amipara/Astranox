@@ -202,7 +202,7 @@ export function TeamPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => {
             const pkm = party.find((p: OwnedPokemonDto) => p.position === i);
 
@@ -215,86 +215,92 @@ export function TeamPage() {
                 }}
               >
                 {pkm ? (
-                  <div className="p-6 flex items-start gap-6">
-                    <div className="w-24 h-24 shrink-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                      <img
-                        src={getSpriteUrl(pkm.speciesId)}
-                        alt={pkm.species?.name}
-                        className="w-20 h-20 object-contain drop-shadow-md"
-                        style={{ imageRendering: 'pixelated' }}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex flex-col">
-                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate flex items-center gap-2">
-                            {pkm.nickname || pkm.species?.name}
+                  <div className="p-4 md:p-5 flex flex-col gap-4">
+                    {/* Top Section: Image and Core Info */}
+                    <div className="flex items-start gap-4 md:gap-5">
+                      <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner relative">
+                        <img
+                          src={getSpriteUrl(pkm.speciesId)}
+                          alt={pkm.species?.name}
+                          className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md pixelated hover:scale-110 transition-transform"
+                        />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        {/* Header: Name and Bound Status */}
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <h3 className="text-lg md:text-xl font-extrabold text-slate-900 dark:text-white capitalize truncate flex items-center gap-1.5">
+                            <span className="truncate">{pkm.nickname || pkm.species?.name}</span>
                             {pkm.isBound && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
-                                🔒 Bound
+                              <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                                <span aria-hidden="true">🔒</span> Bound
                               </span>
                             )}
                           </h3>
                         </div>
-                      </div>
 
-                      {/* 2nd Row: Type */}
-                      <div className="mt-2 flex gap-1">
-                        {pkm.species?.type1 && (
-                          <img src={getTypeSpriteUrl(pkm.species.type1.name, false)} alt={pkm.species.type1.name} title={pkm.species.type1.name} className="h-6 w-auto object-contain drop-shadow-sm" />
-                        )}
-                        {pkm.species?.type2 && (
-                          <img src={getTypeSpriteUrl(pkm.species.type2.name, false)} alt={pkm.species.type2.name} title={pkm.species.type2.name} className="h-6 w-auto object-contain drop-shadow-sm" />
-                        )}
-                      </div>
-
-                      {/* 3rd Row: Potential and CP */}
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {pkm.potential && (
-                          <span className={getPotentialBadgeClasses(pkm.potential)}>
-                            {pkm.potential.replace('_', ' ')}
-                          </span>
-                        )}
-                        <span className={`text-xs px-2 py-1 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider`}>
-                          CP {pkm.cp?.toLocaleString() || 0}
-                        </span>
-                      </div>
-
-                      {/* Level and XP */}
-                      <div className="mt-3 flex items-center gap-3">
-                        <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded border border-blue-100 dark:border-blue-900/50">
-                          <span className="text-xs font-bold uppercase mr-1 opacity-70">Lv.</span>
-                          <span className="text-sm font-black">{pkm.level}</span>
+                        {/* Type */}
+                        <div className="flex gap-1 mb-2.5">
+                          {pkm.species?.type1 && (
+                            <img src={getTypeSpriteUrl(pkm.species.type1.name, false)} alt={pkm.species.type1.name} title={pkm.species.type1.name} className="h-5 w-auto object-contain drop-shadow-sm" />
+                          )}
+                          {pkm.species?.type2 && (
+                            <img src={getTypeSpriteUrl(pkm.species.type2.name, false)} alt={pkm.species.type2.name} title={pkm.species.type2.name} className="h-5 w-auto object-contain drop-shadow-sm" />
+                          )}
                         </div>
-                        {pkm.potential && pkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[pkm.potential as string] || 5000) ? (
-                          <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
-                            <span className="text-xs font-bold uppercase mr-1 opacity-70">XP</span>
-                            <span className="text-sm font-bold">{(pkm.currentXp || 0).toLocaleString()}</span>
-                          </div>
-                        )}
-                      </div>
 
-                      <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
-                        {[0, 1, 2, 3].map(i => {
-                          const move = pkm.equippedMoves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
-                          return (
-                            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center justify-start gap-1.5 overflow-hidden">
-                              {move ? (
-                                <>
-                                  <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
-                                  <span className="font-bold text-slate-700 dark:text-slate-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
-                                </>
-                              ) : (
-                                <span className="text-slate-400 dark:text-slate-500 italic text-xs">- Empty -</span>
-                              )}
+                        {/* Potential and CP */}
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          {pkm.potential && (
+                            <span className={`${getPotentialBadgeClasses(pkm.potential)} px-2 py-0.5 text-xs`}>
+                              {pkm.potential.replace('_', ' ')}
+                            </span>
+                          )}
+                          <span className="text-xs px-2 py-0.5 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
+                            CP {pkm.cp?.toLocaleString() || 0}
+                          </span>
+                        </div>
+
+                        {/* Level and XP */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-900/50">
+                            <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
+                            <span className="text-sm font-black">{pkm.level}</span>
+                          </div>
+                          {pkm.potential && pkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[pkm.potential as string] || 5000) ? (
+                            <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-0.5 rounded border border-red-100 dark:border-red-900/50">
+                              <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                             </div>
-                          );
-                        })}
+                          ) : (
+                            <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                              <span className="text-[10px] font-bold uppercase mr-1 opacity-70">XP</span>
+                              <span className="text-xs font-bold">{(pkm.currentXp || 0).toLocaleString()}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Moves Section */}
+                    <div className="w-full pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2">
+                      {[0, 1, 2, 3].map(i => {
+                        const move = pkm.equippedMoves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
+                        return (
+                          <div key={i} className="bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded border border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-hidden h-8">
+                            {move ? (
+                              <>
+                                <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
+                                <span className="font-bold text-slate-700 dark:text-slate-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 dark:border-slate-600 opacity-50 shrink-0 mx-0.5"></div>
+                                <span className="text-slate-400 dark:text-slate-500 italic text-[10px] uppercase tracking-wider">- Empty -</span>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ) : (
@@ -726,13 +732,20 @@ export function TeamPage() {
         const requiredItemId = isGold ? 'gold-bottle-cap' : 'bottle-cap';
         const requiredItemName = isGold ? 'Gold Bottle Cap' : 'Bottle Cap';
 
-        const statOptions = ['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'];
+        const statOptions = [
+          { key: 'ivHp', label: 'HP' },
+          { key: 'ivAttack', label: 'ATK' },
+          { key: 'ivDefense', label: 'DEF' },
+          { key: 'ivSpAtk', label: 'SPA' },
+          { key: 'ivSpDef', label: 'SPD' },
+          { key: 'ivSpeed', label: 'SPE' }
+        ];
 
         const ownedCrystal = save?.inventory?.find((i: InventoryItemDto) => i.itemId === requiredItemId);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 
         const isMaxed = isGold
-          ? statOptions.every(opt => (boostIvPkm[opt as keyof OwnedPokemonDto] as number) >= 31)
+          ? statOptions.every(opt => (boostIvPkm[opt.key as keyof OwnedPokemonDto] as number) >= 31)
           : (boostIvPkm[selectedIvStat as keyof OwnedPokemonDto] as number) >= 31;
 
         const statKey = selectedIvStat as keyof OwnedPokemonDto;
@@ -764,16 +777,13 @@ export function TeamPage() {
 
               {!isGold && (
                 <div className="relative z-10 mb-6 flex justify-center flex-wrap gap-2">
-                  {statOptions.map(stat => (
+                  {statOptions.map(opt => (
                     <button
-                      key={stat}
-                      onClick={() => setSelectedIvStat(stat)}
-                      className={`flex flex-col items-center px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${selectedIvStat === stat ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                      key={opt.key}
+                      onClick={() => setSelectedIvStat(opt.key)}
+                      className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                     >
-                      <span className="font-bold text-slate-800 dark:text-white capitalize">Learning Move for Slot {selectedIvStat + 1}</span>
-                      <span className={`font-black ml-auto ${Number(boostIvPkm[stat as keyof OwnedPokemonDto]) >= 31 ? 'text-yellow-500' : 'text-slate-600 dark:text-slate-400'}`}>
-                        {Number(boostIvPkm[stat as keyof OwnedPokemonDto])} / 31
-                      </span>
+                      {opt.label}: {Number(boostIvPkm[opt.key as keyof OwnedPokemonDto])} / 31
                     </button>
                   ))}
                 </div>

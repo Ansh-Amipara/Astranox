@@ -144,55 +144,85 @@ export function AdminDashboard() {
             <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">Registered Users</h2>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
+            <div className="md:overflow-x-auto">
+              <table className="w-full text-left border-collapse block md:table md:min-w-[800px]">
+                <thead className="hidden md:table-header-group">
                   <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm">
-                    <th className="p-4 font-bold">Username</th>
-                    <th className="p-4 font-bold">Email</th>
-                    <th className="p-4 font-bold">Astral Coins</th>
-                    <th className="p-4 font-bold">Infinity Coins</th>
-                    <th className="p-4 font-bold">Party Size</th>
-                    <th className="p-4 font-bold text-right">Actions</th>
+                    <th className="p-4 font-bold whitespace-nowrap">Username</th>
+                    <th className="p-4 font-bold whitespace-nowrap">Email</th>
+                    <th className="p-4 font-bold whitespace-nowrap">Astral Coins</th>
+                    <th className="p-4 font-bold whitespace-nowrap">Infinity Coins</th>
+                    <th className="p-4 font-bold whitespace-nowrap">Party Size</th>
+                    <th className="p-4 font-bold text-right whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50 md:bg-transparent dark:bg-slate-950 md:dark:bg-transparent">
                   {users?.map((user: UserPayload) => (
                     <tr
                       key={user.id}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                      className={`block md:table-row bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 md:border-none rounded-xl md:rounded-none overflow-hidden shadow-sm md:shadow-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'ring-2 ring-blue-500 md:ring-0 md:bg-blue-50 dark:md:bg-blue-900/20' : ''}`}
                       onClick={() => setSelectedUser(user)}
                     >
-                      <td className="p-4 font-bold text-slate-900 dark:text-white">{user.username} {user.role === 'ADMIN' && <span className="ml-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase">Admin</span>}</td>
-                      <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">{user.email}</td>
-                      <td className="p-4 text-amber-500 font-bold">{user.trainerSave?.astralCoins ?? 0}</td>
-                      <td className="p-4 text-purple-500 font-bold">{user.trainerSave?.infinityCoins ?? 0}</td>
-                      <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</td>
-                      <td className="p-4 text-right flex justify-end gap-2">
-                        <button
-                          aria-label="Inject Currency"
-                          className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('currency'); }}
-                          title="Inject Currency"
-                        >
-                          <Banknote className="w-5 h-5" />
-                        </button>
-                        <button
-                          aria-label="Send Pokémon"
-                          className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('sendPokemon'); }}
-                          title="Send Pokémon"
-                        >
-                          <Gift className="w-5 h-5" />
-                        </button>
-                        <button
-                          aria-label="Edit Pokémon"
-                          className="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('editPokemon'); }}
-                          title="Edit Pokémon"
-                        >
-                          <Pencil className="w-5 h-5" />
-                        </button>
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                        <div className="flex justify-between items-center md:block">
+                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Username</span>
+                          <span className="font-bold text-slate-900 dark:text-white">{user.username} {user.role === 'ADMIN' && <span className="ml-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase">Admin</span>}</span>
+                        </div>
+                      </td>
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                        <div className="flex justify-between items-center md:block">
+                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Email</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-medium">{user.email}</span>
+                        </div>
+                      </td>
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                        <div className="flex justify-between items-center md:block">
+                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Astral Coins</span>
+                          <span className="text-amber-500 font-bold">{user.trainerSave?.astralCoins ?? 0}</span>
+                        </div>
+                      </td>
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                        <div className="flex justify-between items-center md:block">
+                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Infinity Coins</span>
+                          <span className="text-purple-500 font-bold">{user.trainerSave?.infinityCoins ?? 0}</span>
+                        </div>
+                      </td>
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                        <div className="flex justify-between items-center md:block">
+                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Party Size</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</span>
+                        </div>
+                      </td>
+                      <td className="block md:table-cell p-3 md:p-4 bg-slate-50 dark:bg-slate-800/30 md:bg-transparent">
+                        <div className="flex justify-between md:justify-end items-center gap-2">
+                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Actions</span>
+                          <div className="flex gap-2">
+                            <button
+                              aria-label="Inject Currency"
+                              className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 bg-white dark:bg-slate-800 md:bg-transparent border border-slate-200 dark:border-slate-700 md:border-none"
+                              onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('currency'); }}
+                              title="Inject Currency"
+                            >
+                              <Banknote className="w-5 h-5" />
+                            </button>
+                            <button
+                              aria-label="Send Pokémon"
+                              className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 bg-white dark:bg-slate-800 md:bg-transparent border border-slate-200 dark:border-slate-700 md:border-none"
+                              onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('sendPokemon'); }}
+                              title="Send Pokémon"
+                            >
+                              <Gift className="w-5 h-5" />
+                            </button>
+                            <button
+                              aria-label="Edit Pokémon"
+                              className="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 bg-white dark:bg-slate-800 md:bg-transparent border border-slate-200 dark:border-slate-700 md:border-none"
+                              onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('editPokemon'); }}
+                              title="Edit Pokémon"
+                            >
+                              <Pencil className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   ))}

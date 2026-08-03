@@ -1,1 +1,0 @@
-const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); prisma.trainerSave.findFirst({ select: { id: true, infinityCoins: true } }).then(s => console.log(s)).catch(console.error).finally(() => prisma.$disconnect());

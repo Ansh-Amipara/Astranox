@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { FiInfo } from 'react-icons/fi';
+import { FiInfo, FiArrowLeft } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 export function ActiveEvent() {
   const queryClient = useQueryClient();
@@ -81,6 +82,9 @@ export function ActiveEvent() {
         
         {/* Header */}
         <div className="text-left border-b border-slate-200 dark:border-slate-800 pb-6">
+          <Link to="/events" className="inline-flex items-center gap-2 text-slate-900 hover:text-slate-700 dark:text-white dark:hover:text-slate-300 font-bold mb-4 transition-colors">
+            <FiArrowLeft className="w-5 h-5" /> Back to Events
+          </Link>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-2">{event.name}</h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">Ends in {timeRemaining}</p>
         </div>

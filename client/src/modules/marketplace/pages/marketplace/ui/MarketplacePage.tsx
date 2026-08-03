@@ -82,27 +82,29 @@ export function MarketplacePage() {
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-4 md:p-6 min-h-[calc(100vh-64px)]">
       <div className="w-full mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="flex flex-row justify-between items-center mb-8 gap-2 md:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-2 truncate">
               Trade Exchange
             </h1>
           </div>
 
           <button
             onClick={() => navigate('/marketplace/create')}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
+            className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shrink-0 text-sm md:text-base"
           >
-            <Plus className="w-5 h-5" /> Create Listing
+            <Plus className="w-4 h-4 md:w-5 md:h-5" /> 
+            <span className="hidden sm:inline">Create Listing</span>
+            <span className="inline sm:hidden">Create</span>
           </button>
         </div>
 
-        <div className="flex space-x-1 bg-slate-200 dark:bg-slate-800 p-1 rounded-xl w-max mb-6">
+        <div className="flex space-x-1 bg-slate-200 dark:bg-slate-800 p-1 rounded-xl w-full mb-6">
           {(['browse', 'my-listings', 'my-offers'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-lg text-sm font-bold capitalize transition-all ${activeTab === tab
+              className={`flex-1 px-2 md:px-6 py-2 rounded-lg text-xs sm:text-sm font-bold capitalize transition-all ${activeTab === tab
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}

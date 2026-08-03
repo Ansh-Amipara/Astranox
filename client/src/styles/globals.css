@@ -42,6 +42,11 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
+  /* Prevent iOS zoom on inputs */
+  input, textarea, select {
+    font-size: 16px;
+  }
   
   html::-webkit-scrollbar,
   body::-webkit-scrollbar,

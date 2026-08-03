@@ -32,7 +32,7 @@ export function useBattleSession() {
   useEffect(() => {
     if (!socket) return;
 
-    const handleStateUpdate = (updatedTurnData: { status: string; turnNumber?: number; p1State?: ActivePokemonDto; p2State?: ActivePokemonDto; events?: TurnEventDto[]; log?: { turn: number; events: TurnEventDto[] }[] }) => {
+    const handleStateUpdate = (updatedTurnData: { status: string; turnNumber?: number; p1State?: ActivePokemonDto; p2State?: ActivePokemonDto; events?: TurnEventDto[]; log?: { turn: number; events: TurnEventDto[] }[]; playerPartyData?: any[]; opponentPartyData?: any[] }) => {
       queryClient.setQueryData(['activeBattle'], (old: BattleSessionDto | undefined) => {
         if (!old) return old;
         return {
@@ -41,6 +41,8 @@ export function useBattleSession() {
           turnNumber: updatedTurnData.turnNumber !== undefined ? updatedTurnData.turnNumber + 1 : old.turnNumber,
           playerPokemonData: updatedTurnData.p1State || old.playerPokemonData,
           opponentPokemonData: updatedTurnData.p2State || old.opponentPokemonData,
+          playerPartyData: updatedTurnData.playerPartyData || old.playerPartyData,
+          opponentPartyData: updatedTurnData.opponentPartyData || old.opponentPartyData,
           log: [...(old.log || []), { turn: updatedTurnData.turnNumber ?? old.turnNumber ?? 0, events: updatedTurnData.events || [] }]
         };
       });

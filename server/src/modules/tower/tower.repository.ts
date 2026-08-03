@@ -138,21 +138,38 @@ export class TowerRepository {
   }
 
   // To build the team, we need species data.
-  async getRandomSpecies(count: number, evolutionStage: 'BASIC' | 'MIDDLE' | 'FINAL' | 'ANY', allowLegendary: boolean): Promise<any[]> {
-    // We can fetch all matching, then pick random in memory, or use mongo raw.
-    // Given Astranox data size (1025 species), fetching in memory is fine if filtered.
+  async getRandomSpecies(count: number, config: import('../../game/tower/generator').TowerEncounterConfig): Promise<any[]> {
     const where: any = {};
-    if (!allowLegendary) {
-      where.category = { notIn: ['Legendary', 'Mythical', 'Ultra Beast', 'Paradox'] };
+    const excludedCategories: string[] = [];
+
+    if (!config.allowLegendaryMythical) {
+      excludedCategories.push('Legendary', 'Mythical');
     }
-    
+    if (!config.allowPseudoLegendary) {
+      excludedCategories.push('Pseudo Legendary');
+    }
+    if (!config.allowParadoxUltraBeast) {
+      excludedCategories.push('Paradox', 'Ultra Beast');
+    }
+
+    if (excludedCategories.length > 0) {
+      where.category = { notIn: excludedCategories };
+    }
+
+    if (!config.allowMega) {
+      where.isMega = false;
+    }
+    if (!config.allowGmax) {
+      where.isGmax = false;
+    }
+
     // Simplistic evolution filtering based on basic fields
-    if (evolutionStage === 'BASIC') {
+    if (config.evolutionStage === 'BASIC') {
       where.evolvesFrom = { none: {} };
-    } else if (evolutionStage === 'FINAL') {
-      // In Prisma MongoDB, fields omitted during seed need isSet: false
+    } else if (config.evolutionStage === 'FINAL') {
       where.evolvesToId = { isSet: false };
-    } else if (evolutionStage === 'MIDDLE') {
+      where.baseExp = { gte: 115 }; // Filters out Baby Pokémon with broken DB links
+    } else if (config.evolutionStage === 'MIDDLE') {
       where.evolvesFrom = { some: {} };
       where.evolvesToId = { isSet: true };
     }

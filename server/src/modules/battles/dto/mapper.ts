@@ -49,6 +49,8 @@ export class BattleMapper {
       events: result.events,
       p1State: result.p1State,
       p2State: result.p2State,
+      playerPartyData: result.playerPartyData,
+      opponentPartyData: result.opponentPartyData,
     };
   }
 }

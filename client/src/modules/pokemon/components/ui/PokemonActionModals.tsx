@@ -438,7 +438,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (
         <Modal isOpen={true} onClose={() => { if (!evolveMutation.isPending) setEvolutionPkm(null); }} className="max-w-md" hideHeader>
-            <div className="p-8 flex flex-col relative overflow-hidden text-center">
+            <div className="p-4 sm:p-8 flex flex-col relative overflow-y-auto text-center max-h-[90vh]">
               <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10 pointer-events-none" />
 
             <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -649,7 +649,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
         return (
           <Modal isOpen={true} onClose={() => { if (!boostMutation.isPending) setBoostPkm(null); }} className="max-w-md" hideHeader>
-            <div className={`p-8 flex flex-col relative overflow-hidden text-center`}>
+            <div className={`p-4 sm:p-8 flex flex-col relative overflow-y-auto text-center max-h-[90vh]`}>
               <div className={`absolute inset-0 bg-linear-to-br ${theme.bgGradient} pointer-events-none`} />
 
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
@@ -870,7 +870,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
         return (
           <Modal isOpen={true} onClose={() => setGiveXpPkm(null)} className="max-w-md" hideHeader>
-            <div className="p-6 flex flex-col">
+            <div className="p-4 sm:p-6 flex flex-col max-h-[90vh] overflow-y-auto">
               <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <img
                   src={getSpriteUrl(giveXpPkm.speciesId)}

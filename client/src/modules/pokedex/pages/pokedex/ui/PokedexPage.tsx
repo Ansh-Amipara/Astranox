@@ -57,7 +57,7 @@ export const PokedexPage: React.FC = () => {
 
   const virtualizer = useWindowVirtualizer({
     count: hasNextPage ? allSpecies.length + 1 : allSpecies.length,
-    estimateSize: () => 104, // Approx row height with padding
+    estimateSize: () => typeof window !== 'undefined' && window.innerWidth < 1024 ? 200 : 104,
     overscan: 5,
   });
 
@@ -108,7 +108,7 @@ export const PokedexPage: React.FC = () => {
         </div>
 
         {/* Row 2: Search and Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
           <div className="flex-1 w-full max-w-md">
             <div className="relative">
               <input
@@ -124,20 +124,20 @@ export const PokedexPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-row items-center gap-4">
-            <div className="flex flex-col">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full xl:w-auto">
+            <div className="flex-1">
               <Dropdown
                 value={selectedType}
                 onChange={setSelectedType}
                 options={typeOptions}
                 placeholder="All Types"
-                className="sm:w-48"
+                className="w-full sm:w-48"
                 dropdownClassName="w-full sm:w-64 max-h-80"
                 optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
               />
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex-1">
               <CategorySelect
                 value={selectedCategory}
                 onChange={setSelectedCategory}
@@ -152,14 +152,14 @@ export const PokedexPage: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <div className="min-w-[1000px]">
-                <div className="grid bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/50 z-10 sticky top-0" style={{ gridTemplateColumns: '80px 1fr 240px 340px 120px' }}>
+            <div className="w-full lg:overflow-x-auto custom-scrollbar">
+              <div className="w-full lg:min-w-[900px]">
+                <div className="hidden lg:grid bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/50 z-10 sticky top-0 grid-cols-[80px_1fr_200px_340px_120px]">
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">#</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Pokémon</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Type</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Base Stats</div>
-                  <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Total Stat</div>
+                  <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Total</div>
                 </div>
 
                 <div ref={listRef} style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>

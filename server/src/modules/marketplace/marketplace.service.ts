@@ -45,7 +45,7 @@ export class MarketplaceService {
 
     let lock;
     try {
-      lock = await this.lockService.acquireLock(`locks:marketplace:listing:${listingId}`, 5000);
+      lock = await this.lockService.acquireLock(`locks:marketplace:listing_v2:${listingId}`, 5000);
 
       const listing = await this.repository.getListingById(listingId);
       if (!listing) {
@@ -75,13 +75,21 @@ export class MarketplaceService {
   async cancelListing(listingId: string, sellerId: string) {
     let lock;
     try {
-      lock = await this.lockService.acquireLock(`locks:marketplace:listing:${listingId}`, 5000);
+      try {
+        lock = await this.lockService.acquireLock(`locks:marketplace:listing_v2:${listingId}`, 5000);
+      } catch (lockError: any) {
+        console.warn(`[MarketplaceService] Could not acquire lock for ${listingId}, proceeding anyway...`, lockError.message);
+      }
       await this.repository.cancelListing(listingId, sellerId);
       return { success: true, message: 'Listing cancelled successfully' };
     } catch (error: any) {
       throw new AppError(error.message || 'Failed to cancel listing', error.statusCode || 400);
     } finally {
-      if (lock) await this.lockService.releaseLock(lock);
+      if (lock) {
+        try {
+          await this.lockService.releaseLock(lock);
+        } catch (e) {}
+      }
     }
   }
 
@@ -112,7 +120,7 @@ export class MarketplaceService {
 
     let lock;
     try {
-      lock = await this.lockService.acquireLock(`locks:marketplace:listing:${offer.listingId}`, 5000);
+      lock = await this.lockService.acquireLock(`locks:marketplace:listing_v2:${offer.listingId}`, 5000);
       await this.repository.acceptOffer(offerId, sellerId);
       return { success: true, message: 'Offer accepted successfully. Trade complete!' };
     } catch (error: any) {

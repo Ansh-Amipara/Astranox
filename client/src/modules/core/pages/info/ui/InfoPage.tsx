@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { FiInfo } from 'react-icons/fi';
+import { useQuery } from '@tanstack/react-query';
+import { shopApi } from '@/shared/api/api';
 const RIFT_REWARD_MULTIPLIERS: Record<string, number> = {
   NORMAL: 1.0,
   HARD: 1.5,
@@ -97,10 +99,7 @@ const EXPLORE_BIOMES = [
 ];
 
 const EXPLORE_REGIONS = [
-  { name: 'Alola Region', types: 'Alolan Forms, Water, Grass, Fire' },
-  { name: 'Galar Region', types: 'Galarian Forms, Steel, Dragon, Fairy' },
-  { name: 'Hisui Region', types: 'Hisuian Forms, Fighting, Ground, Ghost' },
-  { name: 'Paldea Region', types: 'Paldean Forms, Electric, Dark, Fighting' }
+  { name: 'Astralis Frontier', types: 'Alolan, Galarian, Hisuian, and Paldean Forms' }
 ];
 
 const EXPLORE_RARE_POOLS = [
@@ -125,29 +124,29 @@ const EXPLORE_POTENTIAL_SCALING = [
 ];
 
 export function InfoPage() {
-  const [activeTab, setActiveTab] = useState<'general' | 'explore' | 'rift' | 'furnace' | 'tower'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'explore' | 'rift' | 'furnace' | 'tower' | 'pokemart'>('general');
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 p-8 sm:p-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 p-4 sm:p-8 md:p-12">
       <div className="w-full mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Game Information</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Game Information</h1>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2 sm:gap-4 mb-10 border-b border-slate-200 dark:border-slate-800 pb-4">
-          {(['general', 'explore', 'rift', 'furnace', 'tower'] as const).map((tab) => (
+          {(['general', 'explore', 'rift', 'furnace', 'tower', 'pokemart'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2.5 font-bold rounded-xl transition-all capitalize shadow-sm border ${
+              className={`px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base font-bold rounded-xl transition-all capitalize shadow-sm border ${
                 activeTab === tab
                   ? 'bg-purple-600 text-white border-purple-500 shadow-purple-500/20'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
-              {tab === 'explore' ? 'Explore Realms' : tab === 'rift' ? 'Void Rifts' : tab === 'furnace' ? 'Astral Furnace' : tab === 'tower' ? 'Infinity Tower' : tab}
+              {tab === 'explore' ? 'Explore Realms' : tab === 'rift' ? 'Void Rifts' : tab === 'furnace' ? 'Astral Furnace' : tab === 'tower' ? 'Infinity Tower' : tab === 'pokemart' ? 'Pokémart' : tab}
             </button>
           ))}
         </div>
@@ -196,11 +195,11 @@ export function InfoPage() {
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Explore Realms</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Explore Realms</h1>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 mb-10 text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-8 mb-6 sm:mb-10 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
               <p className="mb-4">
                 The <span className="font-bold text-emerald-600 dark:text-emerald-400">Explore System</span> allows you to venture into different wild biomes to discover Pokémon and Astral Coins.
               </p>
@@ -230,7 +229,7 @@ export function InfoPage() {
 
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Explore Biomes & Types</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Explore Biomes & Types</h1>
                 <p className="text-slate-500 dark:text-slate-400 mt-2">Discover different Pokémon types by visiting specific biomes.</p>
               </div>
             </div>
@@ -258,7 +257,7 @@ export function InfoPage() {
 
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Special Regions</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Special Regions</h1>
               </div>
             </div>
 
@@ -285,7 +284,7 @@ export function InfoPage() {
 
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Rare Encounters Probability</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Rare Encounters Probability</h1>
                 <p className="text-slate-500 dark:text-slate-400 mt-2">These pools bypass standard biomes and trigger dynamically.</p>
               </div>
             </div>
@@ -317,7 +316,7 @@ export function InfoPage() {
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Corrupted Stats Multipliers</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Corrupted Stats Multipliers</h1>
               </div>
             </div>
 
@@ -361,22 +360,23 @@ export function InfoPage() {
 
             <div className="flex items-center gap-4 mt-16 mb-10">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Void Rifts Rewards</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Void Rifts Rewards</h1>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-10">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Rank</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-center">Floor</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-center">Level</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-right">Normal</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-right">Hard</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-right">Nightmare</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-right">Abyss</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm whitespace-nowrap">Rank</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm text-center whitespace-nowrap">Floor</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm text-center whitespace-nowrap">Level</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm text-right whitespace-nowrap">Normal</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm text-right whitespace-nowrap">Hard</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm text-right whitespace-nowrap">Nightmare</th>
+                      <th className="py-3 px-2 sm:py-5 sm:px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs sm:text-sm text-right whitespace-nowrap">Abyss</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -386,39 +386,39 @@ export function InfoPage() {
                         className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group"
                       >
                         {row.isFirstFloor && (
-                          <td rowSpan={row.rowSpan} className="py-4 px-6 border-b border-slate-200 dark:border-slate-800 align-top bg-slate-50/30 dark:bg-slate-900/50">
-                            <span className="font-black text-lg text-slate-900 dark:text-slate-100">
+                          <td rowSpan={row.rowSpan} className="py-3 px-2 sm:py-4 sm:px-6 border-b border-slate-200 dark:border-slate-800 align-top bg-slate-50/30 dark:bg-slate-900/50 whitespace-nowrap">
+                            <span className="font-black text-sm sm:text-lg text-slate-900 dark:text-slate-100">
                               {row.rank}
                             </span>
                           </td>
                         )}
-                        <td className="py-4 px-6 text-center">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm">
+                        <td className="py-3 px-2 sm:py-4 sm:px-6 text-center whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm">
                             {row.floor}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-center">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold text-sm">
+                        <td className="py-3 px-2 sm:py-4 sm:px-6 text-center whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold text-xs sm:text-sm">
                             Lv {row.level}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right">
-                          <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
+                        <td className="py-3 px-2 sm:py-4 sm:px-6 text-right whitespace-nowrap">
+                          <span className="font-mono font-bold text-xs sm:text-base text-slate-700 dark:text-slate-300">
                             {row.normal.toLocaleString()}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right">
-                          <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
+                        <td className="py-3 px-2 sm:py-4 sm:px-6 text-right whitespace-nowrap">
+                          <span className="font-mono font-bold text-xs sm:text-base text-slate-700 dark:text-slate-300">
                             {row.hard.toLocaleString()}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right">
-                          <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
+                        <td className="py-3 px-2 sm:py-4 sm:px-6 text-right whitespace-nowrap">
+                          <span className="font-mono font-bold text-xs sm:text-base text-slate-700 dark:text-slate-300">
                             {row.nightmare.toLocaleString()}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right">
-                          <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
+                        <td className="py-3 px-2 sm:py-4 sm:px-6 text-right whitespace-nowrap">
+                          <span className="font-mono font-bold text-xs sm:text-base text-slate-700 dark:text-slate-300">
                             {row.abyss.toLocaleString()}
                           </span>
                         </td>
@@ -428,6 +428,50 @@ export function InfoPage() {
                 </table>
               </div>
             </div>
+
+            {/* Mobile Card View */}
+            <div className="block lg:hidden space-y-6 mb-10">
+              {RIFT_RANKS.map(rankKey => {
+                const rankName = formatRankName(rankKey);
+                const rankData = RIFT_TABLE_DATA.filter(r => r.rank === rankName);
+                
+                return (
+                  <div key={rankKey} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+                    <div className="bg-slate-100 dark:bg-slate-800/50 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="font-black text-xl text-slate-900 dark:text-slate-100">{rankName}</span>
+                    </div>
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800/60 p-5 space-y-5">
+                      {rankData.map(row => (
+                        <div key={row.floor} className="pt-5 first:pt-0 border-slate-100 dark:border-slate-800/60">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm">Floor {row.floor}</span>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold text-sm">Lv {row.level}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="flex flex-col p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-center">
+                              <span className="text-slate-500 font-bold text-xs uppercase mb-1">Normal</span>
+                              <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-base">{row.normal.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-col p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-center">
+                              <span className="text-slate-500 font-bold text-xs uppercase mb-1">Hard</span>
+                              <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-base">{row.hard.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-col p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-center">
+                              <span className="text-slate-500 font-bold text-xs uppercase mb-1">Nightmare</span>
+                              <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-base">{row.nightmare.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-col p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-center">
+                              <span className="text-slate-500 font-bold text-xs uppercase mb-1">Abyss</span>
+                              <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-base">{row.abyss.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -435,11 +479,11 @@ export function InfoPage() {
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Astral Furnace</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Astral Furnace</h1>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 mb-10 text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-8 mb-6 sm:mb-10 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
               <p className="mb-4">
                 The <span className="font-bold text-purple-600 dark:text-purple-400">Astral Furnace</span> is a mystical device used to smelt (release) Pokémon you no longer need. In return for smelting them, you will receive valuable resources:
               </p>
@@ -459,11 +503,11 @@ export function InfoPage() {
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Infinity Tower</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Infinity Tower</h1>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 mb-10 text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-8 mb-6 sm:mb-10 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
               <p className="mb-4">
                 The <span className="font-bold text-amber-500">Infinity Tower</span> is an endless gauntlet where the difficulty—and the rewards—scale infinitely the higher you climb.
               </p>
@@ -480,6 +524,122 @@ export function InfoPage() {
                 <li><span className="font-bold text-emerald-500">Floor Sweeping (Skip):</span> If your Party's CP is overwhelmingly higher than the Floor's estimated CP (by 10x or more), you can instantly Sweep up to 100 floors at a time, claiming all XP and Infinity Coins without fighting!</li>
               </ul>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'pokemart' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Pokémart Catalog</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">Information and descriptions of all items available in the Pokémart.</p>
+              </div>
+            </div>
+
+            <PokemartInfoTab />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PokemartInfoTab() {
+  const [storeType, setStoreType] = useState<'astral' | 'infinity'>('astral');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  
+  const { data: items, isLoading } = useQuery({
+    queryKey: ['shopItemsInfo'],
+    queryFn: shopApi.getItems
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-500"></div>
+      </div>
+    );
+  }
+
+  if (!items) return null;
+
+  const storeItems = items.filter((item: any) => {
+    if (storeType === 'infinity') return item.category === 'infinity-only';
+    return item.category !== 'infinity-only';
+  });
+
+  const categories = ['all', ...Array.from(new Set(storeItems.map((i: any) => i.category))).sort() as string[]];
+  const activeCategory = categories.includes(selectedCategory) ? selectedCategory : 'all';
+  const filteredItems = activeCategory === 'all' ? storeItems : storeItems.filter((i: any) => i.category === activeCategory);
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-900/50 p-2 border border-slate-200 dark:border-slate-800 rounded-2xl w-full overflow-hidden">
+        
+        {/* Category Filters */}
+        <div className="flex items-center gap-2 overflow-x-auto p-1 pb-2 w-full sm:w-auto scrollbar-hide">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 sm:px-5 rounded-lg text-sm font-bold capitalize transition-colors whitespace-nowrap shrink-0 ${
+                activeCategory === cat 
+                  ? 'bg-purple-600 text-white shadow-sm' 
+                  : 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span className={`capitalize text-sm font-bold whitespace-nowrap ${activeCategory === cat ? 'text-white' : ''}`}>
+                {cat === 'infinity-only' || cat === 'potential' ? 'Potential' : cat === 'iv' ? 'IV' : cat === 'all' ? 'All Items' : cat.replace('-', ' ')}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Store Type Selector */}
+        <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl w-full sm:w-max shrink-0 mx-1 sm:mx-0">
+          <button
+            onClick={() => setStoreType('astral')}
+            className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-colors ${
+              storeType === 'astral' 
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
+          >
+            Astral Store
+          </button>
+          <button
+            onClick={() => setStoreType('infinity')}
+            className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-colors ${
+              storeType === 'infinity' 
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
+          >
+            Infinity Store
+          </button>
+        </div>
+
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-6">
+        {filteredItems.map((item: any) => (
+          <div key={item.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center shrink-0 border border-slate-200/60 dark:border-slate-700/60">
+              {item.spriteUrl ? (
+                <img src={item.spriteUrl} alt={item.name} className="w-8 h-8 object-contain drop-shadow-sm" />
+              ) : (
+                <div className="w-6 h-6 bg-slate-300 dark:bg-slate-700 rounded-full" />
+              )}
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white capitalize text-lg leading-none mb-2">{item.name.replace('-', ' ')}</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{item.description}</p>
+            </div>
+          </div>
+        ))}
+        {filteredItems.length === 0 && (
+          <div className="col-span-full py-12 text-center text-slate-500 font-medium">
+            No items found in this section.
           </div>
         )}
       </div>

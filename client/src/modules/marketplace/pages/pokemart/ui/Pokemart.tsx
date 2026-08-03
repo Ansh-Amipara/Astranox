@@ -37,6 +37,7 @@ export function Pokemart() {
   const [storeType, setStoreType] = useState<'astral' | 'infinity'>('astral');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [moveSortConfig, setMoveSortConfig] = useState<{ key: 'power' | 'price', direction: 'asc' | 'desc' } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<'buy' | 'sell' | null>(null);
 
   const handleSortMoves = (key: 'power' | 'price') => {
     setMoveSortConfig(current => {
@@ -127,7 +128,7 @@ export function Pokemart() {
     setQuantities(prev => ({ ...prev, [itemId]: val }));
   };
 
-  const handleBulkBuy = () => {
+  const executeBulkBuy = () => {
     const itemsToBuy = Object.entries(quantities)
       .filter(([itemId, qty]) => qty > 0 && visibleItems.some(i => i.id === itemId))
       .map(([itemId, quantity]) => ({ itemId, quantity }));
@@ -135,9 +136,10 @@ export function Pokemart() {
     if (itemsToBuy.length > 0) {
       buyBulkMutation.mutate(itemsToBuy);
     }
+    setConfirmModal(null);
   };
 
-  const handleBulkSell = () => {
+  const executeBulkSell = () => {
     const itemsToSell = Object.entries(quantities)
       .filter(([itemId, qty]) => qty > 0 && visibleItems.some(i => i.id === itemId))
       .map(([itemId, quantity]) => {
@@ -149,6 +151,7 @@ export function Pokemart() {
     if (itemsToSell.length > 0) {
       sellBulkMutation.mutate(itemsToSell);
     }
+    setConfirmModal(null);
   };
 
   const handleBuyMove = (move: MoveShopItem) => {
@@ -233,12 +236,12 @@ export function Pokemart() {
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         {/* Header and Controls section */}
         <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
-          <div className="flex items-center justify-between gap-3 md:gap-4 mb-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight shrink-0">
               Pokémart
             </h1>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl flex items-center justify-between gap-3 shadow-sm shrink-0">
+            <div className="w-full md:w-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl flex items-center justify-between gap-3 shadow-sm shrink-0">
               <div className="flex items-center gap-2">
                 {storeCurrency.icon}
                 <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{storeCurrency.name}</span>
@@ -247,63 +250,88 @@ export function Pokemart() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 w-full">
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg overflow-x-auto w-full sm:w-max shrink-0">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold capitalize whitespace-nowrap transition-colors ${activeCategory === cat
-                    ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                >
-                  {cat === 'infinity-only' ? 'Potential' : cat === 'iv' ? 'IV' : cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
-                </button>
-              ))}
-            </div>
-
-            {activeCategory === 'moves' && (
-              <div className="w-40 shrink-0 ml-auto">
+          <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 w-full bg-white dark:bg-slate-900/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            
+            <div className="flex flex-row items-center gap-3 w-full xl:w-auto flex-1">
+              {/* Category Dropdown */}
+              <div className="flex-1 z-20">
                 <Dropdown
-                  value={selectedMoveType}
-                  options={[
-                    { value: 'all', label: 'All Types' },
-                    ...moveTypes.map(t => ({
-                      value: t,
-                      label: t,
-                      icon: <img src={getTypeSpriteUrl(t, true)} alt={t} className="h-4 w-auto object-contain" />
-                    }))
-                  ]}
-                  onChange={setSelectedMoveType}
-                  className="w-full sm:w-full"
-                  dropdownClassName="w-48"
+                  value={activeCategory}
+                  options={categories.map(cat => ({
+                    value: cat,
+                    label: cat === 'infinity-only' || cat === 'potential' ? 'Potential' : cat === 'iv' ? 'IV' : cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')
+                  }))}
+                  onChange={(val) => setSelectedCategory(val)}
+                  className="w-full"
                 />
               </div>
-            )}
 
-            <div className={`flex flex-wrap items-center gap-3 md:gap-4 ${activeCategory === 'moves' ? '' : 'ml-auto'}`}>
-              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg w-max shrink-0">
-                  <button
-                    onClick={() => setStoreType('astral')}
-                    className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'astral' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                  >
-                    Astral
-                  </button>
-                  <button
-                    onClick={() => {
-                      setStoreType('infinity');
-                      if (selectedCategory === 'moves') {
-                        setSelectedCategory('all');
-                      }
-                    }}
-                    className={`px-4 py-2 rounded-md text-sm font-bold capitalize transition-colors ${storeType === 'infinity' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                  >
-                    Infinity
-                  </button>
+              {/* Store Type Dropdown */}
+              <div className="flex-1 z-10">
+                <Dropdown
+                  value={storeType}
+                  options={[
+                    { value: 'astral', label: 'Astral' },
+                    { value: 'infinity', label: 'Infinity' }
+                  ]}
+                  onChange={(val) => {
+                    setStoreType(val as 'astral' | 'infinity');
+                    if (val === 'infinity' && selectedCategory === 'moves') {
+                      setSelectedCategory('all');
+                    }
+                  }}
+                  className="w-full"
+                />
               </div>
+
+              {/* Move Type Dropdown */}
+              {activeCategory === 'moves' && (
+                <div className="flex-1 z-10">
+                  <Dropdown
+                    value={selectedMoveType}
+                    options={[
+                      { value: 'all', label: 'All Types' },
+                      ...moveTypes.map(t => ({
+                        value: t,
+                        label: t,
+                        icon: <img src={getTypeSpriteUrl(t, true)} alt={t} className="h-4 w-auto object-contain hidden sm:block" />
+                      }))
+                    ]}
+                    onChange={setSelectedMoveType}
+                    className="w-full"
+                  />
+                </div>
+              )}
             </div>
 
+            {/* Buy and Sell Buttons */}
+            {activeCategory !== 'moves' && (
+              <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 mt-1 xl:mt-0">
+                <button
+                  onClick={() => setConfirmModal('sell')}
+                  disabled={selectedSellItemsCount === 0 || sellBulkMutation.isPending}
+                  className={`px-4 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-1.5 flex-1
+                    ${selectedSellItemsCount > 0
+                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
+                >
+                  <span className="hidden sm:inline">Sell</span>
+                  <span className="sm:hidden">Sell ({selectedSellItemsCount})</span>
+                </button>
+
+                <button
+                  onClick={() => setConfirmModal('buy')}
+                  disabled={selectedBuyItemsCount === 0 || storeCurrency.amount < totalBulkCost || buyBulkMutation.isPending}
+                  className={`px-4 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-1.5 flex-1
+                    ${selectedBuyItemsCount > 0 && storeCurrency.amount >= totalBulkCost
+                      ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
+                >
+                  <span className="hidden sm:inline">Buy</span>
+                  <span className="sm:hidden">Buy ({selectedBuyItemsCount})</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -324,7 +352,7 @@ export function Pokemart() {
         {/* Table of items */}
         <div className="bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-200">
+            <table className={`w-full text-left border-collapse ${activeCategory === 'moves' ? 'min-w-[600px] md:min-w-[800px]' : 'min-w-[320px]'}`}>
               <thead>
                 {activeCategory === 'moves' ? (
                   <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
@@ -351,11 +379,9 @@ export function Pokemart() {
                   </tr>
                 ) : (
                   <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Item</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Description</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Price</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Quantity</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Buy Total / Payout</th>
+                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-xs sm:text-base">Item</th>
+                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-right sm:text-left text-xs sm:text-base">Price</th>
+                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-right sm:text-left text-xs sm:text-base">Quantity</th>
                   </tr>
                 )}
               </thead>
@@ -364,66 +390,55 @@ export function Pokemart() {
                   const ownedQuantity = Number(inventoryQuantityByItemId.get(item.id) ?? 0);
                   const qty = Number(quantities[item.id] || 0);
                   const sellQty = Math.min(qty, ownedQuantity);
-                  
-                  const buyTotal = item.cost * qty;
-                  const sellPrice = Math.floor(item.cost * 0.75);
-                  const sellTotal = sellPrice * sellQty;
 
                   return (
                     <tr key={item.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0">
+                      <td className="p-2 sm:p-4 align-middle">
+                        <div className="flex items-center gap-2 sm:gap-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0">
                             {item.spriteUrl ? (
-                              <img src={item.spriteUrl} alt={item.name} className="w-8 h-8 object-contain filter drop-shadow-md" />
+                              <img src={item.spriteUrl} alt={item.name} className="w-6 h-6 sm:w-8 sm:h-8 object-contain filter drop-shadow-md" />
                             ) : (
-                              <div className="w-6 h-6 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
                             )}
                           </div>
-                          <span className="font-bold text-slate-900 dark:text-white capitalize">{item.name.replace('-', ' ')}</span>
-                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 ml-2">
-                            Owned: {ownedQuantity.toLocaleString()}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs">{item.description}</td>
-                      <td className="p-4 font-bold text-slate-700 dark:text-slate-300">
-                        <div className="flex items-center gap-1.5 text-sm">
-                          {storeCurrency.symbol} <span>{item.cost.toLocaleString()}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 w-max">
-                          <button
-                            onClick={() => handleQuantityChange(item.id, qty - multiplier)}
-                            className="w-8 h-8 rounded-l-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="text"
-                            value={qty || ''}
-                            onChange={(e) => {
-                              const val = e.target.value.replace(/\D/g, '');
-                              handleQuantityChange(item.id, val ? parseInt(val) : 0);
-                            }}
-                            className="w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none text-sm"
-                          />
-                          <button
-                            onClick={() => handleQuantityChange(item.id, qty + multiplier)}
-                            className="w-8 h-8 rounded-r-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <td className={`p-4 font-bold text-slate-900 dark:text-slate-100`}>
-                        <div className="flex items-center gap-4 text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-1.5 w-28">
-                            <span className="text-xs text-slate-400">Buy:</span> {storeCurrency.symbol} <span className="tabular-nums">{buyTotal.toLocaleString()}</span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-bold text-slate-900 dark:text-white capitalize text-xs sm:text-base leading-tight break-words max-w-[100px] sm:max-w-none">{item.name.replace('-', ' ')}</span>
+                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 w-max mt-0.5">
+                              Owned: {ownedQuantity.toLocaleString()}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 w-28">
-                            <span className="text-xs text-slate-400">Sell:</span> {storeCurrency.symbol} <span className="tabular-nums">{sellTotal.toLocaleString()}</span>
+                        </div>
+                      </td>
+                      <td className="p-2 sm:p-4 font-bold text-slate-700 dark:text-slate-300 text-right sm:text-left align-middle">
+                        <div className="flex items-center justify-end sm:justify-start gap-1 sm:gap-1.5 text-xs sm:text-sm">
+                          <span className="scale-75 sm:scale-100">{storeCurrency.symbol}</span> <span>{item.cost.toLocaleString()}</span>
+                        </div>
+                      </td>
+                      <td className="p-2 sm:p-4 align-middle">
+                        <div className="flex items-center justify-end sm:justify-start">
+                          <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 w-max">
+                            <button
+                              onClick={() => handleQuantityChange(item.id, qty - multiplier)}
+                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-l-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              -
+                            </button>
+                            <input
+                              type="text"
+                              value={qty || ''}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                handleQuantityChange(item.id, val ? parseInt(val) : 0);
+                              }}
+                              className="w-8 sm:w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none text-xs sm:text-sm"
+                            />
+                            <button
+                              onClick={() => handleQuantityChange(item.id, qty + multiplier)}
+                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-r-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              +
+                            </button>
                           </div>
                         </div>
                       </td>
@@ -485,48 +500,83 @@ export function Pokemart() {
           </div>
         </div>
 
-        {/* Bulk Action Footer */}
-        {activeCategory !== 'moves' && (
-          <div className="mt-6 flex flex-col items-stretch md:flex-row md:items-center justify-between gap-4 p-4 bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm sticky bottom-4 z-10">
-            <div className="flex flex-col items-center md:items-start gap-2 w-full md:w-auto">
-              <button
-                onClick={handleBulkBuy}
-                disabled={selectedBuyItemsCount === 0 || storeCurrency.amount < totalBulkCost || buyBulkMutation.isPending}
-                className={`w-full md:w-auto px-5 py-2 rounded-lg font-bold shadow-sm transition-all text-sm whitespace-nowrap flex items-center justify-center gap-2
-                  ${selectedBuyItemsCount > 0 && storeCurrency.amount >= totalBulkCost
-                    ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
-              >
-                Buy Items ({selectedBuyItemsCount}) for 
-                <span className="flex items-center gap-1 ml-1 text-slate-300">
-                  {storeCurrency.symbol}
-                  {totalBulkCost.toLocaleString()}
+      </div>
+
+      {/* Confirmation Modal */}
+      {confirmModal && (() => {
+        const itemsToProcess = visibleItems.map(item => {
+          const ownedQuantity = Number(inventoryQuantityByItemId.get(item.id) ?? 0);
+          const qty = Number(quantities[item.id] || 0);
+          const sellQty = Math.min(qty, ownedQuantity);
+          return { item, qty, sellQty };
+        }).filter(x => confirmModal === 'buy' ? x.qty > 0 : x.sellQty > 0);
+
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-200">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 text-center">
+                Confirm {confirmModal === 'buy' ? 'Purchase' : 'Sale'}
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mb-4 text-center text-sm">
+                You are about to {confirmModal === 'buy' ? 'buy' : 'sell'} {confirmModal === 'buy' ? selectedBuyItemsCount : selectedSellItemsCount} items.
+              </p>
+              
+              <div className="w-full max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800 mb-4 flex flex-col gap-2 custom-scrollbar">
+                {itemsToProcess.map(({ item, qty, sellQty }) => {
+                  const displayQty = confirmModal === 'buy' ? qty : sellQty;
+                  const itemTotal = confirmModal === 'buy' ? item.cost * qty : Math.floor(item.cost * 0.75) * sellQty;
+                  return (
+                    <div key={item.id} className="flex items-center justify-between p-1">
+                      <div className="flex items-center gap-2">
+                        {item.spriteUrl ? (
+                          <img src={item.spriteUrl} alt={item.name} className="w-6 h-6 object-contain" />
+                        ) : (
+                          <div className="w-4 h-4 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                        )}
+                        <span className="font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{item.name.replace('-', ' ')}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-slate-500">x{displayQty}</span>
+                        <span className="text-sm font-bold text-slate-900 dark:text-white w-12 text-right">
+                          {itemTotal.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="w-full bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 mb-6 flex flex-col items-center">
+                <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
+                  Total {confirmModal === 'buy' ? 'Cost' : 'Payout'}
                 </span>
-              </button>
-            </div>
-            
-            <div className="flex flex-col items-center md:items-end gap-2 w-full md:w-auto">
-              <button
-                onClick={handleBulkSell}
-                disabled={selectedSellItemsCount === 0 || sellBulkMutation.isPending}
-                className={`w-full md:w-auto px-5 py-2 rounded-lg font-bold shadow-sm transition-all text-sm whitespace-nowrap flex items-center justify-center gap-2
-                  ${selectedSellItemsCount > 0
-                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
-              >
-                Sell Items ({selectedSellItemsCount}) for 
-                <span className="flex items-center gap-1 ml-1 text-indigo-200">
-                  {storeCurrency.symbol}
-                  {totalBulkPayout.toLocaleString()}
-                </span>
-              </button>
-              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
-                (Items can be sold for 75% of their base purchase price.)
-              </span>
+                <div className="flex items-center justify-center gap-2 text-2xl font-black text-slate-900 dark:text-white">
+                  <span>{storeCurrency.icon}</span>
+                  <span>{(confirmModal === 'buy' ? totalBulkCost : totalBulkPayout).toLocaleString()}</span>
+                </div>
+              </div>
+              
+              <div className="flex w-full gap-3">
+                <button 
+                  onClick={() => setConfirmModal(null)}
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmModal === 'buy' ? executeBulkBuy : executeBulkSell}
+                  className={`flex-1 py-3 font-bold rounded-xl text-white shadow-lg transition-colors flex items-center justify-center gap-2
+                    ${confirmModal === 'buy' 
+                      ? 'bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-slate-900/20' 
+                      : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20'}`}
+                >
+                  Confirm
+                </button>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        );
+      })()}
     </div>
   );
 }

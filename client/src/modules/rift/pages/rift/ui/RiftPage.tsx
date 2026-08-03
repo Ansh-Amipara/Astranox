@@ -83,15 +83,15 @@ export const RiftPage: React.FC = () => {
 
   if (!state.currentRunStartedAt) {
     return (
-      <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col items-start w-full">
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-6 flex gap-3">
+      <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 flex flex-col items-start w-full">
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6 flex gap-3">
           Void Rifts
         </h1>
-        <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col">
+        <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col">
           {step === 'RANK' ? (
             <div className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 w-full">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-left">Select Rift Tier</h2>
-              <div className="flex flex-row gap-3 overflow-x-auto pt-2 pb-6 px-2 -mx-2 w-full scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 w-full pb-2">
                 {RANKS.map((r, i) => {
                   const locked = i > playerRankWeight;
                   return (
@@ -99,7 +99,7 @@ export const RiftPage: React.FC = () => {
                       key={r}
                       disabled={locked}
                       onClick={() => { setSelectedRank(r); setStep('DIFFICULTY'); }}
-                      className={`shrink-0 w-20 p-3 rounded-xl text-sm font-bold border transition-all ${locked ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 opacity-50 cursor-not-allowed' :
+                      className={`p-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center ${locked ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 opacity-50 cursor-not-allowed' :
                           'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-purple-400 hover:shadow-md hover:-translate-y-0.5'
                         }`}
                     >
@@ -157,17 +157,17 @@ export const RiftPage: React.FC = () => {
 
   // Active Run View
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col items-start w-full">
-      <div className="w-full bg-white dark:bg-slate-900 border border-purple-500/30 dark:border-purple-500/30 rounded-3xl p-8 shadow-2xl shadow-purple-900/10 relative overflow-hidden">
+    <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 flex flex-col items-start w-full">
+      <div className="w-full bg-white dark:bg-slate-900 border border-purple-500/30 dark:border-purple-500/30 rounded-3xl p-5 sm:p-8 shadow-2xl shadow-purple-900/10 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4">
           <button onClick={handleAbandon} className="text-slate-400 hover:text-red-500 transition-colors p-2 bg-slate-100 dark:bg-slate-800 rounded-full">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="text-center mb-10">
+        <div className="text-center mb-8 sm:mb-10 mt-6 sm:mt-0">
           <h2 className="text-sm font-black text-purple-500 uppercase tracking-widest mb-2">Active Rift</h2>
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2">
             {state.rank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '')} Tier
           </h1>
           <div className="flex items-center justify-center gap-2">
@@ -184,9 +184,9 @@ export const RiftPage: React.FC = () => {
           <button
             onClick={handleGenerate}
             disabled={generateEncounter.isPending}
-            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-black py-5 px-16 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95 flex items-center justify-center gap-3 text-xl"
+            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-black py-4 sm:py-5 px-6 sm:px-16 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95 flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-xl"
           >
-            {generateEncounter.isPending ? <Loader2 className="w-7 h-7 animate-spin" /> : <Swords className="w-7 h-7" />}
+            {generateEncounter.isPending ? <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 animate-spin" /> : <Swords className="w-6 h-6 sm:w-7 sm:h-7" />}
             {generateEncounter.isPending ? 'Generating...' : `Proceed to Floor ${state.currentFloor}`}
           </button>
         </div>
