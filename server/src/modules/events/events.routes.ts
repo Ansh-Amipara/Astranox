@@ -7,6 +7,7 @@ const eventsRoutes = Router();
 const controller = container.resolve(EventsController);
 
 eventsRoutes.get('/active', requireAuth, controller.getActiveEvent);
+eventsRoutes.get('/history', requireAuth, controller.getEventHistory);
 eventsRoutes.post('/:id/claim', requireAuth, controller.claimReward);
 
 export default eventsRoutes;

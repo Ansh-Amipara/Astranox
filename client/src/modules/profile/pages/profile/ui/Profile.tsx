@@ -4,6 +4,14 @@ import { toast } from 'sonner';
 import { api } from '@/shared/api/api';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
 
+const formatRank = (rank: string) => {
+  if (!rank || rank === 'NO_RANK') return 'Unranked';
+  return rank
+    .replace('_MINUS_RANK', '-')
+    .replace('_PLUS_RANK', '+')
+    .replace('_RANK', '');
+};
+
 export function Profile() {
   const { user, setAuth } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
@@ -40,12 +48,12 @@ export function Profile() {
   if (!user) return null;
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200 mb-8">
-        <div className="p-8">
+    <div className="w-full h-full min-h-[calc(100vh-4rem)] p-4 md:p-8 flex flex-col bg-slate-50">
+      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200 flex-grow flex flex-col">
+        <div className="p-4 md:p-8 flex-grow">
           <h1 className="text-3xl font-bold text-slate-800 mb-6">Player Profile</h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
             <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 h-full">
               <h2 className="text-xl font-semibold text-slate-700 mb-4 border-b pb-2">Character</h2>
               <div className="space-y-3">
@@ -105,34 +113,34 @@ export function Profile() {
                   <div className="h-5 bg-slate-200 rounded w-full"></div>
                 </div>
               ) : trainerSave ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100">
                     <span className="text-slate-500 font-medium">Player CP</span>
-                    <span className="text-blue-600 font-black">{playerCp.toLocaleString()}</span>
+                    <span className="text-blue-600 font-black text-lg">{playerCp.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100">
                     <span className="text-slate-500 font-medium">Rank</span>
-                    <span className="text-slate-800 font-bold">{trainerSave.rank}</span>
+                    <span className="text-slate-800 font-bold text-lg">{formatRank(trainerSave.rank)}</span>
                   </div>
-                  <div className="flex flex-wrap gap-6">
-                    <div className="flex flex-col">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 p-3 bg-white rounded-lg border border-slate-100 flex flex-col">
                       <span className="text-slate-500 font-medium text-xs uppercase tracking-widest">Astral Coins</span>
-                      <div className="flex items-center gap-2 mt-1">
-                        <img src="/astral.png" alt="Astral" className="w-5 h-5 object-contain" />
-                        <span className="text-amber-500 font-black text-lg">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
+                      <div className="flex items-center gap-2 mt-2">
+                        <img src="/astral.png" alt="Astral" className="w-6 h-6 object-contain" />
+                        <span className="text-amber-500 font-black text-xl">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex-1 p-3 bg-white rounded-lg border border-slate-100 flex flex-col">
                       <span className="text-slate-500 font-medium text-xs uppercase tracking-widest">Infinity Coins</span>
-                      <div className="flex items-center gap-2 mt-1">
-                        <img src="/infinity.png" alt="Infinity" className="w-5 h-5 object-contain" />
-                        <span className="text-purple-500 font-black text-lg">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
+                      <div className="flex items-center gap-2 mt-2">
+                        <img src="/infinity.png" alt="Infinity" className="w-6 h-6 object-contain" />
+                        <span className="text-purple-500 font-black text-xl">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100">
                     <span className="text-slate-500 font-medium">Badges</span>
-                    <span className="text-slate-800 font-bold">{trainerSave.badges?.length || 0}</span>
+                    <span className="text-slate-800 font-bold text-lg">{trainerSave.badges?.length || 0}</span>
                   </div>
                 </div>
               ) : (
@@ -145,3 +153,4 @@ export function Profile() {
     </div>
   );
 }
+

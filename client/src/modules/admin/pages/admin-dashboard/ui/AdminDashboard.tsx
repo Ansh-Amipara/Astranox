@@ -428,13 +428,13 @@ export function AdminDashboard() {
                         
                         <div>
                           <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Potential</label>
-                          <select
+                          <Dropdown
                             value={editPotential}
-                            onChange={(e) => setEditPotential(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors mb-3"
-                          >
-                            {POTENTIALS.map(p => <option key={p} value={p}>{p.replace('_', ' ')}</option>)}
-                          </select>
+                            onChange={(val) => setEditPotential(val)}
+                            options={POTENTIALS.map(p => ({ value: p, label: p.replace('_', ' ') }))}
+                            className="!w-full mb-3"
+                            dropdownClassName="!w-full max-h-60"
+                          />
                         </div>
                         <div>
                           <div className="flex justify-between items-end mb-1">
@@ -505,7 +505,7 @@ export function AdminDashboard() {
                               ivs: useEditIvs ? editIvs : undefined 
                             });
                           }}
-                          disabled={editPokemonMutation.isPending || (!editXp && !useEditIvs)}
+                          disabled={editPokemonMutation.isPending || (!editXp && !useEditIvs && editPotential === selectedPokemonToEdit.potential)}
                           className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50 mt-2"
                         >
                           Save Changes

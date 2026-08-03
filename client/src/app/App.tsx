@@ -36,7 +36,9 @@ import { CreateListingPage } from '@/modules/marketplace/pages/marketplace/ui/Cr
 import { Pokemart } from '@/modules/marketplace/pages/pokemart/ui/Pokemart';
 import { TeamPage } from '@/modules/pokemon/pages/team/ui/TeamPage';
 import { TradeScreen } from '@/modules/marketplace/pages/trade/ui/TradeScreen';
-import { EventDashboard } from '@/modules/events/pages/events/ui/EventDashboard';
+import { EventLanding } from '@/modules/events/pages/events/ui/EventLanding';
+import { ActiveEvent } from '@/modules/events/pages/events/ui/ActiveEvent';
+import { EventHistory } from '@/modules/events/pages/events/ui/EventHistory';
 
 import { NotFound } from '@/modules/core/pages/not-found/ui/NotFound';
 
@@ -105,7 +107,11 @@ export default function App() {
           <Route path="rift" element={<RiftPage />} />
           <Route path="explore" element={<ExplorePage />} />
           <Route path="explore/:id" element={<ExploreDetailPage />} />
-          <Route path="events" element={<EventDashboard />} />
+          <Route path="events">
+            <Route index element={<EventLanding />} />
+            <Route path="active" element={<ActiveEvent />} />
+            <Route path="history" element={<EventHistory />} />
+          </Route>
         </Route>
 
         {/* Fallback */}

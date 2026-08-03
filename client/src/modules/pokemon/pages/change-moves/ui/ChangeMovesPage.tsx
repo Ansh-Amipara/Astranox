@@ -193,9 +193,9 @@ export function ChangeMovesPage() {
                 value={moveSearch}
                 onChange={(e) => setMoveSearch(e.target.value)}
                 disabled={changeMovePkm.editingSlot === undefined}
-                className="w-full sm:w-[70%] min-h-[52px] bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 min-h-[52px] w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <div className="w-full sm:w-[15%] min-w-0">
+              <div className="w-full sm:w-[25%] min-w-0">
                 <Dropdown
                   value={typeFilter === 'all' ? '' : typeFilter}
                   onChange={(val) => setTypeFilter(val || 'all')}
@@ -209,13 +209,13 @@ export function ChangeMovesPage() {
                   ]}
                   placeholder="All Types"
                   activeColor="blue"
-                  className="w-full h-full min-h-[52px] rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-none focus:border-blue-500 focus:ring-0"
-                  dropdownClassName="w-full sm:w-64 max-h-80"
+                  className="!w-full h-full min-h-[52px] rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-none focus:border-blue-500 focus:ring-0"
+                  dropdownClassName="!w-full max-h-80 min-w-[var(--radix-select-trigger-width)]"
                   optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
                   disabled={changeMovePkm.editingSlot === undefined}
                 />
               </div>
-              <div className="w-full sm:w-[15%] min-w-0">
+              <div className="w-full sm:w-[25%] min-w-0">
                 <Dropdown
                   value={sortBy}
                   onChange={(val) => setSortBy(val as string)}
@@ -226,8 +226,8 @@ export function ChangeMovesPage() {
                   ]}
                   placeholder="Sort by Name"
                   activeColor="blue"
-                  className="w-full h-full min-h-[52px] rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-none focus:border-blue-500 focus:ring-0"
-                  dropdownClassName="w-full sm:w-64"
+                  className="!w-full h-full min-h-[52px] rounded-xl border-2 border-slate-200 dark:border-slate-700 shadow-none focus:border-blue-500 focus:ring-0"
+                  dropdownClassName="!w-full max-h-80 min-w-[var(--radix-select-trigger-width)]"
                   disabled={changeMovePkm.editingSlot === undefined}
                 />
               </div>

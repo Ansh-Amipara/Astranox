@@ -198,12 +198,68 @@ export class EventsService {
       return null;
     }
 
+    let rewardSpecies = null;
+    const config = activeEvent.rewardConfig as any;
+    if (config?.speciesId) {
+      rewardSpecies = await this.prisma.species.findUnique({
+        where: { id: Number(config.speciesId) },
+        include: { type1: true, type2: true }
+      });
+    }
+
     const progress = await this.repo.getEventProgress(save.id, activeEvent.id);
 
     return {
-      event: activeEvent,
+      event: {
+        ...activeEvent,
+        rewardSpecies
+      },
       progress: progress ? progress.progress : 0,
       isClaimed: progress ? progress.isClaimed : false
     };
+  }
+
+  async getEventHistoryForPlayer(userId: string) {
+    const save = await this.prisma.trainerSave.findUnique({ where: { userId } });
+    if (!save) throw new NotFoundError('Trainer not found.');
+
+    const pastEvents = await this.prisma.eventChallenge.findMany({
+      where: { endDate: { lt: new Date() } },
+      orderBy: { endDate: 'desc' }
+    });
+
+    const progresses = await this.prisma.playerEventProgress.findMany({
+      where: {
+        trainerId: save.id,
+        eventChallengeId: { in: pastEvents.map(e => e.id) }
+      }
+    });
+
+    const progressMap = new Map(progresses.map(p => [p.eventChallengeId, p]));
+
+    // Fetch species for rewards
+    const speciesIds = pastEvents
+      .map(e => (e.rewardConfig as any)?.speciesId ? Number((e.rewardConfig as any).speciesId) : null)
+      .filter((id): id is number => id !== null && !isNaN(id));
+      
+    const speciesData = await this.prisma.species.findMany({
+      where: { id: { in: speciesIds } },
+      include: { type1: true, type2: true }
+    });
+    const speciesMap = new Map(speciesData.map(s => [s.id, s]));
+
+    return pastEvents.map(event => {
+      const config = event.rewardConfig as any;
+      const speciesId = config?.speciesId ? Number(config.speciesId) : null;
+      const species = speciesId ? speciesMap.get(speciesId) : null;
+      return {
+        event: {
+          ...event,
+          rewardSpecies: species
+        },
+        progress: progressMap.get(event.id)?.progress || 0,
+        isClaimed: progressMap.get(event.id)?.isClaimed || false
+      };
+    });
   }
 }

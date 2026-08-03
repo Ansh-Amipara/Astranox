@@ -38,8 +38,8 @@ export function Modal({
           </VisuallyHidden.Root>
 
           {!hideHeader && title && (
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">
                 {title}
               </h2>
               <Dialog.Close asChild>

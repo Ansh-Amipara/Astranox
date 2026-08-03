@@ -6,6 +6,16 @@ import { SpeciesDto } from '@astranox/shared';
 import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Modal } from '@/shared/ui/Modal';
+import { DatePicker } from '@/shared/ui/DatePicker';
+
+const getMaxLevelForPotential = (potential: string): number => {
+  const map: Record<string, number> = {
+    BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400,
+    EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000,
+    INFINITY: 4000, ETERNAL: 5000
+  };
+  return map[potential] || 5000;
+};
 
 export function AdminEventManagement() {
   const queryClient = useQueryClient();
@@ -74,6 +84,7 @@ export function AdminEventManagement() {
       speciesFilterCategory: '',
       rewardSpeciesId: '',
       rewardPotential: 'DIAMOND',
+      rewardLevel: getMaxLevelForPotential('DIAMOND'),
       rewardIvs: 'max',
     });
     setIsModalOpen(true);
@@ -82,8 +93,8 @@ export function AdminEventManagement() {
   const openEdit = (evt: { id: string, name: string, description: string, startDate: string, endDate: string, rules: any, isActive: boolean, taskType: string, taskConfig?: any, rewardConfig?: any }) => {
     setEditingEvent({
       ...evt,
-      startDate: new Date(evt.startDate).toISOString().slice(0, 16),
-      endDate: new Date(evt.endDate).toISOString().slice(0, 16),
+      startDate: new Date(evt.startDate).toISOString().slice(0, 10),
+      endDate: new Date(evt.endDate).toISOString().slice(0, 10),
     });
     setFormState({
       isActive: evt.isActive ? 'true' : 'false',
@@ -92,6 +103,7 @@ export function AdminEventManagement() {
       speciesFilterCategory: '',
       rewardSpeciesId: String(evt.rewardConfig?.speciesId || ''),
       rewardPotential: evt.rewardConfig?.potential || 'DIAMOND',
+      rewardLevel: evt.rewardConfig?.level || getMaxLevelForPotential(evt.rewardConfig?.potential || 'DIAMOND'),
       rewardIvs: evt.rewardConfig?.ivs || 'max',
     });
     setIsModalOpen(true);
@@ -102,7 +114,6 @@ export function AdminEventManagement() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white">Event Management</h1>
-          <p className="text-slate-500">Create and manage game-wide events and challenges.</p>
         </div>
         <button
           onClick={openCreate}
@@ -132,9 +143,13 @@ export function AdminEventManagement() {
               {eventsData?.map((evt: { id: string, name: string, status: string, startDate: string, endDate: string, rules: any, description: string, isActive: boolean, taskType: string }) => (
                 <tr key={evt.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="p-4">
-                    {evt.isActive ? (
+                    {new Date() >= new Date(evt.startDate) && new Date() <= new Date(evt.endDate) ? (
                       <span className="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded w-fit text-xs">
                         <FiCheckCircle /> Active
+                      </span>
+                    ) : new Date() < new Date(evt.startDate) ? (
+                      <span className="flex items-center gap-1 text-blue-600 font-bold bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded w-fit text-xs">
+                        <FiCircle /> Future
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded w-fit text-xs">
@@ -150,14 +165,14 @@ export function AdminEventManagement() {
                     {evt.taskType}
                   </td>
                   <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
-                    <div>Start: {new Date(evt.startDate).toLocaleDateString()}</div>
-                    <div>End: {new Date(evt.endDate).toLocaleDateString()}</div>
+                    <div>Start: {new Date(evt.startDate).toLocaleDateString('en-GB')}</div>
+                    <div>End: {new Date(evt.endDate).toLocaleDateString('en-GB')}</div>
                   </td>
                   <td className="p-4 text-right">
                     <button aria-label="Edit event" onClick={() => openEdit(evt)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
                       <FiEdit2 />
                     </button>
-                    <button aria-label="Delete event" onClick={() => { if(window.confirm('Delete event?')) deleteMutation.mutate(evt.id) }} className="p-2 text-slate-400 hover:text-red-500 transition-colors ml-2">
+                    <button aria-label="Delete event" onClick={() => { if (window.confirm('Delete event?')) deleteMutation.mutate(evt.id) }} className="p-2 text-slate-400 hover:text-red-500 transition-colors ml-2">
                       <FiTrash2 />
                     </button>
                   </td>
@@ -174,75 +189,60 @@ export function AdminEventManagement() {
       )}
 
       {/* Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingEvent?.id ? 'Edit Event' : 'Create Event'} className="max-w-2xl">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingEvent?.id ? 'Edit Event' : 'Create Event'} className="max-w-3xl">
         <div className="flex flex-col max-h-[90vh] overflow-hidden">
           <div className="p-6 overflow-y-auto flex-1">
-              <form id="event-form" onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                try {
-                  const data = {
-                    id: editingEvent?.id,
-                    name: formData.get('name'),
-                    description: formData.get('description'),
-                    startDate: new Date(formData.get('startDate') as string).toISOString(),
-                    endDate: new Date(formData.get('endDate') as string).toISOString(),
-                    isActive: formData.get('isActive') === 'true',
-                    taskType: formData.get('taskType'),
-                    taskConfig: {
-                      requiredCount: Number(formData.get('task_requiredCount')),
-                      ...(formData.get('task_pokemonType') ? { pokemonType: formData.get('task_pokemonType') } : {})
-                    },
-                    rewardConfig: {
-                      speciesId: Number(formData.get('reward_speciesId')),
-                      level: Number(formData.get('reward_level')),
-                      potential: formData.get('reward_potential'),
-                      ivs: formData.get('reward_ivs'),
-                      nature: formData.get('reward_nature') || undefined
-                    },
-                  };
-                  saveMutation.mutate(data);
-                } catch (err) {
-                  toast.error("Failed to parse form data");
-                }
-              }} className="space-y-4">
-                
-                <div>
+            <form id="event-form" onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              try {
+                const data = {
+                  id: editingEvent?.id,
+                  name: formData.get('name'),
+                  description: formData.get('description'),
+                  startDate: new Date(`${formData.get('startDate')}T00:00:00.000Z`).toISOString(),
+                  endDate: new Date(`${formData.get('endDate')}T23:59:59.999Z`).toISOString(),
+                  isActive: new Date(`${formData.get('startDate')}T00:00:00.000Z`) <= new Date() && new Date(`${formData.get('endDate')}T23:59:59.999Z`) >= new Date(),
+                  taskType: formData.get('taskType'),
+                  taskConfig: {
+                    requiredCount: Number(formData.get('task_requiredCount')),
+                    ...(formData.get('task_pokemonType') ? { pokemonType: formData.get('task_pokemonType') } : {})
+                  },
+                  rewardConfig: {
+                    speciesId: Number(formData.get('reward_speciesId')),
+                    level: Number(formData.get('reward_level')),
+                    potential: formData.get('reward_potential'),
+                    ivs: formData.get('reward_ivs')
+                  },
+                };
+                saveMutation.mutate(data);
+              } catch (err) {
+                toast.error("Failed to parse form data");
+              }
+            }} className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-3 md:col-span-1">
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Name</label>
                   <input name="name" required defaultValue={editingEvent?.name} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                  <textarea name="description" required defaultValue={editingEvent?.description} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
+                <div className="col-span-3 md:col-span-1">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
+                  <DatePicker name="startDate" required value={editingEvent?.startDate ? new Date(editingEvent.startDate).toISOString().slice(0, 10) : ''} className="w-full" />
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
-                    <input type="datetime-local" name="startDate" required defaultValue={editingEvent?.startDate} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">End Date</label>
-                    <input type="datetime-local" name="endDate" required defaultValue={editingEvent?.endDate} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
-                  </div>
+                <div className="col-span-3 md:col-span-1">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">End Date</label>
+                  <DatePicker name="endDate" required value={editingEvent?.endDate ? new Date(editingEvent.endDate).toISOString().slice(0, 10) : ''} className="w-full" />
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
-                    <Dropdown
-                      value={formState.isActive}
-                      onChange={v => setFormState({ ...formState, isActive: v })}
-                      options={[
-                        { value: 'false', label: 'Inactive' },
-                        { value: 'true', label: 'Active (Deactivates others)' }
-                      ]}
-                      className="w-full"
-                      dropdownClassName="w-full"
-                    />
-                    <input type="hidden" name="isActive" value={formState.isActive} />
-                  </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                <textarea name="description" rows={2} required defaultValue={editingEvent?.description} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
+              </div>
+
+              <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <h3 className="font-black text-slate-900 dark:text-white">Task Configuration</h3>
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Task Type</label>
                     <Dropdown
@@ -254,157 +254,152 @@ export function AdminEventManagement() {
                         { value: 'CLEAR_TOWER', label: 'Clear Tower Floor' },
                         { value: 'CLEAR_RIFT', label: 'Clear Rift Floor' }
                       ]}
-                      className="w-full"
-                      dropdownClassName="w-full"
+                      className="!w-full"
+                      dropdownClassName="!w-full"
                     />
                     <input type="hidden" name="taskType" value={formState.taskType} />
                   </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      {['CLEAR_TOWER', 'CLEAR_RIFT'].includes(formState.taskType) ? 'Floors to Clear (Max 100)' : 'Required Count (Max 100)'}
+                    </label>
+                    <input type="text" name="task_requiredCount" required defaultValue={editingEvent?.taskConfig?.requiredCount || 5} onChange={(e) => {
+                      let val = e.target.value.replace(/\D/g, '');
+                      if (Number(val) > 100) val = '100';
+                      e.target.value = val;
+                    }} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  </div>
+                  {['DEFEAT_WILD_POKEMON', 'CAPTURE_POKEMON'].includes(formState.taskType) && (
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Target Type (Optional)</label>
+                      <Dropdown
+                        value={formState.taskPokemonType}
+                        onChange={v => setFormState({ ...formState, taskPokemonType: v })}
+                        options={[
+                          { value: '', label: 'Any Type' },
+                          ...['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'].map(t => ({
+                            value: t,
+                            label: t.charAt(0).toUpperCase() + t.slice(1)
+                          }))
+                        ]}
+                        className="!w-full"
+                        dropdownClassName="!w-full max-h-64"
+                      />
+                      <input type="hidden" name="task_pokemonType" value={formState.taskPokemonType} />
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
-                  <h3 className="font-black text-slate-900 dark:text-white">Task Configuration</h3>
+              <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <h3 className="font-black text-slate-900 dark:text-white">Reward Configuration</h3>
+
+                <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        {['CLEAR_TOWER', 'CLEAR_RIFT'].includes(formState.taskType) ? 'Floors to Clear' : 'Required Count'}
-                      </label>
-                      <input type="text" name="task_requiredCount" required defaultValue={editingEvent?.taskConfig?.requiredCount || 5} onChange={(e) => { e.target.value = e.target.value.replace(/\D/g, ''); }} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
-                    </div>
-                    {['DEFEAT_WILD_POKEMON', 'CAPTURE_POKEMON'].includes(formState.taskType) && (
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Target Type (Optional)</label>
-                        <Dropdown
-                          value={formState.taskPokemonType}
-                          onChange={v => setFormState({ ...formState, taskPokemonType: v })}
-                          options={[
-                            { value: '', label: 'Any Type' },
-                            ...['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'].map(t => ({
-                              value: t,
-                              label: t.charAt(0).toUpperCase() + t.slice(1)
-                            }))
-                          ]}
-                          className="w-full"
-                          dropdownClassName="w-full max-h-64"
-                        />
-                        <input type="hidden" name="task_pokemonType" value={formState.taskPokemonType} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
-                  <h3 className="font-black text-slate-900 dark:text-white">Reward Configuration</h3>
-                  
-                  <div className="mb-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Reward Species</label>
-                    <div className="flex gap-2 mb-3">
-                      <input 
-                        type="text" 
-                        placeholder="Search name..." 
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Search Species</label>
+                      <input
+                        type="text"
+                        placeholder="Search name..."
                         value={speciesSearch}
                         onChange={e => setSpeciesSearch(e.target.value)}
-                        className="w-1/2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
-                      <div className="w-1/2">
-                        <Dropdown
-                          value={formState.speciesFilterCategory}
-                          onChange={v => setFormState({ ...formState, speciesFilterCategory: v })}
-                          options={[
-                            { value: '', label: 'All Categories' },
-                            ...(uniqueCategories as string[]).map(c => ({ value: c, label: c }))
-                          ]}
-                          className="w-full text-sm py-2"
-                          dropdownClassName="w-full max-h-64"
-                        />
-                      </div>
                     </div>
-                    {speciesLoading ? (
-                      <div className="text-slate-500 text-sm">Loading species...</div>
-                    ) : (
-                      <div className="w-full">
-                        <Dropdown
-                          value={formState.rewardSpeciesId}
-                          onChange={v => setFormState({ ...formState, rewardSpeciesId: v })}
-                          options={
-                            filteredSpecies.length > 0 
-                              ? filteredSpecies.map((s: SpeciesDto) => ({
+
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Select Species</label>
+                      {speciesLoading ? (
+                        <div className="text-slate-500 text-sm py-2 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">Loading...</div>
+                      ) : (
+                        <>
+                          <Dropdown
+                            value={formState.rewardSpeciesId}
+                            onChange={v => setFormState({ ...formState, rewardSpeciesId: v })}
+                            options={
+                              filteredSpecies.length > 0
+                                ? filteredSpecies.map((s: SpeciesDto) => ({
                                   value: String(s.id),
                                   label: `#${s.id} ${s.name} (${s.category})`
                                 }))
-                              : [{ value: '', label: 'No species found' }]
-                          }
-                          placeholder="Select a Pokemon..."
-                          className="w-full font-bold"
-                          dropdownClassName="w-full max-h-64"
-                        />
-                        <input type="hidden" name="reward_speciesId" value={formState.rewardSpeciesId} />
-                      </div>
-                    )}
+                                : [{ value: '', label: 'No species found' }]
+                            }
+                            placeholder="Select a Pokemon..."
+                            className="!w-full font-bold"
+                            dropdownClassName="!w-full max-h-64"
+                          />
+                          <input type="hidden" name="reward_speciesId" value={formState.rewardSpeciesId} />
+                        </>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Level</label>
-                      <input type="text" name="reward_level" required defaultValue={editingEvent?.rewardConfig?.level || 50} onChange={(e) => { e.target.value = e.target.value.replace(/\D/g, ''); }} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                      <Dropdown
+                        value={formState.speciesFilterCategory}
+                        onChange={v => setFormState({ ...formState, speciesFilterCategory: v })}
+                        options={[
+                          { value: '', label: 'All Categories' },
+                          ...(uniqueCategories as string[]).map(c => ({ value: c, label: c }))
+                        ]}
+                        className="!w-full text-sm"
+                        dropdownClassName="!w-full max-h-64"
+                      />
                     </div>
+
                     <div>
                       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Potential</label>
                       <Dropdown
                         value={formState.rewardPotential}
-                        onChange={v => setFormState({ ...formState, rewardPotential: v })}
+                        onChange={v => setFormState({ ...formState, rewardPotential: v, rewardLevel: getMaxLevelForPotential(v) })}
                         options={
                           ['BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'ADAMANTITE', 'DIAMOND', 'CRYSTAL', 'EPIC', 'HEROIC', 'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL', 'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'].map(p => ({
                             value: p,
                             label: p
                           }))
                         }
-                        className="w-full"
-                        dropdownClassName="w-full max-h-64"
+                        className="!w-full"
+                        dropdownClassName="!w-full max-h-64"
                       />
                       <input type="hidden" name="reward_potential" value={formState.rewardPotential} />
                     </div>
+
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">IVs</label>
-                      <Dropdown
-                        value={formState.rewardIvs}
-                        onChange={v => setFormState({ ...formState, rewardIvs: v })}
-                        options={[
-                          { value: 'max', label: 'Max (31 all)' },
-                          { value: 'random', label: 'Random' }
-                        ]}
-                        className="w-full"
-                        dropdownClassName="w-full"
-                      />
-                      <input type="hidden" name="reward_ivs" value={formState.rewardIvs} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nature (Optional)</label>
-                      <input type="text" name="reward_nature" defaultValue={editingEvent?.rewardConfig?.nature || ''} placeholder="e.g. Timid" className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Level (Max {getMaxLevelForPotential(formState.rewardPotential)})</label>
+                      <input type="text" name="reward_level" required value={formState.rewardLevel} onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, '');
+                        if (Number(val) > getMaxLevelForPotential(formState.rewardPotential)) {
+                          val = String(getMaxLevelForPotential(formState.rewardPotential));
+                        }
+                        setFormState({ ...formState, rewardLevel: val });
+                      }} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
                     </div>
                   </div>
                 </div>
-
-              </form>
-            </div>
-            
-            <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                form="event-form"
-                disabled={saveMutation.isPending}
-                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors"
-              >
-                {saveMutation.isPending ? 'Saving...' : 'Save Event'}
-              </button>
-            </div>
+                <input type="hidden" name="reward_ivs" value="max" />
+              </div>
+            </form>
           </div>
-        </Modal>
+          <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="event-form"
+              disabled={saveMutation.isPending}
+              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors"
+            >
+              {saveMutation.isPending ? 'Saving...' : 'Save Event'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

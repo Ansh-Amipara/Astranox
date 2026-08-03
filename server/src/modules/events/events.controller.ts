@@ -19,6 +19,16 @@ export class EventsController {
     }
   };
 
+  getEventHistory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthRequest;
+      const data = await this.service.getEventHistoryForPlayer(authReq.user.id);
+      res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   claimReward = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = req as AuthRequest;

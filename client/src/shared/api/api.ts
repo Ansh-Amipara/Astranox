@@ -48,8 +48,9 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const url = originalRequest?.url || '';
 
-    logErrorAndToast(error);
-    if (error.response?.status === 401 && !originalRequest?._retry && !url.includes('/auth/refresh') && !url.includes('/auth/logout') && !url.includes('/auth/login')) {
+    const isRetryable401 = error.response?.status === 401 && !originalRequest?._retry && !url.includes('/auth/refresh') && !url.includes('/auth/logout') && !url.includes('/auth/login');
+
+    if (isRetryable401) {
       originalRequest._retry = true;
       try {
         const { data } = await axios.post(
@@ -66,6 +67,8 @@ api.interceptors.response.use(
         return Promise.reject(err);
       }
     }
+
+    logErrorAndToast(error);
 
 
 
