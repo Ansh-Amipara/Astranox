@@ -28,11 +28,11 @@ httpServer.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {
     logger.warn(`Port ${currentPort} is in use, trying ${currentPort + 1}...`);
     currentPort++;
-    httpServer.listen(currentPort);
+    httpServer.listen(currentPort, '0.0.0.0');
   } else {
     logger.error('Server error', err);
     process.exit(1);
   }
 });
 
-httpServer.listen(currentPort);
+httpServer.listen(currentPort, '0.0.0.0');

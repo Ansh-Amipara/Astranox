@@ -35,8 +35,8 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-2xl">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-start sm:pt-24 justify-center sm:p-4">
+      <div className="max-w-md w-full min-h-screen sm:min-h-0 bg-white dark:bg-slate-900 border-0 sm:border border-slate-200 dark:border-slate-800 p-8 rounded-none sm:rounded-2xl shadow-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Admin Portal</h1>
         </div>

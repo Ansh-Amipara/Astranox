@@ -20,7 +20,7 @@ export interface IVs {
 
 /**
  * Calculates Combat Power (CP) using the formula:
- * CP = Floor( (Sum of Calculated Stats) * Level / 10 )
+ * CP = (Sum of Calculated Stats) * 100
  */
 export function calculatePokemonCP(
   baseStats: BaseStats,
@@ -39,5 +39,5 @@ export function calculatePokemonCP(
 
   const statSum = maxHp + atk + def + spa + spd + spe;
 
-  return Math.floor((statSum * level) / 10);
+  return statSum * 100;
 }

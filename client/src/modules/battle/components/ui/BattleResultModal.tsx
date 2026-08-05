@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCompleteTowerBattle, useTowerState } from '@/modules/tower/components/useTower';
 import { useCompleteRiftEncounter, useAbandonRiftRun } from '@/modules/rift/components/useRift';
 import { Modal } from '@/shared/ui/Modal';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '@/shared/api/api';
 
 interface Props {
   isFinished: boolean;
@@ -12,6 +14,7 @@ interface Props {
   lastTurnEvents: string[];
   wildSpeciesName: string;
   returnUrl: string;
+  arenaTrainerId?: string | null;
 }
 
 export const BattleResultModal = memo(function BattleResultModal({
@@ -21,6 +24,7 @@ export const BattleResultModal = memo(function BattleResultModal({
   lastTurnEvents,
   wildSpeciesName,
   returnUrl,
+  arenaTrainerId,
 }: Props) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -28,6 +32,21 @@ export const BattleResultModal = memo(function BattleResultModal({
   const completeRift = useCompleteRiftEncounter();
   const abandonRift = useAbandonRiftRun();
   const { data: towerData } = useTowerState({ enabled: battleType === 'TOWER' });
+
+  const arenaEncounterMutation = useMutation({
+    mutationFn: (trainerId: string) => api.post('/battles/arena-encounter', { trainerId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rankStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['authProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      queryClient.invalidateQueries({ queryKey: ['battleSession'] });
+      queryClient.removeQueries({ queryKey: ['activeBattle'] });
+    },
+    onError: (err: any) => {
+      console.error(err);
+      alert(err.response?.data?.error?.message || 'Failed to start arena battle again');
+    }
+  });
 
   if (!isFinished) return null;
 
@@ -116,8 +135,17 @@ export const BattleResultModal = memo(function BattleResultModal({
         </div>
 
         <div className="flex gap-4 w-full">
+          {battleType === 'NPC' && arenaTrainerId && (
+            <button
+              disabled={arenaEncounterMutation.isPending || completeTower.isPending || completeRift.isPending || abandonRift.isPending}
+              onClick={() => arenaEncounterMutation.mutate(arenaTrainerId)}
+              className="w-full py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
+            >
+              {arenaEncounterMutation.isPending ? 'Starting...' : 'Fight Again'}
+            </button>
+          )}
           <button 
-            disabled={completeTower.isPending || completeRift.isPending || abandonRift.isPending}
+            disabled={completeTower.isPending || completeRift.isPending || abandonRift.isPending || arenaEncounterMutation.isPending}
             onClick={() => {
               const handleReturn = () => {
                 queryClient.invalidateQueries({ queryKey: ['rankStatus'] });

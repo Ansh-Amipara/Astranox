@@ -36,13 +36,13 @@ export function Login() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+    <div className="relative flex min-h-screen items-start sm:pt-24 justify-center overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       {/* Premium Animated Gradient Background */}
       <div className="absolute -top-[20%] -left-[10%] h-[70%] w-[50%] animate-[pulse_8s_ease-in-out_infinite] rounded-full bg-blue-600/20 blur-[120px]"></div>
       <div className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[50%] animate-[pulse_8s_ease-in-out_infinite_reverse] rounded-full bg-purple-600/20 blur-[120px]"></div>
 
       {/* Glassmorphism Card */}
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+      <div className="relative z-10 w-full max-w-md min-h-screen sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
         <div className="mb-8 text-center">
           <h1 className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent">
             Astranox

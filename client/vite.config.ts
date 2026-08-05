@@ -17,5 +17,6 @@ export default defineConfig({
   server: {
     port: 4001,
     strictPort: false, // Automatically try next port if in use
+    host: '0.0.0.0', // Expose to local network (force IPv4)
   },
 });

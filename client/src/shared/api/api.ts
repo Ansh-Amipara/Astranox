@@ -13,7 +13,7 @@ declare module 'axios' {
   }
 }
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4005';
+export const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? `http://${window.location.hostname}:4005` : 'http://localhost:4005');
 
 export const api = axios.create({
   baseURL: API_URL,

@@ -1,51 +1,88 @@
 // Trigger IDE reload
 import { PrismaClient } from '@prisma/client';
-import { runInBatches } from './utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
 export async function seedMoves() {
-  console.log('Seeding Moves... (this will take a minute)');
+  console.log('Seeding Custom Moves... (Clearing existing data first)');
   
-  // We fetch up to 937 moves per AGENTS.md requirements, but using pagination is safer
-  let url: string | null = 'https://pokeapi.co/api/v2/move?limit=100';
-  let totalSeeded = 0;
+  // Wipe dependent tables first
+  await prisma.pokemonEquippedMoves.deleteMany({});
+  await prisma.playerUnlockedMoves.deleteMany({});
+  await prisma.astralMoveShop.deleteMany({});
+  await prisma.pokemonLearnset.deleteMany({});
+  await prisma.move.deleteMany({});
   
-  while (url) {
-    const res: any = await fetch(url);
-    const data: any = await res.json();
+  const mdPath = path.resolve(__dirname, '../../../../docs/story/Astranox Pokemon Moves.md');
+  const mdContent = fs.readFileSync(mdPath, 'utf-8');
+
+  // We need to fetch DB types to map type names to type IDs
+  const dbTypes = await prisma.type.findMany();
+  const typeMap = new Map(dbTypes.map(t => [t.name.toLowerCase(), t.id]));
+  
+  const movesToInsert = [];
+  let currentType = '';
+  let idCounter = 10000;
+  
+  const insertedNames = new Set();
+  
+  const lines = mdContent.split('\n');
+  for (const line of lines) {
+    const typeMatch = line.match(/^([a-z]+) type\s*:/i);
+    if (typeMatch) {
+      currentType = typeMatch[1].toLowerCase();
+      continue;
+    }
     
-    await runInBatches(data.results, 20, async (result: any) => {
-      const moveRes = await fetch(result.url);
-      const moveData = await moveRes.json();
+    // table row format: | 20 | Ember Strike | Flame Spark |
+    const rowMatch = line.match(/^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/);
+    if (rowMatch) {
+      const power = parseInt(rowMatch[1], 10);
+      let physicalName = rowMatch[2].trim();
+      let specialName = rowMatch[3].trim();
       
-      if (moveData.power == null || moveData.power < 1) return;
-      if (moveData.type.name === 'shadow' || moveData.type.name === 'unknown') return;
+      const typeId = typeMap.get(currentType);
+      if (!typeId) {
+        console.warn(`Type not found in DB: ${currentType}`);
+        continue;
+      }
+      
+      if (insertedNames.has(physicalName)) {
+        physicalName = `${physicalName} (${currentType})`;
+      }
+      insertedNames.add(physicalName);
 
-      const typeId = parseInt(moveData.type.url.split('/').filter(Boolean).pop()!);
+      if (insertedNames.has(specialName)) {
+        specialName = `${specialName} (${currentType})`;
+      }
+      insertedNames.add(specialName);
       
-      await prisma.move.upsert({
-        where: { id: moveData.id },
-        update: {
-          name: moveData.name,
-          typeId: typeId,
-          power: moveData.power,
-          damageClass: moveData.damage_class?.name || 'physical',
-        },
-        create: {
-          id: moveData.id,
-          name: moveData.name,
-          typeId: typeId,
-          power: moveData.power,
-          damageClass: moveData.damage_class?.name || 'physical',
-        },
+      // We will store the original name exactly as it is in the MD file
+      movesToInsert.push({
+        id: idCounter++,
+        name: physicalName,
+        typeId,
+        power,
+        damageClass: 'physical'
       });
-    });
-
-    totalSeeded += data.results.length;
-    console.log(`Seeded ${totalSeeded} moves...`);
-    url = data.next;
+      
+      movesToInsert.push({
+        id: idCounter++,
+        name: specialName,
+        typeId,
+        power,
+        damageClass: 'special'
+      });
+    }
   }
+
+  console.log(`Parsed ${movesToInsert.length} custom moves. Inserting...`);
   
-  console.log('Successfully finished seeding moves.');
+  await prisma.move.createMany({
+    data: movesToInsert,
+  });
+
+  console.log('Successfully seeded custom moves.');
 }

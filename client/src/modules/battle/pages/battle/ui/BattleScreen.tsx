@@ -60,6 +60,7 @@ export function BattleScreen() {
 
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams?.get('returnUrl') || '/';
+  const arenaTrainerId = searchParams?.get('arenaTrainerId') || null;
 
   if (isLoading) return <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
 
@@ -104,6 +105,7 @@ export function BattleScreen() {
       isPending={turnMutation.isPending}
       battleType={battleType}
       returnUrl={returnUrl}
+      arenaTrainerId={arenaTrainerId}
       onMoveSelect={handleMoveSelect}
       onSkipMove={handleSkipMove}
       onRun={handleRun}

@@ -31,12 +31,13 @@ export interface BattleScreenPresenterProps {
   onOpenParty: () => void;
   onSwitch: (id: string) => void;
   onUseItem: (itemId: string) => void;
+  arenaTrainerId?: string | null;
 }
 
 export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
   const {
     menu, setMenu, toastMsg, showToast, trainerSave, wild, opponentPartyData, player, playerPartyData,
-    status, rawEvents, lastTurnEvents, isFinished, isWaitingSwitch, isPending, battleType, returnUrl,
+    status, rawEvents, lastTurnEvents, isFinished, isWaitingSwitch, isPending, battleType, returnUrl, arenaTrainerId,
     onMoveSelect, onSkipMove, onRun, onOpenBag, onOpenParty, onSwitch, onUseItem
   } = props;
 
@@ -198,6 +199,7 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
         lastTurnEvents={lastTurnEvents}
         wildSpeciesName={wild.name || wild.speciesName}
         returnUrl={returnUrl}
+        arenaTrainerId={arenaTrainerId}
       />
     </div>
   );

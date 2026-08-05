@@ -30,10 +30,10 @@ export function ArenaPage() {
 
   const encounterMutation = useMutation({
     mutationFn: (trainerId: string) => api.post('/battles/arena-encounter', { trainerId }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       setError(null);
       queryClient.invalidateQueries({ queryKey: ['battleSession'] });
-      navigate('/battle?returnUrl=/arena');
+      navigate(`/battle?returnUrl=/arena&arenaTrainerId=${variables}`);
     },
     onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
       setError(err.response?.data?.error?.message || 'Failed to start arena battle');
