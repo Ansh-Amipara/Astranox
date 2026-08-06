@@ -3,6 +3,7 @@ import { seedMoves } from './moves.seed';
 import { seedSpecies } from './species.seed';
 import { seedItems } from './items.seed';
 import { seedEvolutions } from './evolutions.seed';
+import { seedRanksAndLearnsets } from './learnset-generator';
 import { seedAstralMoveShop } from './shop.seed';
 
 const originalFetch = global.fetch;
@@ -36,6 +37,7 @@ async function main() {
   await seedSpecies();
   await seedItems();
   await seedEvolutions();
+  await seedRanksAndLearnsets();
   await seedAstralMoveShop();
   
   console.log('PokeAPI Seed Pipeline Complete!');

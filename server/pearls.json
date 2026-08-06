@@ -1,0 +1,146 @@
+[
+  {
+    "id": "f-pearl",
+    "name": "F Pearl",
+    "cost": 200,
+    "description": "Upgrades a Pokémon to F potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "f-plus-pearl",
+    "name": "F+ Pearl",
+    "cost": 500,
+    "description": "Upgrades a Pokémon to F+ potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "e-minus-pearl",
+    "name": "E- Pearl",
+    "cost": 2000,
+    "description": "Upgrades a Pokémon to E- potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "e-pearl",
+    "name": "E Pearl",
+    "cost": 5000,
+    "description": "Upgrades a Pokémon to E potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "e-plus-pearl",
+    "name": "E+ Pearl",
+    "cost": 10000,
+    "description": "Upgrades a Pokémon to E+ potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "d-minus-pearl",
+    "name": "D- Pearl",
+    "cost": 20000,
+    "description": "Upgrades a Pokémon to D- potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "d-pearl",
+    "name": "D Pearl",
+    "cost": 50000,
+    "description": "Upgrades a Pokémon to D potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "d-plus-pearl",
+    "name": "D+ Pearl",
+    "cost": 100000,
+    "description": "Upgrades a Pokémon to D+ potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "c-minus-pearl",
+    "name": "C- Pearl",
+    "cost": 150000,
+    "description": "Upgrades a Pokémon to C- potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "c-pearl",
+    "name": "C Pearl",
+    "cost": 200000,
+    "description": "Upgrades a Pokémon to C potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "c-plus-pearl",
+    "name": "C+ Pearl",
+    "cost": 250000,
+    "description": "Upgrades a Pokémon to C+ potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "b-minus-pearl",
+    "name": "B- Pearl",
+    "cost": 300000,
+    "description": "Upgrades a Pokémon to B- potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "b-pearl",
+    "name": "B Pearl",
+    "cost": 400000,
+    "description": "Upgrades a Pokémon to B potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "b-plus-pearl",
+    "name": "B+ Pearl",
+    "cost": 500000,
+    "description": "Upgrades a Pokémon to B+ potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "a-minus-pearl",
+    "name": "A- Pearl",
+    "cost": 600000,
+    "description": "Upgrades a Pokémon to A- potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "a-pearl",
+    "name": "A Pearl",
+    "cost": 800000,
+    "description": "Upgrades a Pokémon to A potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "a-plus-pearl",
+    "name": "A+ Pearl",
+    "cost": 1000000,
+    "description": "Upgrades a Pokémon to A+ potential.",
+    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
+    "category": "potential"
+  },
+  {
+    "id": "f_minus-pearl",
+    "name": "F- Pearl",
+    "cost": 1000,
+    "description": "A rare pearl that can upgrade a Pokémon's potential to F-.",
+    "spriteUrl": null,
+    "category": "potential"
+  }
+]

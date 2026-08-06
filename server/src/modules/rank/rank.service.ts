@@ -3,42 +3,42 @@ import { AppError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
 import { BattleSessionService } from '../battles/services/battle-session.service';
 
-const RANK_REQUIREMENTS: Record<string, any> = {
-  'F_RANK': { minLevel: 1, count1: 1 },
-  'E_RANK': { minLevel: 61, count1: 3, minLevelFallback: 121, countFallback: 1 },
-  'D_RANK': { minLevel: 121, count1: 3, minLevelFallback: 201, countFallback: 1 },
-  'C_RANK': { minLevel: 201, count1: 3, minLevelFallback: 301, countFallback: 1 },
-  'B_RANK': { minLevel: 301, count1: 3, minLevelFallback: 401, countFallback: 1 },
-  'A_RANK': { minLevel: 401, count1: 3, minLevelFallback: 501, countFallback: 1 },
-  'S_MINUS_RANK': { minLevel: 501, count1: 3, minLevelFallback: 701, countFallback: 1 },
-  'S_RANK': { minLevel: 701, count1: 3, minLevelFallback: 901, countFallback: 1 },
-  'S_PLUS_RANK': { minLevel: 901, count1: 3, minLevelFallback: 1101, countFallback: 1 },
-  'SS_MINUS_RANK': { minLevel: 1101, count1: 3, minLevelFallback: 1401, countFallback: 1 },
-  'SS_RANK': { minLevel: 1401, count1: 3, minLevelFallback: 1701, countFallback: 1 },
-  'SS_PLUS_RANK': { minLevel: 1701, count1: 3, minLevelFallback: 2001, countFallback: 1 },
-  'SSS_MINUS_RANK': { minLevel: 2001, count1: 3, minLevelFallback: 3001, countFallback: 1 },
-  'SSS_RANK': { minLevel: 3001, count1: 3, minLevelFallback: 4001, countFallback: 1 },
-  'SSS_PLUS_RANK': { minLevel: 4001, count1: 3 },
-};
+import { getMinPotentialForLevel, getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 
-const RANK_ORDER = [
-  'NO_RANK',
-  'F_RANK',
-  'E_RANK',
-  'D_RANK',
-  'C_RANK',
-  'B_RANK',
-  'A_RANK',
-  'S_MINUS_RANK',
-  'S_RANK',
-  'S_PLUS_RANK',
-  'SS_MINUS_RANK',
-  'SS_RANK',
-  'SS_PLUS_RANK',
-  'SSS_MINUS_RANK',
-  'SSS_RANK',
-  'SSS_PLUS_RANK'
+export const RANK_ORDER = [
+  'F_MINUS', 'F', 'F_PLUS', 
+  'E_MINUS', 'E', 'E_PLUS', 
+  'D_MINUS', 'D', 'D_PLUS',
+  'C_MINUS', 'C', 'C_PLUS',
+  'B_MINUS', 'B', 'B_PLUS',
+  'A_MINUS', 'A', 'A_PLUS',
+  'S_MINUS', 'S', 'S_PLUS',
+  'SS_MINUS', 'SS', 'SS_PLUS',
+  'SSS_MINUS', 'SSS', 'SSS_PLUS',
+  'EX_MINUS', 'EX', 'EX_PLUS'
 ];
+
+const RANK_REQUIREMENTS: Record<string, any> = {};
+for (let i = 1; i < RANK_ORDER.length; i++) {
+  const currentRank = RANK_ORDER[i];
+  const previousRank = RANK_ORDER[i - 1];
+  
+  // You need 3 pokemon at the new rank's min level (which is previous max + 1)
+  const minLevel = getMaxLevelForPotential(previousRank) + 1;
+  
+  let minLevelFallback = undefined;
+  if (i < RANK_ORDER.length - 1) {
+    // Fallback is 1 pokemon at the next rank's min level
+    minLevelFallback = getMaxLevelForPotential(currentRank) + 1;
+  }
+  
+  RANK_REQUIREMENTS[currentRank] = {
+    minLevel,
+    count1: 3,
+    minLevelFallback,
+    countFallback: 1
+  };
+}
 
 @injectable()
 export class RankService {

@@ -497,11 +497,14 @@ export class TrainersRepository {
       select: { isGmax: true, baseSpeciesId: true }
     });
     
-    const learnsetSpeciesId = species?.isGmax && species?.baseSpeciesId ? species.baseSpeciesId : speciesId;
+    const speciesIdsToCheck = [speciesId];
+    if (species?.baseSpeciesId) {
+      speciesIdsToCheck.push(species.baseSpeciesId);
+    }
 
     const naturalMoves = await prisma.pokemonLearnset.findMany({
       where: {
-        speciesId: learnsetSpeciesId,
+        speciesId: { in: speciesIdsToCheck },
         unlockLevel: { lte: currentLevel }
       },
       select: { moveId: true }

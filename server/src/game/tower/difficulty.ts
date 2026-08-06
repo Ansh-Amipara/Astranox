@@ -1,6 +1,12 @@
 export function calculateTowerLevel(floor: number): number {
-  const level = Math.floor(20 + floor * 3 + Math.sqrt(floor) * 8);
-  return Math.min(level, 5000);
+  if (floor <= 10) {
+    return floor * 10;
+  }
+  if (floor >= 1000) {
+    return 15000;
+  }
+  
+  return 100 + (floor - 10) * 15;
 }
 
 export function calculateTowerIVs(floor: number): number {

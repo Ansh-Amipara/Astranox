@@ -13,43 +13,69 @@ enum Role {
 }
 
 enum TrainerRank {
-  NO_RANK
-  F_RANK
-  E_RANK
-  D_RANK
-  C_RANK
-  B_RANK
-  A_RANK
-  S_MINUS_RANK
-  S_RANK
-  S_PLUS_RANK
-  SS_MINUS_RANK
-  SS_RANK
-  SS_PLUS_RANK
-  SSS_MINUS_RANK
-  SSS_RANK
-  SSS_PLUS_RANK
+  F_MINUS
+  F
+  F_PLUS
+  E_MINUS
+  E
+  E_PLUS
+  D_MINUS
+  D
+  D_PLUS
+  C_MINUS
+  C
+  C_PLUS
+  B_MINUS
+  B
+  B_PLUS
+  A_MINUS
+  A
+  A_PLUS
+  S_MINUS
+  S
+  S_PLUS
+  SS_MINUS
+  SS
+  SS_PLUS
+  SSS_MINUS
+  SSS
+  SSS_PLUS
+  EX_MINUS
+  EX
+  EX_PLUS
 }
 
 enum PokemonPotential {
-  BLACK_IRON
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
-  ADAMANTITE
-  DIAMOND
-  CRYSTAL
-  EPIC
-  HEROIC
-  SOVEREIGN
-  LEGENDARY
-  DIVINE
-  CELESTIAL
-  PRIMORDIAL
-  MYTHICAL
-  INFINITY
-  ETERNAL
+  F_MINUS
+  F
+  F_PLUS
+  E_MINUS
+  E
+  E_PLUS
+  D_MINUS
+  D
+  D_PLUS
+  C_MINUS
+  C
+  C_PLUS
+  B_MINUS
+  B
+  B_PLUS
+  A_MINUS
+  A
+  A_PLUS
+  S_MINUS
+  S
+  S_PLUS
+  SS_MINUS
+  SS
+  SS_PLUS
+  SSS_MINUS
+  SSS
+  SSS_PLUS
+  EX_MINUS
+  EX
+  EX_PLUS
 }
 
 model User {
@@ -75,7 +101,7 @@ model TrainerSave {
   astralCoins     Int       @default(3000)
   infinityCoins   Int       @default(0)
   storedXp        Int       @default(0)
-  rank            TrainerRank @default(NO_RANK)
+  rank            TrainerRank @default(F_MINUS)
 
   party        OwnedPokemon[]
   inventory    InventoryItem[]
@@ -107,7 +133,7 @@ model OwnedPokemon {
 
   nickname String?
   level    Int     @default(5)
-  potential PokemonPotential @default(BLACK_IRON)
+  potential PokemonPotential @default(F_MINUS)
 
   // Location Tracking
   isParty   Boolean @default(false)
@@ -241,6 +267,7 @@ model Species {
   catchRate Int @default(255)
   baseExp   Int @default(100)
   category  String @default("Normal")
+  rank      String @default("F")
 
   // Forms support
   formName      String?
@@ -285,6 +312,7 @@ model PokemonLearnset {
 enum BattleStatus {
   ACTIVE
   WAITING_SWITCH
+  WAITING_MOVE_LEARN
   WON
   LOST
   FLED
@@ -430,7 +458,7 @@ model RiftDungeonState {
   trainerId           String   @unique @db.ObjectId
   trainer             TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   
-  rank                TrainerRank @default(F_RANK)
+  rank                TrainerRank @default(F_MINUS)
   difficulty          RiftDifficulty @default(NORMAL)
   
   currentFloor        Int      @default(1)

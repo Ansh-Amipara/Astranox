@@ -37,6 +37,18 @@ export class BattleRewardService {
       result.events.push({ type: 'xp_gain', pokemonId: result.p1State.id, amount: 0 }); // Show 0 if capped
     }
 
+    const lostXp = xpYield - actualYield;
+    if (lostXp > 0 && trainerId) {
+      const storedXpGain = Math.floor(lostXp * 0.5);
+      if (storedXpGain > 0) {
+        await tx.trainerSave.update({
+          where: { id: trainerId },
+          data: { storedXp: { increment: storedXpGain } }
+        });
+        result.events.push({ type: 'stored_xp_gain', amount: storedXpGain });
+      }
+    }
+
     const oldLevel = result.p1State.level;
     const newLevel = getLevelFromXp(result.p1State.currentXp);
 

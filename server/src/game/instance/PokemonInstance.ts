@@ -4,35 +4,54 @@ import { calculatePokemonCP } from './cp';
 
 export function getMaxLevelForPotential(potential: string): number {
   switch (potential) {
-    case 'BLACK_IRON': return 30;
-    case 'BRONZE': return 60;
-    case 'SILVER': return 90;
-    case 'GOLD': return 120;
-    case 'PLATINUM': return 150;
-    case 'ADAMANTITE': return 200;
-    case 'DIAMOND': return 300;
-    case 'CRYSTAL': return 400;
-    case 'EPIC': return 500;
-    case 'HEROIC': return 700;
-    case 'SOVEREIGN': return 900;
-    case 'LEGENDARY': return 1100;
-    case 'DIVINE': return 1400;
-    case 'CELESTIAL': return 1700;
-    case 'PRIMORDIAL': return 2000;
-    case 'MYTHICAL': return 3000;
-    case 'INFINITY': return 4000;
-    case 'ETERNAL': return 5000;
-    default: return 5000;
+    case 'F_MINUS': return 25;
+    case 'F': return 50;
+    case 'F_PLUS': return 75;
+    case 'E_MINUS': return 100;
+    case 'E': return 150;
+    case 'E_PLUS': return 200;
+    case 'D_MINUS': return 300;
+    case 'D': return 400;
+    case 'D_PLUS': return 500;
+    case 'C_MINUS': return 600;
+    case 'C': return 700;
+    case 'C_PLUS': return 800;
+    case 'B_MINUS': return 1000;
+    case 'B': return 1200;
+    case 'B_PLUS': return 1400;
+    case 'A_MINUS': return 1600;
+    case 'A': return 1800;
+    case 'A_PLUS': return 2000;
+    case 'S_MINUS': return 3000;
+    case 'S': return 4000;
+    case 'S_PLUS': return 5000;
+    case 'SS_MINUS': return 6000;
+    case 'SS': return 7000;
+    case 'SS_PLUS': return 8000;
+    case 'SSS_MINUS': return 10000;
+    case 'SSS': return 12000;
+    case 'SSS_PLUS': return 14000;
+    case 'EX_MINUS': return 16000;
+    case 'EX': return 18000;
+    case 'EX_PLUS': return 20000;
+    default: return 20000;
   }
 }
 
-export function getMinPotentialForLevel(level: number, minTier: string = 'BLACK_IRON'): string {
+export function getMinPotentialForLevel(level: number, minTier: string = 'F_MINUS'): string {
   const tiers = [
-    'BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'ADAMANTITE', 'DIAMOND',
-    'CRYSTAL', 'EPIC', 'HEROIC', 'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL',
-    'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'
+    'F_MINUS', 'F', 'F_PLUS',
+    'E_MINUS', 'E', 'E_PLUS',
+    'D_MINUS', 'D', 'D_PLUS',
+    'C_MINUS', 'C', 'C_PLUS',
+    'B_MINUS', 'B', 'B_PLUS',
+    'A_MINUS', 'A', 'A_PLUS',
+    'S_MINUS', 'S', 'S_PLUS',
+    'SS_MINUS', 'SS', 'SS_PLUS',
+    'SSS_MINUS', 'SSS', 'SSS_PLUS',
+    'EX_MINUS', 'EX', 'EX_PLUS'
   ];
-  
+
   let requiredTierIndex = tiers.length - 1;
   for (let i = 0; i < tiers.length; i++) {
     if (level <= getMaxLevelForPotential(tiers[i])) {
@@ -92,7 +111,8 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
     payload.ivs,
     payload.level,
     payload.potential,
-    payload.species.isGmax
+    payload.species.isGmax,
+    payload.moves ? payload.moves.map(m => m.power || 0) : []
   );
 
   // 5. Return Combat Entity

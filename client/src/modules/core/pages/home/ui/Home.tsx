@@ -68,7 +68,7 @@ export function Home() {
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm flex items-center gap-2 sm:gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
               <div className="truncate">
                 <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Trainer Rank</p>
-                <p className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 capitalize truncate">{save.rank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '')}</p>
+                <p className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 uppercase truncate">{save.rank.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '')}</p>
               </div>
             </div>
 

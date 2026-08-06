@@ -41,8 +41,6 @@ export async function seedSpecies() {
     return parseInt(urlParts[urlParts.length - 1]);
   });
 
-  const allMoves = await prisma.move.findMany({ select: { id: true, typeId: true, power: true } });
-
   await runInBatches(ids, 20, async (id: number) => {
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
@@ -134,79 +132,9 @@ export async function seedSpecies() {
         },
       });
 
-      // Determine Max Learnset Power based on BST and Category
-      const bst = hp + attack + defense + spAtk + spDef + speed;
-      let maxPower = 40; // Baby default
-      
-      if (bst < 300) maxPower = 40;
-      else if (bst < 350) maxPower = 60;
-      else if (bst < 400) maxPower = 80;
-      else if (bst < 450) maxPower = 100;
-      else if (bst < 500) maxPower = 125;
-      else if (bst < 530) maxPower = 150;
-      else maxPower = 175; 
-      
-      if (category === 'Pseudo Legendary') maxPower = 200;
-      else if (category === 'Ultra Beast') maxPower = 275;
-      else if (category === 'Paradox') maxPower = 275;
-      else if (category === 'Mythical') maxPower = 325;
-      else if (category === 'Legendary') {
-         if (bst >= 680) maxPower = 400;
-         else maxPower = 350;
-      }
-      
-      // Signature overrides
-      const baseNameForSig = data.name.split('-')[0];
-      const starters = ['venusaur', 'charizard', 'blastoise', 'meganium', 'typhlosion', 'feraligatr', 'sceptile', 'blaziken', 'swampert', 'torterra', 'infernape', 'empoleon', 'serperior', 'emboar', 'samurott', 'chesnaught', 'delphox', 'greninja', 'decidueye', 'incineroar', 'primarina', 'rillaboom', 'cinderace', 'inteleon', 'meowscarada', 'skeledirge', 'quaquaval'];
-      const signatures175 = ['gengar', 'alakazam', 'machamp', 'gyarados', 'snorlax', 'lapras', 'arcanine', 'scizor', 'heracross', 'kingdra', 'houndoom', 'skarmory', 'gardevoir', 'gallade', 'aggron', 'flygon', 'milotic', 'absol', 'lucario', 'weavile', 'togekiss', 'electivire', 'magmortar', 'rhyperior', 'dusknoir', 'froslass', 'gliscor', 'rotom', 'zoroark', 'volcarona', 'haxorus', 'chandelure', 'bisharp', 'excadrill', 'talonflame', 'noivern', 'sylveon', 'mimikyu', 'lycanroc', 'toxapex', 'golisopod', 'vikavolt', 'corviknight', 'grimmsnarl', 'toxtricity', 'hatterene', 'copperajah', 'sirfetchd', 'ceruledge', 'armarouge'];
-      const exceptional200 = ['slaking', 'aegislash', 'palafin-hero', 'wishiwashi-school', 'ursaluna', 'ursaluna-bloodmoon', 'kingambit', 'annihilape', 'archaludon', 'goodra-hisui', 'arcanine-hisui'];
+      // Learnset seeding has been moved to a dedicated step (learnset-generator.ts)
+      // to run after evolutions are seeded.
 
-      if (starters.includes(baseNameForSig) || signatures175.includes(baseNameForSig)) {
-         maxPower = 175;
-      }
-      if (exceptional200.includes(data.name) || exceptional200.includes(baseNameForSig)) {
-         maxPower = 200;
-      }
-
-      // Parse Learnsets
-      const learnsetEntries: any[] = [];
-      const typesToLearn = [type1Id];
-      if (type2Id) typesToLearn.push(type2Id);
-
-      for (const move of allMoves) {
-         if (!move.power) continue;
-         if (typesToLearn.includes(move.typeId) && move.power <= maxPower) {
-             const unlockLevel = Math.max(1, Math.floor(move.power / 5));
-             learnsetEntries.push({
-                speciesId: id,
-                moveId: move.id,
-                unlockLevel,
-             });
-         }
-      }
-
-      // Sort by level ASC
-      learnsetEntries.sort((a, b) => a.unlockLevel - b.unlockLevel);
-
-      const uniqueMoves = new Set();
-      const finalLearnset = [];
-
-      for (const entry of learnsetEntries) {
-        // Prevent duplicate move entries for the same species/level
-        const key = `${entry.moveId}-${entry.unlockLevel}`;
-        if (!uniqueMoves.has(key)) {
-          uniqueMoves.add(key);
-          finalLearnset.push(entry);
-        }
-      }
-
-      // Insert PokemonLearnset
-      if (finalLearnset.length > 0) {
-        await prisma.pokemonLearnset.deleteMany({ where: { speciesId: id } });
-        await prisma.pokemonLearnset.createMany({
-          data: finalLearnset
-        });
-      }
 
     } catch (e) {
       console.error(`Failed seeding species ${id}`, e);

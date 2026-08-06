@@ -6,7 +6,7 @@ import { getSpriteUrl } from '@/shared/api/api';
 import { Loader2, ArrowLeft, Check, X, Ban, Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
 import { TradeOfferDto } from '@astranox/shared';
-
+import { formatPotential } from '@/shared/utils/pokemonUtils';
 export function ListingDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export function ListingDetailsPage() {
                   {listing.pokemon.potential === 'LEGENDARY' && <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-yellow-500 shrink-0" />}
                 </h1>
                 <p className="text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest flex-wrap">
-                  Lv. {listing.pokemon.level} • {listing.pokemon.potential.replace(/_/g, ' ')}
+                  Lv. {listing.pokemon.level} • {formatPotential(listing.pokemon.potential)}
                 </p>
                 <p className="text-sm text-slate-400 mt-4">
                   Listed by <span className="font-bold text-slate-700 dark:text-slate-300">{listing.seller.user.username}</span>

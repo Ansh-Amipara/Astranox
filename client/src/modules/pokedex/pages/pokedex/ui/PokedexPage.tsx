@@ -12,16 +12,18 @@ import { Loader2, Search } from 'lucide-react';
 export const PokedexPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedRank, setSelectedRank] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const limit = 50;
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['pokedex', limit, selectedType, selectedCategory, searchQuery],
+    queryKey: ['pokedex', limit, selectedType, selectedCategory, selectedRank, searchQuery],
     queryFn: async ({ pageParam = 1 }) => {
       const typeParam = selectedType ? `&type=${selectedType}` : '';
       const catParam = selectedCategory !== 'all' ? `&category=${selectedCategory}` : '';
+      const rankParam = selectedRank !== 'all' ? `&rank=${selectedRank}` : '';
       const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
-      const res = await api.get(`/pokedex/species?page=${pageParam}&limit=${limit}${typeParam}${catParam}${searchParam}`);
+      const res = await api.get(`/pokedex/species?page=${pageParam}&limit=${limit}${typeParam}${catParam}${rankParam}${searchParam}`);
       return res.data;
     },
     getNextPageParam: (lastPage) => {
@@ -108,8 +110,8 @@ export const PokedexPage: React.FC = () => {
         </div>
 
         {/* Row 2: Search and Filters */}
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
-          <div className="flex-1 w-full max-w-md">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
+          <div className="w-full lg:w-1/3">
             <div className="relative">
               <input
                 type="text"
@@ -124,25 +126,39 @@ export const PokedexPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full xl:w-auto">
-            <div className="flex-1">
-              <Dropdown
-                value={selectedType}
-                onChange={setSelectedType}
-                options={typeOptions}
-                placeholder="All Types"
-                className="w-full sm:w-48"
-                dropdownClassName="w-full sm:w-64 max-h-80"
-                optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
-              />
-            </div>
+          <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Dropdown
+              value={selectedType}
+              onChange={setSelectedType}
+              options={typeOptions}
+              placeholder="All Types"
+              className="w-full"
+              dropdownClassName="w-full sm:w-64 max-h-80"
+              optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
+            />
+            
+            <CategorySelect
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+            />
 
-            <div className="flex-1">
-              <CategorySelect
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-              />
-            </div>
+            <Dropdown
+              value={selectedRank}
+              onChange={setSelectedRank}
+              options={[
+                { value: 'all', label: 'All Ranks' },
+                { value: 'EX', label: 'Rank EX' },
+                { value: 'SSS', label: 'Rank SSS' },
+                { value: 'SS', label: 'Rank SS' },
+                { value: 'S', label: 'Rank S' },
+                { value: 'A', label: 'Rank A' },
+                { value: 'B', label: 'Rank B' },
+                { value: 'C', label: 'Rank C' },
+              ]}
+              placeholder="All Ranks"
+              className="w-full"
+              dropdownClassName="w-full max-h-80"
+            />
           </div>
         </div>
 

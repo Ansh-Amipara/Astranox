@@ -27,7 +27,8 @@ export function calculatePokemonCP(
   ivs: IVs,
   level: number,
   potential: string,
-  isGmax: boolean = false
+  isGmax: boolean = false,
+  movePowers: number[] = []
 ): number {
   // 1. Calculate final raw stats using standard logic
   const maxHp = calculateHP(baseStats.hp, ivs.hp, level, isGmax);
@@ -39,5 +40,19 @@ export function calculatePokemonCP(
 
   const statSum = maxHp + atk + def + spa + spd + spe;
 
-  return statSum * 100;
+  // 2. Calculate Move Synergy
+  // If movePowers is empty, estimate a reasonable move power based on level for tower/NPC generation
+  let totalMovePower = 0;
+  if (movePowers.length > 0) {
+    totalMovePower = movePowers.reduce((sum, p) => sum + (p === 0 ? 60 : p), 0);
+  } else {
+    // Estimate: Level * 1.5 average power per move, assuming 4 moves
+    totalMovePower = Math.floor((level * 1.5 + 20) * 4);
+  }
+
+  // 3. Apply Formula
+  const baseStatValue = statSum * 10;
+  const moveSynergyValue = statSum * (totalMovePower / 4);
+
+  return Math.floor(baseStatValue + moveSynergyValue);
 }

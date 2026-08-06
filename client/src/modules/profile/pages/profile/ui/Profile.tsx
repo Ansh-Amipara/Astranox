@@ -5,11 +5,8 @@ import { api } from '@/shared/api/api';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
 
 const formatRank = (rank: string) => {
-  if (!rank || rank === 'NO_RANK') return 'Unranked';
-  return rank
-    .replace('_MINUS_RANK', '-')
-    .replace('_PLUS_RANK', '+')
-    .replace('_RANK', '');
+  if (!rank || rank === 'F_MINUS') return 'Unranked';
+  return rank.replace('_MINUS', '-').replace('_PLUS', '+');
 };
 
 export function Profile() {

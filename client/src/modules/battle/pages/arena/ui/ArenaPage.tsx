@@ -15,12 +15,12 @@ interface ArenaTrainer {
   theme: string;
 }
 
-const RANKS = ['F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK', 'S_MINUS_RANK'];
+const RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S'];
 
 export function ArenaPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeRank, setActiveRank] = useState<string>('F_RANK');
+  const [activeRank, setActiveRank] = useState<string>('F');
   const [error, setError] = useState<string | null>(null);
 
   const { data: trainersResponse, isLoading } = useQuery({
@@ -43,7 +43,7 @@ export function ArenaPage() {
   const trainers: ArenaTrainer[] = trainersResponse?.data || [];
 
   const filteredTrainers = useMemo(() => {
-    return trainers.filter(t => t.targetRank === activeRank);
+    return trainers.filter(t => t.targetRank.startsWith(activeRank));
   }, [trainers, activeRank]);
 
   if (isLoading) {
@@ -74,7 +74,7 @@ export function ArenaPage() {
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
             >
-              {rank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '').toLowerCase()}
+              {rank.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '').toLowerCase()}
             </button>
           ))}
         </div>

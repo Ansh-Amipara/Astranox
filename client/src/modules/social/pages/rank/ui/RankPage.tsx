@@ -40,10 +40,7 @@ export function RankPage() {
 
   const formatRank = (rank: string) => {
     if (!rank) return '';
-    return rank
-      .replace('_MINUS_RANK', '-')
-      .replace('_PLUS_RANK', '+')
-      .replace('_RANK', '') + ' Rank';
+    return rank.replace('_MINUS', '-').replace('_PLUS', '+') + ' Rank';
   };
 
   return (

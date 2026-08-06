@@ -2,7 +2,8 @@ import React from 'react';
 import { OwnedPokemonDto, MoveDto } from '@astranox/shared';
 import { getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
+import { getPotentialBadgeClasses, formatPotential } from '@/shared/utils/pokemonUtils';
+import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
 
 interface PokemonManagementCardProps {
   pokemon: OwnedPokemonDto;
@@ -73,7 +74,7 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {p.potential && (
                 <span className={`${getPotentialBadgeClasses(p.potential)} px-2 py-0.5 text-xs`}>
-                  {p.potential.replace('_', ' ')}
+                  {formatPotential(p.potential)}
                 </span>
               )}
               <span className="text-xs px-2 py-0.5 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
@@ -87,7 +88,7 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
                 <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
                 <span className="text-sm font-black">{p.level}</span>
               </div>
-              {p.potential && p.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[p.potential as string] || 5000) ? (
+              {p.potential && p.level >= getMaxLevelForPotential(p.potential as string) ? (
                 <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-0.5 rounded border border-red-100 dark:border-red-900/50">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                 </div>

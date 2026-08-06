@@ -2,6 +2,7 @@ import React from 'react';
 import { getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { SpeciesDto } from '@astranox/shared';
+import { getBattleRank } from '@/shared/utils/battleRanksMap';
 
 interface PokedexRowProps {
   species: SpeciesDto;
@@ -41,8 +42,9 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
         </div>
         
         {/* Badges */}
-        {(species.category !== 'Normal' || species.isMega || species.isGmax) && (
+        {(species.category !== 'Normal' || species.isMega || species.isGmax || getBattleRank(species.id) !== 'Unranked') && (
           <div className="flex gap-1.5 flex-wrap">
+            {getBattleRank(species.id) !== 'Unranked' && <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-700 dark:border-white shadow-sm tracking-wide">Rank {getBattleRank(species.id)}</span>}
             {species.category === 'Legendary' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/50">Legendary</span>}
             {species.category === 'Mythical' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-200 dark:border-fuchsia-700/50">Mythical</span>}
             {species.category === 'Ultra Beast' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">Ultra Beast</span>}
@@ -102,8 +104,9 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
             <span className="font-bold text-slate-900 dark:text-white capitalize text-lg">
               {species.name.replace('-', ' ')}
             </span>
-            {(species.category !== 'Normal' || species.isMega || species.isGmax) && (
+            {(species.category !== 'Normal' || species.isMega || species.isGmax || getBattleRank(species.id) !== 'Unranked') && (
               <div className="mt-1 flex gap-1.5 flex-wrap">
+                {getBattleRank(species.id) !== 'Unranked' && <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-700 dark:border-white shadow-sm tracking-wide">Rank {getBattleRank(species.id)}</span>}
                 {species.category === 'Legendary' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/50">Legendary</span>}
                 {species.category === 'Mythical' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-200 dark:border-fuchsia-700/50">Mythical</span>}
                 {species.category === 'Ultra Beast' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">Ultra Beast</span>}

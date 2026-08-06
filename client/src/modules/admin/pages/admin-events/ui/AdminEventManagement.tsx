@@ -7,15 +7,7 @@ import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Modal } from '@/shared/ui/Modal';
 import { DatePicker } from '@/shared/ui/DatePicker';
-
-const getMaxLevelForPotential = (potential: string): number => {
-  const map: Record<string, number> = {
-    BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400,
-    EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000,
-    INFINITY: 4000, ETERNAL: 5000
-  };
-  return map[potential] || 5000;
-};
+import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
 
 export function AdminEventManagement() {
   const queryClient = useQueryClient();
@@ -378,7 +370,7 @@ export function AdminEventManagement() {
                         value={formState.rewardPotential}
                         onChange={v => setFormState({ ...formState, rewardPotential: v, rewardLevel: getMaxLevelForPotential(v) })}
                         options={
-                          ['BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'ADAMANTITE', 'DIAMOND', 'CRYSTAL', 'EPIC', 'HEROIC', 'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL', 'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'].map(p => ({
+                          ['F_MINUS', 'F', 'F_PLUS', 'E_MINUS', 'E', 'E_PLUS', 'D_MINUS', 'D', 'D_PLUS', 'C_MINUS', 'C', 'C_PLUS', 'B_MINUS', 'B', 'B_PLUS', 'A_MINUS', 'A', 'A_PLUS', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX_MINUS', 'EX', 'EX_PLUS'].map(p => ({
                             value: p,
                             label: p
                           }))

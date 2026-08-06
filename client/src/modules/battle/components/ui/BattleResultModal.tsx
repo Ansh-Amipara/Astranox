@@ -57,7 +57,8 @@ export const BattleResultModal = memo(function BattleResultModal({
     msg.toLowerCase().includes('promoted') ||
     msg.toLowerCase().includes('xp') ||
     msg.toLowerCase().includes('coins')) &&
-    !msg.toLowerCase().includes('exp. points')
+    !msg.toLowerCase().includes('exp. points') &&
+    !msg.toLowerCase().includes('click return')
   );
 
   const displayEvents = rewardEvents;

@@ -61,7 +61,8 @@ export function mapOwnedPokemonToInstance(dbModel: OwnedPokemonWithRelations): P
       moveId: m.moveId, 
       currentSlot: m.slot,
       name: m.move.name,
-      type: m.move.type.name
+      type: m.move.type.name,
+      power: m.move.power || 0
     })) : []
   });
 }

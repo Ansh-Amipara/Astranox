@@ -149,15 +149,21 @@ export class TrainersService {
 
     // Calculate Pearl rewards
     const potentialOrder = [
-      'BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 
-      'ADAMANTITE', 'DIAMOND', 'CRYSTAL', 'EPIC', 'HEROIC', 
-      'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL', 
-      'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'
+      'F_MINUS', 'F', 'F_PLUS', 
+      'E_MINUS', 'E', 'E_PLUS', 
+      'D_MINUS', 'D', 'D_PLUS',
+      'C_MINUS', 'C', 'C_PLUS',
+      'B_MINUS', 'B', 'B_PLUS',
+      'A_MINUS', 'A', 'A_PLUS',
+      'S_MINUS', 'S', 'S_PLUS',
+      'SS_MINUS', 'SS', 'SS_PLUS',
+      'SSS_MINUS', 'SSS', 'SSS_PLUS',
+      'EX_MINUS', 'EX', 'EX_PLUS'
     ];
     
     // The specific pearl mapping logic used in the game DB
     const getPearlItemId = (potential: string) => {
-      return `${potential.toLowerCase()}-pearl`;
+      return `${potential.toLowerCase().replace('_', '-')}-pearl`;
     };
 
     const targetIndex = potentialOrder.indexOf(pokemonToSmelt.potential);
@@ -275,25 +281,25 @@ export class TrainersService {
       throw new ValidationError(`You do not have a ${itemId} to boost potential.`);
     }
 
-    const validProgressions: Record<string, { current: PokemonPotential, next: PokemonPotential }> = {
-      'bronze-pearl': { current: PokemonPotential.BLACK_IRON, next: PokemonPotential.BRONZE },
-      'silver-pearl': { current: PokemonPotential.BRONZE, next: PokemonPotential.SILVER },
-      'gold-pearl': { current: PokemonPotential.SILVER, next: PokemonPotential.GOLD },
-      'platinum-pearl': { current: PokemonPotential.GOLD, next: PokemonPotential.PLATINUM },
-      'adamantite-pearl': { current: PokemonPotential.PLATINUM, next: PokemonPotential.ADAMANTITE },
-      'diamond-pearl': { current: PokemonPotential.ADAMANTITE, next: PokemonPotential.DIAMOND },
-      'crystal-pearl': { current: PokemonPotential.DIAMOND, next: PokemonPotential.CRYSTAL },
-      'epic-pearl': { current: PokemonPotential.CRYSTAL, next: PokemonPotential.EPIC },
-      'heroic-pearl': { current: PokemonPotential.EPIC, next: PokemonPotential.HEROIC },
-      'sovereign-pearl': { current: PokemonPotential.HEROIC, next: PokemonPotential.SOVEREIGN },
-      'legendary-pearl': { current: PokemonPotential.SOVEREIGN, next: PokemonPotential.LEGENDARY },
-      'divine-pearl': { current: PokemonPotential.LEGENDARY, next: PokemonPotential.DIVINE },
-      'celestial-pearl': { current: PokemonPotential.DIVINE, next: PokemonPotential.CELESTIAL },
-      'primordial-pearl': { current: PokemonPotential.CELESTIAL, next: PokemonPotential.PRIMORDIAL },
-      'mythical-pearl': { current: PokemonPotential.PRIMORDIAL, next: PokemonPotential.MYTHICAL },
-      'infinity-pearl': { current: PokemonPotential.MYTHICAL, next: PokemonPotential.INFINITY },
-      'eternal-pearl': { current: PokemonPotential.INFINITY, next: PokemonPotential.ETERNAL },
-    };
+    const potentialOrder = [
+      'F_MINUS', 'F', 'F_PLUS', 
+      'E_MINUS', 'E', 'E_PLUS', 
+      'D_MINUS', 'D', 'D_PLUS',
+      'C_MINUS', 'C', 'C_PLUS',
+      'B_MINUS', 'B', 'B_PLUS',
+      'A_MINUS', 'A', 'A_PLUS',
+      'S_MINUS', 'S', 'S_PLUS',
+      'SS_MINUS', 'SS', 'SS_PLUS',
+      'SSS_MINUS', 'SSS', 'SSS_PLUS',
+      'EX_MINUS', 'EX', 'EX_PLUS'
+    ];
+
+    const validProgressions: Record<string, { current: PokemonPotential, next: PokemonPotential }> = {};
+    for (let i = 0; i < potentialOrder.length - 1; i++) {
+      const current = potentialOrder[i] as PokemonPotential;
+      const next = potentialOrder[i + 1] as PokemonPotential;
+      validProgressions[`${next.toLowerCase().replace('_', '-')}-pearl`] = { current, next };
+    }
 
     const progression = validProgressions[itemId];
     if (!progression) {

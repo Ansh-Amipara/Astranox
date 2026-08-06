@@ -30,7 +30,7 @@ export class RiftService {
     if (!save) throw new NotFoundError('Trainer save not found.');
     let state = await this.repo.findStateByTrainerId(save.id);
     if (!state) {
-      state = await this.repo.startRun(save.id, 'F_RANK', 'NORMAL');
+      state = await this.repo.startRun(save.id, 'F', 'NORMAL');
       await this.repo.endRun(save.id);
     }
     return { state, rank: save.rank };

@@ -7,7 +7,10 @@ import { api, getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { ArrowRight } from 'lucide-react';
-import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
+import { getPotentialBadgeClasses, formatPotential } from '@/shared/utils/pokemonUtils';
+import { useSmeltPokemon } from '@/modules/pokemon/hooks/useSmeltPokemon';
+import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
+
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
   if (base === 1) return 1;
@@ -33,6 +36,8 @@ export function TeamPage() {
   const [giveXpPkm, setGiveXpPkm] = useState<OwnedPokemonDto | null>(null);
   const [xpAmountInput, setXpAmountInput] = useState<string>('1000');
   const [selectedIvStat, setSelectedIvStat] = useState<string>('ivHp');
+
+  const { SmeltResultUI } = useSmeltPokemon();
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
   const [selectedMega, setSelectedMega] = useState<{ id: number; name: string; baseSpeciesId?: number; baseSpeciesName?: string } | null>(null);
 
@@ -99,35 +104,6 @@ export function TeamPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       setActiveMenuPkm(null);
-    }
-  });
-
-  const smeltMutation = useMutation({
-    mutationFn: async (pokemonId: string) => {
-      const { data } = await api.post(`/trainers/party/${pokemonId}/smelt`);
-      return data.data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      setActiveMenuPkm(null);
-
-      toast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-bold">Smelt Successful!</p>
-          <p className="text-sm">Gained {data.storedXp.toLocaleString()} Stored XP</p>
-          {data.pearls.length > 0 && (
-            <div className="text-sm mt-1">
-              <p className="font-semibold">Pearls Obtained:</p>
-              <ul className="list-disc list-inside">
-                {data.pearls.map((p: { quantity?: number; type?: string }, i: number) => (
-                  <li key={i}>{p.quantity}x {p.type} Pearl</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>,
-        { duration: 5000 }
-      );
     }
   });
 
@@ -253,7 +229,7 @@ export function TeamPage() {
                         <div className="flex flex-wrap items-center gap-2 mb-3">
                           {pkm.potential && (
                             <span className={`${getPotentialBadgeClasses(pkm.potential)} px-2 py-0.5 text-xs`}>
-                              {pkm.potential.replace('_', ' ')}
+                              {formatPotential(pkm.potential)}
                             </span>
                           )}
                           <span className="text-xs px-2 py-0.5 rounded font-black border border-indigo-200 dark:border-indigo-800/50 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">
@@ -267,7 +243,7 @@ export function TeamPage() {
                             <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
                             <span className="text-sm font-black">{pkm.level}</span>
                           </div>
-                          {pkm.potential && pkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[pkm.potential as string] || 5000) ? (
+                          {pkm.potential && pkm.level >= getMaxLevelForPotential(pkm.potential as string) ? (
                             <div className="flex items-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-0.5 rounded border border-red-100 dark:border-red-900/50">
                               <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                             </div>
@@ -327,7 +303,7 @@ export function TeamPage() {
                 <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
                 <p className="text-xs font-bold text-slate-500">
                   Lv. {activeMenuPkm.level}
-                  {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[activeMenuPkm.potential as string] || 5000) ? (
+                  {activeMenuPkm.potential && activeMenuPkm.level >= getMaxLevelForPotential(activeMenuPkm.potential as string) ? (
                     <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
                   ) : (
                     <span className="font-medium text-slate-400 opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span>
@@ -461,10 +437,10 @@ export function TeamPage() {
                     </span>
                     {detailsPkm.potential && (
                       <span className={getPotentialBadgeClasses(detailsPkm.potential)}>
-                        {detailsPkm.potential.replace('_', ' ')}
+                        {formatPotential(detailsPkm.potential)}
                       </span>
                     )}
-                    {detailsPkm.potential && detailsPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[detailsPkm.potential as string] || 5000) && (
+                    {detailsPkm.potential && detailsPkm.level >= getMaxLevelForPotential(detailsPkm.potential as string) && (
                       <span className="text-xs px-2 py-1 rounded font-bold border border-red-200 dark:border-red-900/50 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase tracking-wider">
                         Capped
                       </span>
@@ -615,6 +591,7 @@ export function TeamPage() {
           </div>
         </div>
       )}
+      {SmeltResultUI}
 
       {/* --- 5. Boost Potential Modal --- */}
       {boostPkm && (() => {
@@ -857,9 +834,7 @@ export function TeamPage() {
       {/* --- Give XP Modal --- */}
       {giveXpPkm && (() => {
         const potentialCaps: Record<string, number> = {
-          BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200,
-          DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100,
-          DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000
+          F_MINUS: 25, F: 50, F_PLUS: 75, E_MINUS: 100, E: 150, E_PLUS: 200, D_MINUS: 300, D: 400, D_PLUS: 500, C_MINUS: 600, C: 700, C_PLUS: 800, B_MINUS: 1000, B: 1200, B_PLUS: 1400, A_MINUS: 1600, A: 1800, A_PLUS: 2000, S_MINUS: 3000, S: 4000, S_PLUS: 5000, SS_MINUS: 6000, SS: 7000, SS_PLUS: 8000, SSS_MINUS: 10000, SSS: 12000, SSS_PLUS: 14000, EX_MINUS: 16000, EX: 18000, EX_PLUS: 20000
         };
         const maxLvl = potentialCaps[giveXpPkm.potential as string] || 2000;
         const maxTotalXp = 50 * (maxLvl + 1) * maxLvl - 1;

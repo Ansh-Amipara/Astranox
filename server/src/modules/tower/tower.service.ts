@@ -75,12 +75,13 @@ export class TowerService {
 
     const party = await prisma.ownedPokemon.findMany({
       where: { trainerId: trainerId, isParty: true },
-      include: { species: true }
+      include: { species: true, equippedMoves: { include: { move: true } } }
     });
     const playerCp = party.reduce((sum, p) => {
       const baseStats = { hp: p.species.hp, attack: p.species.attack, defense: p.species.defense, spAtk: p.species.spAtk, spDef: p.species.spDef, speed: p.species.speed };
       const ivs = { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed };
-      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential, p.species.isGmax);
+      const movePowers = p.equippedMoves.map(m => m.move?.power || 0);
+      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential, p.species.isGmax, movePowers);
     }, 0);
     const floorCp = estimateTowerFloorCP(state!.currentFloor);
 
@@ -98,12 +99,13 @@ export class TowerService {
 
     const party = await prisma.ownedPokemon.findMany({
       where: { trainerId: trainerId, isParty: true },
-      include: { species: true }
+      include: { species: true, equippedMoves: { include: { move: true } } }
     });
     const playerCp = party.reduce((sum, p) => {
       const baseStats = { hp: p.species.hp, attack: p.species.attack, defense: p.species.defense, spAtk: p.species.spAtk, spDef: p.species.spDef, speed: p.species.speed };
       const ivs = { hp: p.ivHp, attack: p.ivAttack, defense: p.ivDefense, spAtk: p.ivSpAtk, spDef: p.ivSpDef, speed: p.ivSpeed };
-      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential, p.species.isGmax);
+      const movePowers = p.equippedMoves.map(m => m.move?.power || 0);
+      return sum + calculatePokemonCP(baseStats, ivs, p.level, p.potential, p.species.isGmax, movePowers);
     }, 0);
 
     let skippedCount = 0;
@@ -200,7 +202,7 @@ export class TowerService {
     const enemyTeam = speciesList.map(species => {
       // Pick up to 4 moves from learnsets that are available at config.level
       const availableMoves = species.learnsets
-        .filter((l: any) => l.level <= config.level)
+        .filter((l: any) => l.unlockLevel <= config.level)
         .map((l: any) => l.move);
 
       // Shuffle and take 4
@@ -239,9 +241,10 @@ export class TowerService {
         species: speciesContext,
         moves: selectedMoves.map((m: any, index: number) => ({
           moveId: m.id,
-          name: m.name,
           currentSlot: index,
-          type: m.type?.name || 'normal'
+          name: m.name,
+          type: m.type.name,
+          power: m.power || 0
         }))
       };
 

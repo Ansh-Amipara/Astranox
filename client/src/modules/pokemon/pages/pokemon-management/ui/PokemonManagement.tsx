@@ -1,14 +1,14 @@
 import { useState, useRef } from 'react';
+import { toast } from 'sonner';
 import { OwnedPokemonDto, MoveDto } from '@astranox/shared';
 import { PokemonModalsRef } from '@/modules/pokemon/components/ui/PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
-import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { getPotentialBadgeClasses } from '@/shared/utils/pokemonUtils';
-import { toast } from 'sonner';
 import { PokemonActionModals } from '@/modules/pokemon/components/ui/PokemonActionModals';
 import { Pagination } from '@/shared/ui/Pagination';
 import { PokemonManagementCard } from './PokemonManagementCard';
+import { useSmeltPokemon } from '@/modules/pokemon/hooks/useSmeltPokemon';
+import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
 
 export function PokemonManagement() {
   const queryClient = useQueryClient();
@@ -16,6 +16,8 @@ export function PokemonManagement() {
   const [selectedForTeam, setSelectedForTeam] = useState<string | null>(null);
   const [activeMenuPkm, setActiveMenuPkm] = useState<OwnedPokemonDto | null>(null);
   const modalsRef = useRef<PokemonModalsRef>(null);
+
+  const { promptSmelt, isSmelting, SmeltResultUI } = useSmeltPokemon(() => setActiveMenuPkm(null));
 
   const { data: save } = useQuery({
     queryKey: ['trainerSave'],
@@ -67,35 +69,6 @@ export function PokemonManagement() {
     },
     onError: (err: unknown) => {
       toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to add to team');
-    }
-  });
-
-  const smeltMutation = useMutation({
-    mutationFn: async (pokemonId: string) => {
-      const { data } = await api.post(`/trainers/party/${pokemonId}/smelt`);
-      return data.data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
-      queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
-
-      toast.success(
-        <div className="flex flex-col gap-1">
-          <p className="font-bold">Smelt Successful!</p>
-          <p className="text-sm">Gained {data.storedXp.toLocaleString()} Stored XP</p>
-          {data.pearls.length > 0 && (
-            <div className="text-sm mt-1">
-              <p className="font-semibold">Pearls Obtained:</p>
-              <ul className="list-disc list-inside">
-                {data.pearls.map((p: { quantity?: number; type?: string }, i: number) => (
-                  <li key={i}>{p.quantity}x {p.type} Pearl</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>,
-        { duration: 5000 }
-      );
     }
   });
 
@@ -174,7 +147,7 @@ export function PokemonManagement() {
                   </h3>
                   <p className="text-xs font-bold text-slate-500">
                     Lv. {activeMenuPkm.level}
-                    {activeMenuPkm.potential && activeMenuPkm.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[activeMenuPkm.potential as string] || 5000) ? (
+                    {activeMenuPkm.potential && activeMenuPkm.level >= getMaxLevelForPotential(activeMenuPkm.potential as string) ? (
                       <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
                     ) : (
                       <span className="font-medium text-slate-400 opacity-80 ml-1">• {(activeMenuPkm.currentXp || 0).toLocaleString()} XP</span>
@@ -268,27 +241,12 @@ export function PokemonManagement() {
                   )}
 
                   <button
-                    onClick={() => {
-                      toast(`Smelting permanently destroys this Pokémon.\nYou will receive Stored XP and Potential Pearls.\nThis action cannot be undone.`, {
-                        action: {
-                          label: 'Smelt',
-                          onClick: () => {
-                            smeltMutation.mutate(activeMenuPkm.id);
-                            setActiveMenuPkm(null);
-                          }
-                        },
-                        cancel: {
-                          label: 'Cancel',
-                          onClick: () => { }
-                        },
-                        duration: 5000
-                      });
-                    }}
-                    disabled={smeltMutation.isPending || isInParty(activeMenuPkm)}
+                    onClick={() => promptSmelt(activeMenuPkm.id)}
+                    disabled={isSmelting || isInParty(activeMenuPkm)}
                     title={isInParty(activeMenuPkm) ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
                     className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {smeltMutation.isPending ? 'Smelting...' : 'Smelt Pokemon'}
+                    {isSmelting ? 'Smelting...' : 'Smelt Pokemon'}
                   </button>
                 </div>
               )}
@@ -336,6 +294,8 @@ export function PokemonManagement() {
             </div>
           </div>
         )}
+
+        {SmeltResultUI}
       </div>
     </div>
   );

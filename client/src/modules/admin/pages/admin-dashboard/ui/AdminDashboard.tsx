@@ -7,38 +7,16 @@ type UserPayload = any;
 import { Banknote, Gift, Pencil, X } from 'lucide-react';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { api } from '@/shared/api/api';
+import { getMaxLevelForPotential, getXpForLevel } from '@/shared/utils/pokemonUtils';
 
 export function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalMode, setModalMode] = useState<'currency' | 'sendPokemon' | 'editPokemon' | null>(null);
   
-  const POTENTIALS = ['BLACK_IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'ADAMANTITE', 'DIAMOND', 'CRYSTAL', 'EPIC', 'HEROIC', 'SOVEREIGN', 'LEGENDARY', 'DIVINE', 'CELESTIAL', 'PRIMORDIAL', 'MYTHICAL', 'INFINITY', 'ETERNAL'];
-  const [pokemonPotential, setPokemonPotential] = useState<string>('BLACK_IRON');
+  const POTENTIALS = ['F_MINUS', 'F', 'F_PLUS', 'E_MINUS', 'E', 'E_PLUS', 'D_MINUS', 'D', 'D_PLUS', 'C_MINUS', 'C', 'C_PLUS', 'B_MINUS', 'B', 'B_PLUS', 'A_MINUS', 'A', 'A_PLUS', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX_MINUS', 'EX', 'EX_PLUS'];
+  const [pokemonPotential, setPokemonPotential] = useState<string>('F');
   const [editPotential, setEditPotential] = useState<string>('');
   
-  function getMaxLevelForPotential(potential: string) {
-    switch (potential) {
-      case 'BLACK_IRON': return 30;
-      case 'BRONZE': return 60;
-      case 'SILVER': return 90;
-      case 'GOLD': return 120;
-      case 'PLATINUM': return 150;
-      case 'ADAMANTITE': return 200;
-      case 'DIAMOND': return 300;
-      case 'CRYSTAL': return 400;
-      case 'EPIC': return 500;
-      case 'HEROIC': return 700;
-      case 'SOVEREIGN': return 900;
-      case 'LEGENDARY': return 1100;
-      case 'DIVINE': return 1400;
-      case 'CELESTIAL': return 1700;
-      case 'PRIMORDIAL': return 2000;
-      case 'MYTHICAL': return 3000;
-      case 'INFINITY': return 4000;
-      case 'ETERNAL': return 5000;
-      default: return 5000;
-    }
-  }
   const [moneyAmount, setMoneyAmount] = useState<number>(1000);
   const [currencyType, setCurrencyType] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
   const [speciesId, setSpeciesId] = useState<number>(1);
@@ -472,7 +450,7 @@ export function AdminDashboard() {
                             <button
                               onClick={() => {
                                 const maxLevel = getMaxLevelForPotential(editPotential);
-                                const maxTotalXp = 50 * (maxLevel + 1) * maxLevel - 1;
+                                const maxTotalXp = getXpForLevel(maxLevel + 1) - 1;
                                 const requiredXp = maxTotalXp - (selectedPokemonToEdit.currentXp || 0);
                                 setEditXp(Math.max(0, requiredXp));
                               }}

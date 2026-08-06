@@ -10,33 +10,33 @@ const RIFT_REWARD_MULTIPLIERS: Record<string, number> = {
 };
 
 const RIFT_MAX_FLOORS: Record<string, number> = {
-  F_RANK: 2, E_RANK: 2, D_RANK: 3, C_RANK: 3, B_RANK: 4, A_RANK: 4,
-  S_MINUS_RANK: 5, S_RANK: 5, S_PLUS_RANK: 5, SS_MINUS_RANK: 5, SS_RANK: 5, SS_PLUS_RANK: 5,
-  SSS_MINUS_RANK: 5, SSS_RANK: 5, SSS_PLUS_RANK: 5
+  F: 2, E: 2, D: 3, C: 3, B: 4, A: 4,
+  S_MINUS: 5, S: 5, S_PLUS: 5, SS_MINUS: 5, SS: 5, SS_PLUS: 5,
+  SSS_MINUS: 5, SSS: 5, SSS_PLUS: 5
 };
 
 const RIFT_BASE_INFINITY_COINS: Record<string, number> = {
-  F_RANK: 10, E_RANK: 25, D_RANK: 50, C_RANK: 100, B_RANK: 200, A_RANK: 400,
-  S_MINUS_RANK: 800, S_RANK: 1500, S_PLUS_RANK: 3000, SS_MINUS_RANK: 5000,
-  SS_RANK: 8000, SS_PLUS_RANK: 12000, SSS_MINUS_RANK: 20000, SSS_RANK: 35000, SSS_PLUS_RANK: 50000
+  F: 10, E: 25, D: 50, C: 100, B: 200, A: 400,
+  S_MINUS: 800, S: 1500, S_PLUS: 3000, SS_MINUS: 5000,
+  SS: 8000, SS_PLUS: 12000, SSS_MINUS: 20000, SSS: 35000, SSS_PLUS: 50000
 };
 
 const RIFT_LEVEL_RANGES: Record<string, { min: number; max: number }> = {
-  F_RANK: { min: 10, max: 25 }, E_RANK: { min: 30, max: 50 }, D_RANK: { min: 60, max: 90 },
-  C_RANK: { min: 100, max: 150 }, B_RANK: { min: 160, max: 250 }, A_RANK: { min: 260, max: 400 },
-  S_MINUS_RANK: { min: 410, max: 600 }, S_RANK: { min: 610, max: 800 }, S_PLUS_RANK: { min: 810, max: 1000 },
-  SS_MINUS_RANK: { min: 1010, max: 1300 }, SS_RANK: { min: 1310, max: 1600 }, SS_PLUS_RANK: { min: 1610, max: 1900 },
-  SSS_MINUS_RANK: { min: 1910, max: 2500 }, SSS_RANK: { min: 2510, max: 3500 }, SSS_PLUS_RANK: { min: 3510, max: 4500 }
+  F: { min: 10, max: 25 }, E: { min: 30, max: 50 }, D: { min: 60, max: 90 },
+  C: { min: 100, max: 150 }, B: { min: 160, max: 250 }, A: { min: 260, max: 400 },
+  S_MINUS: { min: 410, max: 600 }, S: { min: 610, max: 800 }, S_PLUS: { min: 810, max: 1000 },
+  SS_MINUS: { min: 1010, max: 1300 }, SS: { min: 1310, max: 1600 }, SS_PLUS: { min: 1610, max: 1900 },
+  SSS_MINUS: { min: 1910, max: 2500 }, SSS: { min: 2510, max: 3500 }, SSS_PLUS: { min: 3510, max: 4500 }
 };
 
 const RIFT_RANKS = [
-  'F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK',
-  'S_MINUS_RANK', 'S_RANK', 'S_PLUS_RANK', 'SS_MINUS_RANK', 'SS_RANK', 'SS_PLUS_RANK',
-  'SSS_MINUS_RANK', 'SSS_RANK', 'SSS_PLUS_RANK'
+  'F', 'E', 'D', 'C', 'B', 'A',
+  'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS',
+  'SSS_MINUS', 'SSS', 'SSS_PLUS'
 ];
 
 const formatRankName = (rank: string) => {
-  return rank.replace('_RANK', '').replace('_MINUS', '-').replace('_PLUS', '+').replace('_', ' ');
+  return rank.replace('_', '').replace('_MINUS', '-').replace('_PLUS', '+').replace('_', ' ');
 };
 
 const RIFT_TABLE_DATA = RIFT_RANKS.flatMap(rank => {
@@ -65,21 +65,36 @@ const RIFT_TABLE_DATA = RIFT_RANKS.flatMap(rank => {
 });
 
 const TABLE_DATA = [
-  { rank: 'F', tiers: 'Black Iron, Bronze', maxLevel: 60 },
-  { rank: 'E', tiers: 'Silver, Gold', maxLevel: 120 },
-  { rank: 'D', tiers: 'Platinum, Adamantite', maxLevel: 200 },
-  { rank: 'C', tiers: 'Diamond', maxLevel: 300 },
-  { rank: 'B', tiers: 'Crystal', maxLevel: 400 },
-  { rank: 'A', tiers: 'Epic', maxLevel: 500 },
-  { rank: 'S-', tiers: 'Heroic', maxLevel: 700 },
-  { rank: 'S', tiers: 'Sovereign', maxLevel: 900 },
-  { rank: 'S+', tiers: 'Legendary', maxLevel: 1100 },
-  { rank: 'SS-', tiers: 'Divine', maxLevel: 1400 },
-  { rank: 'SS', tiers: 'Celestial', maxLevel: 1700 },
-  { rank: 'SS+', tiers: 'Primordial', maxLevel: 2000 },
-  { rank: 'SSS-', tiers: 'Mythical', maxLevel: 3000 },
-  { rank: 'SSS', tiers: 'Infinity', maxLevel: 4000 },
-  { rank: 'SSS+', tiers: 'Eternal', maxLevel: 5000 },
+  { rank: 'F-', maxLevel: 25 },
+  { rank: 'F', maxLevel: 50 },
+  { rank: 'F+', maxLevel: 75 },
+  { rank: 'E-', maxLevel: 100 },
+  { rank: 'E', maxLevel: 150 },
+  { rank: 'E+', maxLevel: 200 },
+  { rank: 'D-', maxLevel: 300 },
+  { rank: 'D', maxLevel: 400 },
+  { rank: 'D+', maxLevel: 500 },
+  { rank: 'C-', maxLevel: 600 },
+  { rank: 'C', maxLevel: 700 },
+  { rank: 'C+', maxLevel: 800 },
+  { rank: 'B-', maxLevel: 1000 },
+  { rank: 'B', maxLevel: 1200 },
+  { rank: 'B+', maxLevel: 1400 },
+  { rank: 'A-', maxLevel: 1600 },
+  { rank: 'A', maxLevel: 1800 },
+  { rank: 'A+', maxLevel: 2000 },
+  { rank: 'S-', maxLevel: 3000 },
+  { rank: 'S', maxLevel: 4000 },
+  { rank: 'S+', maxLevel: 5000 },
+  { rank: 'SS-', maxLevel: 6000 },
+  { rank: 'SS', maxLevel: 7000 },
+  { rank: 'SS+', maxLevel: 8000 },
+  { rank: 'SSS-', maxLevel: 10000 },
+  { rank: 'SSS', maxLevel: 12000 },
+  { rank: 'SSS+', maxLevel: 14000 },
+  { rank: 'EX-', maxLevel: 16000 },
+  { rank: 'EX', maxLevel: 18000 },
+  { rank: 'EX+', maxLevel: 20000 },
 ];
 
 const EXPLORE_BIOMES = [
@@ -140,11 +155,10 @@ export function InfoPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base font-bold rounded-xl transition-all capitalize shadow-sm border ${
-                activeTab === tab
+              className={`px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base font-bold rounded-xl transition-all capitalize shadow-sm border ${activeTab === tab
                   ? 'bg-purple-600 text-white border-purple-500 shadow-purple-500/20'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-              }`}
+                }`}
             >
               {tab === 'explore' ? 'Explore Realms' : tab === 'rift' ? 'Void Rifts' : tab === 'furnace' ? 'Astral Furnace' : tab === 'tower' ? 'Infinity Tower' : tab === 'pokemart' ? 'Pokémart' : tab}
             </button>
@@ -159,7 +173,6 @@ export function InfoPage() {
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                       <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Trainer Rank</th>
-                      <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm">Realm Tier(s)</th>
                       <th className="py-5 px-6 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-sm text-right">Maximum Level</th>
                     </tr>
                   </thead>
@@ -173,9 +186,6 @@ export function InfoPage() {
                           <span className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                             {row.rank}
                           </span>
-                        </td>
-                        <td className="py-4 px-6 text-slate-600 dark:text-slate-300 font-medium">
-                          {row.tiers}
                         </td>
                         <td className="py-4 px-6 text-right">
                           <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold font-mono text-sm border border-emerald-200 dark:border-emerald-800/30">
@@ -206,7 +216,7 @@ export function InfoPage() {
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li><span className="font-bold text-purple-600 dark:text-purple-400">Dynamic Potential Scaling (5-Stage System):</span> The potential of encountered wild Pokémon dynamically scales to your Trainer Rank using a 5-stage window. For example, if you are at <span className="font-bold">A Rank</span>, you will encounter wild Pokémon with potentials ranging from <span className="font-bold">E Rank</span> up to <span className="font-bold">A Rank</span>. These encounters are realistically weighted: you have a <span className="font-bold text-slate-500">40% chance</span> to find the lowest potential in your window, scaling down to just a <span className="font-bold text-orange-500">2% chance</span> for your maximum potential!</li>
               </ul>
-              
+
               <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table className="w-full text-left border-collapse text-sm">
                   <thead>
@@ -329,7 +339,7 @@ export function InfoPage() {
                   <li className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl"><span className="text-blue-500 font-bold">SPE</span> <span>+5%</span></li>
                 </ul>
               </div>
-              
+
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-widest text-center">Hard</h3>
                 <ul className="space-y-3 text-slate-600 dark:text-slate-400 font-medium">
@@ -434,7 +444,7 @@ export function InfoPage() {
               {RIFT_RANKS.map(rankKey => {
                 const rankName = formatRankName(rankKey);
                 const rankData = RIFT_TABLE_DATA.filter(r => r.rank === rankName);
-                
+
                 return (
                   <div key={rankKey} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
                     <div className="bg-slate-100 dark:bg-slate-800/50 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
@@ -547,7 +557,7 @@ export function InfoPage() {
 function PokemartInfoTab() {
   const [storeType, setStoreType] = useState<'astral' | 'infinity'>('astral');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  
+
   const { data: items, isLoading } = useQuery({
     queryKey: ['shopItemsInfo'],
     queryFn: shopApi.getItems
@@ -575,18 +585,17 @@ function PokemartInfoTab() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-900/50 p-2 border border-slate-200 dark:border-slate-800 rounded-2xl w-full overflow-hidden">
-        
+
         {/* Category Filters */}
         <div className="flex items-center gap-2 overflow-x-auto p-1 pb-2 w-full sm:w-auto scrollbar-hide">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 sm:px-5 rounded-lg text-sm font-bold capitalize transition-colors whitespace-nowrap shrink-0 ${
-                activeCategory === cat 
-                  ? 'bg-purple-600 text-white shadow-sm' 
+              className={`px-4 py-2 sm:px-5 rounded-lg text-sm font-bold capitalize transition-colors whitespace-nowrap shrink-0 ${activeCategory === cat
+                  ? 'bg-purple-600 text-white shadow-sm'
                   : 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+                }`}
             >
               <span className={`capitalize text-sm font-bold whitespace-nowrap ${activeCategory === cat ? 'text-white' : ''}`}>
                 {cat === 'infinity-only' || cat === 'potential' ? 'Potential' : cat === 'iv' ? 'IV' : cat === 'all' ? 'All Items' : cat.replace('-', ' ')}
@@ -599,21 +608,19 @@ function PokemartInfoTab() {
         <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl w-full sm:w-max shrink-0 mx-1 sm:mx-0">
           <button
             onClick={() => setStoreType('astral')}
-            className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-colors ${
-              storeType === 'astral' 
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+            className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-colors ${storeType === 'astral'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
+              }`}
           >
             Astral Store
           </button>
           <button
             onClick={() => setStoreType('infinity')}
-            className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-colors ${
-              storeType === 'infinity' 
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+            className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-colors ${storeType === 'infinity'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
+              }`}
           >
             Infinity Store
           </button>

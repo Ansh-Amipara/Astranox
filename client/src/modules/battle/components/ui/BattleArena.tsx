@@ -5,7 +5,8 @@ import { StatusIcons } from '@/shared/ui/StatusIcons';
 import { WeatherEffects } from './WeatherEffects';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { ActivePokemonDto, OwnedPokemonDto } from '@astranox/shared';
-
+import { formatPotential } from '@/shared/utils/pokemonUtils';
+import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
 interface Props {
   wild: ActivePokemonDto & { name?: string; isCorrupted?: boolean; statusAilment?: string };
   player: ActivePokemonDto & { name?: string; nickname?: string; statusAilment?: string };
@@ -114,12 +115,12 @@ export const BattleArena = memo(function BattleArena({ wild, player, opponentPar
           <div className="flex flex-col items-end shrink-0">
             {player.potential && (
               <span className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-400 dark:border-slate-600 rounded font-bold uppercase tracking-wider mb-0.5">
-                {player.potential.replace('_', ' ')}
+                {formatPotential(player.potential)}
               </span>
             )}
             <div className="flex items-center gap-1">
               <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 drop-shadow-sm">Lv {player.level}</span>
-              {player.potential && player.level >= ({ BLACK_IRON: 30, BRONZE: 60, SILVER: 90, GOLD: 120, PLATINUM: 150, ADAMANTITE: 200, DIAMOND: 300, CRYSTAL: 400, EPIC: 500, HEROIC: 700, SOVEREIGN: 900, LEGENDARY: 1100, DIVINE: 1400, CELESTIAL: 1700, PRIMORDIAL: 2000, MYTHICAL: 3000, INFINITY: 4000, ETERNAL: 5000 }[player.potential as string] || 5000) && (
+              {player.potential && player.level >= getMaxLevelForPotential(player.potential as string) && (
                 <span className="text-[9px] sm:text-[10px] font-bold text-slate-100 bg-slate-900/50 border border-slate-700/50 px-1 rounded uppercase">Capped</span>
               )}
             </div>

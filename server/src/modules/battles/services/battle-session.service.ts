@@ -24,43 +24,43 @@ function generateWildIVs() {
   };
 }
 
+import { getMinPotentialForLevel, getMaxLevelForPotential } from '../../../game/instance/PokemonInstance';
+
 const RANK_LEVEL_BOUNDS: Record<string, { min: number, max: number }> = {
-  F_RANK: { min: 1, max: 60 },
-  E_RANK: { min: 61, max: 120 },
-  D_RANK: { min: 121, max: 200 },
-  C_RANK: { min: 201, max: 300 },
-  B_RANK: { min: 301, max: 400 },
-  A_RANK: { min: 401, max: 500 },
-  S_MINUS_RANK: { min: 501, max: 700 },
-  S_RANK: { min: 701, max: 900 },
-  S_PLUS_RANK: { min: 901, max: 1100 },
-  SS_MINUS_RANK: { min: 1101, max: 1400 },
-  SS_RANK: { min: 1401, max: 1700 },
-  SS_PLUS_RANK: { min: 1701, max: 2000 },
-  SSS_MINUS_RANK: { min: 2001, max: 3000 },
-  SSS_RANK: { min: 3001, max: 4000 },
-  SSS_PLUS_RANK: { min: 4001, max: 5000 },
+  F_MINUS: { min: 1, max: 25 },
+  F: { min: 26, max: 50 },
+  F_PLUS: { min: 51, max: 75 },
+  E_MINUS: { min: 76, max: 100 },
+  E: { min: 101, max: 150 },
+  E_PLUS: { min: 151, max: 200 },
+  D_MINUS: { min: 201, max: 300 },
+  D: { min: 301, max: 400 },
+  D_PLUS: { min: 401, max: 500 },
+  C_MINUS: { min: 501, max: 600 },
+  C: { min: 601, max: 700 },
+  C_PLUS: { min: 701, max: 800 },
+  B_MINUS: { min: 801, max: 1000 },
+  B: { min: 1001, max: 1200 },
+  B_PLUS: { min: 1201, max: 1400 },
+  A_MINUS: { min: 1401, max: 1600 },
+  A: { min: 1601, max: 1800 },
+  A_PLUS: { min: 1801, max: 2000 },
+  S_MINUS: { min: 2001, max: 3000 },
+  S: { min: 3001, max: 4000 },
+  S_PLUS: { min: 4001, max: 5000 },
+  SS_MINUS: { min: 5001, max: 6000 },
+  SS: { min: 6001, max: 7000 },
+  SS_PLUS: { min: 7001, max: 8000 },
+  SSS_MINUS: { min: 8001, max: 10000 },
+  SSS: { min: 10001, max: 12000 },
+  SSS_PLUS: { min: 12001, max: 14000 },
+  EX_MINUS: { min: 14001, max: 16000 },
+  EX: { min: 16001, max: 18000 },
+  EX_PLUS: { min: 18001, max: 20000 },
 };
 
 function getNpcPotential(level: number): string {
-  if (level <= 30) return 'BLACK_IRON';
-  if (level <= 60) return 'BRONZE';
-  if (level <= 90) return 'SILVER';
-  if (level <= 120) return 'GOLD';
-  if (level <= 160) return 'PLATINUM';
-  if (level <= 200) return 'ADAMANTITE';
-  if (level <= 300) return 'DIAMOND';
-  if (level <= 400) return 'CRYSTAL';
-  if (level <= 500) return 'EPIC';
-  if (level <= 700) return 'HEROIC';
-  if (level <= 900) return 'SOVEREIGN';
-  if (level <= 1100) return 'LEGENDARY';
-  if (level <= 1400) return 'DIVINE';
-  if (level <= 1700) return 'CELESTIAL';
-  if (level <= 2000) return 'PRIMORDIAL';
-  if (level <= 3000) return 'MYTHICAL';
-  if (level <= 4000) return 'INFINITY';
-  return 'ETERNAL';
+  return getMinPotentialForLevel(level);
 }
 
 export function toActivePokemon(inst: any): ActivePokemon {
@@ -730,154 +730,304 @@ export const RANK_EXAMINERS: Record<string, {
   xp: number;
   items: string[];
 }> = {
-  'F_RANK': {
-    name: 'F Rank Examiner',
-    targetRank: 'F_RANK',
+  'F_MINUS': {
+    name: 'F- Rank Examiner',
+    targetRank: 'F_MINUS',
     level: 1,
-    ace: 'luxio',
-    team: ['pidgeotto', 'luxio'],
+    ace: 'stunky',
+    team: ['smoochum','stunky'],
+    coins: 150,
+    xp: 500,
+    items: ['Bronze Pearl']
+  },
+  'F': {
+    name: 'F Rank Examiner',
+    targetRank: 'F',
+    level: 11,
+    ace: 'pawmi',
+    team: ['primarina','pawmi'],
     coins: 300,
     xp: 1000,
     items: ['Bronze Pearl']
   },
-  'E_RANK': {
+  'F_PLUS': {
+    name: 'F+ Rank Examiner',
+    targetRank: 'F_PLUS',
+    level: 31,
+    ace: 'tatsugiri-stretchy-mega',
+    team: ['archaludon','tatsugiri-stretchy-mega'],
+    coins: 500,
+    xp: 2000,
+    items: ['Bronze Pearl']
+  },
+  'E_MINUS': {
+    name: 'E- Rank Examiner',
+    targetRank: 'E_MINUS',
+    level: 45,
+    ace: 'honedge',
+    team: ['orbeetle-gmax','litwick','honedge'],
+    coins: 700,
+    xp: 3000,
+    items: ['Silver Pearl','Gold Pearl']
+  },
+  'E': {
     name: 'E Rank Examiner',
-    targetRank: 'E_RANK',
+    targetRank: 'E',
     level: 61,
-    ace: 'magmortar',
-    team: ['pidgeot', 'luxray', 'magmortar'],
+    ace: 'plusle',
+    team: ['lapras-gmax','gothita','plusle'],
     coins: 1000,
     xp: 5000,
-    items: ['Silver Pearl', 'Gold Pearl']
+    items: ['Silver Pearl','Gold Pearl']
   },
-  'D_RANK': {
-    name: 'E Rank Examiner',
-    targetRank: 'D_RANK',
+  'E_PLUS': {
+    name: 'E+ Rank Examiner',
+    targetRank: 'E_PLUS',
+    level: 91,
+    ace: 'spidops',
+    team: ['slurpuff','anorith','spidops'],
+    coins: 1500,
+    xp: 8000,
+    items: ['Silver Pearl','Gold Pearl']
+  },
+  'D_MINUS': {
+    name: 'D- Rank Examiner',
+    targetRank: 'D_MINUS',
+    level: 105,
+    ace: 'caterpie',
+    team: ['yamper','grapploct','wishiwashi-solo','caterpie'],
+    coins: 2000,
+    xp: 11000,
+    items: ['Platinum Pearl','Adamantite Pearl']
+  },
+  'D': {
+    name: 'D Rank Examiner',
+    targetRank: 'D',
     level: 121,
-    ace: 'charizard',
-    team: ['charizard', 'blastoise', 'venusaur', 'sceptile'],
+    ace: 'tarountula',
+    team: ['wormadam-plant','caterpie','rotom-wash','tarountula'],
     coins: 3000,
     xp: 15000,
-    items: ['Platinum Pearl', 'Adamantite Pearl']
+    items: ['Platinum Pearl','Adamantite Pearl']
   },
-  'C_RANK': {
-    name: 'D Rank Examiner',
-    targetRank: 'C_RANK',
+  'D_PLUS': {
+    name: 'D+ Rank Examiner',
+    targetRank: 'D_PLUS',
+    level: 161,
+    ace: 'corvisquire',
+    team: ['cramorant-gorging','furret','pikachu-belle','corvisquire'],
+    coins: 5000,
+    xp: 25000,
+    items: ['Platinum Pearl','Adamantite Pearl']
+  },
+  'C_MINUS': {
+    name: 'C- Rank Examiner',
+    targetRank: 'C_MINUS',
+    level: 181,
+    ace: 'mudkip',
+    team: ['cutiefly','pawmi','joltik','corsola','mudkip'],
+    coins: 7000,
+    xp: 35000,
+    items: ['Diamond Pearl']
+  },
+  'C': {
+    name: 'C Rank Examiner',
+    targetRank: 'C',
     level: 201,
-    ace: 'garchomp',
-    team: ['dragonite', 'tyranitar', 'salamence', 'metagross', 'garchomp'],
+    ace: 'vulpix',
+    team: ['typhlosion','shroomish','floette-eternal','nuzleaf','vulpix'],
     coins: 10000,
     xp: 45000,
     items: ['Diamond Pearl']
   },
-  'B_RANK': {
-    name: 'C Rank Examiner',
-    targetRank: 'B_RANK',
+  'C_PLUS': {
+    name: 'C+ Rank Examiner',
+    targetRank: 'C_PLUS',
+    level: 251,
+    ace: 'gligar',
+    team: ['mimikyu-busted','persian','cetoddle','tatsugiri-curly-mega','gligar'],
+    coins: 15000,
+    xp: 70000,
+    items: ['Diamond Pearl']
+  },
+  'B_MINUS': {
+    name: 'B- Rank Examiner',
+    targetRank: 'B_MINUS',
+    level: 275,
+    ace: 'shieldon',
+    team: ['crabominable-mega','horsea','minior-indigo-meteor','venusaur-mega','vigoroth','shieldon'],
+    coins: 20000,
+    xp: 90000,
+    items: ['Crystal Pearl']
+  },
+  'B': {
+    name: 'B Rank Examiner',
+    targetRank: 'B',
     level: 301,
-    ace: 'kartana',
-    team: ['nihilego', 'buzzwole', 'pheromosa', 'xurkitree', 'celesteela', 'kartana'],
+    ace: 'kingler-gmax',
+    team: ['durant','lucario-mega-z','greninja-battle-bond','typhlosion-hisui','gholdengo','kingler-gmax'],
     coins: 25000,
     xp: 120000,
     items: ['Crystal Pearl']
   },
-  'A_RANK': {
-    name: 'B Rank Examiner',
-    targetRank: 'A_RANK',
+  'B_PLUS': {
+    name: 'B+ Rank Examiner',
+    targetRank: 'B_PLUS',
+    level: 351,
+    ace: 'morgrem',
+    team: ['carbink','snover','pyukumuku','poliwhirl','gothorita','morgrem'],
+    coins: 35000,
+    xp: 175000,
+    items: ['Crystal Pearl']
+  },
+  'A_MINUS': {
+    name: 'A- Rank Examiner',
+    targetRank: 'A_MINUS',
+    level: 375,
+    ace: 'charizard',
+    team: ['sharpedo-mega','stunfisk-galar','magnezone','gardevoir-mega','carnivine','charizard'],
+    coins: 45000,
+    xp: 230000,
+    items: ['Epic Pearl']
+  },
+  'A': {
+    name: 'A Rank Examiner',
+    targetRank: 'A',
     level: 401,
-    ace: 'iron-valiant',
-    team: ['great-tusk', 'roaring-moon', 'iron-valiant', 'iron-thorns', 'iron-bundle', 'flutter-mane'],
+    ace: 'klang',
+    team: ['staravia','abomasnow','seadra','squawkabilly-yellow-plumage','aron','klang'],
     coins: 60000,
     xp: 300000,
     items: ['Epic Pearl']
   },
-  'S_MINUS_RANK': {
-    name: 'A Rank Examiner',
-    targetRank: 'S_MINUS_RANK',
+  'A_PLUS': {
+    name: 'A+ Rank Examiner',
+    targetRank: 'A_PLUS',
+    level: 451,
+    ace: 'slugma',
+    team: ['galvantula','sinistea','gulpin','tyrogue','smeargle','slugma'],
+    coins: 100000,
+    xp: 500000,
+    items: ['Epic Pearl']
+  },
+  'S_MINUS': {
+    name: 'S- Rank Examiner',
+    targetRank: 'S_MINUS',
     level: 501,
-    ace: 'zapdos',
-    team: ['articuno', 'zapdos', 'moltres', 'raikou', 'entei', 'suicune'],
+    ace: 'xurkitree',
+    team: ['iron-moth','deoxys-attack','volcanion','celesteela','salamence','xurkitree'],
     coins: 150000,
     xp: 750000,
     items: []
   },
-  'S_RANK': {
-    name: 'S- Rank Examiner',
-    targetRank: 'S_RANK',
+  'S': {
+    name: 'S Rank Examiner',
+    targetRank: 'S',
     level: 701,
-    ace: 'regieleki',
-    team: ['latios', 'latias', 'heatran', 'cresselia', 'regieleki', 'regidrago'],
+    ace: 'salamence',
+    team: ['tyranitar-mega','kubfu','dragonair','giratina-altered','tornadus-incarnate','salamence'],
     coins: 400000,
     xp: 1800000,
     items: []
   },
-  'S_PLUS_RANK': {
-    name: 'S Rank Examiner',
-    targetRank: 'S_PLUS_RANK',
+  'S_PLUS': {
+    name: 'S+ Rank Examiner',
+    targetRank: 'S_PLUS',
     level: 901,
-    ace: 'ogerpon',
-    team: ['tapu-koko', 'tapu-lele', 'tapu-bulu', 'tapu-fini', 'ogerpon', 'urshifu-single-strike'],
+    ace: 'type-null',
+    team: ['sliggoo','kommo-o-totem','salamence','keldeo-resolute','tornadus-therian','type-null'],
     coins: 1000000,
     xp: 4000000,
     items: []
   },
-  'SS_MINUS_RANK': {
-    name: 'S+ Rank Examiner',
-    targetRank: 'SS_MINUS_RANK',
+  'SS_MINUS': {
+    name: 'SS- Rank Examiner',
+    targetRank: 'SS_MINUS',
     level: 1101,
-    ace: 'deoxys-normal',
-    team: ['deoxys-normal', 'darkrai', 'genesect', 'keldeo-ordinary', 'diancie', 'volcanion'],
+    ace: 'landorus-incarnate',
+    team: ['heatran','pecharunt','darkrai','spectrier','tapu-bulu','landorus-incarnate'],
     coins: 2500000,
     xp: 10000000,
     items: []
   },
-  'SS_RANK': {
-    name: 'SS- Rank Examiner',
-    targetRank: 'SS_RANK',
+  'SS': {
+    name: 'SS Rank Examiner',
+    targetRank: 'SS',
     level: 1401,
-    ace: 'marshadow',
-    team: ['marshadow', 'zeraora', 'victini', 'melmetal', 'zarude', 'mew'],
+    ace: 'darkrai',
+    team: ['registeel','ogerpon-wellspring-mask','zygarde-complete','meltan','terapagos-terastal','darkrai'],
     coins: 6000000,
     xp: 25000000,
     items: []
   },
-  'SS_PLUS_RANK': {
-    name: 'SS Rank Examiner',
-    targetRank: 'SS_PLUS_RANK',
+  'SS_PLUS': {
+    name: 'SS+ Rank Examiner',
+    targetRank: 'SS_PLUS',
     level: 1701,
-    ace: 'deoxys-normal',
-    team: ['deoxys-normal', 'darkrai', 'marshadow', 'zeraora', 'melmetal', 'genesect'],
+    ace: 'kommo-o',
+    team: ['guzzlord','beldum','garchomp-mega-z','dragonite-mega','zygarde-complete','kommo-o'],
     coins: 15000000,
     xp: 60000000,
     items: []
   },
-  'SSS_MINUS_RANK': {
-    name: 'SS+ Rank Examiner',
-    targetRank: 'SSS_MINUS_RANK',
+  'SSS_MINUS': {
+    name: 'SSS- Rank Examiner',
+    targetRank: 'SSS_MINUS',
     level: 2001,
-    ace: 'giratina-altered',
-    team: ['groudon', 'kyogre', 'dialga', 'palkia', 'giratina-altered', 'reshiram'],
+    ace: 'thundurus-incarnate',
+    team: ['iron-thorns','raikou','darkrai','melmetal-gmax','tornadus-incarnate','thundurus-incarnate'],
     coins: 40000000,
     xp: 150000000,
     items: []
   },
-  'SSS_RANK': {
-    name: 'SSS- Rank Examiner',
-    targetRank: 'SSS_RANK',
+  'SSS': {
+    name: 'SSS Rank Examiner',
+    targetRank: 'SSS',
     level: 3001,
-    ace: 'koraidon',
-    team: ['zekrom', 'solgaleo', 'lunala', 'koraidon', 'miraidon', 'calyrex'],
+    ace: 'ogerpon-wellspring-mask',
+    team: ['munkidori','zarude','regirock','registeel','thundurus-therian','ogerpon-wellspring-mask'],
     coins: 100000000,
     xp: 300000000,
     items: []
   },
-  'SSS_PLUS_RANK': {
-    name: 'SSS Rank Examiner',
-    targetRank: 'SSS_PLUS_RANK',
+  'SSS_PLUS': {
+    name: 'SSS+ Rank Examiner',
+    targetRank: 'SSS_PLUS',
     level: 4001,
-    ace: 'zacian',
-    team: ['xerneas', 'yveltal', 'lugia', 'ho-oh', 'zacian', 'zamazenta'],
+    ace: 'thundurus-incarnate',
+    team: ['keldeo-resolute','zapdos-galar','tapu-fini','iron-jugulis','garchomp-mega-z','thundurus-incarnate'],
     coins: 250000000,
     xp: 600000000,
+    items: []
+  },
+  'EX_MINUS': {
+    name: 'EX- Rank Examiner',
+    targetRank: 'EX_MINUS',
+    level: 5001,
+    ace: 'regigigas',
+    team: ['solgaleo','yveltal','zamazenta-crowned','zekrom','lunala','regigigas'],
+    coins: 600000000,
+    xp: 1500000000,
+    items: []
+  },
+  'EX': {
+    name: 'EX Rank Examiner',
+    targetRank: 'EX',
+    level: 7001,
+    ace: 'koraidon',
+    team: ['groudon-primal','kyogre-primal','lugia','kyogre','yveltal','koraidon'],
+    coins: 1500000000,
+    xp: 4000000000,
+    items: []
+  },
+  'EX_PLUS': {
+    name: 'EX+ Rank Examiner',
+    targetRank: 'EX_PLUS',
+    level: 9999,
+    ace: 'zacian-crowned',
+    team: ['zacian','calyrex-ice','yveltal','zamazenta-crowned','ho-oh','zacian-crowned'],
+    coins: 5000000000,
+    xp: 15000000000,
     items: []
   }
 };

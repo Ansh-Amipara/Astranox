@@ -6,7 +6,7 @@ import { CacheService } from '../../core/services/cache.service';
 export class PokedexService {
   constructor(private cache: CacheService) { }
 
-  async getAllSpecies(page: number, limit: number, type?: string, category?: string, search?: string) {
+  async getAllSpecies(page: number, limit: number, type?: string, category?: string, search?: string, rank?: string) {
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -31,7 +31,11 @@ export class PokedexService {
       }
     }
 
-    const cacheKey = `pokedex:all:${page}:${limit}:${type || 'none'}:${category || 'none'}:${search || 'none'}`;
+    if (rank && rank !== 'all') {
+      where.rank = rank;
+    }
+
+    const cacheKey = `pokedex:all:${page}:${limit}:${type || 'none'}:${category || 'none'}:${search || 'none'}:${rank || 'none'}`;
 
     return this.cache.getOrSet(cacheKey, async () => {
       const [species, total] = await Promise.all([
@@ -89,14 +93,16 @@ export class PokedexService {
         (species as any).megas = megas;
         (species as any).gmaxes = gmaxes;
 
-        // Inherit G-Max learnset from base
-        if (species.isGmax && species.baseSpeciesId && (!species.learnsets || species.learnsets.length === 0)) {
+        // Inherit learnset from base species (Mega, G-Max, Regional)
+        if (species.baseSpeciesId) {
           const baseSpecies = await prisma.species.findUnique({
             where: { id: species.baseSpeciesId },
             include: { learnsets: { include: { move: true } } },
           });
           if (baseSpecies && baseSpecies.learnsets) {
-            species.learnsets = baseSpecies.learnsets;
+            const existingMoveIds = new Set(species.learnsets?.map(l => l.moveId) || []);
+            const inherited = baseSpecies.learnsets.filter(l => !existingMoveIds.has(l.moveId));
+            species.learnsets = [...(species.learnsets || []), ...inherited];
           }
         }
       }

@@ -6,15 +6,22 @@ import { toast } from 'sonner';
 import { Loader2, Swords, Skull, ShieldAlert, AlertCircle, X, ChevronRight, ArrowLeft } from 'lucide-react';
 
 const RANKS = [
-  'F_RANK', 'E_RANK', 'D_RANK', 'C_RANK', 'B_RANK', 'A_RANK',
-  'S_MINUS_RANK', 'S_RANK', 'S_PLUS_RANK', 'SS_MINUS_RANK', 'SS_RANK', 'SS_PLUS_RANK',
-  'SSS_MINUS_RANK', 'SSS_RANK', 'SSS_PLUS_RANK'
+  'F_MINUS', 'F', 'F_PLUS',
+  'E_MINUS', 'E', 'E_PLUS',
+  'D_MINUS', 'D', 'D_PLUS',
+  'C_MINUS', 'C', 'C_PLUS',
+  'B_MINUS', 'B', 'B_PLUS',
+  'A_MINUS', 'A', 'A_PLUS',
+  'S_MINUS', 'S', 'S_PLUS',
+  'SS_MINUS', 'SS', 'SS_PLUS',
+  'SSS_MINUS', 'SSS', 'SSS_PLUS',
+  'EX_MINUS', 'EX', 'EX_PLUS'
 ];
 
 const DIFFICULTIES = ['NORMAL', 'HARD', 'NIGHTMARE', 'ABYSS'];
 
 const formatRankName = (rank: string) => {
-  return rank.replace('_RANK', '').replace('_MINUS', '-').replace('_PLUS', '+').replace('_', ' ');
+  return rank.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', ' ');
 };
 
 export const RiftPage: React.FC = () => {
@@ -25,7 +32,7 @@ export const RiftPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [selectedRank, setSelectedRank] = useState<string>('F_RANK');
+  const [selectedRank, setSelectedRank] = useState<string>('F');
   const [step, setStep] = useState<'RANK' | 'DIFFICULTY'>('RANK');
 
   if (isLoading) {
@@ -53,7 +60,7 @@ export const RiftPage: React.FC = () => {
   const handleStart = (difficulty: string) => {
     startRun.mutate({ rank: selectedRank, difficulty }, {
       onSuccess: () => {
-        toast.success(`Entered ${selectedRank.replace('_RANK', '')} Rift (${difficulty})`);
+        toast.success(`Entered ${selectedRank.replace('_', '')} Rift (${difficulty})`);
       },
       onError: (err: unknown) => {
         toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to start Rift');
@@ -168,7 +175,7 @@ export const RiftPage: React.FC = () => {
         <div className="text-center mb-8 sm:mb-10 mt-6 sm:mt-0">
           <h2 className="text-sm font-black text-purple-500 uppercase tracking-widest mb-2">Active Rift</h2>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2">
-            {state.rank.replace('_MINUS_RANK', '-').replace('_PLUS_RANK', '+').replace('_RANK', '')} Tier
+            {state.rank.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '')} Tier
           </h1>
           <div className="flex items-center justify-center gap-2">
             <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800/50">

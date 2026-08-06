@@ -5,6 +5,7 @@ export interface PokemonMove {
   currentSlot: number;
   name: string;
   type: string;
+  power?: number;
 }
 
 export interface ActivePokemon {
