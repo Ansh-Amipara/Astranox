@@ -18,6 +18,8 @@ const RANKS = [
   'EX_MINUS', 'EX', 'EX_PLUS'
 ];
 
+const MAJOR_RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'EX'];
+
 const DIFFICULTIES = ['NORMAL', 'HARD', 'NIGHTMARE', 'ABYSS'];
 
 const formatRankName = (rank: string) => {
@@ -32,8 +34,10 @@ export const RiftPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [selectedRank, setSelectedRank] = useState<string>('F');
-  const [step, setStep] = useState<'RANK' | 'DIFFICULTY'>('RANK');
+  const [selectedMajorRank, setSelectedMajorRank] = useState<string>('F');
+  const [selectedSubRank, setSelectedSubRank] = useState<string>('F');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('NORMAL');
+  const [step, setStep] = useState<'MAJOR_RANK' | 'DETAILS'>('MAJOR_RANK');
 
   if (isLoading) {
     return (
@@ -57,10 +61,10 @@ export const RiftPage: React.FC = () => {
   const { state, rank } = data;
   const playerRankWeight = RANKS.indexOf(rank) || 0;
 
-  const handleStart = (difficulty: string) => {
-    startRun.mutate({ rank: selectedRank, difficulty }, {
+  const handleStart = () => {
+    startRun.mutate({ rank: selectedSubRank, difficulty: selectedDifficulty }, {
       onSuccess: () => {
-        toast.success(`Entered ${selectedRank.replace('_', '')} Rift (${difficulty})`);
+        toast.success(`Entered ${formatRankName(selectedSubRank)} Rift (${selectedDifficulty})`);
       },
       onError: (err: unknown) => {
         toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to start Rift');
@@ -95,31 +99,36 @@ export const RiftPage: React.FC = () => {
           Void Rifts
         </h1>
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col">
-          {step === 'RANK' ? (
+          {step === 'MAJOR_RANK' ? (
             <div className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 w-full">
-              <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-left">Select Rift Tier</h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 w-full pb-2">
-                {RANKS.map((r, i) => {
-                  const locked = i > playerRankWeight;
+              <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-left">Select Major Rank</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full pb-2">
+                {MAJOR_RANKS.map((r) => {
+                  const requiredIndex = RANKS.indexOf(`${r}_MINUS`);
+                  const locked = requiredIndex > playerRankWeight;
                   return (
                     <button
                       key={r}
                       disabled={locked}
-                      onClick={() => { setSelectedRank(r); setStep('DIFFICULTY'); }}
-                      className={`p-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center ${locked ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 opacity-50 cursor-not-allowed' :
+                      onClick={() => { 
+                        setSelectedMajorRank(r); 
+                        setSelectedSubRank(r); // default to standard
+                        setStep('DETAILS'); 
+                      }}
+                      className={`p-4 rounded-xl text-lg font-black border transition-all flex items-center justify-center ${locked ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 opacity-50 cursor-not-allowed' :
                           'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-purple-400 hover:shadow-md hover:-translate-y-0.5'
                         }`}
                     >
-                      {formatRankName(r)}
+                      {r} Rank
                     </button>
                   );
                 })}
               </div>
             </div>
           ) : (
-            <div className="flex flex-col animate-in fade-in slide-in-from-right-8 duration-300 relative">
+            <div className="flex flex-col animate-in fade-in slide-in-from-right-8 duration-300 relative w-full">
               <button
-                onClick={() => setStep('RANK')}
+                onClick={() => setStep('MAJOR_RANK')}
                 className="absolute -top-2 -left-2 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
                 title="Back to Ranks"
               >
@@ -127,33 +136,72 @@ export const RiftPage: React.FC = () => {
               </button>
 
               <div className="text-center mb-6">
-                <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Selected Tier</h2>
+                <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Configuration</h2>
                 <span className="inline-block px-4 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-black rounded-lg border border-purple-200 dark:border-purple-800/50">
-                  {formatRankName(selectedRank)}
+                  {selectedMajorRank} Rank
                 </span>
               </div>
 
-              <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Select Difficulty</h2>
-              <div className="flex flex-col gap-3">
-                {DIFFICULTIES.map(d => (
-                  <button
-                    key={d}
-                    onClick={() => handleStart(d)}
-                    disabled={startRun.isPending}
-                    className="p-4 rounded-xl text-left border transition-all flex justify-between items-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-red-400 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 dark:text-white">{d}</span>
-                      <span className="text-xs text-slate-500">
-                        {d === 'NORMAL' ? '1.0x Infinity Coins • Normal Stats' :
-                          d === 'HARD' ? '1.5x Infinity Coins • Increased Stats' :
-                            d === 'NIGHTMARE' ? '2.5x Infinity Coins • Massive Stats' :
-                              '4.0x Infinity Coins • Impossible Stats'}
-                      </span>
-                    </div>
-                    {startRun.isPending ? <Loader2 className="w-5 h-5 text-slate-400 animate-spin" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
-                  </button>
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
+                <div className="flex flex-col">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Sub-Rank</h3>
+                  <div className="flex gap-2">
+                    {[
+                      { id: `${selectedMajorRank}_MINUS`, label: '-' },
+                      { id: selectedMajorRank, label: 'Standard' },
+                      { id: `${selectedMajorRank}_PLUS`, label: '+' }
+                    ].map(sub => {
+                      const locked = RANKS.indexOf(sub.id) > playerRankWeight;
+                      const isSelected = selectedSubRank === sub.id;
+                      return (
+                        <button
+                          key={sub.id}
+                          disabled={locked}
+                          onClick={() => setSelectedSubRank(sub.id)}
+                          className={`flex-1 p-3 rounded-lg border font-bold transition-colors ${
+                            locked ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700' :
+                            isSelected ? 'bg-purple-500 text-white border-purple-600' : 
+                            'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300'
+                          }`}
+                        >
+                          {sub.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-col">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Difficulty</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIFFICULTIES.map(d => {
+                      const isSelected = selectedDifficulty === d;
+                      return (
+                        <button
+                          key={d}
+                          onClick={() => setSelectedDifficulty(d)}
+                          className={`p-3 rounded-lg border font-bold text-sm transition-colors ${
+                            isSelected ? 'bg-red-500 text-white border-red-600' : 
+                            'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-red-300'
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={handleStart}
+                  disabled={startRun.isPending}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-black py-4 px-12 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95 flex items-center justify-center gap-3 text-lg disabled:opacity-50"
+                >
+                  {startRun.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Swords className="w-6 h-6" />}
+                  FIGHT!
+                </button>
               </div>
             </div>
           )}
@@ -175,7 +223,7 @@ export const RiftPage: React.FC = () => {
         <div className="text-center mb-8 sm:mb-10 mt-6 sm:mt-0">
           <h2 className="text-sm font-black text-purple-500 uppercase tracking-widest mb-2">Active Rift</h2>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2">
-            {state.rank.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '')} Tier
+            {formatRankName(state.rank)} Tier
           </h1>
           <div className="flex items-center justify-center gap-2">
             <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800/50">
@@ -201,3 +249,4 @@ export const RiftPage: React.FC = () => {
     </div>
   );
 };
+

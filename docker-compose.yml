@@ -34,7 +34,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: server/Dockerfile
+      dockerfile: apps/api/Dockerfile
     container_name: astranox-server
     environment:
       - NODE_ENV=production
@@ -51,7 +51,7 @@ services:
   client:
     build:
       context: .
-      dockerfile: client/Dockerfile
+      dockerfile: apps/web/Dockerfile
     container_name: astranox-client
     ports:
       - "5174:80"

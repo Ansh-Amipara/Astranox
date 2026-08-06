@@ -42,13 +42,13 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Generate Prisma Client
-      working-directory: ./server
+      working-directory: ./apps/api
       env:
         DATABASE_URL: postgresql://astranox:password123@localhost:5432/astranox?schema=public
       run: pnpm prisma generate
 
     - name: Run Database Migrations
-      working-directory: ./server
+      working-directory: ./apps/api
       env:
         DATABASE_URL: postgresql://astranox:password123@localhost:5432/astranox?schema=public
       run: pnpm prisma migrate deploy

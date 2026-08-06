@@ -252,9 +252,9 @@ export function Pokemart() {
 
           <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 w-full bg-white dark:bg-slate-900/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             
-            <div className="flex flex-row items-center gap-3 w-full xl:w-auto flex-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto flex-1">
               {/* Category Dropdown */}
-              <div className="flex-1 z-20">
+              <div className="flex-1 relative z-30">
                 <Dropdown
                   value={activeCategory}
                   options={categories.map(cat => ({
@@ -267,7 +267,7 @@ export function Pokemart() {
               </div>
 
               {/* Store Type Dropdown */}
-              <div className="flex-1 z-10">
+              <div className="flex-1 relative z-20">
                 <Dropdown
                   value={storeType}
                   options={[
@@ -286,7 +286,7 @@ export function Pokemart() {
 
               {/* Move Type Dropdown */}
               {activeCategory === 'moves' && (
-                <div className="flex-1 z-10">
+                <div className="flex-1 relative z-10">
                   <Dropdown
                     value={selectedMoveType}
                     options={[
@@ -352,13 +352,13 @@ export function Pokemart() {
         {/* Table of items */}
         <div className="bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className={`w-full text-left border-collapse ${activeCategory === 'moves' ? 'min-w-[600px] md:min-w-[800px]' : 'min-w-[320px]'}`}>
+            <table className={`w-full text-left border-collapse ${activeCategory === 'moves' ? 'min-w-[320px] sm:min-w-[600px] md:min-w-[800px]' : 'min-w-[320px]'}`}>
               <thead>
                 {activeCategory === 'moves' ? (
                   <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400 w-48">Move</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400 w-32">Type</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400 w-32 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 transition-colors" onClick={() => handleSortMoves('power')}>
+                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 w-auto sm:w-48 text-xs sm:text-base">Move</th>
+                    <th className="hidden sm:table-cell p-4 font-bold text-slate-500 dark:text-slate-400 w-32">Type</th>
+                    <th className="hidden sm:table-cell p-4 font-bold text-slate-500 dark:text-slate-400 w-32 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 transition-colors" onClick={() => handleSortMoves('power')}>
                       <div className="flex items-center gap-1">
                         Power
                         {moveSortConfig?.key === 'power' && (
@@ -366,8 +366,8 @@ export function Pokemart() {
                         )}
                       </div>
                     </th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400 w-32">Class</th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400 w-32 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 transition-colors" onClick={() => handleSortMoves('price')}>
+                    <th className="hidden sm:table-cell p-4 font-bold text-slate-500 dark:text-slate-400 w-32">Class</th>
+                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 w-auto sm:w-32 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-xs sm:text-base" onClick={() => handleSortMoves('price')}>
                       <div className="flex items-center gap-1">
                         Price
                         {moveSortConfig?.key === 'price' && (
@@ -375,7 +375,7 @@ export function Pokemart() {
                         )}
                       </div>
                     </th>
-                    <th className="p-4 font-bold text-slate-500 dark:text-slate-400 text-center w-32">Action</th>
+                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-center w-auto sm:w-32 text-xs sm:text-base">Action</th>
                   </tr>
                 ) : (
                   <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
@@ -451,39 +451,45 @@ export function Pokemart() {
 
                   return (
                     <tr key={m.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="p-4">
-                        <span className="font-bold text-slate-900 dark:text-white capitalize">{m.move.name.replace(/-/g, ' ')}</span>
+                      <td className="p-2 sm:p-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-bold text-slate-900 dark:text-white capitalize text-xs sm:text-base">{m.move.name.replace(/-/g, ' ')}</span>
+                          <div className="sm:hidden flex items-center gap-1 text-[10px] font-bold text-slate-500 capitalize">
+                            <img src={getTypeSpriteUrl(m.move.type.name, true)} alt={m.move.type.name} className="h-3 w-auto object-contain drop-shadow-sm" />
+                            {m.move.type.name} • {m.move.power > 0 ? m.move.power : '-'} {m.move.damageClass === 'status' ? 'Status' : 'Pwr'}
+                          </div>
+                        </div>
                       </td>
-                      <td className="p-4">
+                      <td className="hidden sm:table-cell p-4">
                         <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">
                           <img src={getTypeSpriteUrl(m.move.type.name, true)} alt={m.move.type.name} className="h-4 w-auto object-contain drop-shadow-sm" />
                           {m.move.type.name}
                         </div>
                       </td>
-                      <td className="p-4 font-bold text-slate-700 dark:text-slate-300">
+                      <td className="hidden sm:table-cell p-4 font-bold text-slate-700 dark:text-slate-300">
                         {m.move.power > 0 ? m.move.power : '-'}
                       </td>
-                      <td className="p-4">
+                      <td className="hidden sm:table-cell p-4">
                         <span className="text-sm font-bold text-slate-900 dark:text-white capitalize">
                           {m.move.damageClass}
                         </span>
                       </td>
-                      <td className="p-4 font-bold text-slate-700 dark:text-slate-300">
-                        <div className="flex items-center gap-1.5">
-                          {storeCurrency.symbol}
+                      <td className="p-2 sm:p-4 font-bold text-slate-700 dark:text-slate-300">
+                        <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-base">
+                          <span className="scale-75 sm:scale-100 flex items-center">{storeCurrency.symbol}</span>
                           <span>{m.price.toLocaleString()}</span>
                         </div>
                       </td>
-                      <td className="p-4 text-center">
+                      <td className="p-2 sm:p-4 text-center">
                         {isOwned ? (
-                          <span className="px-6 py-2 rounded-lg font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
+                          <span className="px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs sm:text-base">
                             Owned
                           </span>
                         ) : (
                           <button
                             onClick={() => handleBuyMove(m)}
                             disabled={!canAfford || buyMoveMutation.isPending}
-                            className={`px-6 py-2 rounded-lg font-bold shadow-sm transition-all whitespace-nowrap ${canAfford
+                            className={`px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-bold shadow-sm transition-all whitespace-nowrap text-xs sm:text-base ${canAfford
                                 ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
                                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
                               }`}

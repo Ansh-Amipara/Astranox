@@ -1,15 +1,17 @@
 {
   "name": "astranox",
+  "packageManager": "pnpm@9.12.3",
   "private": true,
   "scripts": {
-    "dev": "pnpm -r --parallel run dev",
-    "build": "pnpm -r run build",
-    "lint": "pnpm -r run lint",
-    "typecheck": "pnpm -r run typecheck",
-    "test": "pnpm -r run test",
-    "seed": "pnpm --filter server run seed"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "seed": "pnpm --filter api run seed"
   },
   "devDependencies": {
+    "turbo": "latest",
     "typescript": "^5.2.2"
   }
 }

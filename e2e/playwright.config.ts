@@ -13,13 +13,13 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'pnpm --filter astranox-server dev',
+      command: 'pnpm --filter api dev',
       port: 3000,
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
     },
     {
-      command: 'pnpm --filter client dev',
+      command: 'pnpm --filter web dev',
       port: 5174,
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
