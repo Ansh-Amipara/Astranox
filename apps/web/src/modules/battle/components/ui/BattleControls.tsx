@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ActionMenu } from './ActionMenu';
-import { ActivePokemonDto, TurnEventDto } from '@astranox/shared';
+import { ActivePokemonDto, TurnEventDto } from '@astranox/types';;
 
 interface Props {
   player: ActivePokemonDto;

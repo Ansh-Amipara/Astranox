@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { OwnedPokemonDto } from '@astranox/shared';
+import { OwnedPokemonDto } from '@astranox/types';;
 import { getSpriteUrl } from '@/shared/api/api';
 import { getPotentialBadgeClasses, formatPotential } from '@/shared/utils/pokemonUtils';
 import { Modal } from '@/shared/ui/Modal';

@@ -34,6 +34,7 @@ trainersRoutes.get('/moves', controller.getAllMoves);
 trainersRoutes.patch('/party/:pokemonId/moves', gameplayLimiter, validate(changeMovesSchema), controller.changeMoves);
 trainersRoutes.post('/party/:pokemonId/smelt', gameplayLimiter, validate(pokemonIdParamSchema), controller.smeltPokemon);
 trainersRoutes.post('/party/:pokemonId/evolve', gameplayLimiter, validate(evolvePokemonSchema), controller.evolvePokemon);
+trainersRoutes.post('/party/:pokemonId/devolve', gameplayLimiter, validate(pokemonIdParamSchema), controller.devolvePokemon);
 trainersRoutes.post('/party/:pokemonId/boost-potential', gameplayLimiter, validate(boostPotentialSchema), controller.boostPotential);
 trainersRoutes.post('/party/:pokemonId/boost-ivs', gameplayLimiter, validate(boostIvSchema), controller.boostIv);
 trainersRoutes.post('/distribute-xp', gameplayLimiter, validate(distributeXpSchema), controller.distributeXp);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { OwnedPokemonDto, MoveDto } from '@astranox/shared';
+import { OwnedPokemonDto, MoveDto } from '@astranox/types';;
 import { getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { getPotentialBadgeClasses, formatPotential } from '@/shared/utils/pokemonUtils';

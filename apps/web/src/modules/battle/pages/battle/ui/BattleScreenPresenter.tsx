@@ -4,7 +4,7 @@ import { BattleArena } from '@/modules/battle/components/ui/BattleArena';
 import { BattleControls } from '@/modules/battle/components/ui/BattleControls';
 import { BattleLog } from '@/modules/battle/components/ui/BattleLog';
 import { BattleResultModal } from '@/modules/battle/components/ui/BattleResultModal';
-import { TrainerSaveDto, ActivePokemonDto, OwnedPokemonDto, TurnEventDto } from '@astranox/shared';
+import { TrainerSaveDto, ActivePokemonDto, OwnedPokemonDto, TurnEventDto } from '@astranox/types';;
 
 export interface BattleScreenPresenterProps {
   menu: 'main' | 'fight' | 'bag' | 'party';

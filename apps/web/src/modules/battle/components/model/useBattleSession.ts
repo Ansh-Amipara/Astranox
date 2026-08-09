@@ -4,7 +4,7 @@ import { getEventMessage } from '../lib/utils';
 import { useSocket } from '@/contexts/SocketContext';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
-import { BattleSessionDto, TurnEventDto, ActivePokemonDto } from '@astranox/shared';
+import { BattleSessionDto, TurnEventDto, ActivePokemonDto } from '@astranox/types';;
 
 export function useBattleSession() {
   const queryClient = useQueryClient();

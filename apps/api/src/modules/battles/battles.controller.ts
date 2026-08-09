@@ -36,10 +36,10 @@ export class BattlesController {
 
   engageCustom = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { speciesId, level } = req.body;
+      const { speciesId, level, battleType } = req.body;
       const userId = (req as any).user.id;
 
-      const result = await this.service.startCustomEncounter(userId, { speciesId, level });
+      const result = await this.service.startCustomEncounter(userId, { speciesId, level, battleType });
 
       res.json({
         success: true,

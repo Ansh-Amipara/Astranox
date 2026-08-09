@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { useState } from 'react';
-import { OwnedPokemonDto } from '@astranox/shared';
+import { OwnedPokemonDto } from '@astranox/types';;
 import { toast } from 'sonner';
 
 interface InventoryItem {

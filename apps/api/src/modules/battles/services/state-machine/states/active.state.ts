@@ -135,6 +135,34 @@ export class ActiveState implements IBattleState {
         } else {
           newStatus = BattleStatus.WON;
           
+          // Mega / G-Max unlock logic
+          const defeatedSpeciesIds = opponentPartyData.map((p: any) => p.speciesId);
+          const megaGmaxSpecies = await tx.species.findMany({
+            where: {
+              id: { in: defeatedSpeciesIds },
+              OR: [ { isMega: true }, { isGmax: true } ]
+            },
+            select: { id: true, name: true, isMega: true, isGmax: true }
+          });
+
+          let unlockedFormsUpdate = {};
+          if (megaGmaxSpecies.length > 0) {
+            const currentSaveForForms = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
+            const currentUnlocked = (currentSaveForForms as any)?.unlockedForms || [];
+            
+            const newUnlocked = Array.from(new Set([...currentUnlocked, ...megaGmaxSpecies.map((s: any) => s.id)]));
+            unlockedFormsUpdate = { unlockedForms: newUnlocked };
+
+            for (const s of megaGmaxSpecies) {
+              if (!currentUnlocked.includes(s.id)) {
+                result.events.push({
+                  type: 'text',
+                  text: `Unlocked ${s.isMega ? 'Mega' : 'G-Max'} Evolution for ${s.name.split('-')[0].toUpperCase()}!`
+                });
+              }
+            }
+          }
+          
           let coinsToGive = 0;
           let storedXpToGive = 0;
           const baseLevel = wildPokemon.level || 5;
@@ -150,7 +178,7 @@ export class ActiveState implements IBattleState {
             }
           }
 
-          if (coinsToGive > 0 || storedXpToGive > 0 || (wildPokemon.isRankExam && wildPokemon.targetRank)) {
+          if (coinsToGive > 0 || storedXpToGive > 0 || (wildPokemon.isRankExam && wildPokemon.targetRank) || Object.keys(unlockedFormsUpdate).length > 0) {
              const currentSave = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
              
              await tx.trainerSave.update({
@@ -158,7 +186,8 @@ export class ActiveState implements IBattleState {
                data: {
                  ...(wildPokemon.isRankExam && wildPokemon.targetRank ? { rank: wildPokemon.targetRank as any } : {}),
                  ...(coinsToGive > 0 ? { astralCoins: (currentSave?.astralCoins || 0) + coinsToGive } : {}),
-                 ...(storedXpToGive > 0 ? { storedXp: (currentSave?.storedXp || 0) + storedXpToGive } : {})
+                 ...(storedXpToGive > 0 ? { storedXp: (currentSave?.storedXp || 0) + storedXpToGive } : {}),
+                 ...unlockedFormsUpdate
                }
              });
 

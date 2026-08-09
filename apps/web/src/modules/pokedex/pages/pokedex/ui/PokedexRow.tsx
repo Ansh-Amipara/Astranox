@@ -1,7 +1,7 @@
 import React from 'react';
 import { getSpriteUrl } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { SpeciesDto } from '@astranox/shared';
+import { SpeciesDto } from '@astranox/types';;
 import { getBattleRank } from '@/shared/utils/battleRanksMap';
 
 interface PokedexRowProps {
@@ -12,7 +12,7 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
   const bst = species.hp + species.attack + species.defense + species.spAtk + species.spDef + species.speed;
 
   return (
-    <div className="flex flex-col lg:grid lg:items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group border-b border-slate-100 dark:border-slate-800/60 h-full lg:grid-cols-[80px_1fr_200px_340px_120px] p-4 lg:p-0 gap-3 lg:gap-0">
+    <div className="flex flex-col lg:grid lg:items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group border-b border-slate-100 dark:border-slate-800/60 h-full lg:grid-cols-[80px_1fr_240px_340px_120px] p-4 lg:p-0 gap-3 lg:gap-0">
       
       {/* Mobile Layout */}
       <div className="flex flex-col gap-3 lg:hidden w-full">
@@ -34,9 +34,9 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
             <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded border border-indigo-100 dark:border-indigo-800/50 leading-none">
               BST: {bst}
             </span>
-            <div className="flex gap-1">
-              {species.type1 && <img src={getTypeSpriteUrl(species.type1.name, false)} className="h-4 w-auto object-contain" loading="lazy" />}
-              {species.type2 && <img src={getTypeSpriteUrl(species.type2.name, false)} className="h-4 w-auto object-contain" loading="lazy" />}
+            <div className="flex gap-1 shrink-0">
+              {species.type1 && <img src={getTypeSpriteUrl(species.type1.name, false)} className="h-4 w-auto shrink-0 object-contain" loading="lazy" />}
+              {species.type2 && <img src={getTypeSpriteUrl(species.type2.name, false)} className="h-4 w-auto shrink-0 object-contain" loading="lazy" />}
             </div>
           </div>
         </div>
@@ -121,10 +121,10 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
         <div className="px-6 py-4 flex items-center overflow-hidden">
           <div className="flex gap-1.5 flex-nowrap">
             {species.type1 && (
-              <img src={getTypeSpriteUrl(species.type1.name, false)} alt={species.type1.name} title={species.type1.name} className="h-5 w-auto object-contain drop-shadow-sm" loading="lazy" />
+              <img src={getTypeSpriteUrl(species.type1.name, false)} alt={species.type1.name} title={species.type1.name} className="h-5 w-auto shrink-0 object-contain drop-shadow-sm" loading="lazy" />
             )}
             {species.type2 && (
-              <img src={getTypeSpriteUrl(species.type2.name, false)} alt={species.type2.name} title={species.type2.name} className="h-5 w-auto object-contain drop-shadow-sm" loading="lazy" />
+              <img src={getTypeSpriteUrl(species.type2.name, false)} alt={species.type2.name} title={species.type2.name} className="h-5 w-auto shrink-0 object-contain drop-shadow-sm" loading="lazy" />
             )}
           </div>
         </div>

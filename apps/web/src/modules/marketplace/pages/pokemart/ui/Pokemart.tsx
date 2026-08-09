@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import { shopApi, api } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { TrainerSaveDto, InventoryItemDto } from '@astranox/shared';
+import { TrainerSaveDto, InventoryItemDto } from '@astranox/types';;
 import { Dropdown } from '@/shared/ui/Dropdown';
 
 interface MoveShopItem {

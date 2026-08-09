@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { toast } from 'sonner';
-import { SpeciesDto } from '@astranox/shared';
+import { SpeciesDto } from '@astranox/types';;
 import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Modal } from '@/shared/ui/Modal';

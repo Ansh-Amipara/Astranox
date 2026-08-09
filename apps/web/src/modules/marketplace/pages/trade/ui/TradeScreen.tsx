@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
-import { OwnedPokemonDto } from '@astranox/shared';
+import { OwnedPokemonDto } from '@astranox/types';;
 
 export function TradeScreen() {
   const params = useParams();

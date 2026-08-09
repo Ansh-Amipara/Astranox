@@ -5,7 +5,7 @@ import { TradeOfferModal } from '@/modules/marketplace/components/ui/TradeOfferM
 import { getSpriteUrl } from '@/shared/api/api';
 import { Loader2, ArrowLeft, Check, X, Ban, Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
-import { TradeOfferDto } from '@astranox/shared';
+import { TradeOfferDto } from '@astranox/types';;
 import { formatPotential } from '@/shared/utils/pokemonUtils';
 export function ListingDetailsPage() {
   const { id } = useParams<{ id: string }>();

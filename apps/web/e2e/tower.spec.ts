@@ -20,8 +20,8 @@ test.describe('Infinity Tower Flow', () => {
     await expect(page.locator('nav').first()).toBeVisible();
 
     // Select a starter
-    await page.waitForSelector('text=Dratini');
-    await page.locator('text=Dratini').first().click();
+    await page.waitForSelector('text=Bulbasaur');
+    await page.locator('text=Bulbasaur').first().click();
     
     // Confirm the selection if there is a dialog
     const confirmBtn = await page.$('button:has-text("Confirm")');

@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { env } from './env';
-import { ASTRANOX_VERSION } from '@astranox/shared';
+import { ASTRANOX_VERSION } from '@astranox/constants';;
 
 export function initSentry() {
   if (!env.SENTRY_DSN) {

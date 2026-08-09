@@ -13,7 +13,11 @@ import type { BoostIvDto } from './dto/request/BoostIvDto';
 import { PokemonPotential } from '@prisma/client';
 
 // Allowed pseudo-legendaries
-const ALLOWED_STARTER_IDS = [147, 246, 371, 374, 443, 633, 704, 782, 885];
+const ALLOWED_STARTER_IDS = [
+  1, 4, 7, 152, 155, 158, 252, 255, 258,
+  387, 390, 393, 495, 498, 501, 650, 653, 656,
+  722, 725, 728, 810, 813, 816, 906, 909, 912
+];
 
 @injectable()
 export class TrainersService {
@@ -47,7 +51,7 @@ export class TrainersService {
     }
 
     if (!ALLOWED_STARTER_IDS.includes(dto.speciesId)) {
-      throw new ValidationError('Invalid starter choice. Must be a Pseudo-Legendary baby form.');
+      throw new ValidationError('Invalid starter choice. Must be a classic starter Pokémon.');
     }
 
     const updatedSave = await this.repo.setStarter(save!.id, dto.speciesId);
@@ -213,26 +217,23 @@ export class TrainersService {
     let itemIdToConsume: string | undefined;
 
     if (targetSpeciesId) {
-      // Mega evolution logic
+      // Mega / G-Max evolution logic
       const targetSpecies = await this.repo.getSpeciesById(targetSpeciesId);
       if (!targetSpecies) throw new NotFoundError('Target species not found');
       
-      if (!targetSpecies.isMega || targetSpecies.baseSpeciesId !== species.id) {
-        throw new ValidationError('Invalid mega evolution target.');
+      const evolutionItem = (species.evolutionItem || '').toLowerCase();
+      const pseudoMega = evolutionItem.endsWith('ite') || evolutionItem.includes('mega');
+      const pseudoGmax = evolutionItem.includes('dynamax') || evolutionItem.includes('candy') || evolutionItem.includes('max');
+
+      if ((!targetSpecies.isMega && !targetSpecies.isGmax && !pseudoMega && !pseudoGmax) || (targetSpecies.baseSpeciesId !== species.id && targetSpecies.id !== species.evolvesToId)) {
+        throw new ValidationError('Invalid Mega/G-Max evolution target.');
       }
 
-      // Convert name format 'metagross-mega' -> 'metagrossite', 'charizard-mega-x' -> 'charizardite-x'
-      let megaStoneName = targetSpecies.name.replace('-mega', 'ite');
-      if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
-      if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-
-      const item = await this.repo.getInventoryItem(save.id, megaStoneName);
-      if (!item || item.quantity <= 0) {
-        throw new ValidationError(`You do not have the required ${megaStoneName.replace('-', ' ')} to mega evolve this Pokemon.`);
+      if (!save.unlockedForms || !save.unlockedForms.includes(targetSpecies.id)) {
+        throw new ValidationError(`You must defeat ${targetSpecies.name.toUpperCase()} in battle before you can evolve into it.`);
       }
 
       finalEvolvesToId = targetSpecies.id;
-      itemIdToConsume = megaStoneName;
     } else {
       // Normal evolution logic
       if (!species.evolvesToId) {
@@ -258,6 +259,31 @@ export class TrainersService {
     const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, finalEvolvesToId, itemIdToConsume);
     // Since evolvePokemon doesn't return the fully included entity, we should fetch it or map what we have.
     // However, the previous implementation just returned evolvedPokemon which is the OwnedPokemon object.
+    const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    return TrainerMapper.toOwnedPokemonDto(fullyIncludedPokemon);
+  }
+
+  async devolvePokemon(userId: string, pokemonId: string): Promise<OwnedPokemonDto> {
+    const save = await this.repo.findByUserId(userId);
+    if (!save) throw new NotFoundError('Save not found');
+    
+    const pokemon = await this.repo.getPokemonById(save.id, pokemonId);
+    if (!pokemon) {
+      throw new NotFoundError('Pokemon not found or does not belong to you.');
+    }
+
+    if (pokemon.isEscrowed) {
+      throw new ValidationError('Cannot devolve a Pokémon that is currently locked in a marketplace trade or offer.');
+    }
+
+    const species = pokemon.species;
+    
+    if ((!species.isMega && !species.isGmax) || !species.baseSpeciesId) {
+      throw new ValidationError('This Pokemon is not in a Mega or G-Max form.');
+    }
+
+    await this.repo.evolvePokemon(save.id, pokemonId, species.baseSpeciesId);
+    
     const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);
     return TrainerMapper.toOwnedPokemonDto(fullyIncludedPokemon);
   }

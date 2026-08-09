@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OwnedPokemonDto, TrainerSaveDto, MoveDto, InventoryItemDto } from '@astranox/shared';
+import { OwnedPokemonDto, TrainerSaveDto, MoveDto, InventoryItemDto } from '@astranox/types';;
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, getSpriteUrl } from '@/shared/api/api';

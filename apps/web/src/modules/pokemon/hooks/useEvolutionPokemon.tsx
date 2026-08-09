@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { OwnedPokemonDto, TrainerSaveDto } from '@astranox/shared';
-import { api, getSpriteUrl } from '@/shared/api/api';
+import { OwnedPokemonDto, TrainerSaveDto } from '@astranox/types';;
+import { api, getSpriteUrl, battleApi } from '@/shared/api/api';
+import { useNavigate } from 'react-router-dom';
 import { Modal } from '@/shared/ui/Modal';
 import { ArrowRight } from 'lucide-react';
 
@@ -16,6 +17,7 @@ interface TransformationOption {
 
 export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [evolutionPkm, setEvolutionPkm] = useState<OwnedPokemonDto | null>(null);
   const [selectedTransformation, setSelectedTransformation] = useState<TransformationOption | null>(null);
 
@@ -34,7 +36,18 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
     if (!evolutionPkm) return [];
     const t: TransformationOption[] = [];
     if (evolutionPkm.species?.evolvesToId) {
-      t.push({ isStandard: true, id: evolutionPkm.species.evolvesToId, name: evolutionPkm.species.evolvesTo?.name || 'Evolution' } as TransformationOption);
+      const evolutionItem = (evolutionPkm.species.evolutionItem || '').toLowerCase();
+      const isMega = evolutionItem.endsWith('ite') || evolutionItem.includes('mega');
+      const isGmax = evolutionItem.includes('dynamax') || evolutionItem.includes('candy') || evolutionItem.includes('max');
+      
+      t.push({ 
+        isStandard: !isMega && !isGmax, 
+        isMega, 
+        isGmax, 
+        id: evolutionPkm.species.evolvesToId, 
+        name: evolutionPkm.species.evolvesTo?.name || 'Evolution',
+        baseSpeciesId: evolutionPkm.speciesId
+      } as TransformationOption);
     }
     if (speciesInfo?.megas) t.push(...speciesInfo.megas);
     if (speciesInfo?.gmaxes) t.push(...speciesInfo.gmaxes);
@@ -75,37 +88,44 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
     }
   });
 
-  const dynamaxMutation = useMutation({
+  const devolveMutation = useMutation({
     mutationFn: async (pokemonId: string) => {
-      await api.post('/inventory/use', { itemId: 'dynamax-candy', targetPokemonId: pokemonId, quantity: 1 });
+      await api.post(`/trainers/party/${pokemonId}/devolve`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
-      // The dynamaxPkm logic was bound to evolution UI previously, so we clear evolutionPkm on success.
       setEvolutionPkm(null);
       setSelectedTransformation(null);
       if (onSuccessCallback) onSuccessCallback();
     }
   });
 
+  const engageMutation = useMutation({
+    mutationFn: async (data: { speciesId: number; level: number; battleType?: string }) => {
+      return await battleApi.engageCustomBattle(data);
+    },
+    onSuccess: () => {
+      setEvolutionPkm(null);
+      setSelectedTransformation(null);
+      navigate('/battle');
+    }
+  });
+
   const EvolutionUI = evolutionPkm ? (() => {
     let canPerformEvolution = false;
+    let isUnlocked = false;
 
-    if (selectedTransformation?.isGmax) {
-      canPerformEvolution = (save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === 'dynamax-candy')?.quantity ?? 0) > 0;
-    } else if (selectedTransformation?.isMega) {
-      let megaStoneName = selectedTransformation.name.replace('-mega', 'ite');
-      if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
-      if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-      canPerformEvolution = (save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === megaStoneName)?.quantity ?? 0) > 0;
+    if (selectedTransformation?.isGmax || selectedTransformation?.isMega) {
+      isUnlocked = ((save as any)?.unlockedForms || []).includes(selectedTransformation.id);
+      canPerformEvolution = isUnlocked;
     } else if (selectedTransformation?.isStandard) {
       canPerformEvolution = !!((evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
         (evolutionPkm.species.evolutionItem && (save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity ?? 0) > 0));
     }
 
     return (
-      <Modal isOpen={true} onClose={() => { if (!evolveMutation.isPending && !dynamaxMutation.isPending) setEvolutionPkm(null); }} className="max-w-md" hideHeader>
+      <Modal isOpen={true} onClose={() => { if (!evolveMutation.isPending && !devolveMutation.isPending) setEvolutionPkm(null); }} className="max-w-md" hideHeader>
         <div className="p-4 sm:p-8 flex flex-col relative overflow-y-auto text-center max-h-[90vh]">
           <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10 pointer-events-none" />
 
@@ -159,29 +179,12 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 border border-slate-200 dark:border-slate-700 relative z-10">
             <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Evolution Requirement</h4>
             {(() => {
-              if (selectedTransformation?.isGmax) {
-                const ownedCandy = save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === 'dynamax-candy');
-                const hasCandy = ownedCandy && ownedCandy.quantity > 0;
+              if (selectedTransformation?.isGmax || selectedTransformation?.isMega) {
                 return (
                   <div className="flex flex-col items-center">
-                    <span className="text-xl font-black text-slate-800 dark:text-white capitalize">Dynamax Candy</span>
-                    <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasCandy ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      In Bag: {ownedCandy?.quantity || 0}
-                    </span>
-                  </div>
-                );
-              }
-
-              if (selectedTransformation?.isMega) {
-                let megaStoneName = selectedTransformation.name.replace('-mega', 'ite');
-                if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
-                if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-                const hasMegaStone = (save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === megaStoneName)?.quantity ?? 0) > 0;
-                return (
-                  <div className="flex flex-col items-center">
-                    <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{megaStoneName.replace('-', ' ')}</span>
-                    <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasMegaStone ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      In Bag: {save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === megaStoneName)?.quantity || 0}
+                    <span className="text-xl font-black text-slate-800 dark:text-white capitalize">Battle Unlock Requirement</span>
+                    <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${isUnlocked ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {isUnlocked ? 'Unlocked' : 'Challenge to Unlock'}
                     </span>
                   </div>
                 );
@@ -216,46 +219,42 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
           <div className="flex justify-center gap-4 relative z-10">
             <button
               onClick={() => { setEvolutionPkm(null); setSelectedTransformation(null); }}
-              disabled={evolveMutation.isPending || dynamaxMutation.isPending}
+              disabled={evolveMutation.isPending || devolveMutation.isPending}
               className="px-6 py-3 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
 
-            {(() => {
-              if (selectedTransformation?.isGmax) {
-                return (
-                  <button
-                    onClick={() => dynamaxMutation.mutate(evolutionPkm.id)}
-                    disabled={!canPerformEvolution || dynamaxMutation.isPending}
-                    className={`px-8 py-3 font-black tracking-widest text-white rounded-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-fuchsia-600 hover:bg-fuchsia-500 shadow-lg hover:shadow-xl' : 'bg-slate-500'}`}
-                  >
-                    {dynamaxMutation.isPending ? 'TRANSFORMING...' : canPerformEvolution ? 'GIGANTAMAX!' : 'CANNOT GMAX'}
-                  </button>
-                );
-              }
-
-              return (
-                <button
-                  onClick={() => {
-                    if (selectedTransformation?.isMega) {
-                      evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedTransformation.id });
-                    } else {
-                      evolveMutation.mutate(evolutionPkm.id);
-                    }
-                  }}
-                  disabled={!canPerformEvolution || evolveMutation.isPending}
-                  className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
-                >
-                  {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
-                </button>
-              );
-            })()}
+            {!isUnlocked && (selectedTransformation?.isMega || selectedTransformation?.isGmax) ? (
+              <button
+                onClick={() => {
+                  engageMutation.mutate({ speciesId: selectedTransformation.id, level: evolutionPkm.level, battleType: 'EVOLVE' });
+                }}
+                disabled={engageMutation.isPending}
+                className="px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none bg-linear-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]"
+              >
+                {engageMutation.isPending ? 'ENGAGING...' : 'FIGHT'}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  if (selectedTransformation?.isMega || selectedTransformation?.isGmax) {
+                    evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedTransformation.id });
+                  } else {
+                    evolveMutation.mutate(evolutionPkm.id);
+                  }
+                }}
+                disabled={!canPerformEvolution || evolveMutation.isPending}
+                className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
+              >
+                {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? (selectedTransformation?.isGmax ? 'GIGANTAMAX!' : 'EVOLVE!') : 'LOCKED'}
+              </button>
+            )}
           </div>
         </div>
       </Modal>
     );
   })() : null;
 
-  return { promptEvolve, EvolutionUI, evolutionPkm, speciesInfo };
+  return { promptEvolve, EvolutionUI, devolveMutation };
 }

@@ -40,7 +40,7 @@ function timeAgo(date: Date, addSuffix = false): string {
   return text;
 }
 
-import { TradeListingDto } from '@astranox/shared';
+import { TradeListingDto } from '@astranox/types';;
 
 interface TradeListingCardProps {
   listing: TradeListingDto & { _count?: { offers: number } };

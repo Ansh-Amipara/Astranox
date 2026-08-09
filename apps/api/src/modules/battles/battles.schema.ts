@@ -3,7 +3,8 @@ import { z } from 'zod';
 export const engageCustomSchema = z.object({
   body: z.object({
     speciesId: z.number().positive(),
-    level: z.number().min(1).max(2000),
+    level: z.number().min(1).max(20000),
+    battleType: z.enum(['WILD', 'NPC', 'TOWER', 'RIFT', 'EVOLVE']).optional(),
   })
 });
 

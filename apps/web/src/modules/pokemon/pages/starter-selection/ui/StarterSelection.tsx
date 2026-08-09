@@ -2,16 +2,43 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
 
-const PSEUDO_LEGENDARIES = [
-  { id: 147, name: 'Dratini', type: 'Dragon' },
-  { id: 246, name: 'Larvitar', type: 'Rock / Ground' },
-  { id: 371, name: 'Bagon', type: 'Dragon' },
-  { id: 374, name: 'Beldum', type: 'Steel / Psychic' },
-  { id: 443, name: 'Gible', type: 'Dragon / Ground' },
-  { id: 633, name: 'Deino', type: 'Dark / Dragon' },
-  { id: 704, name: 'Goomy', type: 'Dragon' },
-  { id: 782, name: 'Jangmo-o', type: 'Dragon' },
-  { id: 885, name: 'Dreepy', type: 'Dragon / Ghost' },
+const ALL_GENERATION_STARTERS = [
+  // Gen 1
+  { id: 1, name: 'Bulbasaur', type: 'Grass / Poison' },
+  { id: 4, name: 'Charmander', type: 'Fire' },
+  { id: 7, name: 'Squirtle', type: 'Water' },
+  // Gen 2
+  { id: 152, name: 'Chikorita', type: 'Grass' },
+  { id: 155, name: 'Cyndaquil', type: 'Fire' },
+  { id: 158, name: 'Totodile', type: 'Water' },
+  // Gen 3
+  { id: 252, name: 'Treecko', type: 'Grass' },
+  { id: 255, name: 'Torchic', type: 'Fire' },
+  { id: 258, name: 'Mudkip', type: 'Water' },
+  // Gen 4
+  { id: 387, name: 'Turtwig', type: 'Grass' },
+  { id: 390, name: 'Chimchar', type: 'Fire' },
+  { id: 393, name: 'Piplup', type: 'Water' },
+  // Gen 5
+  { id: 495, name: 'Snivy', type: 'Grass' },
+  { id: 498, name: 'Tepig', type: 'Fire' },
+  { id: 501, name: 'Oshawott', type: 'Water' },
+  // Gen 6
+  { id: 650, name: 'Chespin', type: 'Grass' },
+  { id: 653, name: 'Fennekin', type: 'Fire' },
+  { id: 656, name: 'Froakie', type: 'Water' },
+  // Gen 7
+  { id: 722, name: 'Rowlet', type: 'Grass / Flying' },
+  { id: 725, name: 'Litten', type: 'Fire' },
+  { id: 728, name: 'Popplio', type: 'Water' },
+  // Gen 8
+  { id: 810, name: 'Grookey', type: 'Grass' },
+  { id: 813, name: 'Scorbunny', type: 'Fire' },
+  { id: 816, name: 'Sobble', type: 'Water' },
+  // Gen 9
+  { id: 906, name: 'Sprigatito', type: 'Grass' },
+  { id: 909, name: 'Fuecoco', type: 'Fire' },
+  { id: 912, name: 'Quaxly', type: 'Water' },
 ];
 
 export function StarterSelection() {
@@ -46,12 +73,12 @@ export function StarterSelection() {
             Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">Partner</span>
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Welcome to Astranox. As per house rules, you may select one Pseudo-Legendary baby form to begin your journey.
+            Welcome to Astranox. Choose one of the classic starter Pokémon from any generation to begin your journey.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
-          {PSEUDO_LEGENDARIES.map((pkm) => {
+          {ALL_GENERATION_STARTERS.map((pkm) => {
             const isSelected = selectedId === pkm.id;
             return (
               <div
@@ -95,7 +122,7 @@ export function StarterSelection() {
               <div>
                 <p className="text-sm text-slate-600 dark:text-slate-400">Selected Partner</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">
-                  {PSEUDO_LEGENDARIES.find(p => p.id === selectedId)?.name}
+                  {ALL_GENERATION_STARTERS.find(p => p.id === selectedId)?.name}
                 </p>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { OwnedPokemonDto, TrainerSaveDto } from '@astranox/shared';
+import { OwnedPokemonDto, TrainerSaveDto } from '@astranox/types';;
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { Modal } from '@/shared/ui/Modal';
 import { getMaxLevelForPotential, getXpForLevel, getLevelFromXp } from '@/shared/utils/pokemonUtils';

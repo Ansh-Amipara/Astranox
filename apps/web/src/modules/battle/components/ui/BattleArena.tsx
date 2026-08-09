@@ -4,7 +4,7 @@ import { HealthBar } from '@/shared/ui/HealthBar';
 import { StatusIcons } from '@/shared/ui/StatusIcons';
 import { WeatherEffects } from './WeatherEffects';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
-import { ActivePokemonDto, OwnedPokemonDto } from '@astranox/shared';
+import { ActivePokemonDto, OwnedPokemonDto } from '@astranox/types';;
 import { formatPotential } from '@/shared/utils/pokemonUtils';
 import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
 interface Props {

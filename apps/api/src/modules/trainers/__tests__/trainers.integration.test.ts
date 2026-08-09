@@ -56,7 +56,7 @@ describe('Trainers Module Integration', () => {
       const res = await request(app)
         .post('/trainers/starter')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ speciesId: 147 }); // Dratini
+        .send({ speciesId: 1 }); // Bulbasaur
       
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);

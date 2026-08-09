@@ -57,7 +57,7 @@ export class BattlesService {
   }
 
   async startCustomEncounter(userId: string, dto: StartCustomEncounterDto): Promise<StartEncounterResultDto> {
-    const result = await this.sessionService.startCustomEncounter(userId, dto.speciesId, dto.level);
+    const result = await this.sessionService.startCustomEncounter(userId, dto.speciesId, dto.level, dto.battleType);
     return BattleMapper.toStartEncounterResultDto(result);
   }
 

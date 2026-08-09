@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import type { UserPayload } from '@astranox/shared';
+import type { UserPayload } from '@astranox/types';;
 import { env } from '../../config/env';
 
 const ACCESS_SECRET = env.JWT_ACCESS_SECRET;

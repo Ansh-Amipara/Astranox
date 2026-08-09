@@ -5,7 +5,7 @@ import { api } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { toast } from 'sonner';
-import { MoveDto, OwnedPokemonDto, OwnedPokemonMoveDto } from '@astranox/shared';
+import { MoveDto, OwnedPokemonDto, OwnedPokemonMoveDto } from '@astranox/types';;
 
 type PokemonWithMovesEditing = OwnedPokemonDto & {
   currentMoves: string[];

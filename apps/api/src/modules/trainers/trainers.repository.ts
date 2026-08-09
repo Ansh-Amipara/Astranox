@@ -6,11 +6,11 @@ import { prisma } from '../../core/db/prisma';
 
 
 
-function generateStarterPotential() {
+function generateStarterPotential(): PokemonPotential {
   const rand = Math.random();
-  if (rand < 0.10) return 'DIAMOND';
-  if (rand < 0.50) return 'PLATINUM'; // 40% chance (0.10 to 0.50)
-  return 'GOLD'; // 50% chance (0.50 to 1.0)
+  if (rand < 0.10) return 'A';
+  if (rand < 0.50) return 'B'; // 40% chance (0.10 to 0.50)
+  return 'C'; // 50% chance (0.50 to 1.0)
 }
 
 @injectable()
@@ -62,8 +62,7 @@ export class TrainersRepository {
           trainerId,
           speciesId,
           level: 5,
-          // @ts-ignore
-          potential: generateStarterPotential() as any,
+          potential: generateStarterPotential(),
           currentXp: 5000,
           isParty: true,
           position: 0,

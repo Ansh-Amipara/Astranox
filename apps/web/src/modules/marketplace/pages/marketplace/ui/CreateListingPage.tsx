@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { useCreateListing } from '@/modules/marketplace/components/api/queries';
 import { Loader2, ArrowLeft, Check, AlertCircle } from 'lucide-react';
-import { OwnedPokemonDto, TradeListingDto } from '@astranox/shared';
+import { OwnedPokemonDto, TradeListingDto } from '@astranox/types';;
 
 export function CreateListingPage() {
   const navigate = useNavigate();

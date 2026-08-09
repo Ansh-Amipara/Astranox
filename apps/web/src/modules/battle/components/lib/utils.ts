@@ -1,4 +1,4 @@
-import { ActivePokemonDto, TurnEventDto } from '@astranox/shared';
+import { ActivePokemonDto, TurnEventDto } from '@astranox/types';;
 
 export const getEventMessage = (ev: TurnEventDto, player: ActivePokemonDto & { name?: string }, wild: ActivePokemonDto & { name?: string }) => {
   const name = (ev as any).pokemonId === player.id ? (player.name || player.speciesName) : (wild.name || wild.speciesName);

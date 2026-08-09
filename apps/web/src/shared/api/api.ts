@@ -148,6 +148,10 @@ export const battleApi = {
   runFromBattle: async () => {
     const { data } = await api.post('/battles/turn', { action: 'run' });
     return data.data;
+  },
+  engageCustomBattle: async (params: { speciesId: number, level: number, battleType?: string }) => {
+    const { data } = await api.post('/battles/engage-custom', params);
+    return data.data;
   }
 };
 export const pokedexApi = {

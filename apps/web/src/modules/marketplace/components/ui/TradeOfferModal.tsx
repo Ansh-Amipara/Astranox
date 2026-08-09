@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
 import { useCreateOffer } from '../api/queries';
 import { Loader2, AlertCircle, Check } from 'lucide-react';
-import { OwnedPokemonDto } from '@astranox/shared';
+import { OwnedPokemonDto } from '@astranox/types';;
 import { Modal } from '@/shared/ui/Modal';
 
 interface TradeOfferModalProps {

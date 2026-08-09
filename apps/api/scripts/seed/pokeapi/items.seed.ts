@@ -163,27 +163,5 @@ export async function seedItems() {
     }
   }
 
-  console.log(`Seeding Dynamax Candy...`);
-  try {
-    const dynamaxId = 'dynamax-candy';
-    const dynamaxCandy = {
-      id: dynamaxId,
-      name: 'Dynamax Candy',
-      cost: 100000,
-      description: 'A mysterious candy infused with Galar particles. Allows certain Pokémon to permanently unlock their Gigantamax potential.',
-      category: 'dynamax',
-      spriteUrl: `https://res.cloudinary.com/${env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/astranox/item/dynamax/dynamax-candy`
-    };
-    const { id, ...dynamaxUpdateData } = dynamaxCandy;
-    await prisma.item.upsert({
-      where: { id: dynamaxId },
-      update: dynamaxUpdateData,
-      create: dynamaxCandy
-    });
-    console.log(`Seeded item: ${dynamaxId}`);
-  } catch (e) {
-    console.error(`Error seeding Dynamax Candy:`, e);
-  }
-
   console.log(`Successfully seeded items.`);
 }

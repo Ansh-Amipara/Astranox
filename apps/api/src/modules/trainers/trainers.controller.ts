@@ -162,6 +162,20 @@ export class TrainersController {
     }
   };
 
+  devolvePokemon = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new ValidationError('User ID missing from request');
+
+      const { pokemonId } = req.params;
+
+      const devolvedPokemon = await this.service.devolvePokemon(userId, pokemonId);
+      res.json({ success: true, data: devolvedPokemon });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   boostPotential = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;

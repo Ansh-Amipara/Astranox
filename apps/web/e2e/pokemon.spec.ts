@@ -22,10 +22,10 @@ test.describe('Pokemon Management Flow', () => {
     
     // 4. Select a starter
     // Wait for the starters to load (cards should be visible)
-    await page.waitForSelector('text=Dratini');
+    await page.waitForSelector('text=Bulbasaur');
     
     // Click the first starter available
-    await page.locator('text=Dratini').first().click();
+    await page.locator('text=Bulbasaur').first().click();
     
     // Confirm the selection if there is a dialog
     const confirmBtn = await page.$('button:has-text("Confirm")');

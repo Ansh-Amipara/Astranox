@@ -9,7 +9,7 @@ initSentry();
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { ASTRANOX_VERSION } from '@astranox/shared';
+import { ASTRANOX_VERSION } from '@astranox/constants';;
 import cookieParser from 'cookie-parser';
 
 import { authRoutes } from './modules/auth/auth.routes';

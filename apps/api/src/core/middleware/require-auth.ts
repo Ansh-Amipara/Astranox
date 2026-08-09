@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UnauthorizedError, ForbiddenError } from '../errors/AppError';
 import { verifyAccessToken } from '../utils/jwt';
-import type { UserPayload } from '@astranox/shared';
+import type { UserPayload } from '@astranox/types';;
 
 declare global {
   namespace Express {

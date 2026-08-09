@@ -4,7 +4,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { useSkipTowerFloors } from '@/modules/tower/components/useTower';
 import { toast } from 'sonner';
-import { OwnedPokemonDto } from '@astranox/shared';
+import { OwnedPokemonDto } from '@astranox/types';;
 
 import { Loader2, Coins, AlertCircle, Mountain, Swords, FastForward } from 'lucide-react';
 

@@ -3,7 +3,7 @@ import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { TbPokeball } from "react-icons/tb";
 import { GiBackpack } from "react-icons/gi";
 import { FaRunning } from "react-icons/fa";
-import { ActivePokemonDto, TurnEventDto, PokemonMoveDto } from '@astranox/shared';
+import { ActivePokemonDto, TurnEventDto, PokemonMoveDto } from '@astranox/types';;
 
 interface Props {
   player: ActivePokemonDto & { name?: string; nickname?: string; speciesName?: string };

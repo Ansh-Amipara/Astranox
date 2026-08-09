@@ -3,7 +3,7 @@ import { useSearchListings, useMyListings, useMyOffers, useCancelOffer } from '@
 import { TradeListingCard } from '@/modules/marketplace/components/ui/TradeListingCard';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { TradeListingDto, TradeOfferDto } from '@astranox/shared';
+import { TradeListingDto, TradeOfferDto } from '@astranox/types';;
 
 export function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<'browse' | 'my-listings' | 'my-offers'>('browse');

@@ -4,7 +4,7 @@ import { env } from './config/env';
 import { logger } from './config/logger';
 
 import { verifyAccessToken } from './core/utils/jwt';
-import type { UserPayload } from '@astranox/shared';
+import type { UserPayload } from '@astranox/types';;
 
 let io: Server;
 

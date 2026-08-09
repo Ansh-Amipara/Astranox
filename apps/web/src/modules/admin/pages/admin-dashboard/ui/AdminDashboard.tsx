@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { SpeciesDto, OwnedPokemonDto } from '@astranox/shared';
+import { SpeciesDto, OwnedPokemonDto } from '@astranox/types';;
 // @ts-ignore
 type UserPayload = any;
 import { Banknote, Gift, Pencil, X } from 'lucide-react';

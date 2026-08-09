@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
-import { OwnedPokemonDto, MoveDto, TrainerSaveDto } from '@astranox/shared';
+import { OwnedPokemonDto, MoveDto, TrainerSaveDto } from '@astranox/types';;
 import { Modal } from '@/shared/ui/Modal';
 import { useNavigate } from 'react-router-dom';
 import { useSmeltPokemon } from '@/modules/pokemon/hooks/useSmeltPokemon';
@@ -46,7 +46,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
   const { promptSmelt, isSmelting, SmeltResultUI } = useSmeltPokemon(() => setActiveMenuPkm(null));
   const { promptDetails, PokemonDetailsUI } = usePokemonDetails();
-  const { promptEvolve, EvolutionUI } = useEvolutionPokemon(save, () => setActiveMenuPkm(null));
+  const { promptEvolve, EvolutionUI, devolveMutation } = useEvolutionPokemon(save, () => setActiveMenuPkm(null));
   const { promptGiveXp, GiveXpUI } = useGiveXpPokemon(save, () => setActiveMenuPkm(null));
   const { promptBoostPotential, BoostPotentialUI } = useBoostPotentialPokemon(save, () => setActiveMenuPkm(null));
   const { promptEnhanceIvs, EnhanceIvsUI } = useEnhanceIvsPokemon(save, () => setActiveMenuPkm(null));
@@ -127,17 +127,38 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 Change Moves
               </button>
 
-              <button
-                onClick={() => {
-                  if (!canEvolve) return;
-                  promptEvolve(activeMenuPkm);
-                  setActiveMenuPkm(null);
-                }}
-                disabled={!canEvolve}
-                className={`w-full text-left px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 cursor-not-allowed'}`}
-              >
-                {canEvolve ? 'Evolution' : 'Fully Evolved'}
-              </button>
+              {(() => {
+                const isMegaOrGmax = activeMenuPkm.species?.isMega || activeMenuPkm.species?.isGmax;
+                
+                if (isMegaOrGmax) {
+                  return (
+                    <button
+                      onClick={() => {
+                        devolveMutation.mutate(activeMenuPkm.id);
+                        setActiveMenuPkm(null);
+                      }}
+                      disabled={devolveMutation.isPending}
+                      className="w-full text-left px-4 py-3 rounded-xl font-bold transition-colors bg-fuchsia-100 hover:bg-fuchsia-200 dark:bg-fuchsia-900/50 dark:hover:bg-fuchsia-800 text-fuchsia-900 dark:text-fuchsia-100"
+                    >
+                      {devolveMutation.isPending ? 'Reverting...' : 'Revert Form (Devolve)'}
+                    </button>
+                  );
+                }
+
+                return (
+                  <button
+                    onClick={() => {
+                      if (!canEvolve) return;
+                      promptEvolve(activeMenuPkm);
+                      setActiveMenuPkm(null);
+                    }}
+                    disabled={!canEvolve}
+                    className={`w-full text-left px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 cursor-not-allowed'}`}
+                  >
+                    {canEvolve ? 'Evolution' : 'Fully Evolved'}
+                  </button>
+                );
+              })()}
 
               {activeMenuPkm.potential !== 'EX_PLUS' && (
                 <button

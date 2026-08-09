@@ -105,7 +105,7 @@ export class BattleSessionService {
     });
   }
 
-  async startCustomEncounter(userId: string, speciesId: number, level: number) {
+  async startCustomEncounter(userId: string, speciesId: number, level: number, battleType?: any) {
     const trainerSave = await this.trainersRepo.findByUserId(userId);
     if (!trainerSave) {
       throw new NotFoundError('Trainer save not found');
@@ -199,7 +199,7 @@ export class BattleSessionService {
       opponentPokemonData: wildActive,
       playerPokemonData: playerActive,
       playerPartyData,
-      battleType: 'NPC' // Custom encounters shouldn't be capturable
+      battleType: battleType || 'NPC' // Default to NPC for standard custom encounters
     });
 
     return {

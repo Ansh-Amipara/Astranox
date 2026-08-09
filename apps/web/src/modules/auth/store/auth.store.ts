@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { UserPayload } from '@astranox/shared';
+import type { UserPayload } from '@astranox/types';;
 import { api } from '@/shared/api/api';
 import { getQueryClient } from '@/shared/api/query-client';
 
