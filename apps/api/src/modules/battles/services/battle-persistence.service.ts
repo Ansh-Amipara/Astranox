@@ -45,7 +45,7 @@ export class BattlePersistenceService {
         level: wildPokemon.level,
         // @ts-ignore
         potential: wildPokemon.potential as any,
-        currentXp: wildPokemon.level * 1000,
+        currentXp: wildPokemon.currentXp,
         isParty,
         boxNumber,
         position,

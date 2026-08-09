@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { OwnedPokemonDto, TrainerSaveDto, MoveDto, InventoryItemDto } from '@astranox/types';;
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api, getSpriteUrl } from '@/shared/api/api';
+import { api, getSpriteUrl, battleApi } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { ArrowRight } from 'lucide-react';
@@ -30,7 +30,7 @@ export function TeamPage() {
   // State for different modals
   const [activeMenuPkm, setActiveMenuPkm] = useState<OwnedPokemonDto | null>(null);
   const [detailsPkm, setDetailsPkm] = useState<OwnedPokemonDto | null>(null);
-  const [evolutionPkm, setEvolutionPkm] = useState<(OwnedPokemonDto & { megas?: { id: number, name: string, baseSpeciesId: number, baseSpeciesName: string }[] }) | null>(null);
+  const [evolutionPkm, setEvolutionPkm] = useState<(OwnedPokemonDto & { megas?: { id: number, name: string, baseSpeciesId: number, baseSpeciesName: string, isGmax?: boolean, isStandard?: boolean }[] }) | null>(null);
   const [boostPkm, setBoostPkm] = useState<OwnedPokemonDto | null>(null);
   const [boostIvPkm, setBoostIvPkm] = useState<OwnedPokemonDto | null>(null);
   const [giveXpPkm, setGiveXpPkm] = useState<OwnedPokemonDto | null>(null);
@@ -39,7 +39,7 @@ export function TeamPage() {
 
   const { SmeltResultUI } = useSmeltPokemon();
   const [selectedIvItem, setSelectedIvItem] = useState<'bottle-cap' | 'gold-bottle-cap'>('bottle-cap');
-  const [selectedMega, setSelectedMega] = useState<{ id: number; name: string; baseSpeciesId?: number; baseSpeciesName?: string } | null>(null);
+  const [selectedMega, setSelectedMega] = useState<{ id: number; name: string; baseSpeciesId?: number; baseSpeciesName?: string, isGmax?: boolean, isStandard?: boolean } | null>(null);
 
   const distributeXpMutation = useMutation({
     mutationFn: async ({ pokemonId, amount }: { pokemonId: string; amount: number }) => {
@@ -66,12 +66,15 @@ export function TeamPage() {
   useEffect(() => {
     if (!evolutionPkm) {
       setSelectedMega(null);
-    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && speciesInfo.megas?.length > 0) {
-      if (!selectedMega || selectedMega.baseSpeciesId !== evolutionPkm.speciesId) {
-        setSelectedMega(speciesInfo.megas[0]);
+    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId) {
+      const transformations = [...(speciesInfo.megas || []), ...(speciesInfo.gmaxes || [])];
+      if (transformations.length > 0) {
+        if (!selectedMega || selectedMega.baseSpeciesId !== evolutionPkm.speciesId) {
+          setSelectedMega(transformations[0]);
+        }
+      } else {
+        setSelectedMega(null);
       }
-    } else if (speciesInfo && speciesInfo.id === evolutionPkm.speciesId && (!speciesInfo.megas || speciesInfo.megas.length === 0)) {
-      setSelectedMega(null);
     }
   }, [evolutionPkm, speciesInfo, selectedMega]);
 
@@ -108,7 +111,7 @@ export function TeamPage() {
   });
 
   const evolveMutation = useMutation({
-    mutationFn: async (data: { pokemonId: string; targetSpeciesId?: string } | string) => {
+    mutationFn: async (data: { pokemonId: string; targetSpeciesId?: number } | string) => {
       if (typeof data === 'string') {
         await api.post(`/trainers/party/${data}/evolve`);
       } else {
@@ -119,6 +122,27 @@ export function TeamPage() {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       setEvolutionPkm(null);
       setSelectedMega(null);
+    }
+  });
+
+  const devolveMutation = useMutation({
+    mutationFn: async (pokemonId: string) => {
+      await api.post(`/trainers/party/${pokemonId}/devolve`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
+      setActiveMenuPkm(null);
+    }
+  });
+
+  const engageMutation = useMutation({
+    mutationFn: async (data: { speciesId: number; level: number; battleType?: string }) => {
+      return await battleApi.engageCustomBattle(data);
+    },
+    onSuccess: () => {
+      setEvolutionPkm(null);
+      setSelectedMega(null);
+      navigate(`/battle?returnUrl=${encodeURIComponent(window.location.pathname)}`);
     }
   });
 
@@ -346,15 +370,33 @@ export function TeamPage() {
                 Change Moves
               </button>
               {(() => {
-                const hasEvolutions = !!activeMenuPkm.species?.evolvesToId;
+                if (activeMenuPkm.species?.isMega || activeMenuPkm.species?.isGmax) {
+                  return (
+                    <button
+                      onClick={() => devolveMutation.mutate(activeMenuPkm.id)}
+                      disabled={devolveMutation.isPending}
+                      className="w-full text-center px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                    >
+                      {devolveMutation.isPending ? 'Devolving...' : 'Devolve'}
+                    </button>
+                  );
+                }
+
+                const hasEvolutions = activeMenuPkm.species?.evolvesTo?.length > 0;
                 const hasMegaForms = speciesInfo?.megas?.length > 0;
-                const canEvolve = hasEvolutions || hasMegaForms;
+                const hasGmaxForms = speciesInfo?.gmaxes?.length > 0;
+                const canEvolve = hasEvolutions || hasMegaForms || hasGmaxForms;
                 return (
                   <button
                     onClick={() => {
                       if (!canEvolve) return;
-                      setEvolutionPkm({ ...activeMenuPkm, megas: speciesInfo?.megas });
-                      setSelectedMega(speciesInfo?.megas?.[0] || null);
+                      const transformations = [
+                        ...(activeMenuPkm.species?.evolvesTo || []).map((e: any) => ({ id: e.id, name: e.name, isStandard: true })),
+                        ...(speciesInfo?.megas || []), 
+                        ...(speciesInfo?.gmaxes || [])
+                      ];
+                      setEvolutionPkm({ ...activeMenuPkm, megas: transformations });
+                      setSelectedMega(transformations[0] || null);
                       setActiveMenuPkm(null);
                     }}
                     disabled={!canEvolve}
@@ -519,21 +561,21 @@ export function TeamPage() {
                 <div className="w-28 h-28 bg-blue-50/50 dark:bg-slate-800/80 rounded-full flex items-center justify-center border-2 border-blue-400 dark:border-blue-500 shadow-lg relative">
                   {evolutionPkm.megas?.length && evolutionPkm.megas.length > 1 && (
                     <div className="absolute -top-3 -right-3 flex gap-1">
-                      {evolutionPkm.megas.map((mega: { id: number, name: string, baseSpeciesId?: number, baseSpeciesName?: string }) => (
+                      {evolutionPkm.megas.map((mega: { id: number, name: string, baseSpeciesId?: number, baseSpeciesName?: string, isGmax?: boolean, isStandard?: boolean }) => (
                         <button
                           key={mega.id}
                           onClick={() => setSelectedMega(mega)}
                           className={`w-6 h-6 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-blue-500 bg-blue-500 text-white' : 'border-slate-300 bg-white text-slate-500'} text-[10px] font-bold flex items-center justify-center shadow-md`}
                         >
-                          {mega.name.slice(-1).toUpperCase()}
+                          {mega.isStandard ? 'E' : (mega.isGmax ? 'G' : (mega.name.endsWith(' x') ? 'X' : (mega.name.endsWith(' y') ? 'Y' : 'M')))}
                         </button>
                       ))}
                     </div>
                   )}
-                  <img src={getSpriteUrl(selectedMega?.id || evolutionPkm.species.evolvesToId || 0)} className="w-24 h-24 pixelated object-contain" />
+                  <img src={getSpriteUrl(selectedMega?.id || evolutionPkm.species.evolvesTo?.[0]?.id || 0)} className="w-24 h-24 pixelated object-contain" />
                 </div>
                 <span className="mt-3 font-black text-blue-600 dark:text-blue-400 capitalize text-lg drop-shadow-sm">
-                  {selectedMega ? selectedMega.name.replace('-mega', 'ite').replace('-', ' ') : '???'}
+                  {selectedMega ? selectedMega.name : (evolutionPkm.species.evolvesTo?.[0]?.name || '???')}
                 </span>
               </div>
             </div>
@@ -541,23 +583,26 @@ export function TeamPage() {
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-8 border border-slate-200 dark:border-slate-700 relative z-10">
               {(() => {
                 let canPerformEvolution = false;
-
-                if (selectedMega) {
-                  let megaStoneName = selectedMega.name.replace('-mega', 'ite');
-                  if (megaStoneName.includes('ite-x')) megaStoneName = megaStoneName.replace('ite-x', 'ite-x');
-                  if (megaStoneName.includes('ite-y')) megaStoneName = megaStoneName.replace('ite-y', 'ite-y');
-                  canPerformEvolution = save?.inventory?.find((i: InventoryItemDto) => i.itemId === megaStoneName)?.quantity ? true : false;
-                } else if (evolutionPkm.species.evolvesToId) {
-                  canPerformEvolution = Boolean(evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
-                    Boolean(evolutionPkm.species.evolutionItem && save?.inventory?.find((i: InventoryItemDto) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity);
+                let isUnlocked = false;
+                let targetId = selectedMega ? selectedMega.id : (evolutionPkm.species.evolvesTo?.[0]?.id || 0);
+                if (selectedMega && !selectedMega.isStandard) {
+                  isUnlocked = ((save as any)?.unlockedForms || []).includes(targetId);
+                  canPerformEvolution = isUnlocked;
+                } else if (evolutionPkm.species.evolveByBattle) {
+                  isUnlocked = ((save as any)?.unlockedForms || []).includes(targetId);
+                  canPerformEvolution = isUnlocked;
+                } else if (selectedMega?.isStandard || evolutionPkm.species.evolvesTo?.length > 0) {
+                  canPerformEvolution = Boolean(evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel);
                 }
+
+                const isBattleRequirement = (selectedMega && !selectedMega.isStandard) || evolutionPkm.species.evolveByBattle;
 
                 return (
                   <>
                     <div className="flex flex-col items-center">
-                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{selectedMega ? selectedMega.name.replace('-mega', 'ite').replace('-', ' ') : evolutionPkm.species.evolutionItem?.replace('-', ' ') || `Level ${evolutionPkm.species.evolutionLevel}`}</span>
+                      <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{isBattleRequirement ? 'Battle Unlock Requirement' : `Level ${evolutionPkm.species.evolutionLevel}`}</span>
                       <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${canPerformEvolution ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {selectedMega || evolutionPkm.species.evolutionItem ? `In Bag: ${save?.inventory?.find((i: InventoryItemDto) => i.itemId === (selectedMega ? selectedMega.name.replace('-mega', 'ite') : evolutionPkm.species.evolutionItem))?.quantity || 0}` : `(Current Level: ${evolutionPkm.level})`}
+                        {isBattleRequirement ? (isUnlocked ? 'Unlocked' : 'Challenge to Unlock') : `(Current Level: ${evolutionPkm.level})`}
                       </span>
                     </div>
 
@@ -570,19 +615,31 @@ export function TeamPage() {
                         Cancel
                       </button>
 
-                      <button
-                        onClick={() => {
-                          if (selectedMega) {
-                            evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id.toString() });
-                          } else {
-                            evolveMutation.mutate(evolutionPkm.id);
-                          }
-                        }}
-                        disabled={!canPerformEvolution || evolveMutation.isPending}
-                        className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
-                      >
-                        {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
-                      </button>
+                      {isBattleRequirement && !isUnlocked ? (
+                        <button
+                          onClick={() => {
+                            engageMutation.mutate({ speciesId: targetId || evolutionPkm.speciesId, level: evolutionPkm.level, battleType: 'EVOLVE' });
+                          }}
+                          disabled={engageMutation.isPending}
+                          className="px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none bg-linear-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]"
+                        >
+                          {engageMutation.isPending ? 'ENGAGING...' : 'FIGHT'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (selectedMega) {
+                              evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedMega.id });
+                            } else if (evolutionPkm.species.evolvesTo?.length > 0) {
+                              evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: evolutionPkm.species.evolvesTo[0].id });
+                            }
+                          }}
+                          disabled={!canPerformEvolution || evolveMutation.isPending}
+                          className={`px-8 py-3 font-black tracking-widest text-white rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' : 'bg-slate-500'}`}
+                        >
+                          {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
+                        </button>
+                      )}
                     </div>
                   </>
                 );
@@ -834,7 +891,7 @@ export function TeamPage() {
       {/* --- Give XP Modal --- */}
       {giveXpPkm && (() => {
         const potentialCaps: Record<string, number> = {
-          F_MINUS: 25, F: 50, F_PLUS: 75, E_MINUS: 100, E: 150, E_PLUS: 200, D_MINUS: 300, D: 400, D_PLUS: 500, C_MINUS: 600, C: 700, C_PLUS: 800, B_MINUS: 1000, B: 1200, B_PLUS: 1400, A_MINUS: 1600, A: 1800, A_PLUS: 2000, S_MINUS: 3000, S: 4000, S_PLUS: 5000, SS_MINUS: 6000, SS: 7000, SS_PLUS: 8000, SSS_MINUS: 10000, SSS: 12000, SSS_PLUS: 14000, EX_MINUS: 16000, EX: 18000, EX_PLUS: 20000
+          G: 50, F: 100, E: 250, D: 500, C: 1000, B: 1500, A: 2000, S_MINUS: 3000, S: 4000, S_PLUS: 5000, SS_MINUS: 6000, SS: 7000, SS_PLUS: 8000, SSS_MINUS: 10000, SSS: 12000, SSS_PLUS: 14000, EX_MINUS: 16000, EX: 18000, EX_PLUS: 20000
         };
         const maxLvl = potentialCaps[giveXpPkm.potential as string] || 2000;
         const maxTotalXp = 50 * (maxLvl + 1) * maxLvl - 1;

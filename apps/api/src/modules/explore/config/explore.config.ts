@@ -7,18 +7,22 @@ export const EXPLORE_OUTCOME_RATES = {
 };
 
 export const LOCATION_LEVEL_RANGES: Record<ExploreLocation, { min: number; max: number }> = {
-  PLAINS: { min: 2, max: 10 },
-  FOREST: { min: 5, max: 15 },
-  MOUNTAIN: { min: 10, max: 25 },
-  OCEAN: { min: 15, max: 30 },
-  SWAMP: { min: 15, max: 30 },
-  DESERT: { min: 20, max: 40 },
-  FAIRY_GARDEN: { min: 20, max: 35 },
-  FROZEN_PEAKS: { min: 25, max: 45 },
-  VOLCANO: { min: 30, max: 50 },
-  HAUNTED_RUINS: { min: 30, max: 45 },
-  CRYSTAL_CAVE: { min: 35, max: 55 },
-  ANCIENT_TEMPLE: { min: 40, max: 60 },
-  SKY_ISLANDS: { min: 45, max: 70 },
-  ASTRALIS_FRONTIER: { min: 20, max: 50 }
+  NORMAL_REGION: { min: 30, max: 50 },
+  FIRE_REGION: { min: 30, max: 50 },
+  WATER_REGION: { min: 30, max: 50 },
+  GRASS_REGION: { min: 30, max: 50 },
+  ELECTRIC_REGION: { min: 30, max: 50 },
+  ICE_REGION: { min: 30, max: 50 },
+  FIGHTING_REGION: { min: 30, max: 50 },
+  POISON_REGION: { min: 30, max: 50 },
+  GROUND_REGION: { min: 30, max: 50 },
+  FLYING_REGION: { min: 30, max: 50 },
+  PSYCHIC_REGION: { min: 30, max: 50 },
+  BUG_REGION: { min: 30, max: 50 },
+  ROCK_REGION: { min: 30, max: 50 },
+  GHOST_REGION: { min: 30, max: 50 },
+  DRAGON_REGION: { min: 30, max: 50 },
+  DARK_REGION: { min: 30, max: 50 },
+  STEEL_REGION: { min: 30, max: 50 },
+  FAIRY_REGION: { min: 30, max: 50 }
 };

@@ -64,8 +64,8 @@ export class ExploreService {
       throw new ValidationError('You have no Pokemon to battle with!');
     }
 
-    const { speciesName, level } = this.encounterGen.generateEncounter(location);
-    const wildActive = await this.pokemonGen.generateWildPokemon(speciesName, level, trainerSave.rank);
+    const { speciesName, level } = await this.encounterGen.generateEncounterAsync(location);
+    const wildActive = await this.pokemonGen.generateWildPokemon(speciesName, level);
 
     const lead = trainerSave.party[0];
     const playerInstance = mapOwnedPokemonToInstance(lead as any);

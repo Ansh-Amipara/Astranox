@@ -13,12 +13,8 @@ export const RIFT_REWARD_MULTIPLIERS: Record<string, number> = {
 };
 
 export const RIFT_MAX_FLOORS: Record<string, number> = {
-  F_MINUS: 2, F: 2, F_PLUS: 2,
-  E_MINUS: 2, E: 2, E_PLUS: 2,
-  D_MINUS: 3, D: 3, D_PLUS: 3,
-  C_MINUS: 3, C: 3, C_PLUS: 3,
-  B_MINUS: 4, B: 4, B_PLUS: 4,
-  A_MINUS: 4, A: 4, A_PLUS: 4,
+  G: 2, F: 2, E: 2,
+  D: 3, C: 3, B: 4, A: 4,
   S_MINUS: 5, S: 5, S_PLUS: 5,
   SS_MINUS: 5, SS: 5, SS_PLUS: 5,
   SSS_MINUS: 5, SSS: 5, SSS_PLUS: 5,
@@ -28,12 +24,8 @@ export const RIFT_MAX_FLOORS: Record<string, number> = {
 // Base Infinity Coin reward per floor (before difficulty multiplier)
 // Increases as the Trainer Rank of the Rift increases.
 export const RIFT_BASE_INFINITY_COINS: Record<string, number> = {
-  F_MINUS: 5, F: 10, F_PLUS: 15,
-  E_MINUS: 20, E: 25, E_PLUS: 30,
-  D_MINUS: 40, D: 50, D_PLUS: 60,
-  C_MINUS: 75, C: 100, C_PLUS: 150,
-  B_MINUS: 200, B: 250, B_PLUS: 300,
-  A_MINUS: 375, A: 450, A_PLUS: 600,
+  G: 5, F: 15, E: 30,
+  D: 60, C: 150, B: 300, A: 600,
   S_MINUS: 800, S: 1500, S_PLUS: 3000,
   SS_MINUS: 5000, SS: 8000, SS_PLUS: 12000,
   SSS_MINUS: 20000, SSS: 35000, SSS_PLUS: 50000,
@@ -87,12 +79,8 @@ export const RIFT_POKEMON_POOLS = {
 } as const;
 
 export const RANK_TO_TIER_MAPPING: Record<string, keyof typeof RIFT_POKEMON_POOLS> = {
-  F_MINUS: 'F_TIER', F: 'F_TIER', F_PLUS: 'F_TIER',
-  E_MINUS: 'MID_TIER', E: 'MID_TIER', E_PLUS: 'MID_TIER',
-  D_MINUS: 'MID_TIER', D: 'MID_TIER', D_PLUS: 'MID_TIER',
-  C_MINUS: 'MID_TIER', C: 'MID_TIER', C_PLUS: 'MID_TIER',
-  B_MINUS: 'HIGH_TIER', B: 'HIGH_TIER', B_PLUS: 'HIGH_TIER',
-  A_MINUS: 'HIGH_TIER', A: 'HIGH_TIER', A_PLUS: 'HIGH_TIER',
+  G: 'F_TIER', F: 'F_TIER', E: 'MID_TIER',
+  D: 'MID_TIER', C: 'MID_TIER', B: 'HIGH_TIER', A: 'HIGH_TIER',
   S_MINUS: 'LEGENDARY_TIER', S: 'LEGENDARY_TIER', S_PLUS: 'LEGENDARY_TIER',
   SS_MINUS: 'MYTHICAL_TIER', SS: 'MYTHICAL_TIER', SS_PLUS: 'MYTHICAL_TIER',
   SSS_MINUS: 'GOD_TIER', SSS: 'GOD_TIER', SSS_PLUS: 'GOD_TIER',
@@ -100,41 +88,30 @@ export const RANK_TO_TIER_MAPPING: Record<string, keyof typeof RIFT_POKEMON_POOL
 };
 
 export const RIFT_LEVEL_RANGES: Record<string, { min: number; max: number }> = {
-  F_MINUS: { min: 5, max: 15 },
-  F: { min: 10, max: 25 },
-  F_PLUS: { min: 20, max: 35 },
-  E_MINUS: { min: 25, max: 40 },
-  E: { min: 30, max: 50 },
-  E_PLUS: { min: 40, max: 60 },
-  D_MINUS: { min: 50, max: 75 },
-  D: { min: 60, max: 90 },
-  D_PLUS: { min: 75, max: 100 },
-  C_MINUS: { min: 85, max: 120 },
-  C: { min: 100, max: 150 },
-  C_PLUS: { min: 125, max: 175 },
-  B_MINUS: { min: 140, max: 200 },
-  B: { min: 160, max: 250 },
-  B_PLUS: { min: 200, max: 300 },
-  A_MINUS: { min: 225, max: 350 },
-  A: { min: 260, max: 400 },
-  A_PLUS: { min: 300, max: 500 },
-  S_MINUS: { min: 410, max: 600 },
-  S: { min: 610, max: 800 },
-  S_PLUS: { min: 810, max: 1000 },
-  SS_MINUS: { min: 1010, max: 1300 },
-  SS: { min: 1310, max: 1600 },
-  SS_PLUS: { min: 1610, max: 1900 },
-  SSS_MINUS: { min: 1910, max: 2500 },
-  SSS: { min: 2510, max: 3500 },
-  SSS_PLUS: { min: 3510, max: 4500 },
-  EX_MINUS: { min: 4000, max: 5000 },
-  EX: { min: 4500, max: 5500 },
-  EX_PLUS: { min: 5000, max: 6000 }
+  G: { min: 5, max: 50 },
+  F: { min: 50, max: 100 },
+  E: { min: 100, max: 250 },
+  D: { min: 250, max: 500 },
+  C: { min: 500, max: 1000 },
+  B: { min: 1000, max: 1500 },
+  A: { min: 1500, max: 2000 },
+  S_MINUS: { min: 2000, max: 3000 },
+  S: { min: 3000, max: 4000 },
+  S_PLUS: { min: 4000, max: 5000 },
+  SS_MINUS: { min: 5000, max: 6000 },
+  SS: { min: 6000, max: 7000 },
+  SS_PLUS: { min: 7000, max: 8000 },
+  SSS_MINUS: { min: 8000, max: 10000 },
+  SSS: { min: 10000, max: 12000 },
+  SSS_PLUS: { min: 12000, max: 14000 },
+  EX_MINUS: { min: 14000, max: 16000 },
+  EX: { min: 16000, max: 18000 },
+  EX_PLUS: { min: 18000, max: 20000 }
 };
 
 export function getRiftRankWeight(rank: string): number {
   const ranks = [
-    'F_MINUS', 'F', 'E', 'D', 'C', 'B', 'A',
+    'G', 'F', 'E', 'D', 'C', 'B', 'A',
     'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS',
     'SSS_MINUS', 'SSS', 'SSS_PLUS'
   ];

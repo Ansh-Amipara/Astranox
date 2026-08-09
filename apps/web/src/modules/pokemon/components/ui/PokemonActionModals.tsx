@@ -78,7 +78,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
     }
   }));
 
-  const hasEvolutions = !!activeMenuPkm?.species?.evolvesToId;
+  const hasEvolutions = (activeMenuPkm?.species?.evolvesTo?.length || 0) > 0;
   const hasMegaForms = speciesInfo?.megas?.length > 0;
   const hasGmaxForms = speciesInfo?.gmaxes?.length > 0;
   const canEvolve = hasEvolutions || hasMegaForms || hasGmaxForms;

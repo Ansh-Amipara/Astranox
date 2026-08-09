@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 import { PrismaClient, PokemonPotential } from '@prisma/client';
 import { AppError } from '../../core/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
-import { getXpForLevel } from '../../game/battle/level-math';
+import { getXpForLevel, getLevelFromXp } from '../../game/battle/level-math';
 import { prisma } from '../../core/db/prisma';
 
 
@@ -49,7 +49,7 @@ export class AdminRepository {
 
   async getAllSpecies() {
     return prisma.species.findMany({
-      select: { id: true, name: true, category: true, spriteUrl: true },
+      select: { id: true, name: true, spriteUrl: true },
       orderBy: { id: 'asc' }
     });
   }
@@ -165,7 +165,7 @@ export class AdminRepository {
     if (addXp) {
       const newXp = pokemon.currentXp + addXp;
       const maxLevel = getMaxLevelForPotential(finalPotential);
-      const newLevel = Math.min(maxLevel, Math.max(1, Math.floor(newXp / 1000)));
+      const newLevel = Math.min(maxLevel, Math.max(1, getLevelFromXp(newXp)));
       data.currentXp = newXp;
       data.level = newLevel;
     }

@@ -2,29 +2,13 @@ export function getPotentialBadgeClasses(potential: string): string {
   const baseClasses = "text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border";
   
   const themeMap: Record<string, string> = {
-    'F_MINUS': "border-slate-500/50 bg-gradient-to-br from-slate-200 to-gray-300 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-800 dark:text-slate-300",
+    'G': "border-slate-500/50 bg-gradient-to-br from-slate-200 to-gray-300 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-800 dark:text-slate-300",
     'F': "border-slate-500/50 bg-gradient-to-br from-slate-200 to-gray-300 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-800 dark:text-slate-300",
-    'F_PLUS': "border-slate-500/50 bg-gradient-to-br from-slate-200 to-gray-300 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-800 dark:text-slate-300",
-
-    'E_MINUS': "border-slate-400/50 bg-gradient-to-br from-slate-100 to-gray-200 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-700 dark:text-slate-300",
     'E': "border-slate-400/50 bg-gradient-to-br from-slate-100 to-gray-200 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-700 dark:text-slate-300",
-    'E_PLUS': "border-slate-400/50 bg-gradient-to-br from-slate-100 to-gray-200 dark:from-slate-700/40 dark:to-gray-800/40 text-slate-700 dark:text-slate-300",
-
-    'D_MINUS': "border-green-400/50 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300",
     'D': "border-green-400/50 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300",
-    'D_PLUS': "border-green-400/50 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300",
-
-    'C_MINUS': "border-sky-400/50 bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/40 dark:to-blue-900/40 text-sky-800 dark:text-sky-300",
     'C': "border-sky-400/50 bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/40 dark:to-blue-900/40 text-sky-800 dark:text-sky-300",
-    'C_PLUS': "border-sky-400/50 bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/40 dark:to-blue-900/40 text-sky-800 dark:text-sky-300",
-
-    'B_MINUS': "border-indigo-400/50 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 text-indigo-800 dark:text-indigo-300",
     'B': "border-indigo-400/50 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 text-indigo-800 dark:text-indigo-300",
-    'B_PLUS': "border-indigo-400/50 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 text-indigo-800 dark:text-indigo-300",
-
-    'A_MINUS': "border-fuchsia-400/50 bg-gradient-to-br from-fuchsia-100 to-purple-100 dark:from-fuchsia-900/40 dark:to-purple-900/40 text-fuchsia-800 dark:text-fuchsia-300",
     'A': "border-fuchsia-400/50 bg-gradient-to-br from-fuchsia-100 to-purple-100 dark:from-fuchsia-900/40 dark:to-purple-900/40 text-fuchsia-800 dark:text-fuchsia-300",
-    'A_PLUS': "border-fuchsia-400/50 bg-gradient-to-br from-fuchsia-100 to-purple-100 dark:from-fuchsia-900/40 dark:to-purple-900/40 text-fuchsia-800 dark:text-fuchsia-300",
 
     'S_MINUS': "border-rose-400/50 bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 text-rose-800 dark:text-rose-300",
     'S': "border-rose-400/50 bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 text-rose-800 dark:text-rose-300",
@@ -53,7 +37,7 @@ export function formatPotential(potential: string): string {
 
 export function getMaxLevelForPotential(potential: string): number {
   const map: Record<string, number> = {
-    F_MINUS: 25, F: 50, F_PLUS: 75, E_MINUS: 100, E: 150, E_PLUS: 200, D_MINUS: 300, D: 400, D_PLUS: 500, C_MINUS: 600, C: 700, C_PLUS: 800, B_MINUS: 1000, B: 1200, B_PLUS: 1400, A_MINUS: 1600, A: 1800, A_PLUS: 2000, S_MINUS: 3000, S: 4000, S_PLUS: 5000, SS_MINUS: 6000, SS: 7000, SS_PLUS: 8000, SSS_MINUS: 10000, SSS: 12000, SSS_PLUS: 14000, EX_MINUS: 16000, EX: 18000, EX_PLUS: 20000
+    G: 50, F: 100, E: 250, D: 500, C: 1000, B: 1500, A: 2000, S_MINUS: 3000, S: 4000, S_PLUS: 5000, SS_MINUS: 6000, SS: 7000, SS_PLUS: 8000, SSS_MINUS: 10000, SSS: 12000, SSS_PLUS: 14000, EX_MINUS: 16000, EX: 18000, EX_PLUS: 20000
   };
   return map[potential] || 20000;
 }

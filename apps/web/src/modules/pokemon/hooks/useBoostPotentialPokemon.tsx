@@ -27,24 +27,13 @@ export function useBoostPotentialPokemon(save: TrainerSaveDto | null, onSuccessC
 
   const BoostPotentialUI = boostPkm ? (() => {
     const potentialMap: Record<string, { next: string, item: string, itemName: string }> = {
-      'F_MINUS': { next: 'F', item: 'f-pearl', itemName: 'F Pearl' },
-      'F': { next: 'F_PLUS', item: 'f-plus-pearl', itemName: 'F+ Pearl' },
-      'F_PLUS': { next: 'E_MINUS', item: 'e-minus-pearl', itemName: 'E- Pearl' },
-      'E_MINUS': { next: 'E', item: 'e-pearl', itemName: 'E Pearl' },
-      'E': { next: 'E_PLUS', item: 'e-plus-pearl', itemName: 'E+ Pearl' },
-      'E_PLUS': { next: 'D_MINUS', item: 'd-minus-pearl', itemName: 'D- Pearl' },
-      'D_MINUS': { next: 'D', item: 'd-pearl', itemName: 'D Pearl' },
-      'D': { next: 'D_PLUS', item: 'd-plus-pearl', itemName: 'D+ Pearl' },
-      'D_PLUS': { next: 'C_MINUS', item: 'c-minus-pearl', itemName: 'C- Pearl' },
-      'C_MINUS': { next: 'C', item: 'c-pearl', itemName: 'C Pearl' },
-      'C': { next: 'C_PLUS', item: 'c-plus-pearl', itemName: 'C+ Pearl' },
-      'C_PLUS': { next: 'B_MINUS', item: 'b-minus-pearl', itemName: 'B- Pearl' },
-      'B_MINUS': { next: 'B', item: 'b-pearl', itemName: 'B Pearl' },
-      'B': { next: 'B_PLUS', item: 'b-plus-pearl', itemName: 'B+ Pearl' },
-      'B_PLUS': { next: 'A_MINUS', item: 'a-minus-pearl', itemName: 'A- Pearl' },
-      'A_MINUS': { next: 'A', item: 'a-pearl', itemName: 'A Pearl' },
-      'A': { next: 'A_PLUS', item: 'a-plus-pearl', itemName: 'A+ Pearl' },
-      'A_PLUS': { next: 'S_MINUS', item: 's-minus-pearl', itemName: 'S- Pearl' },
+      'G': { next: 'F', item: 'f-pearl', itemName: 'F Pearl' },
+      'F': { next: 'E', item: 'e-pearl', itemName: 'E Pearl' },
+      'E': { next: 'D', item: 'd-pearl', itemName: 'D Pearl' },
+      'D': { next: 'C', item: 'c-pearl', itemName: 'C Pearl' },
+      'C': { next: 'B', item: 'b-pearl', itemName: 'B Pearl' },
+      'B': { next: 'A', item: 'a-pearl', itemName: 'A Pearl' },
+      'A': { next: 'S_MINUS', item: 's-minus-pearl', itemName: 'S- Pearl' },
       'S_MINUS': { next: 'S', item: 's-pearl', itemName: 'S Pearl' },
       'S': { next: 'S_PLUS', item: 's-plus-pearl', itemName: 'S+ Pearl' },
       'S_PLUS': { next: 'SS_MINUS', item: 'ss-minus-pearl', itemName: 'SS- Pearl' },
@@ -57,7 +46,7 @@ export function useBoostPotentialPokemon(save: TrainerSaveDto | null, onSuccessC
       'EX_MINUS': { next: 'EX', item: 'ex-pearl', itemName: 'EX Pearl' },
       'EX': { next: 'EX_PLUS', item: 'ex-plus-pearl', itemName: 'EX+ Pearl' },
     };
-    const mapping = potentialMap[boostPkm.potential || 'F_MINUS'];
+    const mapping = potentialMap[boostPkm.potential || 'G'];
     const ownedCrystal = save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === mapping?.item);
     const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 

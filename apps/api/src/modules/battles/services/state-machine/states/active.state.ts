@@ -137,27 +137,34 @@ export class ActiveState implements IBattleState {
           
           // Mega / G-Max unlock logic
           const defeatedSpeciesIds = opponentPartyData.map((p: any) => p.speciesId);
-          const megaGmaxSpecies = await tx.species.findMany({
+          if (!defeatedSpeciesIds.includes(wildPokemon.speciesId)) {
+            defeatedSpeciesIds.push(wildPokemon.speciesId);
+          }
+          const unlockableSpecies = await tx.species.findMany({
             where: {
               id: { in: defeatedSpeciesIds },
-              OR: [ { isMega: true }, { isGmax: true } ]
+              OR: [ 
+                { isMega: true }, 
+                { isGmax: true },
+                { evolvesFrom: { evolveByBattle: true } }
+              ]
             },
             select: { id: true, name: true, isMega: true, isGmax: true }
           });
 
           let unlockedFormsUpdate = {};
-          if (megaGmaxSpecies.length > 0) {
+          if (unlockableSpecies.length > 0) {
             const currentSaveForForms = await tx.trainerSave.findUnique({ where: { id: session.trainerId } });
             const currentUnlocked = (currentSaveForForms as any)?.unlockedForms || [];
             
-            const newUnlocked = Array.from(new Set([...currentUnlocked, ...megaGmaxSpecies.map((s: any) => s.id)]));
+            const newUnlocked = Array.from(new Set([...currentUnlocked, ...unlockableSpecies.map((s: any) => s.id)]));
             unlockedFormsUpdate = { unlockedForms: newUnlocked };
 
-            for (const s of megaGmaxSpecies) {
+            for (const s of unlockableSpecies) {
               if (!currentUnlocked.includes(s.id)) {
                 result.events.push({
                   type: 'text',
-                  text: `Unlocked ${s.isMega ? 'Mega' : 'G-Max'} Evolution for ${s.name.split('-')[0].toUpperCase()}!`
+                  text: `Unlocked ${s.isMega ? 'Mega' : s.isGmax ? 'G-Max' : 'Evolution'} Form for ${s.name.split('-')[0].toUpperCase()}!`
                 });
               }
             }

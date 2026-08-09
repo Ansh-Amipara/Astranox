@@ -35,19 +35,17 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
   const derivedTransformations = useMemo(() => {
     if (!evolutionPkm) return [];
     const t: TransformationOption[] = [];
-    if (evolutionPkm.species?.evolvesToId) {
-      const evolutionItem = (evolutionPkm.species.evolutionItem || '').toLowerCase();
-      const isMega = evolutionItem.endsWith('ite') || evolutionItem.includes('mega');
-      const isGmax = evolutionItem.includes('dynamax') || evolutionItem.includes('candy') || evolutionItem.includes('max');
-      
-      t.push({ 
-        isStandard: !isMega && !isGmax, 
-        isMega, 
-        isGmax, 
-        id: evolutionPkm.species.evolvesToId, 
-        name: evolutionPkm.species.evolvesTo?.name || 'Evolution',
-        baseSpeciesId: evolutionPkm.speciesId
-      } as TransformationOption);
+    if (evolutionPkm.species?.evolvesTo?.length) {
+      evolutionPkm.species.evolvesTo.forEach((evolution) => {
+        t.push({ 
+          isStandard: true, 
+          isMega: false, 
+          isGmax: false, 
+          id: evolution.id, 
+          name: evolution.name || 'Evolution',
+          baseSpeciesId: evolutionPkm.speciesId
+        } as TransformationOption);
+      });
     }
     if (speciesInfo?.megas) t.push(...speciesInfo.megas);
     if (speciesInfo?.gmaxes) t.push(...speciesInfo.gmaxes);
@@ -108,7 +106,7 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
     onSuccess: () => {
       setEvolutionPkm(null);
       setSelectedTransformation(null);
-      navigate('/battle');
+      navigate(`/battle?returnUrl=${encodeURIComponent(window.location.pathname)}`);
     }
   });
 
@@ -116,12 +114,11 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
     let canPerformEvolution = false;
     let isUnlocked = false;
 
-    if (selectedTransformation?.isGmax || selectedTransformation?.isMega) {
+    if (selectedTransformation?.isGmax || selectedTransformation?.isMega || (selectedTransformation?.isStandard && evolutionPkm.species.evolveByBattle)) {
       isUnlocked = ((save as any)?.unlockedForms || []).includes(selectedTransformation.id);
       canPerformEvolution = isUnlocked;
     } else if (selectedTransformation?.isStandard) {
-      canPerformEvolution = !!((evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel) ||
-        (evolutionPkm.species.evolutionItem && (save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity ?? 0) > 0));
+      canPerformEvolution = !!(evolutionPkm.species.evolutionLevel && evolutionPkm.level >= evolutionPkm.species.evolutionLevel);
     }
 
     return (
@@ -201,12 +198,12 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
                 );
               }
 
-              if (evolutionPkm.species.evolutionItem) {
+              if (evolutionPkm.species.evolveByBattle) {
                 return (
                   <div className="flex flex-col items-center">
-                    <span className="text-xl font-black text-slate-800 dark:text-white capitalize">{evolutionPkm.species.evolutionItem.replace('-', ' ')}</span>
-                    <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${(save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity ?? 0) > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      In Bag: {save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === evolutionPkm.species.evolutionItem)?.quantity || 0}
+                    <span className="text-xl font-black text-slate-800 dark:text-white capitalize">Battle Unlock Requirement</span>
+                    <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-red-600 dark:text-red-400`}>
+                      Challenge to Unlock
                     </span>
                   </div>
                 );
@@ -225,7 +222,7 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
               Cancel
             </button>
 
-            {!isUnlocked && (selectedTransformation?.isMega || selectedTransformation?.isGmax) ? (
+            {!isUnlocked && (selectedTransformation?.isMega || selectedTransformation?.isGmax || (selectedTransformation?.isStandard && evolutionPkm.species.evolveByBattle)) ? (
               <button
                 onClick={() => {
                   engageMutation.mutate({ speciesId: selectedTransformation.id, level: evolutionPkm.level, battleType: 'EVOLVE' });
@@ -238,8 +235,10 @@ export function useEvolutionPokemon(save: TrainerSaveDto | null, onSuccessCallba
             ) : (
               <button
                 onClick={() => {
-                  if (selectedTransformation?.isMega || selectedTransformation?.isGmax) {
+                  if (selectedTransformation) {
                     evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: selectedTransformation.id });
+                  } else if (evolutionPkm.species.evolvesTo?.length > 0) {
+                    evolveMutation.mutate({ pokemonId: evolutionPkm.id, targetSpeciesId: evolutionPkm.species.evolvesTo[0].id });
                   } else {
                     evolveMutation.mutate(evolutionPkm.id);
                   }

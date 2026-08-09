@@ -1,19 +1,10 @@
 import { injectable } from 'tsyringe';
-import { PrismaClient, TrainerRank } from '@prisma/client';
+import { PokemonPotential } from '@prisma/client';
 import crypto from 'crypto';
-import {
-  BRACKET_ORDER,
-  BRACKET_OFFSET,
-  TRAINER_RANK_TO_BRACKET,
-  BRACKET_POTENTIALS
-} from '../config/potentialBracket.config';
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { toActivePokemon } from '../../battles/services/battle-session.service';
 import { NotFoundError } from '../../../core/errors/AppError';
 import { prisma } from '../../../core/db/prisma';
-
-
-
 import { CacheService } from '../../../core/services/cache.service';
 
 function generateWildIVs() {
@@ -27,11 +18,43 @@ function generateWildIVs() {
   };
 }
 
+const POTENTIAL_DISTRIBUTION = [
+  { p: PokemonPotential.G, weight: 20 },
+  { p: PokemonPotential.F, weight: 15 },
+  { p: PokemonPotential.E, weight: 15 },
+  { p: PokemonPotential.D, weight: 12 },
+  { p: PokemonPotential.C, weight: 10 },
+  { p: PokemonPotential.B, weight: 8 },
+  { p: PokemonPotential.A, weight: 5 },
+  { p: PokemonPotential.S_MINUS, weight: 4 },
+  { p: PokemonPotential.S, weight: 3 },
+  { p: PokemonPotential.S_PLUS, weight: 2 },
+  { p: PokemonPotential.SS_MINUS, weight: 1.5 },
+  { p: PokemonPotential.SS, weight: 1.5 },
+  { p: PokemonPotential.SS_PLUS, weight: 1.0 },
+  { p: PokemonPotential.SSS_MINUS, weight: 0.8 },
+  { p: PokemonPotential.SSS, weight: 0.7 },
+  { p: PokemonPotential.SSS_PLUS, weight: 0.5 }
+];
+
+function generateRandomPotential(): PokemonPotential {
+  const totalWeight = POTENTIAL_DISTRIBUTION.reduce((a, b) => a + b.weight, 0); // Should be exactly 100
+  let randomVal = Math.random() * totalWeight;
+
+  for (const entry of POTENTIAL_DISTRIBUTION) {
+    if (randomVal < entry.weight) {
+      return entry.p;
+    }
+    randomVal -= entry.weight;
+  }
+  return PokemonPotential.G; // Fallback
+}
+
 @injectable()
 export class PokemonGeneratorService {
   constructor(private cache: CacheService) {}
 
-  async generateWildPokemon(speciesName: string, level: number, playerRank: TrainerRank) {
+  async generateWildPokemon(speciesName: string, level: number) {
     const formattedSpeciesName = speciesName.toLowerCase().replace(/-/g, ' ');
     const speciesKey = `species:${formattedSpeciesName}`;
     let species = await this.cache.getOrSet(speciesKey, () =>
@@ -56,71 +79,17 @@ export class PokemonGeneratorService {
       throw new NotFoundError(`Species ${speciesName} not found in database.`);
     }
 
-    // Determine Potential
-    const userBracket = TRAINER_RANK_TO_BRACKET[playerRank];
-    const userBracketIdx = BRACKET_ORDER.indexOf(userBracket);
-    const minBracketIdx = Math.max(0, userBracketIdx - BRACKET_OFFSET);
-
-    const availableBrackets = BRACKET_ORDER.slice(minBracketIdx, userBracketIdx + 1);
-
-    // Dynamic Weighted Probabilities for up to 5 stages (Lowest to Highest)
-    // 40%, 30%, 20%, 8%, 2%
-    const baseWeights = [40, 30, 20, 8, 2];
-    const currentWeights = baseWeights.slice(0, availableBrackets.length);
-    const totalWeight = currentWeights.reduce((a, b) => a + b, 0);
-
-    let randomVal = Math.random() * totalWeight;
-    let selectedBracket = availableBrackets[0];
-
-    for (let i = 0; i < availableBrackets.length; i++) {
-      if (randomVal < currentWeights[i]) {
-        selectedBracket = availableBrackets[i];
-        break;
-      }
-      randomVal -= currentWeights[i];
-    }
-
-    const potentials = BRACKET_POTENTIALS[selectedBracket];
-    const potential = potentials[Math.floor(Math.random() * potentials.length)];
-
+    const potential = generateRandomPotential();
     const ivs = generateWildIVs();
 
     const types = [species.type1.name];
     if (species.type2) types.push(species.type2.name);
 
-    const wildInstance = createPokemonInstance({
-      id: crypto.randomUUID(),
-      nickname: species.name,
-      level: level,
-      potential: potential,
-      ivs,
-      species: {
-        id: species.id,
-        name: species.name,
-        types,
-        baseStats: {
-          hp: species.hp,
-          attack: species.attack,
-          defense: species.defense,
-          spAtk: species.spAtk,
-          spDef: species.spDef,
-          speed: species.speed
-        },
-        isGmax: species.isGmax
-      },
-      moves: []
+    const learnset = await prisma.pokemonLearnset.findMany({
+      where: { speciesId: species.id, unlockLevel: { lte: level } },
+      orderBy: { unlockLevel: 'asc' },
+      include: { move: { include: { type: true } } }
     });
-
-    // Populate moves dynamically from Learnset
-    const learnsetSpeciesId = species.isGmax && species.baseSpeciesId ? species.baseSpeciesId : species.id;
-    const learnsetKey = `learnset:${learnsetSpeciesId}:${level}`;
-    const learnset = await this.cache.getOrSet(learnsetKey, () =>
-      prisma.pokemonLearnset.findMany({
-        where: { speciesId: learnsetSpeciesId, unlockLevel: { lte: level } },
-        orderBy: { unlockLevel: 'asc' },
-        include: { move: { include: { type: true } } }
-      })
-    );
 
     const uniqueMoves: any[] = [];
     const seen = new Set();
@@ -132,14 +101,31 @@ export class PokemonGeneratorService {
     }
 
     const latestMoves = uniqueMoves.slice(-4);
-    wildInstance.moves = latestMoves.map((m: any, i: number) => ({
+    const generatedMoves = latestMoves.map((m: any, i: number) => ({
       moveId: m.moveId,
       currentSlot: i,
       name: m.move.name,
       type: m.move.type.name
     }));
 
-    const wildActive = toActivePokemon(wildInstance);
-    return wildActive;
+    const { getXpForLevel } = require('../../../game/battle/level-math');
+    
+    const wildInstance = createPokemonInstance({
+      id: crypto.randomUUID(),
+      nickname: species.name,
+      level: level,
+      potential: potential,
+      currentXp: getXpForLevel(level),
+      ivs,
+      species: {
+        id: species.id,
+        name: species.name,
+        types,
+        baseStats: species,
+      },
+      moves: generatedMoves
+    });
+
+    return toActivePokemon(wildInstance);
   }
 }

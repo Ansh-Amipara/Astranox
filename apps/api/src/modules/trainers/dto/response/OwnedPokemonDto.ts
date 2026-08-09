@@ -25,15 +25,18 @@ export interface OwnedPokemonDto {
     readonly spriteUrl: string | null;
     readonly type1?: { name: string };
     readonly type2?: { name: string };
-    readonly evolvesToId: number | null;
+    readonly evolvesTo: ReadonlyArray<{ name: string; id: number }>;
     readonly evolutionLevel: number | null;
-    readonly evolutionItem: string | null;
+    readonly evolveByBattle: boolean;
+    readonly megaEvolvesToIds: ReadonlyArray<number>;
+    readonly gmaxEvolvesToIds: ReadonlyArray<number>;
     readonly hp: number;
     readonly attack: number;
     readonly defense: number;
     readonly spAtk: number;
     readonly spDef: number;
     readonly speed: number;
+    readonly isMega: boolean;
     readonly isGmax: boolean;
   };
 }

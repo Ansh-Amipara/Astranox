@@ -13,7 +13,7 @@ export function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalMode, setModalMode] = useState<'currency' | 'sendPokemon' | 'editPokemon' | null>(null);
   
-  const POTENTIALS = ['F_MINUS', 'F', 'F_PLUS', 'E_MINUS', 'E', 'E_PLUS', 'D_MINUS', 'D', 'D_PLUS', 'C_MINUS', 'C', 'C_PLUS', 'B_MINUS', 'B', 'B_PLUS', 'A_MINUS', 'A', 'A_PLUS', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX_MINUS', 'EX', 'EX_PLUS'];
+  const POTENTIALS = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX_MINUS', 'EX', 'EX_PLUS'];
   const [pokemonPotential, setPokemonPotential] = useState<string>('F');
   const [editPotential, setEditPotential] = useState<string>('');
   

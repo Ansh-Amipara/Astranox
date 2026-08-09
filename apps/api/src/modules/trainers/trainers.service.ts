@@ -153,12 +153,7 @@ export class TrainersService {
 
     // Calculate Pearl rewards
     const potentialOrder = [
-      'F_MINUS', 'F', 'F_PLUS', 
-      'E_MINUS', 'E', 'E_PLUS', 
-      'D_MINUS', 'D', 'D_PLUS',
-      'C_MINUS', 'C', 'C_PLUS',
-      'B_MINUS', 'B', 'B_PLUS',
-      'A_MINUS', 'A', 'A_PLUS',
+      'G', 'F', 'E', 'D', 'C', 'B', 'A',
       'S_MINUS', 'S', 'S_PLUS',
       'SS_MINUS', 'SS', 'SS_PLUS',
       'SSS_MINUS', 'SSS', 'SSS_PLUS',
@@ -217,43 +212,49 @@ export class TrainersService {
     let itemIdToConsume: string | undefined;
 
     if (targetSpeciesId) {
-      // Mega / G-Max evolution logic
       const targetSpecies = await this.repo.getSpeciesById(targetSpeciesId);
       if (!targetSpecies) throw new NotFoundError('Target species not found');
       
-      const evolutionItem = (species.evolutionItem || '').toLowerCase();
-      const pseudoMega = evolutionItem.endsWith('ite') || evolutionItem.includes('mega');
-      const pseudoGmax = evolutionItem.includes('dynamax') || evolutionItem.includes('candy') || evolutionItem.includes('max');
+      const isValidMega = species.megaEvolvesToIds.includes(targetSpecies.id);
+      const isValidGmax = species.gmaxEvolvesToIds.includes(targetSpecies.id);
+      const isBaseSpecies = targetSpecies.baseSpeciesId === species.id;
+      const isStandardEvolution = species.evolvesTo?.some((e: any) => e.id === targetSpecies.id);
 
-      if ((!targetSpecies.isMega && !targetSpecies.isGmax && !pseudoMega && !pseudoGmax) || (targetSpecies.baseSpeciesId !== species.id && targetSpecies.id !== species.evolvesToId)) {
-        throw new ValidationError('Invalid Mega/G-Max evolution target.');
+      if (isValidMega || isValidGmax || isBaseSpecies) {
+        if (!save.unlockedForms || !save.unlockedForms.includes(targetSpecies.id)) {
+          throw new ValidationError(`You must defeat ${targetSpecies.name.toUpperCase()} in battle before you can evolve into it.`);
+        }
+        finalEvolvesToId = targetSpecies.id;
+      } else if (isStandardEvolution) {
+        if (species.evolveByBattle) {
+          if (!save.unlockedForms || !save.unlockedForms.includes(targetSpecies.id)) {
+            throw new ValidationError(`You must defeat ${targetSpecies.name.toUpperCase()} in battle before you can evolve into it.`);
+          }
+        } else if (!species.evolutionLevel || pokemon.level < species.evolutionLevel) {
+          throw new ValidationError('This Pokemon has not met its evolution requirements yet.');
+        }
+        finalEvolvesToId = targetSpecies.id;
+      } else {
+        throw new ValidationError('Invalid evolution target.');
       }
-
-      if (!save.unlockedForms || !save.unlockedForms.includes(targetSpecies.id)) {
-        throw new ValidationError(`You must defeat ${targetSpecies.name.toUpperCase()} in battle before you can evolve into it.`);
-      }
-
-      finalEvolvesToId = targetSpecies.id;
     } else {
-      // Normal evolution logic
-      if (!species.evolvesToId) {
+      if (!species.evolvesTo || species.evolvesTo.length === 0) {
         throw new ValidationError('This Pokemon cannot evolve.');
       }
-
-      if (species.evolutionLevel && pokemon.level >= species.evolutionLevel) {
-        // Level requirement met
-      } else if (species.evolutionItem) {
-        // Stone requirement
-        const item = await this.repo.getInventoryItem(save.id, species.evolutionItem);
-        if (!item || item.quantity <= 0) {
-          throw new ValidationError(`You do not have the required ${species.evolutionItem} to evolve this Pokemon.`);
+      if (species.evolvesTo.length > 1) {
+        throw new ValidationError('Please specify which evolution path to take.');
+      }
+      
+      const targetSpecies = species.evolvesTo[0];
+      if (species.evolveByBattle) {
+        if (!save.unlockedForms || !save.unlockedForms.includes(targetSpecies.id)) {
+          throw new ValidationError(`You must defeat ${targetSpecies.name.toUpperCase()} in battle before you can evolve into it.`);
         }
-        itemIdToConsume = species.evolutionItem;
-      } else {
+      } else if (!species.evolutionLevel || pokemon.level < species.evolutionLevel) {
         throw new ValidationError('This Pokemon has not met its evolution requirements yet.');
       }
       
-      finalEvolvesToId = species.evolvesToId;
+      finalEvolvesToId = targetSpecies.id;
     }
 
     const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, finalEvolvesToId, itemIdToConsume);
@@ -308,12 +309,7 @@ export class TrainersService {
     }
 
     const potentialOrder = [
-      'F_MINUS', 'F', 'F_PLUS', 
-      'E_MINUS', 'E', 'E_PLUS', 
-      'D_MINUS', 'D', 'D_PLUS',
-      'C_MINUS', 'C', 'C_PLUS',
-      'B_MINUS', 'B', 'B_PLUS',
-      'A_MINUS', 'A', 'A_PLUS',
+      'G', 'F', 'E', 'D', 'C', 'B', 'A',
       'S_MINUS', 'S', 'S_PLUS',
       'SS_MINUS', 'SS', 'SS_PLUS',
       'SSS_MINUS', 'SSS', 'SSS_PLUS',

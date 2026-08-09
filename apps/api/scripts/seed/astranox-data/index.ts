@@ -37,14 +37,40 @@ async function main() {
   // Species
   const rawSpecies = await fetchJSON('species.json');
   console.log(`Seeding ${rawSpecies.length} species...`);
-  const species = rawSpecies.map((s: any) => {
-    if (s.evolutionItem) {
-      const item = s.evolutionItem.toLowerCase();
-      if (item.includes('ite') || item.includes('dynamax') || item.includes('candy') || item.includes('max')) {
-        s.evolutionItem = null;
-        s.evolvesToId = null;
-      }
+  const SPLIT_EVOLUTIONS: Record<number, number[]> = {
+    133: [134, 135, 136, 196, 197, 470, 471, 700], // Eevee
+    935: [936, 937], // Charcadet
+    236: [106, 107, 237], // Tyrogue
+    265: [266, 268], // Wurmple
+    281: [282, 475], // Kirlia
+    361: [362, 478], // Snorunt
+    840: [841, 842, 1011], // Applin
+  };
+
+  const speciesMap = new Map();
+  rawSpecies.forEach((s: any) => speciesMap.set(s.id, s));
+
+  rawSpecies.forEach((s: any) => {
+    let toIds: number[] = [];
+    if (SPLIT_EVOLUTIONS[s.id]) {
+      toIds = SPLIT_EVOLUTIONS[s.id];
+    } else if (s.evolvesToId) {
+      toIds = [s.evolvesToId];
     }
+
+    toIds.forEach((targetId) => {
+      const target = speciesMap.get(targetId);
+      if (target) {
+        target.evolvesFromId = s.id;
+      }
+    });
+  });
+
+  const species = rawSpecies.map((s: any) => {
+    delete s.evolutionItem; // ensure this is stripped out just in case
+    delete s.evolvesToId;
+    s.megaEvolvesToIds = s.megaEvolvesToIds || [];
+    s.gmaxEvolvesToIds = s.gmaxEvolvesToIds || [];
     return s;
   });
   await prisma.species.createMany({ data: species });

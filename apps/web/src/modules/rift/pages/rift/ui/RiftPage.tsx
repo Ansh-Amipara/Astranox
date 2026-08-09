@@ -6,19 +6,16 @@ import { toast } from 'sonner';
 import { Loader2, Swords, Skull, ShieldAlert, AlertCircle, X, ChevronRight, ArrowLeft } from 'lucide-react';
 
 const RANKS = [
-  'F_MINUS', 'F', 'F_PLUS',
-  'E_MINUS', 'E', 'E_PLUS',
-  'D_MINUS', 'D', 'D_PLUS',
-  'C_MINUS', 'C', 'C_PLUS',
-  'B_MINUS', 'B', 'B_PLUS',
-  'A_MINUS', 'A', 'A_PLUS',
-  'S_MINUS', 'S', 'S_PLUS',
-  'SS_MINUS', 'SS', 'SS_PLUS',
-  'SSS_MINUS', 'SSS', 'SSS_PLUS',
-  'EX_MINUS', 'EX', 'EX_PLUS'
+  'G', 'F', 'E',
+  'D', 'C', 'B',
+  'A', 'S_MINUS', 'S',
+  'S_PLUS', 'SS_MINUS', 'SS',
+  'SS_PLUS', 'SSS_MINUS', 'SSS',
+  'SSS_PLUS', 'EX_MINUS', 'EX',
+  'EX_PLUS'
 ];
 
-const MAJOR_RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'EX'];
+const MAJOR_RANKS = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'EX'];
 
 const DIFFICULTIES = ['NORMAL', 'HARD', 'NIGHTMARE', 'ABYSS'];
 
@@ -143,33 +140,35 @@ export const RiftPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
-                <div className="flex flex-col">
-                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Sub-Rank</h3>
-                  <div className="flex gap-2">
-                    {[
-                      { id: `${selectedMajorRank}_MINUS`, label: '-' },
-                      { id: selectedMajorRank, label: 'Standard' },
-                      { id: `${selectedMajorRank}_PLUS`, label: '+' }
-                    ].map(sub => {
-                      const locked = RANKS.indexOf(sub.id) > playerRankWeight;
-                      const isSelected = selectedSubRank === sub.id;
-                      return (
-                        <button
-                          key={sub.id}
-                          disabled={locked}
-                          onClick={() => setSelectedSubRank(sub.id)}
-                          className={`flex-1 p-3 rounded-lg border font-bold transition-colors ${
-                            locked ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700' :
-                            isSelected ? 'bg-purple-500 text-white border-purple-600' : 
-                            'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300'
-                          }`}
-                        >
-                          {sub.label}
-                        </button>
-                      );
-                    })}
+                {!['G', 'F', 'E', 'D', 'C', 'B', 'A'].includes(selectedMajorRank) && (
+                  <div className="flex flex-col">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Sub-Rank</h3>
+                    <div className="flex gap-2">
+                      {[
+                        { id: `${selectedMajorRank}_MINUS`, label: '-' },
+                        { id: selectedMajorRank, label: 'Standard' },
+                        { id: `${selectedMajorRank}_PLUS`, label: '+' }
+                      ].map(sub => {
+                        const locked = RANKS.indexOf(sub.id) > playerRankWeight;
+                        const isSelected = selectedSubRank === sub.id;
+                        return (
+                          <button
+                            key={sub.id}
+                            disabled={locked}
+                            onClick={() => setSelectedSubRank(sub.id)}
+                            className={`flex-1 p-3 rounded-lg border font-bold transition-colors ${
+                              locked ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700' :
+                              isSelected ? 'bg-purple-500 text-white border-purple-600' : 
+                              'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300'
+                            }`}
+                          >
+                            {sub.label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="flex flex-col">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Difficulty</h3>

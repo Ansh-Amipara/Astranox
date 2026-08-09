@@ -27,24 +27,13 @@ function generateWildIVs() {
 import { getMinPotentialForLevel, getMaxLevelForPotential } from '../../../game/instance/PokemonInstance';
 
 const RANK_LEVEL_BOUNDS: Record<string, { min: number, max: number }> = {
-  F_MINUS: { min: 1, max: 25 },
-  F: { min: 26, max: 50 },
-  F_PLUS: { min: 51, max: 75 },
-  E_MINUS: { min: 76, max: 100 },
-  E: { min: 101, max: 150 },
-  E_PLUS: { min: 151, max: 200 },
-  D_MINUS: { min: 201, max: 300 },
-  D: { min: 301, max: 400 },
-  D_PLUS: { min: 401, max: 500 },
-  C_MINUS: { min: 501, max: 600 },
-  C: { min: 601, max: 700 },
-  C_PLUS: { min: 701, max: 800 },
-  B_MINUS: { min: 801, max: 1000 },
-  B: { min: 1001, max: 1200 },
-  B_PLUS: { min: 1201, max: 1400 },
-  A_MINUS: { min: 1401, max: 1600 },
-  A: { min: 1601, max: 1800 },
-  A_PLUS: { min: 1801, max: 2000 },
+  G: { min: 1, max: 50 },
+  F: { min: 51, max: 100 },
+  E: { min: 101, max: 250 },
+  D: { min: 251, max: 500 },
+  C: { min: 501, max: 1000 },
+  B: { min: 1001, max: 1500 },
+  A: { min: 1501, max: 2000 },
   S_MINUS: { min: 2001, max: 3000 },
   S: { min: 3001, max: 4000 },
   S_PLUS: { min: 4001, max: 5000 },
@@ -730,9 +719,9 @@ export const RANK_EXAMINERS: Record<string, {
   xp: number;
   items: string[];
 }> = {
-  'F_MINUS': {
-    name: 'F- Rank Examiner',
-    targetRank: 'F_MINUS',
+  'G': {
+    name: 'G Rank Examiner',
+    targetRank: 'G',
     level: 1,
     ace: 'stunky',
     team: ['smoochum','stunky'],
@@ -750,19 +739,9 @@ export const RANK_EXAMINERS: Record<string, {
     xp: 1000,
     items: ['Bronze Pearl']
   },
-  'F_PLUS': {
-    name: 'F+ Rank Examiner',
-    targetRank: 'F_PLUS',
-    level: 31,
-    ace: 'tatsugiri-stretchy-mega',
-    team: ['archaludon','tatsugiri-stretchy-mega'],
-    coins: 500,
-    xp: 2000,
-    items: ['Bronze Pearl']
-  },
-  'E_MINUS': {
-    name: 'E- Rank Examiner',
-    targetRank: 'E_MINUS',
+  'E': {
+    name: 'E Rank Examiner',
+    targetRank: 'E',
     level: 45,
     ace: 'honedge',
     team: ['orbeetle-gmax','litwick','honedge'],
@@ -770,29 +749,9 @@ export const RANK_EXAMINERS: Record<string, {
     xp: 3000,
     items: ['Silver Pearl','Gold Pearl']
   },
-  'E': {
-    name: 'E Rank Examiner',
-    targetRank: 'E',
-    level: 61,
-    ace: 'plusle',
-    team: ['lapras-gmax','gothita','plusle'],
-    coins: 1000,
-    xp: 5000,
-    items: ['Silver Pearl','Gold Pearl']
-  },
-  'E_PLUS': {
-    name: 'E+ Rank Examiner',
-    targetRank: 'E_PLUS',
-    level: 91,
-    ace: 'spidops',
-    team: ['slurpuff','anorith','spidops'],
-    coins: 1500,
-    xp: 8000,
-    items: ['Silver Pearl','Gold Pearl']
-  },
-  'D_MINUS': {
-    name: 'D- Rank Examiner',
-    targetRank: 'D_MINUS',
+  'D': {
+    name: 'D Rank Examiner',
+    targetRank: 'D',
     level: 105,
     ace: 'caterpie',
     team: ['yamper','grapploct','wishiwashi-solo','caterpie'],
@@ -800,29 +759,9 @@ export const RANK_EXAMINERS: Record<string, {
     xp: 11000,
     items: ['Platinum Pearl','Adamantite Pearl']
   },
-  'D': {
-    name: 'D Rank Examiner',
-    targetRank: 'D',
-    level: 121,
-    ace: 'tarountula',
-    team: ['wormadam-plant','caterpie','rotom-wash','tarountula'],
-    coins: 3000,
-    xp: 15000,
-    items: ['Platinum Pearl','Adamantite Pearl']
-  },
-  'D_PLUS': {
-    name: 'D+ Rank Examiner',
-    targetRank: 'D_PLUS',
-    level: 161,
-    ace: 'corvisquire',
-    team: ['cramorant-gorging','furret','pikachu-belle','corvisquire'],
-    coins: 5000,
-    xp: 25000,
-    items: ['Platinum Pearl','Adamantite Pearl']
-  },
-  'C_MINUS': {
-    name: 'C- Rank Examiner',
-    targetRank: 'C_MINUS',
+  'C': {
+    name: 'C Rank Examiner',
+    targetRank: 'C',
     level: 181,
     ace: 'mudkip',
     team: ['cutiefly','pawmi','joltik','corsola','mudkip'],
@@ -830,29 +769,9 @@ export const RANK_EXAMINERS: Record<string, {
     xp: 35000,
     items: ['Diamond Pearl']
   },
-  'C': {
-    name: 'C Rank Examiner',
-    targetRank: 'C',
-    level: 201,
-    ace: 'vulpix',
-    team: ['typhlosion','shroomish','floette-eternal','nuzleaf','vulpix'],
-    coins: 10000,
-    xp: 45000,
-    items: ['Diamond Pearl']
-  },
-  'C_PLUS': {
-    name: 'C+ Rank Examiner',
-    targetRank: 'C_PLUS',
-    level: 251,
-    ace: 'gligar',
-    team: ['mimikyu-busted','persian','cetoddle','tatsugiri-curly-mega','gligar'],
-    coins: 15000,
-    xp: 70000,
-    items: ['Diamond Pearl']
-  },
-  'B_MINUS': {
-    name: 'B- Rank Examiner',
-    targetRank: 'B_MINUS',
+  'B': {
+    name: 'B Rank Examiner',
+    targetRank: 'B',
     level: 275,
     ace: 'shieldon',
     team: ['crabominable-mega','horsea','minior-indigo-meteor','venusaur-mega','vigoroth','shieldon'],
@@ -860,54 +779,14 @@ export const RANK_EXAMINERS: Record<string, {
     xp: 90000,
     items: ['Crystal Pearl']
   },
-  'B': {
-    name: 'B Rank Examiner',
-    targetRank: 'B',
-    level: 301,
-    ace: 'kingler-gmax',
-    team: ['durant','lucario-mega-z','greninja-battle-bond','typhlosion-hisui','gholdengo','kingler-gmax'],
-    coins: 25000,
-    xp: 120000,
-    items: ['Crystal Pearl']
-  },
-  'B_PLUS': {
-    name: 'B+ Rank Examiner',
-    targetRank: 'B_PLUS',
-    level: 351,
-    ace: 'morgrem',
-    team: ['carbink','snover','pyukumuku','poliwhirl','gothorita','morgrem'],
-    coins: 35000,
-    xp: 175000,
-    items: ['Crystal Pearl']
-  },
-  'A_MINUS': {
-    name: 'A- Rank Examiner',
-    targetRank: 'A_MINUS',
+  'A': {
+    name: 'A Rank Examiner',
+    targetRank: 'A',
     level: 375,
     ace: 'charizard',
     team: ['sharpedo-mega','stunfisk-galar','magnezone','gardevoir-mega','carnivine','charizard'],
     coins: 45000,
     xp: 230000,
-    items: ['Epic Pearl']
-  },
-  'A': {
-    name: 'A Rank Examiner',
-    targetRank: 'A',
-    level: 401,
-    ace: 'klang',
-    team: ['staravia','abomasnow','seadra','squawkabilly-yellow-plumage','aron','klang'],
-    coins: 60000,
-    xp: 300000,
-    items: ['Epic Pearl']
-  },
-  'A_PLUS': {
-    name: 'A+ Rank Examiner',
-    targetRank: 'A_PLUS',
-    level: 451,
-    ace: 'slugma',
-    team: ['galvantula','sinistea','gulpin','tyrogue','smeargle','slugma'],
-    coins: 100000,
-    xp: 500000,
     items: ['Epic Pearl']
   },
   'S_MINUS': {

@@ -18,10 +18,11 @@ export class ExploreController {
       }
 
       const validLocations: ExploreLocation[] = [
-        'PLAINS', 'FOREST', 'VOLCANO', 'OCEAN', 'FROZEN_PEAKS', 
-        'DESERT', 'MOUNTAIN', 'HAUNTED_RUINS', 'FAIRY_GARDEN', 
-        'SWAMP', 'ANCIENT_TEMPLE', 'CRYSTAL_CAVE', 'SKY_ISLANDS',
-        'ASTRALIS_FRONTIER'
+        'NORMAL_REGION', 'FIRE_REGION', 'WATER_REGION', 'GRASS_REGION',
+        'ELECTRIC_REGION', 'ICE_REGION', 'FIGHTING_REGION', 'POISON_REGION',
+        'GROUND_REGION', 'FLYING_REGION', 'PSYCHIC_REGION', 'BUG_REGION',
+        'ROCK_REGION', 'GHOST_REGION', 'DRAGON_REGION', 'DARK_REGION',
+        'STEEL_REGION', 'FAIRY_REGION'
       ];
 
       if (!validLocations.includes(location as ExploreLocation)) {

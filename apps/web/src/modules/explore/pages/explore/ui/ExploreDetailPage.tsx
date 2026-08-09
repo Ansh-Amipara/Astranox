@@ -2,26 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ExploreService, ExploreResponse } from '@/modules/explore/services/explore.service';
 import { api, getSpriteUrl } from '@/shared/api/api';
-import { LOCATIONS, getRealmImagePath } from './ExplorePage';
+import { LOCATIONS } from './ExplorePage';
+import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
-
-const REGION_TYPES: Record<string, string[]> = {
-  PLAINS: ['Normal', 'Flying', 'Grass'],
-  FOREST: ['Bug', 'Grass', 'Poison'],
-  VOLCANO: ['Fire', 'Rock', 'Ground'],
-  OCEAN: ['Water', 'Ice'],
-  FROZEN_PEAKS: ['Ice', 'Steel'],
-  DESERT: ['Ground', 'Rock'],
-  MOUNTAIN: ['Rock', 'Fighting', 'Flying'],
-  HAUNTED_RUINS: ['Ghost', 'Dark'],
-  FAIRY_GARDEN: ['Fairy', 'Grass'],
-  SWAMP: ['Poison', 'Ground', 'Water'],
-  ANCIENT_TEMPLE: ['Psychic', 'Dragon', 'Rock'],
-  CRYSTAL_CAVE: ['Rock', 'Ice', 'Fairy'],
-  SKY_ISLANDS: ['Flying', 'Dragon', 'Fairy'],
-  ASTRALIS_FRONTIER: ['Various', 'Regional']
-};
 
 export function ExploreDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -80,22 +64,15 @@ export function ExploreDetailPage() {
     navigate('/battle?returnUrl=/explore/' + locationId);
   };
 
-  const types = locationId ? (REGION_TYPES[locationId] || ['Various Types']) : [];
+  const typeName = locationId ? locationId.replace('_REGION', '').toLowerCase() : '';
 
   return (
-    <div className="flex-1 relative min-h-[calc(100vh-64px)] flex items-center justify-center p-4">
-      {/* Background Image */}
-      {locationId && (
-        <div className="absolute inset-0 z-0">
-          <img src={getRealmImagePath(locationId)} alt={locationId} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
-        </div>
-      )}
-
+    <div className="flex-1 relative min-h-[calc(100vh-64px)] flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-900">
+      
       {/* Leave Button */}
       <button 
         onClick={() => navigate('/explore')} 
-        className="absolute top-4 left-4 z-20 px-4 py-2 bg-slate-900/50 hover:bg-slate-900/80 backdrop-blur-md border border-white/10 text-white rounded-xl font-bold transition-all shadow-lg flex items-center gap-2"
+        className="absolute top-4 left-4 z-20 px-4 py-2 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl font-bold transition-all shadow-sm flex items-center gap-2"
       >
         <ArrowLeft className="w-5 h-5" /> Leave
       </button>
@@ -109,17 +86,13 @@ export function ExploreDetailPage() {
           </div>
         )}
 
-        <h1 className="text-4xl font-black text-ink-dark dark:text-ink-paper capitalize mb-2">
-          {locationId?.replace(/_/g, ' ').toLowerCase()}
-        </h1>
-
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {types.map(t => (
-            <span key={t} className="px-3 py-1 bg-ink-blue/10 dark:bg-ink-blue/20 text-ink-blue dark:text-ink-paper font-bold text-sm rounded-full uppercase tracking-wider border border-ink-blue/20">
-              {t}
-            </span>
-          ))}
+        <div className="w-24 h-24 mb-4 flex items-center justify-center">
+           <img src={getTypeSpriteUrl(typeName, false)} alt={typeName} className="w-full h-full object-contain" />
         </div>
+
+        <h1 className="text-4xl font-black text-ink-dark dark:text-ink-paper capitalize mb-8">
+          {typeName} Region
+        </h1>
         <div className="w-full">
           <button
             onClick={handleExplore}

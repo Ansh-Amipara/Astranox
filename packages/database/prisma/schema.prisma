@@ -13,24 +13,13 @@ enum Role {
 }
 
 enum TrainerRank {
-  F_MINUS
+  G
   F
-  F_PLUS
-  E_MINUS
   E
-  E_PLUS
-  D_MINUS
   D
-  D_PLUS
-  C_MINUS
   C
-  C_PLUS
-  B_MINUS
   B
-  B_PLUS
-  A_MINUS
   A
-  A_PLUS
   S_MINUS
   S
   S_PLUS
@@ -46,24 +35,13 @@ enum TrainerRank {
 }
 
 enum PokemonPotential {
-  F_MINUS
+  G
   F
-  F_PLUS
-  E_MINUS
   E
-  E_PLUS
-  D_MINUS
   D
-  D_PLUS
-  C_MINUS
   C
-  C_PLUS
-  B_MINUS
   B
-  B_PLUS
-  A_MINUS
   A
-  A_PLUS
   S_MINUS
   S
   S_PLUS
@@ -101,7 +79,7 @@ model TrainerSave {
   astralCoins     Int       @default(3000)
   infinityCoins   Int       @default(0)
   storedXp        Int       @default(0)
-  rank            TrainerRank @default(F_MINUS)
+  rank            TrainerRank @default(G)
 
   party        OwnedPokemon[]
   inventory    InventoryItem[]
@@ -135,7 +113,7 @@ model OwnedPokemon {
 
   nickname String?
   level    Int     @default(5)
-  potential PokemonPotential @default(F_MINUS)
+  potential PokemonPotential @default(G)
 
   // Location Tracking
   isParty   Boolean @default(false)
@@ -283,10 +261,12 @@ model Species {
   type2   Type? @relation("SpeciesType2", fields: [type2Id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   evolutionLevel Int?
-  evolutionItem  String?
-  evolvesToId    Int?
-  evolvesTo      Species?  @relation("Evolution", fields: [evolvesToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  evolvesFrom    Species[] @relation("Evolution")
+  evolvesFromId  Int?
+  evolveByBattle Boolean @default(false)
+  megaEvolvesToIds Int[]
+  gmaxEvolvesToIds Int[]
+  evolvesFrom    Species?  @relation("Evolution", fields: [evolvesFromId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  evolvesTo      Species[] @relation("Evolution")
 
   owned        OwnedPokemon[]
   learnsets    PokemonLearnset[]
@@ -460,7 +440,7 @@ model RiftDungeonState {
   trainerId           String   @unique @db.ObjectId
   trainer             TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   
-  rank                TrainerRank @default(F_MINUS)
+  rank                TrainerRank @default(G)
   difficulty          RiftDifficulty @default(NORMAL)
   
   currentFloor        Int      @default(1)

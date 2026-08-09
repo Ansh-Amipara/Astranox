@@ -18,6 +18,7 @@ export class TrainerMapper {
       party: Array.isArray(entity.party) ? entity.party.map(TrainerMapper.toOwnedPokemonDto) : [],
       inventory: Array.isArray(entity.inventory) ? entity.inventory.map(TrainerMapper.toInventoryItemDto) : [],
       unlockedMoves: Array.isArray(entity.unlockedMoves) ? entity.unlockedMoves.map((m: any) => m.moveId) : [],
+      unlockedForms: Array.isArray(entity.unlockedForms) ? entity.unlockedForms : [],
     };
   }
 
@@ -57,7 +58,7 @@ export class TrainerMapper {
         speed: entity.ivSpeed || 0,
       },
       entity.level || 1,
-      entity.potential || 'F_MINUS',
+      entity.potential || 'G',
       entity.species?.isGmax || false,
       Array.isArray(entity.equippedMoves) ? entity.equippedMoves.map((m: any) => m.move?.power || 0) : []
     );
@@ -87,15 +88,18 @@ export class TrainerMapper {
         spriteUrl: entity.species?.spriteUrl || null,
         type1: entity.species?.type1 ? { name: entity.species.type1.name } : undefined,
         type2: entity.species?.type2 ? { name: entity.species.type2.name } : undefined,
-        evolvesToId: entity.species?.evolvesToId,
+        evolvesTo: Array.isArray(entity.species?.evolvesTo) ? entity.species.evolvesTo.map((e: any) => ({ name: e.name, id: e.id })) : [],
         evolutionLevel: entity.species?.evolutionLevel,
-        evolutionItem: entity.species?.evolutionItem,
+        evolveByBattle: entity.species?.evolveByBattle || false,
+        megaEvolvesToIds: entity.species?.megaEvolvesToIds || [],
+        gmaxEvolvesToIds: entity.species?.gmaxEvolvesToIds || [],
         hp: entity.species?.hp || 0,
         attack: entity.species?.attack || 0,
         defense: entity.species?.defense || 0,
         spAtk: entity.species?.spAtk || 0,
         spDef: entity.species?.spDef || 0,
         speed: entity.species?.speed || 0,
+        isMega: entity.species?.isMega || false,
         isGmax: entity.species?.isGmax || false,
       }
     };
@@ -124,7 +128,7 @@ export class TrainerMapper {
         speed: entity.ivSpeed || 0,
       },
       entity.level || 1,
-      entity.potential || 'F_MINUS',
+      entity.potential || 'G',
       entity.species?.isGmax || false,
       Array.isArray(entity.equippedMoves) ? entity.equippedMoves.map((m: any) => m.move?.power || 0) : []
     );

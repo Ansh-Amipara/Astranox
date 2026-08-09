@@ -5,7 +5,7 @@ import { api } from '@/shared/api/api';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
 
 const formatRank = (rank: string) => {
-  if (!rank || rank === 'F_MINUS') return 'Unranked';
+  if (!rank || rank === 'G') return 'Unranked';
   return rank.replace('_MINUS', '-').replace('_PLUS', '+');
 };
 

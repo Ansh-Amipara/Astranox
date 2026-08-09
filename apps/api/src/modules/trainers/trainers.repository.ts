@@ -7,10 +7,7 @@ import { prisma } from '../../core/db/prisma';
 
 
 function generateStarterPotential(): PokemonPotential {
-  const rand = Math.random();
-  if (rand < 0.10) return 'A';
-  if (rand < 0.50) return 'B'; // 40% chance (0.10 to 0.50)
-  return 'C'; // 50% chance (0.50 to 1.0)
+  return 'B';
 }
 
 @injectable()
@@ -23,7 +20,7 @@ export class TrainersRepository {
           where: { isParty: true },
           orderBy: { position: 'asc' },
           include: { 
-            species: { include: { type1: true, type2: true } },
+            species: { include: { type1: true, type2: true, evolvesTo: true } },
             equippedMoves: { include: { move: { include: { type: true } } } }
           }
         },
@@ -43,7 +40,7 @@ export class TrainersRepository {
           where: { isParty: true },
           orderBy: { position: 'asc' },
           include: { 
-            species: { include: { type1: true, type2: true } },
+            species: { include: { type1: true, type2: true, evolvesTo: true } },
             equippedMoves: { include: { move: { include: { type: true } } } }
           }
         },
@@ -56,6 +53,7 @@ export class TrainersRepository {
   }
 
   async setStarter(trainerId: string, speciesId: number): Promise<TrainerSave> {
+    const { getXpForLevel } = require('../../game/battle/level-math');
     return prisma.$transaction(async (tx) => {
       const starter = await tx.ownedPokemon.create({
         data: {
@@ -63,7 +61,7 @@ export class TrainersRepository {
           speciesId,
           level: 5,
           potential: generateStarterPotential(),
-          currentXp: 5000,
+          currentXp: getXpForLevel(5),
           isParty: true,
           position: 0,
           boxNumber: null as any,
@@ -109,7 +107,7 @@ export class TrainersRepository {
             where: { isParty: true },
             orderBy: { position: 'asc' },
             include: { 
-              species: { include: { type1: true, type2: true } },
+              species: { include: { type1: true, type2: true, evolvesTo: true } },
               equippedMoves: { include: { move: { include: { type: true } } } }
             }
           },
@@ -132,7 +130,7 @@ export class TrainersRepository {
         skip,
         take: limit,
         include: { 
-          species: { include: { type1: true, type2: true } },
+          species: { include: { type1: true, type2: true, evolvesTo: true } },
           equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
@@ -339,7 +337,9 @@ export class TrainersRepository {
     return prisma.ownedPokemon.findFirst({
       where: { id: pokemonId, trainerId },
       include: {
-        species: true,
+        species: {
+          include: { evolvesTo: true }
+        },
         equippedMoves: { include: { move: true } }
       }
     });
@@ -347,7 +347,8 @@ export class TrainersRepository {
 
   async getSpeciesById(speciesId: number) {
     return prisma.species.findUnique({
-      where: { id: speciesId }
+      where: { id: speciesId },
+      include: { evolvesTo: true }
     });
   }
 
@@ -388,7 +389,7 @@ export class TrainersRepository {
         // @ts-ignore
         data: { potential: nextPotential },
         include: {
-          species: { include: { type1: true, type2: true } },
+          species: { include: { type1: true, type2: true, evolvesTo: true } },
           equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
@@ -406,7 +407,7 @@ export class TrainersRepository {
         where: { id: pokemonId, trainerId: trainerSaveId },
         data: { [statName]: newValue },
         include: {
-          species: { include: { type1: true, type2: true } },
+          species: { include: { type1: true, type2: true, evolvesTo: true } },
           equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
@@ -431,7 +432,7 @@ export class TrainersRepository {
           ivSpeed: 31
         },
         include: {
-          species: { include: { type1: true, type2: true } },
+          species: { include: { type1: true, type2: true, evolvesTo: true } },
           equippedMoves: { include: { move: { include: { type: true } } } }
         }
       }),
@@ -447,7 +448,7 @@ export class TrainersRepository {
     return prisma.ownedPokemon.findUnique({
       where: { id: pokemonId },
       include: {
-        species: { include: { type1: true, type2: true } },
+        species: { include: { type1: true, type2: true, evolvesTo: true } },
         equippedMoves: { include: { move: { include: { type: true } } } }
       }
     });
@@ -463,7 +464,7 @@ export class TrainersRepository {
             where: { isParty: true },
             orderBy: { position: 'asc' },
             include: { 
-              species: { include: { type1: true, type2: true } },
+              species: { include: { type1: true, type2: true, evolvesTo: true } },
               equippedMoves: { include: { move: { include: { type: true } } } }
             }
           },
@@ -480,7 +481,7 @@ export class TrainersRepository {
           level: newLevel
         },
         include: {
-          species: { include: { type1: true, type2: true } },
+          species: { include: { type1: true, type2: true, evolvesTo: true } },
           equippedMoves: { include: { move: { include: { type: true } } } }
         }
       });
