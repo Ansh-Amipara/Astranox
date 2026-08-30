@@ -6,7 +6,7 @@ import { Dropdown } from '@/shared/ui/Dropdown';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { PokedexRow } from './PokedexRow';
 import { SpeciesDto } from '@astranox/types';;
-import { Loader2, Search } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export const PokedexPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
@@ -108,22 +108,7 @@ export const PokedexPage: React.FC = () => {
 
         {/* Row 2: Search and Filters */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
-          <div className="w-full lg:w-1/3">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search Pokémon..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-              />
-              <div className="absolute left-3 top-2.5 text-slate-400">
-                <Search size={20} />
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Dropdown
               value={selectedType}
               onChange={setSelectedType}
@@ -162,9 +147,10 @@ export const PokedexPage: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
             <div className="w-full lg:overflow-x-auto custom-scrollbar">
               <div className="w-full lg:min-w-[900px]">
-                <div className="hidden lg:grid bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/50 z-10 sticky top-0 grid-cols-[80px_1fr_240px_340px_120px]">
+                <div className="hidden lg:grid bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/50 z-10 sticky top-0 grid-cols-[80px_1fr_100px_240px_340px_120px]">
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">#</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Pokémon</div>
+                  <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Rank</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Type</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Base Stats</div>
                   <div className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Total</div>

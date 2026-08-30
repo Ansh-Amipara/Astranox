@@ -16,6 +16,7 @@ export interface ActivePokemonDto {
   readonly level: number;
   readonly potential: string;
   readonly types: string[]; // ["fire", "flying"]
+  readonly rank: string;
   readonly moves: PokemonMoveDto[];
   
   // Base effective stats (already calculated with IVs)

@@ -54,6 +54,7 @@ export interface OwnedPokemonDto {
     readonly speed: number;
     readonly isMega: boolean;
     readonly isGmax: boolean;
+    readonly rank: string;
   };
 }
 
@@ -69,6 +70,7 @@ export interface PokemonSummaryDto {
   readonly isParty: boolean;
   readonly position: number;
   readonly boxNumber: number | null;
+  readonly rank: string;
 }
 
 export interface TypeDto {
@@ -93,4 +95,5 @@ export interface SpeciesDto {
   readonly baseSpeciesId: number | null;
   readonly pokedexNumber: number | null;
   readonly category?: string | null;
+  readonly rank: string;
 }

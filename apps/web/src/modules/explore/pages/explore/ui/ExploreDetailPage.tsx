@@ -87,7 +87,7 @@ export function ExploreDetailPage() {
         )}
 
         <div className="w-24 h-24 mb-4 flex items-center justify-center">
-           <img src={getTypeSpriteUrl(typeName, false)} alt={typeName} className="w-full h-full object-contain" />
+           <img src={getTypeSpriteUrl(typeName, true)} alt={typeName} className="w-full h-full object-contain" />
         </div>
 
         <h1 className="text-4xl font-black text-ink-dark dark:text-ink-paper capitalize mb-8">

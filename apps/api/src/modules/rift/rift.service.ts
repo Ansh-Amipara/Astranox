@@ -171,8 +171,8 @@ export class RiftService {
       trainerId: save.id,
       battleType: 'RIFT',
       playerActivePokemonId: activePlayerPokemon.id,
-      opponentPokemonData: toActivePokemon(enemyTeam[0]) as any,
-      playerPokemonData: toActivePokemon(activePlayerPokemon) as any,
+      opponentPokemonData: toActivePokemon(enemyTeam[0]!) as any,
+      playerPokemonData: toActivePokemon(activePlayerPokemon!) as any,
       playerPartyData: playerPartyData.map(p => toActivePokemon(p)) as any,
       opponentPartyData: enemyTeam.map(p => toActivePokemon(p)) as any,
     });

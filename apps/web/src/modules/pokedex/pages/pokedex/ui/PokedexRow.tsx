@@ -12,7 +12,7 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
   const bst = species.hp + species.attack + species.defense + species.spAtk + species.spDef + species.speed;
 
   return (
-    <div className="flex flex-col lg:grid lg:items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group border-b border-slate-100 dark:border-slate-800/60 h-full lg:grid-cols-[80px_1fr_240px_340px_120px] p-4 lg:p-0 gap-3 lg:gap-0">
+    <div className="flex flex-col lg:grid lg:items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group border-b border-slate-100 dark:border-slate-800/60 h-full lg:grid-cols-[80px_1fr_100px_240px_340px_120px] p-4 lg:p-0 gap-3 lg:gap-0">
       
       {/* Mobile Layout */}
       <div className="flex flex-col gap-3 lg:hidden w-full">
@@ -104,9 +104,8 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
             <span className="font-bold text-slate-900 dark:text-white capitalize text-lg">
               {species.name.replace('-', ' ')}
             </span>
-            {(species.category !== 'Normal' || species.isMega || species.isGmax || getBattleRank(species.id) !== 'Unranked') && (
+            {(species.category !== 'Normal' || species.isMega || species.isGmax) && (
               <div className="mt-1 flex gap-1.5 flex-wrap">
-                {getBattleRank(species.id) !== 'Unranked' && <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-700 dark:border-white shadow-sm tracking-wide">Rank {getBattleRank(species.id)}</span>}
                 {species.category === 'Legendary' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/50">Legendary</span>}
                 {species.category === 'Mythical' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-200 dark:border-fuchsia-700/50">Mythical</span>}
                 {species.category === 'Ultra Beast' && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/50">Ultra Beast</span>}
@@ -117,6 +116,11 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
               </div>
             )}
           </div>
+        </div>
+        <div className="px-6 py-4 flex items-center">
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            {getBattleRank(species.id) !== 'Unranked' ? getBattleRank(species.id) : '-'}
+          </span>
         </div>
         <div className="px-6 py-4 flex items-center overflow-hidden">
           <div className="flex gap-1.5 flex-nowrap">

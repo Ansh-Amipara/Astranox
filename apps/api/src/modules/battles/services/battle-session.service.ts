@@ -56,11 +56,11 @@ export function toActivePokemon(inst: any): ActivePokemon {
   return {
     id: inst.id,
     speciesId: inst.species.id,
-    speciesName: inst.name,
+    speciesName: inst.species.name,
     level: inst.level,
     potential: inst.potential,
     types: inst.types,
-    moves: inst.moves || [],
+    moves: inst.moves,
     maxHp: inst.maxHp,
     currentHp: inst.currentHp,
     attack: inst.stats.attack,

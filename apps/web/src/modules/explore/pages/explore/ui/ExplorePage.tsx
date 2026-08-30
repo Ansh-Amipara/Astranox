@@ -41,7 +41,7 @@ export function ExplorePage() {
             return (
               <Link key={loc} to={`/explore/${loc}`} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col items-center hover:border-ink-blue/50 hover:shadow-ink-blue/10 transition-all group">
                 <div className="w-full h-24 mb-4 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
-                  <img src={getTypeSpriteUrl(typeName, false)} alt={loc} className="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-300" />
+                  <img src={getTypeSpriteUrl(typeName, true)} alt={loc} className="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <h3 className="text-xl font-black text-slate-800 dark:text-white text-center mb-4 capitalize group-hover:text-ink-blue dark:group-hover:text-ink-light transition-colors">
                   {typeName} Region

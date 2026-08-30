@@ -6,6 +6,22 @@ export const EXPLORE_OUTCOME_RATES = {
   NOTHING: 0.10  // 10%
 };
 
+// Cumulative weights for rank probabilities
+// Order is from lowest rank (most common) to highest (rarest) to allow for fallback logic if needed
+export const RANK_ENCOUNTER_PROBABILITIES: Record<string, number> = {
+  'F': 40.0,
+  'E': 25.0,
+  'D': 15.0,
+  'C': 10.0,
+  'B': 5.0,
+  'A': 3.0,
+  'S': 1.0,
+  'SS': 0.6,
+  'SSS': 0.3,
+  'EX': 0.1
+};
+
+
 export const LOCATION_LEVEL_RANGES: Record<ExploreLocation, { min: number; max: number }> = {
   NORMAL_REGION: { min: 30, max: 50 },
   FIRE_REGION: { min: 30, max: 50 },

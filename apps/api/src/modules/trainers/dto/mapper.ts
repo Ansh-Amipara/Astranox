@@ -143,7 +143,6 @@ export class TrainerMapper {
       potential: entity.potential,
       types,
       isParty: entity.isParty,
-
       position: entity.position,
     };
   }
