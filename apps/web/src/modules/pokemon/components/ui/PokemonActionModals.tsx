@@ -160,7 +160,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 );
               })()}
 
-              {activeMenuPkm.potential !== 'EX_PLUS' && (
+              {activeMenuPkm.potential !== 'EX' && (
                 <button
                   onClick={() => {
                     promptBoostPotential(activeMenuPkm);

@@ -6,16 +6,15 @@ import { toast } from 'sonner';
 import { Loader2, Swords, Skull, ShieldAlert, AlertCircle, X, ChevronRight, ArrowLeft } from 'lucide-react';
 
 const RANKS = [
-  'G', 'F', 'E',
+  'F', 'E',
   'D', 'C', 'B',
   'A', 'S_MINUS', 'S',
   'S_PLUS', 'SS_MINUS', 'SS',
   'SS_PLUS', 'SSS_MINUS', 'SSS',
-  'SSS_PLUS', 'EX_MINUS', 'EX',
-  'EX_PLUS'
+  'SSS_PLUS', 'EX'
 ];
 
-const MAJOR_RANKS = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'EX'];
+const MAJOR_RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'EX'];
 
 const DIFFICULTIES = ['NORMAL', 'HARD', 'NIGHTMARE', 'ABYSS'];
 
@@ -140,7 +139,7 @@ export const RiftPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
-                {!['G', 'F', 'E', 'D', 'C', 'B', 'A'].includes(selectedMajorRank) && (
+                {!['F', 'E', 'D', 'C', 'B', 'A', 'EX'].includes(selectedMajorRank) && (
                   <div className="flex flex-col">
                     <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Sub-Rank</h3>
                     <div className="flex gap-2">

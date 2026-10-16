@@ -59,7 +59,7 @@ describe('PokemonInstance Factory', () => {
   });
 
   it('throws an error if level is out of bounds', () => {
-    const payload = { ...garchompPayload, level: 1101 };
+    const payload = { ...garchompPayload, potential: 'F', level: 50 };
     expect(() => createPokemonInstance(payload)).toThrowError(/Invalid Level/);
   });
 });

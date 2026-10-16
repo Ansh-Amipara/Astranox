@@ -27,25 +27,22 @@ function generateWildIVs() {
 import { getMinPotentialForLevel, getMaxLevelForPotential } from '../../../game/instance/PokemonInstance';
 
 const RANK_LEVEL_BOUNDS: Record<string, { min: number, max: number }> = {
-  G: { min: 1, max: 50 },
-  F: { min: 51, max: 100 },
-  E: { min: 101, max: 250 },
-  D: { min: 251, max: 500 },
-  C: { min: 501, max: 1000 },
-  B: { min: 1001, max: 1500 },
-  A: { min: 1501, max: 2000 },
-  S_MINUS: { min: 2001, max: 3000 },
-  S: { min: 3001, max: 4000 },
-  S_PLUS: { min: 4001, max: 5000 },
-  SS_MINUS: { min: 5001, max: 6000 },
-  SS: { min: 6001, max: 7000 },
-  SS_PLUS: { min: 7001, max: 8000 },
-  SSS_MINUS: { min: 8001, max: 10000 },
-  SSS: { min: 10001, max: 12000 },
-  SSS_PLUS: { min: 12001, max: 14000 },
-  EX_MINUS: { min: 14001, max: 16000 },
-  EX: { min: 16001, max: 18000 },
-  EX_PLUS: { min: 18001, max: 20000 },
+  F: { min: 1, max: 25 },
+  E: { min: 26, max: 50 },
+  D: { min: 51, max: 75 },
+  C: { min: 76, max: 100 },
+  B: { min: 101, max: 150 },
+  A: { min: 151, max: 200 },
+  S_MINUS: { min: 201, max: 300 },
+  S: { min: 301, max: 350 },
+  S_PLUS: { min: 351, max: 400 },
+  SS_MINUS: { min: 401, max: 500 },
+  SS: { min: 501, max: 600 },
+  SS_PLUS: { min: 601, max: 700 },
+  SSS_MINUS: { min: 701, max: 800 },
+  SSS: { min: 801, max: 900 },
+  SSS_PLUS: { min: 901, max: 1000 },
+  EX: { min: 1001, max: 5000 },
 };
 
 function getNpcPotential(level: number): string {
@@ -719,20 +716,10 @@ export const RANK_EXAMINERS: Record<string, {
   xp: number;
   items: string[];
 }> = {
-  'G': {
-    name: 'G Rank Examiner',
-    targetRank: 'G',
-    level: 1,
-    ace: 'stunky',
-    team: ['smoochum','stunky'],
-    coins: 150,
-    xp: 500,
-    items: ['Bronze Pearl']
-  },
   'F': {
     name: 'F Rank Examiner',
     targetRank: 'F',
-    level: 11,
+    level: 1,
     ace: 'pawmi',
     team: ['primarina','pawmi'],
     coins: 300,
@@ -742,7 +729,7 @@ export const RANK_EXAMINERS: Record<string, {
   'E': {
     name: 'E Rank Examiner',
     targetRank: 'E',
-    level: 45,
+    level: 26,
     ace: 'honedge',
     team: ['orbeetle-gmax','litwick','honedge'],
     coins: 700,
@@ -752,7 +739,7 @@ export const RANK_EXAMINERS: Record<string, {
   'D': {
     name: 'D Rank Examiner',
     targetRank: 'D',
-    level: 105,
+    level: 51,
     ace: 'caterpie',
     team: ['yamper','grapploct','wishiwashi-solo','caterpie'],
     coins: 2000,
@@ -762,7 +749,7 @@ export const RANK_EXAMINERS: Record<string, {
   'C': {
     name: 'C Rank Examiner',
     targetRank: 'C',
-    level: 181,
+    level: 76,
     ace: 'mudkip',
     team: ['cutiefly','pawmi','joltik','corsola','mudkip'],
     coins: 7000,
@@ -772,7 +759,7 @@ export const RANK_EXAMINERS: Record<string, {
   'B': {
     name: 'B Rank Examiner',
     targetRank: 'B',
-    level: 275,
+    level: 101,
     ace: 'shieldon',
     team: ['crabominable-mega','horsea','minior-indigo-meteor','venusaur-mega','vigoroth','shieldon'],
     coins: 20000,
@@ -782,7 +769,7 @@ export const RANK_EXAMINERS: Record<string, {
   'A': {
     name: 'A Rank Examiner',
     targetRank: 'A',
-    level: 375,
+    level: 151,
     ace: 'charizard',
     team: ['sharpedo-mega','stunfisk-galar','magnezone','gardevoir-mega','carnivine','charizard'],
     coins: 45000,
@@ -792,7 +779,7 @@ export const RANK_EXAMINERS: Record<string, {
   'S_MINUS': {
     name: 'S- Rank Examiner',
     targetRank: 'S_MINUS',
-    level: 501,
+    level: 201,
     ace: 'xurkitree',
     team: ['iron-moth','deoxys-attack','volcanion','celesteela','salamence','xurkitree'],
     coins: 150000,
@@ -802,7 +789,7 @@ export const RANK_EXAMINERS: Record<string, {
   'S': {
     name: 'S Rank Examiner',
     targetRank: 'S',
-    level: 701,
+    level: 301,
     ace: 'salamence',
     team: ['tyranitar-mega','kubfu','dragonair','giratina-altered','tornadus-incarnate','salamence'],
     coins: 400000,
@@ -812,7 +799,7 @@ export const RANK_EXAMINERS: Record<string, {
   'S_PLUS': {
     name: 'S+ Rank Examiner',
     targetRank: 'S_PLUS',
-    level: 901,
+    level: 351,
     ace: 'type-null',
     team: ['sliggoo','kommo-o-totem','salamence','keldeo-resolute','tornadus-therian','type-null'],
     coins: 1000000,
@@ -822,7 +809,7 @@ export const RANK_EXAMINERS: Record<string, {
   'SS_MINUS': {
     name: 'SS- Rank Examiner',
     targetRank: 'SS_MINUS',
-    level: 1101,
+    level: 401,
     ace: 'landorus-incarnate',
     team: ['heatran','pecharunt','darkrai','spectrier','tapu-bulu','landorus-incarnate'],
     coins: 2500000,
@@ -832,7 +819,7 @@ export const RANK_EXAMINERS: Record<string, {
   'SS': {
     name: 'SS Rank Examiner',
     targetRank: 'SS',
-    level: 1401,
+    level: 501,
     ace: 'darkrai',
     team: ['registeel','ogerpon-wellspring-mask','zygarde-complete','meltan','terapagos-terastal','darkrai'],
     coins: 6000000,
@@ -842,7 +829,7 @@ export const RANK_EXAMINERS: Record<string, {
   'SS_PLUS': {
     name: 'SS+ Rank Examiner',
     targetRank: 'SS_PLUS',
-    level: 1701,
+    level: 601,
     ace: 'kommo-o',
     team: ['guzzlord','beldum','garchomp-mega-z','dragonite-mega','zygarde-complete','kommo-o'],
     coins: 15000000,
@@ -852,7 +839,7 @@ export const RANK_EXAMINERS: Record<string, {
   'SSS_MINUS': {
     name: 'SSS- Rank Examiner',
     targetRank: 'SSS_MINUS',
-    level: 2001,
+    level: 701,
     ace: 'thundurus-incarnate',
     team: ['iron-thorns','raikou','darkrai','melmetal-gmax','tornadus-incarnate','thundurus-incarnate'],
     coins: 40000000,
@@ -862,7 +849,7 @@ export const RANK_EXAMINERS: Record<string, {
   'SSS': {
     name: 'SSS Rank Examiner',
     targetRank: 'SSS',
-    level: 3001,
+    level: 801,
     ace: 'ogerpon-wellspring-mask',
     team: ['munkidori','zarude','regirock','registeel','thundurus-therian','ogerpon-wellspring-mask'],
     coins: 100000000,
@@ -872,41 +859,21 @@ export const RANK_EXAMINERS: Record<string, {
   'SSS_PLUS': {
     name: 'SSS+ Rank Examiner',
     targetRank: 'SSS_PLUS',
-    level: 4001,
+    level: 901,
     ace: 'thundurus-incarnate',
     team: ['keldeo-resolute','zapdos-galar','tapu-fini','iron-jugulis','garchomp-mega-z','thundurus-incarnate'],
     coins: 250000000,
     xp: 600000000,
     items: []
   },
-  'EX_MINUS': {
-    name: 'EX- Rank Examiner',
-    targetRank: 'EX_MINUS',
-    level: 5001,
-    ace: 'regigigas',
-    team: ['solgaleo','yveltal','zamazenta-crowned','zekrom','lunala','regigigas'],
-    coins: 600000000,
-    xp: 1500000000,
-    items: []
-  },
   'EX': {
     name: 'EX Rank Examiner',
     targetRank: 'EX',
-    level: 7001,
+    level: 1001,
     ace: 'koraidon',
     team: ['groudon-primal','kyogre-primal','lugia','kyogre','yveltal','koraidon'],
     coins: 1500000000,
     xp: 4000000000,
-    items: []
-  },
-  'EX_PLUS': {
-    name: 'EX+ Rank Examiner',
-    targetRank: 'EX_PLUS',
-    level: 9999,
-    ace: 'zacian-crowned',
-    team: ['zacian','calyrex-ice','yveltal','zamazenta-crowned','ho-oh','zacian-crowned'],
-    coins: 5000000000,
-    xp: 15000000000,
     items: []
   }
 };

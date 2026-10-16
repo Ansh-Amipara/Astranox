@@ -32,7 +32,7 @@ export function generateTowerConfig(floor: number): TowerEncounterConfig {
   let bossMultiplier = 1;
 
   if (isMiniBoss) {
-    level = Math.min(5000, level + 10);
+    level = Math.min(1000, level + 10);
     ivs = Math.min(31, ivs + 5);
     bossMultiplier = 2;
   } else if (isBoss) {
@@ -44,6 +44,7 @@ export function generateTowerConfig(floor: number): TowerEncounterConfig {
     ivs = 31;
     bossMultiplier = 10;
   }
+  level = Math.min(1000, level);
 
   let evolutionStage: 'BASIC' | 'MIDDLE' | 'FINAL' | 'ANY' = 'BASIC';
   if (level >= 36 || isBoss || isMegaBoss) {
@@ -56,11 +57,11 @@ export function generateTowerConfig(floor: number): TowerEncounterConfig {
   const allowPseudoLegendary = floor > 100;
   const allowMega = floor > 100;
   
-  const allowGmax = floor > 1000;
-  const allowParadoxUltraBeast = floor > 1000;
+  const allowGmax = floor > 300;
+  const allowParadoxUltraBeast = floor > 300;
 
-  // Legendary and Mythical only after 3000, AND only on 25, 50, 75, 00 floors
-  const allowLegendaryMythical = floor > 3000 && (isMiniBoss || isBoss || isMegaBoss);
+  // Legendary and Mythical only after floor 500, AND only on 25, 50, 75, 00 floors
+  const allowLegendaryMythical = floor > 500 && (isMiniBoss || isBoss || isMegaBoss);
 
   // Coins: 10 + floor^0.65
   const baseCoins = Math.floor(10 + Math.pow(floor, 0.65));

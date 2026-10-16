@@ -114,7 +114,7 @@ export class TowerService {
     let currentFloor = state.currentFloor;
     const startFloor = state.currentFloor;
 
-    while (skippedCount < 100) {
+    while (skippedCount < 100 && currentFloor <= 1000) {
       const floorCp = estimateTowerFloorCP(currentFloor);
       if (floorCp >= playerCp * 0.1) {
         break;
@@ -183,6 +183,10 @@ export class TowerService {
   async generateNextFloorEncounter(trainerId: string) {
     const state = await this.getValidState(trainerId);
     if (!state) throw new AppError('Tower state not found', 404);
+
+    if (state.currentFloor > 1000) {
+      throw new AppError('You have already conquered all 1000 floors of the Infinity Tower!', 400);
+    }
 
     if (state.currentEncounterId) {
       const existing = await this.repository.getEncounter(state.currentEncounterId);
@@ -339,11 +343,12 @@ export class TowerService {
 
     if (result === 'WON') {
       const reward = encounter.reward as any;
+      const nextFloor = Math.min(1001, state.currentFloor + 1);
       await this.repository.clearFloor(
         state.id,
         trainerId,
         encounter.id,
-        state.currentFloor + 1,
+        nextFloor,
         reward.infinityCoins || 0,
         reward.storedXp || 0
       );

@@ -27,7 +27,6 @@ export function useBoostPotentialPokemon(save: TrainerSaveDto | null, onSuccessC
 
   const BoostPotentialUI = boostPkm ? (() => {
     const potentialMap: Record<string, { next: string, item: string, itemName: string }> = {
-      'G': { next: 'F', item: 'f-pearl', itemName: 'F Pearl' },
       'F': { next: 'E', item: 'e-pearl', itemName: 'E Pearl' },
       'E': { next: 'D', item: 'd-pearl', itemName: 'D Pearl' },
       'D': { next: 'C', item: 'c-pearl', itemName: 'C Pearl' },
@@ -42,11 +41,9 @@ export function useBoostPotentialPokemon(save: TrainerSaveDto | null, onSuccessC
       'SS_PLUS': { next: 'SSS_MINUS', item: 'sss-minus-pearl', itemName: 'SSS- Pearl' },
       'SSS_MINUS': { next: 'SSS', item: 'sss-pearl', itemName: 'SSS Pearl' },
       'SSS': { next: 'SSS_PLUS', item: 'sss-plus-pearl', itemName: 'SSS+ Pearl' },
-      'SSS_PLUS': { next: 'EX_MINUS', item: 'ex-minus-pearl', itemName: 'EX- Pearl' },
-      'EX_MINUS': { next: 'EX', item: 'ex-pearl', itemName: 'EX Pearl' },
-      'EX': { next: 'EX_PLUS', item: 'ex-plus-pearl', itemName: 'EX+ Pearl' },
+      'SSS_PLUS': { next: 'EX', item: 'ex-pearl', itemName: 'EX Pearl' },
     };
-    const mapping = potentialMap[boostPkm.potential || 'G'];
+    const mapping = potentialMap[boostPkm.potential || 'F'];
     const ownedCrystal = save?.inventory?.find((i: { itemId: string; quantity: number }) => i.itemId === mapping?.item);
     const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 

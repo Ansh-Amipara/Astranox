@@ -10,8 +10,8 @@ export interface ArenaTrainerConfig {
 }
 
 export const ARENA_TRAINERS: ArenaTrainerConfig[] = [
-  // G Rank
-  { id: 'f_minus_1', name: 'Rookie Bug Catcher Leo', targetRank: 'G', level: 15, team: ["caterpie","scyther"], coins: 100, xp: 200, theme: 'Bug' },
+  // F Rank
+  { id: 'f_minus_1', name: 'Rookie Bug Catcher Leo', targetRank: 'F', level: 15, team: ["caterpie","scyther"], coins: 100, xp: 200, theme: 'Bug' },
   // F Rank
   { id: 'f_1', name: 'Junior Camper Finn', targetRank: 'F', level: 35, team: ["rattata","snorlax"], coins: 150, xp: 300, theme: 'Normal' },
   

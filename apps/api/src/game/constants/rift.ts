@@ -13,23 +13,23 @@ export const RIFT_REWARD_MULTIPLIERS: Record<string, number> = {
 };
 
 export const RIFT_MAX_FLOORS: Record<string, number> = {
-  G: 2, F: 2, E: 2,
+  F: 2, E: 2,
   D: 3, C: 3, B: 4, A: 4,
   S_MINUS: 5, S: 5, S_PLUS: 5,
   SS_MINUS: 5, SS: 5, SS_PLUS: 5,
   SSS_MINUS: 5, SSS: 5, SSS_PLUS: 5,
-  EX_MINUS: 5, EX: 5, EX_PLUS: 5
+  EX: 5
 };
 
 // Base Infinity Coin reward per floor (before difficulty multiplier)
 // Increases as the Trainer Rank of the Rift increases.
 export const RIFT_BASE_INFINITY_COINS: Record<string, number> = {
-  G: 5, F: 15, E: 30,
+  F: 15, E: 30,
   D: 60, C: 150, B: 300, A: 600,
   S_MINUS: 800, S: 1500, S_PLUS: 3000,
   SS_MINUS: 5000, SS: 8000, SS_PLUS: 12000,
   SSS_MINUS: 20000, SSS: 35000, SSS_PLUS: 50000,
-  EX_MINUS: 70000, EX: 100000, EX_PLUS: 150000
+  EX: 100000
 };
 
 // Valid enemy pools for Corrupted Pokemon per rank.
@@ -79,41 +79,38 @@ export const RIFT_POKEMON_POOLS = {
 } as const;
 
 export const RANK_TO_TIER_MAPPING: Record<string, keyof typeof RIFT_POKEMON_POOLS> = {
-  G: 'F_TIER', F: 'F_TIER', E: 'MID_TIER',
+  F: 'F_TIER', E: 'MID_TIER',
   D: 'MID_TIER', C: 'MID_TIER', B: 'HIGH_TIER', A: 'HIGH_TIER',
   S_MINUS: 'LEGENDARY_TIER', S: 'LEGENDARY_TIER', S_PLUS: 'LEGENDARY_TIER',
   SS_MINUS: 'MYTHICAL_TIER', SS: 'MYTHICAL_TIER', SS_PLUS: 'MYTHICAL_TIER',
   SSS_MINUS: 'GOD_TIER', SSS: 'GOD_TIER', SSS_PLUS: 'GOD_TIER',
-  EX_MINUS: 'GOD_TIER', EX: 'GOD_TIER', EX_PLUS: 'GOD_TIER',
+  EX: 'GOD_TIER',
 };
 
 export const RIFT_LEVEL_RANGES: Record<string, { min: number; max: number }> = {
-  G: { min: 5, max: 50 },
-  F: { min: 50, max: 100 },
-  E: { min: 100, max: 250 },
-  D: { min: 250, max: 500 },
-  C: { min: 500, max: 1000 },
-  B: { min: 1000, max: 1500 },
-  A: { min: 1500, max: 2000 },
-  S_MINUS: { min: 2000, max: 3000 },
-  S: { min: 3000, max: 4000 },
-  S_PLUS: { min: 4000, max: 5000 },
-  SS_MINUS: { min: 5000, max: 6000 },
-  SS: { min: 6000, max: 7000 },
-  SS_PLUS: { min: 7000, max: 8000 },
-  SSS_MINUS: { min: 8000, max: 10000 },
-  SSS: { min: 10000, max: 12000 },
-  SSS_PLUS: { min: 12000, max: 14000 },
-  EX_MINUS: { min: 14000, max: 16000 },
-  EX: { min: 16000, max: 18000 },
-  EX_PLUS: { min: 18000, max: 20000 }
+  F: { min: 10, max: 25 },
+  E: { min: 26, max: 50 },
+  D: { min: 51, max: 75 },
+  C: { min: 76, max: 100 },
+  B: { min: 101, max: 150 },
+  A: { min: 151, max: 200 },
+  S_MINUS: { min: 201, max: 300 },
+  S: { min: 301, max: 350 },
+  S_PLUS: { min: 351, max: 400 },
+  SS_MINUS: { min: 401, max: 500 },
+  SS: { min: 501, max: 600 },
+  SS_PLUS: { min: 601, max: 700 },
+  SSS_MINUS: { min: 701, max: 800 },
+  SSS: { min: 801, max: 900 },
+  SSS_PLUS: { min: 901, max: 1000 },
+  EX: { min: 1001, max: 5000 }
 };
 
 export function getRiftRankWeight(rank: string): number {
   const ranks = [
-    'G', 'F', 'E', 'D', 'C', 'B', 'A',
+    'F', 'E', 'D', 'C', 'B', 'A',
     'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS',
-    'SSS_MINUS', 'SSS', 'SSS_PLUS'
+    'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX'
   ];
   return ranks.indexOf(rank);
 }

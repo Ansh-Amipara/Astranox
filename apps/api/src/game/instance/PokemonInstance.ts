@@ -4,36 +4,33 @@ import { calculatePokemonCP } from './cp';
 
 export function getMaxLevelForPotential(potential: string): number {
   switch (potential) {
-    case 'G': return 50;
-    case 'F': return 100;
-    case 'E': return 250;
-    case 'D': return 500;
-    case 'C': return 1000;
-    case 'B': return 1500;
-    case 'A': return 2000;
-    case 'S_MINUS': return 3000;
-    case 'S': return 4000;
-    case 'S_PLUS': return 5000;
-    case 'SS_MINUS': return 6000;
-    case 'SS': return 7000;
-    case 'SS_PLUS': return 8000;
-    case 'SSS_MINUS': return 10000;
-    case 'SSS': return 12000;
-    case 'SSS_PLUS': return 14000;
-    case 'EX_MINUS': return 16000;
-    case 'EX': return 18000;
-    case 'EX_PLUS': return 20000;
-    default: return 20000;
+    case 'F': return 25;
+    case 'E': return 50;
+    case 'D': return 75;
+    case 'C': return 100;
+    case 'B': return 150;
+    case 'A': return 200;
+    case 'S_MINUS': return 300;
+    case 'S': return 350;
+    case 'S_PLUS': return 400;
+    case 'SS_MINUS': return 500;
+    case 'SS': return 600;
+    case 'SS_PLUS': return 700;
+    case 'SSS_MINUS': return 800;
+    case 'SSS': return 900;
+    case 'SSS_PLUS': return 1000;
+    case 'EX': return 5000;
+    default: return 5000;
   }
 }
 
-export function getMinPotentialForLevel(level: number, minTier: string = 'G'): string {
+export function getMinPotentialForLevel(level: number, minTier: string = 'F'): string {
   const tiers = [
-    'G', 'F', 'E', 'D', 'C', 'B', 'A',
+    'F', 'E', 'D', 'C', 'B', 'A',
     'S_MINUS', 'S', 'S_PLUS',
     'SS_MINUS', 'SS', 'SS_PLUS',
     'SSS_MINUS', 'SSS', 'SSS_PLUS',
-    'EX_MINUS', 'EX', 'EX_PLUS'
+    'EX'
   ];
 
   let requiredTierIndex = tiers.length - 1;

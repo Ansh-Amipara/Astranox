@@ -370,7 +370,7 @@ export function AdminEventManagement() {
                         value={formState.rewardPotential}
                         onChange={v => setFormState({ ...formState, rewardPotential: v, rewardLevel: getMaxLevelForPotential(v) })}
                         options={
-                          ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX_MINUS', 'EX', 'EX_PLUS'].map(p => ({
+                          ['F', 'E', 'D', 'C', 'B', 'A', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX'].map(p => ({
                             value: p,
                             label: p
                           }))

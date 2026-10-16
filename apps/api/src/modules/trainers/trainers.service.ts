@@ -153,11 +153,11 @@ export class TrainersService {
 
     // Calculate Pearl rewards
     const potentialOrder = [
-      'G', 'F', 'E', 'D', 'C', 'B', 'A',
+      'F', 'E', 'D', 'C', 'B', 'A',
       'S_MINUS', 'S', 'S_PLUS',
       'SS_MINUS', 'SS', 'SS_PLUS',
       'SSS_MINUS', 'SSS', 'SSS_PLUS',
-      'EX_MINUS', 'EX', 'EX_PLUS'
+      'EX'
     ];
     
     // The specific pearl mapping logic used in the game DB
@@ -168,8 +168,8 @@ export class TrainersService {
     const targetIndex = potentialOrder.indexOf(pokemonToSmelt.potential);
     const pearlsToAward: { type: string, quantity: number, itemId: string }[] = [];
 
-    // Start from BRONZE (index 1) since Black Iron has no pearl
-    for (let i = 1; i <= targetIndex; i++) {
+    // F rank is index 0. Lower tiers are awarded 100% for i < targetIndex.
+    for (let i = 0; i <= targetIndex; i++) {
       const pot = potentialOrder[i];
       if (i < targetIndex) {
         // Lower tiers are 100%
@@ -309,11 +309,11 @@ export class TrainersService {
     }
 
     const potentialOrder = [
-      'G', 'F', 'E', 'D', 'C', 'B', 'A',
+      'F', 'E', 'D', 'C', 'B', 'A',
       'S_MINUS', 'S', 'S_PLUS',
       'SS_MINUS', 'SS', 'SS_PLUS',
       'SSS_MINUS', 'SSS', 'SSS_PLUS',
-      'EX_MINUS', 'EX', 'EX_PLUS'
+      'EX'
     ];
 
     const validProgressions: Record<string, { current: PokemonPotential, next: PokemonPotential }> = {};

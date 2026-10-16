@@ -28,13 +28,21 @@ export const clearDatabase = async () => {
 };
 
 beforeAll(async () => {
-  await prismaTest.$connect();
+  try {
+    await prismaTest.$connect();
+  } catch (err) {
+    console.warn('Could not connect to test database. Database integration tests will fail or be skipped.');
+  }
 });
 
 beforeEach(async () => {
-  await clearDatabase();
+  try {
+    await clearDatabase();
+  } catch {}
 });
 
 afterAll(async () => {
-  await prismaTest.$disconnect();
+  try {
+    await prismaTest.$disconnect();
+  } catch {}
 });

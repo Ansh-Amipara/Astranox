@@ -7,9 +7,8 @@ import { api, getSpriteUrl, battleApi } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/shared/api/axios';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { ArrowRight } from 'lucide-react';
-import { getPotentialBadgeClasses, formatPotential } from '@/shared/utils/pokemonUtils';
+import { getPotentialBadgeClasses, formatPotential, getMaxLevelForPotential, getXpForLevel, getLevelFromXp } from '@/shared/utils/pokemonUtils';
 import { useSmeltPokemon } from '@/modules/pokemon/hooks/useSmeltPokemon';
-import { getMaxLevelForPotential } from '@/shared/utils/pokemonUtils';
 
 // --- Stat Calculation Utilities ---
 function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
@@ -890,18 +889,15 @@ export function TeamPage() {
 
       {/* --- Give XP Modal --- */}
       {giveXpPkm && (() => {
-        const potentialCaps: Record<string, number> = {
-          G: 50, F: 100, E: 250, D: 500, C: 1000, B: 1500, A: 2000, S_MINUS: 3000, S: 4000, S_PLUS: 5000, SS_MINUS: 6000, SS: 7000, SS_PLUS: 8000, SSS_MINUS: 10000, SSS: 12000, SSS_PLUS: 14000, EX_MINUS: 16000, EX: 18000, EX_PLUS: 20000
-        };
-        const maxLvl = potentialCaps[giveXpPkm.potential as string] || 2000;
-        const maxTotalXp = 50 * (maxLvl + 1) * maxLvl - 1;
+        const maxLvl = getMaxLevelForPotential(giveXpPkm.potential as string);
+        const maxTotalXp = getXpForLevel(maxLvl + 1) - 1;
         const neededXp = Math.max(0, maxTotalXp - (giveXpPkm.currentXp || 0));
         const storedXp = save?.storedXp || 0;
         const maxAllowed = Math.min(storedXp, neededXp);
 
         const addedAmount = parseInt(xpAmountInput || '0', 10);
         const newTotalXp = (giveXpPkm.currentXp || 0) + (isNaN(addedAmount) ? 0 : addedAmount);
-        const previewLvl = Math.max(1, Math.floor((1 + Math.sqrt(1 + 4 * (newTotalXp / 50))) / 2));
+        const previewLvl = getLevelFromXp(newTotalXp);
 
         const handleAddXp = (addAmount: number) => {
           const currentVal = parseInt(xpAmountInput || '0', 10);

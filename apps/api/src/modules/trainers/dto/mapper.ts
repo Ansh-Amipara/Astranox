@@ -58,7 +58,7 @@ export class TrainerMapper {
         speed: entity.ivSpeed || 0,
       },
       entity.level || 1,
-      entity.potential || 'G',
+      entity.potential || 'F',
       entity.species?.isGmax || false,
       Array.isArray(entity.equippedMoves) ? entity.equippedMoves.map((m: any) => m.move?.power || 0) : []
     );
@@ -128,7 +128,7 @@ export class TrainerMapper {
         speed: entity.ivSpeed || 0,
       },
       entity.level || 1,
-      entity.potential || 'G',
+      entity.potential || 'F',
       entity.species?.isGmax || false,
       Array.isArray(entity.equippedMoves) ? entity.equippedMoves.map((m: any) => m.move?.power || 0) : []
     );

@@ -19,8 +19,7 @@ function generateWildIVs() {
 }
 
 const POTENTIAL_DISTRIBUTION = [
-  { p: PokemonPotential.G, weight: 20 },
-  { p: PokemonPotential.F, weight: 15 },
+  { p: PokemonPotential.F, weight: 35 },
   { p: PokemonPotential.E, weight: 15 },
   { p: PokemonPotential.D, weight: 12 },
   { p: PokemonPotential.C, weight: 10 },
@@ -47,7 +46,7 @@ function generateRandomPotential(): PokemonPotential {
     }
     randomVal -= entry.weight;
   }
-  return PokemonPotential.G; // Fallback
+  return PokemonPotential.F; // Fallback
 }
 
 @injectable()

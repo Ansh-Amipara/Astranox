@@ -2,6 +2,8 @@
 
 Astranox is a feature-rich, browser-based Pokémon game built with a modern web stack (React, TypeScript, Node.js, and Prisma). It utilizes real Pokémon mechanics, accurately calculated stats, and authentic catch rates sourced directly from PokeAPI.
 
+📖 **For an in-depth explanation of game mechanics, exploration, smelting, battles, towers, and rifts, check out the [Complete Game Guide](GAME_GUIDE.md).**
+
 ## Features
 
 - **Authentication System**: Secure JWT-based registration and login, including a specialized `Admin` role.

@@ -12,27 +12,41 @@ const RIFT_REWARD_MULTIPLIERS: Record<string, number> = {
 const RIFT_MAX_FLOORS: Record<string, number> = {
   F: 2, E: 2, D: 3, C: 3, B: 4, A: 4,
   S_MINUS: 5, S: 5, S_PLUS: 5, SS_MINUS: 5, SS: 5, SS_PLUS: 5,
-  SSS_MINUS: 5, SSS: 5, SSS_PLUS: 5
+  SSS_MINUS: 5, SSS: 5, SSS_PLUS: 5,
+  EX: 5
 };
 
 const RIFT_BASE_INFINITY_COINS: Record<string, number> = {
   F: 10, E: 25, D: 50, C: 100, B: 200, A: 400,
   S_MINUS: 800, S: 1500, S_PLUS: 3000, SS_MINUS: 5000,
-  SS: 8000, SS_PLUS: 12000, SSS_MINUS: 20000, SSS: 35000, SSS_PLUS: 50000
+  SS: 8000, SS_PLUS: 12000, SSS_MINUS: 20000, SSS: 35000, SSS_PLUS: 50000,
+  EX: 100000
 };
 
 const RIFT_LEVEL_RANGES: Record<string, { min: number; max: number }> = {
-  F: { min: 10, max: 25 }, E: { min: 30, max: 50 }, D: { min: 60, max: 90 },
-  C: { min: 100, max: 150 }, B: { min: 160, max: 250 }, A: { min: 260, max: 400 },
-  S_MINUS: { min: 410, max: 600 }, S: { min: 610, max: 800 }, S_PLUS: { min: 810, max: 1000 },
-  SS_MINUS: { min: 1010, max: 1300 }, SS: { min: 1310, max: 1600 }, SS_PLUS: { min: 1610, max: 1900 },
-  SSS_MINUS: { min: 1910, max: 2500 }, SSS: { min: 2510, max: 3500 }, SSS_PLUS: { min: 3510, max: 4500 }
+  F: { min: 10, max: 25 },
+  E: { min: 26, max: 50 },
+  D: { min: 51, max: 75 },
+  C: { min: 76, max: 100 },
+  B: { min: 101, max: 150 },
+  A: { min: 151, max: 200 },
+  S_MINUS: { min: 201, max: 300 },
+  S: { min: 301, max: 350 },
+  S_PLUS: { min: 351, max: 400 },
+  SS_MINUS: { min: 401, max: 500 },
+  SS: { min: 501, max: 600 },
+  SS_PLUS: { min: 601, max: 700 },
+  SSS_MINUS: { min: 701, max: 800 },
+  SSS: { min: 801, max: 900 },
+  SSS_PLUS: { min: 901, max: 1000 },
+  EX: { min: 1001, max: 5000 }
 };
 
 const RIFT_RANKS = [
   'F', 'E', 'D', 'C', 'B', 'A',
   'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS',
-  'SSS_MINUS', 'SSS', 'SSS_PLUS'
+  'SSS_MINUS', 'SSS', 'SSS_PLUS',
+  'EX'
 ];
 
 const formatRankName = (rank: string) => {
@@ -65,36 +79,22 @@ const RIFT_TABLE_DATA = RIFT_RANKS.flatMap(rank => {
 });
 
 const TABLE_DATA = [
-  { rank: 'F-', maxLevel: 25 },
-  { rank: 'F', maxLevel: 50 },
-  { rank: 'F+', maxLevel: 75 },
-  { rank: 'E-', maxLevel: 100 },
-  { rank: 'E', maxLevel: 150 },
-  { rank: 'E+', maxLevel: 200 },
-  { rank: 'D-', maxLevel: 300 },
-  { rank: 'D', maxLevel: 400 },
-  { rank: 'D+', maxLevel: 500 },
-  { rank: 'C-', maxLevel: 600 },
-  { rank: 'C', maxLevel: 700 },
-  { rank: 'C+', maxLevel: 800 },
-  { rank: 'B-', maxLevel: 1000 },
-  { rank: 'B', maxLevel: 1200 },
-  { rank: 'B+', maxLevel: 1400 },
-  { rank: 'A-', maxLevel: 1600 },
-  { rank: 'A', maxLevel: 1800 },
-  { rank: 'A+', maxLevel: 2000 },
-  { rank: 'S-', maxLevel: 3000 },
-  { rank: 'S', maxLevel: 4000 },
-  { rank: 'S+', maxLevel: 5000 },
-  { rank: 'SS-', maxLevel: 6000 },
-  { rank: 'SS', maxLevel: 7000 },
-  { rank: 'SS+', maxLevel: 8000 },
-  { rank: 'SSS-', maxLevel: 10000 },
-  { rank: 'SSS', maxLevel: 12000 },
-  { rank: 'SSS+', maxLevel: 14000 },
-  { rank: 'EX-', maxLevel: 16000 },
-  { rank: 'EX', maxLevel: 18000 },
-  { rank: 'EX+', maxLevel: 20000 },
+  { rank: 'F', maxLevel: 25 },
+  { rank: 'E', maxLevel: 50 },
+  { rank: 'D', maxLevel: 75 },
+  { rank: 'C', maxLevel: 100 },
+  { rank: 'B', maxLevel: 150 },
+  { rank: 'A', maxLevel: 200 },
+  { rank: 'S-', maxLevel: 300 },
+  { rank: 'S', maxLevel: 350 },
+  { rank: 'S+', maxLevel: 400 },
+  { rank: 'SS-', maxLevel: 500 },
+  { rank: 'SS', maxLevel: 600 },
+  { rank: 'SS+', maxLevel: 700 },
+  { rank: 'SSS-', maxLevel: 800 },
+  { rank: 'SSS', maxLevel: 900 },
+  { rank: 'SSS+', maxLevel: 1000 },
+  { rank: 'EX', maxLevel: 5000 },
 ];
 
 const EXPLORE_BIOMES = [
@@ -126,17 +126,6 @@ const EXPLORE_RARE_POOLS = [
   { category: 'Super Legendary', probability: '0.001%' },
 ];
 
-const EXPLORE_POTENTIAL_SCALING = [
-  { rank: 'F Rank', encounters: 'F' },
-  { rank: 'E Rank', encounters: 'F, E' },
-  { rank: 'D Rank', encounters: 'F, E, D' },
-  { rank: 'C Rank', encounters: 'F, E, D, C' },
-  { rank: 'B Rank', encounters: 'F, E, D, C, B' },
-  { rank: 'A Rank', encounters: 'E, D, C, B, A' },
-  { rank: 'S Ranks (S-, S, S+)', encounters: 'D, C, B, A, S' },
-  { rank: 'SS Ranks (SS-, SS, SS+)', encounters: 'C, B, A, S, SS' },
-  { rank: 'SSS Ranks (SSS-, SSS, SSS+)', encounters: 'B, A, S, SS, SSS' },
-];
 
 export function InfoPage() {
   const [activeTab, setActiveTab] = useState<'general' | 'explore' | 'rift' | 'furnace' | 'tower' | 'pokemart'>('general');
@@ -214,27 +203,8 @@ export function InfoPage() {
                 The <span className="font-bold text-emerald-600 dark:text-emerald-400">Explore System</span> allows you to venture into different wild biomes to discover Pokémon and Astral Coins.
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li><span className="font-bold text-purple-600 dark:text-purple-400">Dynamic Potential Scaling (5-Stage System):</span> The potential of encountered wild Pokémon dynamically scales to your Trainer Rank using a 5-stage window. For example, if you are at <span className="font-bold">A Rank</span>, you will encounter wild Pokémon with potentials ranging from <span className="font-bold">E Rank</span> up to <span className="font-bold">A Rank</span>. These encounters are realistically weighted: you have a <span className="font-bold text-slate-500">40% chance</span> to find the lowest potential in your window, scaling down to just a <span className="font-bold text-orange-500">2% chance</span> for your maximum potential!</li>
+                <li><span className="font-bold text-purple-600 dark:text-purple-400">Wild Potential Range (F to SSS+):</span> Wild Pokémon encountered in explore expeditions have potentials naturally ranging from <span className="font-bold">F Rank</span> up to <span className="font-bold">SSS+ Rank</span>. Every expedition gives you an authentic chance to discover extraordinary Pokémon without artificial rank lockouts!</li>
               </ul>
-
-              <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                <table className="w-full text-left border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                      <th className="py-3 px-4 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trainer Rank</th>
-                      <th className="py-3 px-4 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Encounter Potential Pool</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                    {EXPLORE_POTENTIAL_SCALING.map((row) => (
-                      <tr key={row.rank} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100">{row.rank}</td>
-                        <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-mono font-bold">{row.encounters}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
 
             <div className="flex items-center gap-4 mb-8">
@@ -519,19 +489,19 @@ export function InfoPage() {
 
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-8 mb-6 sm:mb-10 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
               <p className="mb-4">
-                The <span className="font-bold text-amber-500">Infinity Tower</span> is an endless gauntlet where the difficulty—and the rewards—scale infinitely the higher you climb.
+                The <span className="font-bold text-amber-500">Infinity Tower</span> features <span className="font-bold text-purple-600 dark:text-purple-400">1000 floors</span> designed to test your party's mastery, scaling from Level 1 up to <span className="font-bold text-red-500">Level 1000</span> at the pinnacle.
               </p>
               <ul className="list-disc pl-6 space-y-3 mb-4">
-                <li><span className="font-bold text-indigo-500">Endless Scaling:</span> As you ascend, enemy levels and IVs continue to rise. Team sizes will also gradually grow up to a full party of 6.</li>
+                <li><span className="font-bold text-indigo-500">Floor & Level Progression:</span> Enemy levels progress smoothly alongside floor progression, reaching maximum Level 1000 at Floor 1000. Team sizes expand gradually up to a full party of 6.</li>
                 <li>
                   <span className="font-bold text-red-500">Boss Milestones:</span> You will encounter significantly harder battles at regular intervals with massive reward multipliers:
                   <ul className="list-[circle] pl-6 mt-2 space-y-1">
                     <li><span className="font-bold">Mini-Boss</span> (Every 25 floors): 2x Rewards</li>
-                    <li><span className="font-bold text-orange-500">Boss</span> (Every 50 floors): 5x Rewards, max IVs, guaranteed Legendary/Mythical pools.</li>
+                    <li><span className="font-bold text-orange-500">Boss</span> (Every 50 floors): 5x Rewards, max IVs, guaranteed high-tier pools.</li>
                     <li><span className="font-bold text-red-600">Mega Boss</span> (Every 100 floors): 10x Rewards, max IVs, guaranteed Legendary/Mythical pools.</li>
                   </ul>
                 </li>
-                <li><span className="font-bold text-emerald-500">Floor Sweeping (Skip):</span> If your Party's CP is overwhelmingly higher than the Floor's estimated CP (by 10x or more), you can instantly Sweep up to 100 floors at a time, claiming all XP and Infinity Coins without fighting!</li>
+                <li><span className="font-bold text-emerald-500">Floor Sweeping (Skip):</span> If your Party's CP is overwhelmingly higher than the Floor's estimated CP (by 10x or more), you can instantly Sweep up to 100 floors at a time up through floor 1000, claiming all XP and Infinity Coins without fighting!</li>
               </ul>
             </div>
           </div>

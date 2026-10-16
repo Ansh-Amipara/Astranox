@@ -77,9 +77,10 @@ export const InfinityTowerPage: React.FC = () => {
     }
   };
 
-  const isBossFloor = state.currentFloor % 50 === 0 && state.currentFloor % 100 !== 0;
-  const isMegaBossFloor = state.currentFloor % 100 === 0;
-  const isMiniBossFloor = !isBossFloor && !isMegaBossFloor && state.currentFloor % 25 === 0;
+  const isConquered = state.currentFloor > 1000;
+  const isBossFloor = !isConquered && state.currentFloor % 50 === 0 && state.currentFloor % 100 !== 0;
+  const isMegaBossFloor = !isConquered && state.currentFloor % 100 === 0;
+  const isMiniBossFloor = !isConquered && !isBossFloor && !isMegaBossFloor && state.currentFloor % 25 === 0;
 
   return (
     <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
@@ -99,7 +100,7 @@ export const InfinityTowerPage: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your CP: <span className="text-blue-500">{data?.playerCp?.toLocaleString() || 0}</span></span>
                   <div className="w-px h-4 bg-slate-300 dark:bg-slate-700"></div>
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Highest Floor: {state.highestFloor}</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Highest Floor: {Math.min(1000, state.highestFloor)} / 1000</span>
                 </div>
               </div>
             </div>
@@ -111,10 +112,14 @@ export const InfinityTowerPage: React.FC = () => {
 
           <div className="text-center mb-6">
             <h2 className={`text-4xl font-black mb-2 tracking-tighter ${isMegaBossFloor ? 'text-red-600 dark:text-red-500' : isBossFloor ? 'text-orange-500 dark:text-orange-400' : isMiniBossFloor ? 'text-yellow-600 dark:text-yellow-400' : 'text-slate-800 dark:text-white'}`}>
-              Floor {state.currentFloor}
+              {isConquered ? 'Floor 1000 / 1000' : `Floor ${state.currentFloor} / 1000`}
             </h2>
             <div className="flex justify-center">
-              {(isMegaBossFloor || isBossFloor || isMiniBossFloor) && (
+              {isConquered ? (
+                <span className="px-4 py-1.5 rounded-full text-sm font-bold tracking-widest uppercase bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50">
+                  CONQUERED
+                </span>
+              ) : (isMegaBossFloor || isBossFloor || isMiniBossFloor) && (
                 <span className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-widest uppercase ${isMegaBossFloor ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50' :
                   isBossFloor ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800/50' :
                     'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800/50'
@@ -123,7 +128,7 @@ export const InfinityTowerPage: React.FC = () => {
                 </span>
               )}
             </div>
-            {data?.floorCp && (
+            {!isConquered && data?.floorCp && (
               <div className="mt-3">
                 <span className="text-sm font-bold text-slate-500 bg-white/50 dark:bg-slate-800/50 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                   Floor CP: {data.floorCp.toLocaleString()}
@@ -132,7 +137,19 @@ export const InfinityTowerPage: React.FC = () => {
             )}
           </div>
 
-          {activeEncounter ? (
+          {isConquered ? (
+            <div className="w-full flex-1 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-500/50 rounded-3xl p-8 sm:p-12 shadow-sm flex flex-col items-center justify-center text-center">
+              <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-4 border border-amber-300 dark:border-amber-700">
+                <Mountain className="w-10 h-10 text-amber-500" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">
+                Infinity Tower Conquered!
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 max-w-md">
+                You have scaled the highest peak of the Infinity Tower and cleared all 1000 floors.
+              </p>
+            </div>
+          ) : activeEncounter ? (
             <div className="w-full flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-4 sm:p-8 shadow-sm relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
               {/* Decorative background element */}
               <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-slate-50 to-transparent dark:from-slate-700/30 dark:to-transparent pointer-events-none"></div>

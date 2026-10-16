@@ -13,7 +13,6 @@ enum Role {
 }
 
 enum TrainerRank {
-  G
   F
   E
   D
@@ -29,13 +28,10 @@ enum TrainerRank {
   SSS_MINUS
   SSS
   SSS_PLUS
-  EX_MINUS
   EX
-  EX_PLUS
 }
 
 enum PokemonPotential {
-  G
   F
   E
   D
@@ -51,9 +47,7 @@ enum PokemonPotential {
   SSS_MINUS
   SSS
   SSS_PLUS
-  EX_MINUS
   EX
-  EX_PLUS
 }
 
 model User {
@@ -79,7 +73,7 @@ model TrainerSave {
   astralCoins     Int       @default(3000)
   infinityCoins   Int       @default(0)
   storedXp        Int       @default(0)
-  rank            TrainerRank @default(G)
+  rank            TrainerRank @default(F)
 
   party        OwnedPokemon[]
   inventory    InventoryItem[]
@@ -113,7 +107,7 @@ model OwnedPokemon {
 
   nickname String?
   level    Int     @default(5)
-  potential PokemonPotential @default(G)
+  potential PokemonPotential @default(F)
 
   // Location Tracking
   isParty   Boolean @default(false)
@@ -440,7 +434,7 @@ model RiftDungeonState {
   trainerId           String   @unique @db.ObjectId
   trainer             TrainerSave @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   
-  rank                TrainerRank @default(G)
+  rank                TrainerRank @default(F)
   difficulty          RiftDifficulty @default(NORMAL)
   
   currentFloor        Int      @default(1)
