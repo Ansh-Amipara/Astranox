@@ -27,6 +27,10 @@ export class CacheService {
     return this.redis;
   }
 
+  public isRedisConnected(): boolean {
+    return this.isConnected;
+  }
+
   private initRedis() {
     try {
       this.redis = new Redis(env.REDIS_URL, {
@@ -106,6 +110,10 @@ export class CacheService {
     } catch (e) {
       logger.error(`Cache delete error for key ${key}:`, e);
     }
+  }
+
+  public async del(key: string): Promise<void> {
+    return this.delete(key);
   }
 
   public async getOrSet<T>(key: string, fetcher: () => Promise<T>, ttlSeconds: number = 3600): Promise<T> {

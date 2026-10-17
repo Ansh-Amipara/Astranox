@@ -55,3 +55,14 @@ export class BadRequestError extends AppError {
   }
 }
 
+export class PriceChangedError extends AppError {
+  public newPrice: number;
+  public itemKey: string;
+
+  constructor(message: string, newPrice: number, itemKey: string) {
+    super(message, 409, 'PRICE_CHANGED');
+    this.newPrice = newPrice;
+    this.itemKey = itemKey;
+  }
+}
+

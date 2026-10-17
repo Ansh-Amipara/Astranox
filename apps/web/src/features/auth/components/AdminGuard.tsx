@@ -29,13 +29,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   // Redirect to admin login if unauthenticated
   if (!user) {
     if (typeof window !== 'undefined') {
-      navigate(`/admin/login?from=${pathname}`);
+      navigate(`/admin-login?from=${pathname}`);
     }
     return null;
   }
 
-  // Redirect to game if not an admin
-  if (user.role !== 'ADMIN') {
+  // Redirect to game if not staff (admin or moderator)
+  if (user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
     if (typeof window !== 'undefined') {
       navigate('/');
     }

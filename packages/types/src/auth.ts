@@ -26,11 +26,16 @@ export type AdminLoginInput = z.infer<typeof adminLoginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
+export type UserRole = 'USER' | 'MODERATOR' | 'ADMIN';
+
 export interface UserPayload {
   id: string;
   username: string;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: UserRole;
+  isBanned?: boolean;
+  banReason?: string | null;
+  bannedUntil?: string | null;
 }
 
 export interface AuthResponse {

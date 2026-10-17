@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import '../../../tests/setup';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../../app';
 import { prismaTest } from '../../../tests/setup';
+import { prisma } from '../../../core/db/prisma';
 
 describe('Auth Module Integration', () => {
   const validRegisterPayload = {
@@ -10,10 +12,15 @@ describe('Auth Module Integration', () => {
     password: 'securePassword123'
   };
 
+  beforeEach(async () => {
+    await prisma.trainerSave.deleteMany({ where: { user: { username: 'newTrainer' } } }).catch(() => {});
+    await prisma.user.deleteMany({ where: { username: 'newTrainer' } }).catch(() => {});
+  });
+
   describe('POST /auth/register', () => {
     it('should create a user and return 201', async () => {
       const res = await request(app).post('/auth/register').send(validRegisterPayload);
-      
+
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       

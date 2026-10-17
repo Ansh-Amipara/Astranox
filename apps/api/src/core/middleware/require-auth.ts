@@ -29,14 +29,19 @@ export const requireAuth = (req: Request, _res: Response, next: NextFunction) =>
   }
 };
 
-export const requireAdmin = (req: Request, _res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return next(new UnauthorizedError('Authentication required'));
-  }
+export const requireRole = (allowedRoles: ('ADMIN' | 'MODERATOR' | 'USER')[]) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new UnauthorizedError('Authentication required'));
+    }
 
-  if (req.user.role !== 'ADMIN') {
-    return next(new ForbiddenError('Admin privileges required'));
-  }
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(new ForbiddenError(`Access restricted to: ${allowedRoles.join(', ')}`));
+    }
 
-  next();
+    next();
+  };
 };
+
+export const requireAdmin = requireRole(['ADMIN']);
+export const requireStaff = requireRole(['ADMIN', 'MODERATOR']);

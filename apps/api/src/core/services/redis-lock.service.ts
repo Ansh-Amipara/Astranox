@@ -33,30 +33,49 @@ export class RedisLockService {
     }
   }
 
-  public async acquireLock(resource: string, durationMs: number = 5000): Promise<Lock> {
-    if (!this.redlock) {
-      this.initRedlock();
+  private memoryLocks: Set<string> = new Set();
+
+  public async acquireLock(resource: string, durationMs: number = 5000): Promise<{ release: () => Promise<void> }> {
+    if (this.cacheService.isRedisConnected()) {
       if (!this.redlock) {
-        throw new AppError('Lock service is unavailable', 503);
+        this.initRedlock();
+      }
+
+      if (this.redlock) {
+        try {
+          const lock = await this.redlock.acquire([resource], durationMs);
+          return lock;
+        } catch (error: any) {
+          if (error?.name === 'ExecutionError') {
+            throw new AppError('Could not acquire lock (resource busy)', 409, 'RESOURCE_LOCKED');
+          }
+          logger.warn(`Redis lock acquire failed for ${resource}, falling back to memory lock: ${error?.message}`);
+        }
       }
     }
-    
-    try {
-      const lock = await this.redlock.acquire([resource], durationMs);
-      return lock;
-    } catch (error: any) {
-      if (error?.name === 'ExecutionError') {
+
+    // In-memory fallback
+    const start = Date.now();
+    while (this.memoryLocks.has(resource)) {
+      if (Date.now() - start > durationMs) {
         throw new AppError('Could not acquire lock (resource busy)', 409);
       }
-      throw error;
+      await new Promise((resolve) => setTimeout(resolve, 50));
     }
+
+    this.memoryLocks.add(resource);
+    return {
+      release: async () => {
+        this.memoryLocks.delete(resource);
+      },
+    };
   }
 
-  public async releaseLock(lock: Lock): Promise<void> {
+  public async releaseLock(lock: { release: () => Promise<void> }): Promise<void> {
     try {
       await lock.release();
     } catch (error: any) {
-      logger.warn(`Failed to release lock for ${lock.resources.join(', ')}:`, error?.message);
+      logger.warn(`Failed to release lock:`, error?.message);
     }
   }
 }

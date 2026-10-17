@@ -10,6 +10,7 @@
     "seed:world": "tsx scripts/seed/world-seed.ts",
     "seed:pokeapi": "tsx scripts/seed/pokeapi/index.ts",
     "seed:pokemondb": "tsx scripts/seed/pokemondb/index.ts",
+    "seed:shop": "tsx scripts/seed/seed-shop.ts",
     "test": "vitest run"
   },
   "dependencies": {

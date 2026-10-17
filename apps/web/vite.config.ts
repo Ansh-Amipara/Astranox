@@ -13,6 +13,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@astranox/types': path.resolve(__dirname, '../../packages/types/index.ts'),
+      '@astranox/constants': path.resolve(__dirname, '../../packages/constants/index.ts'),
     },
   },
   server: {

@@ -9,6 +9,7 @@ datasource db {
 
 enum Role {
   USER
+  MODERATOR
   ADMIN
 }
 
@@ -57,11 +58,13 @@ model User {
   passwordHash     String
   role             Role     @default(USER)
   refreshTokenHash String?
+  isBanned         Boolean  @default(false)
+  banReason        String?
+  bannedUntil      DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   trainerSave TrainerSave?
-
 }
 
 model TrainerSave {
@@ -329,15 +332,92 @@ model BattleSession {
 }
 
 model AuditLog {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   adminId      String   @db.ObjectId
   action       String
   entityType   String
   entityId     String?
+  reason       String?
+  requestId    String?
   beforeValues Json?
   afterValues  Json?
   ipAddress    String?
   createdAt    DateTime @default(now())
+
+  @@index([adminId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model ShopItem {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  key                String    @unique
+  name               String
+  category           String
+  description        String
+  currency           String    @default("astralCoins")
+  price              Int
+  salePrice          Int?
+  saleStartsAt       DateTime?
+  saleEndsAt         DateTime?
+  enabled            Boolean   @default(true)
+  minLevel           Int?
+  dailyLimitPerUser  Int?
+  totalStock         Int?
+  stockRemaining     Int?
+  sortOrder          Int       @default(0)
+  dataVersion        Int       @default(1)
+  updatedBy          String?   @db.ObjectId
+  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime  @default(now())
+
+  @@index([category, sortOrder])
+}
+
+model ShopPriceHistory {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  itemKey      String
+  oldPrice     Int
+  newPrice     Int
+  oldSalePrice Int?
+  newSalePrice Int?
+  changedBy    String    @db.ObjectId
+  reason       String
+  requestId    String?
+  createdAt    DateTime  @default(now())
+
+  @@index([itemKey, createdAt])
+}
+
+model UserDailyPurchase {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  itemKey   String
+  date      String   // YYYY-MM-DD
+  count     Int      @default(0)
+
+  @@unique([userId, itemKey, date])
+}
+
+model FeatureFlag {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  key         String   @unique
+  name        String
+  description String
+  enabled     Boolean  @default(true)
+  updatedBy   String?  @db.ObjectId
+  updatedAt   DateTime @updatedAt
+}
+
+model Announcement {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  message     String
+  type        String    @default("info")
+  active      Boolean   @default(true)
+  createdBy   String    @db.ObjectId
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 // ----------------------------------------------------------------------

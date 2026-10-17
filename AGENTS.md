@@ -293,3 +293,24 @@ pnpm build
 - **Prisma & Centralized Error Handler:** `core/middleware/error-handler.ts` maps Prisma `P2002` to `CONFLICT` (409) and `P2025` to `NOT_FOUND` (404), logs errors to pino and Sentry, and masks unhandled errors with 500 `INTERNAL_ERROR` without leaking stack traces.
 - **Real-Time Socket Validation:** Socket events validate incoming payloads with shared schemas and emit `"error:validation"` with structured fields or `"error"` with code and message, guarded by per-socket rate limiting.
 
+---
+
+## 18. Admin Panel & Pokémart Economy Architecture
+
+- **Role-Based Access Control:** Roles are `USER`, `MODERATOR`, and `ADMIN`.
+  - `MODERATOR`: Read/operational access to Users, Announcements, AuditLog, and Events.
+  - `ADMIN`: Full authority including Pokémart price management, bulk adjustments, Economy overview, and Feature Flags.
+  - Enforced on the server via `requireStaff` and `requireAdmin` middleware. Client-side routes and actions are guarded with `<RequireRole allowedRoles={...}>`.
+- **Pokémart Dynamic Pricing & Promotions:**
+  - Item catalog stored in MongoDB `ShopItem` with base price, optional `salePrice`, `saleStartAt`, and `saleEndAt`.
+  - The server calculates the authoritative effective price dynamically (`salePrice` during valid active window, else regular `price`).
+  - Purchases require `expectedPrice`. If the price changed while the user was browsing, the server responds with 409 `PRICE_CHANGED` containing the new price. The frontend prompts player confirmation before executing at the updated price.
+- **Audit Logging & Mandatory Reasons:**
+  - All mutating admin/staff operations (banning/unbanning users, granting currency/items, modifying shop prices, updating feature flags) create an `AuditLog` entry.
+  - A `reason` string of at least 5 characters (`SHOP_LIMITS.MIN_REASON_LENGTH`) is strictly required for every modifying action.
+- **Idempotency Safeguards:**
+  - Financial operations and grants require an `Idempotency-Key` header with distributed lock/caching safeguards to prevent double-charging or duplicate grants.
+- **Safe Price Adjustments:**
+  - Price changes exceeding 50% (`SHOP_LIMITS.EXTREME_PRICE_CHANGE_PERCENT`) require explicit confirmation (`confirmExtreme: true`).
+  - Bulk price adjustments support dry-run preview mode (`dryRun: true`) before applying changes.
+

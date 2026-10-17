@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
-import { AppError, ValidationError } from '../errors/AppError';
+import { AppError, ValidationError, PriceChangedError } from '../errors/AppError';
 import { logger } from '../../config/logger';
 
 export const errorHandler = (
@@ -17,6 +17,7 @@ export const errorHandler = (
         code: err.code,
         message: err.message,
         ...(err instanceof ValidationError && err.fields ? { fields: err.fields } : {}),
+        ...(err instanceof PriceChangedError ? { newPrice: err.newPrice, itemKey: err.itemKey } : {}),
       },
     });
   }

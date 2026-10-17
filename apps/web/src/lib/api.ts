@@ -89,11 +89,18 @@ export const shopApi = {
     const { data } = await api.get('/shop/items');
     return data.data;
   },
+  purchase: async (input: { itemKey: string; quantity: number; expectedPrice?: number }) => {
+    const idempotencyKey = crypto.randomUUID();
+    const { data } = await api.post('/shop/purchase', input, {
+      headers: { 'Idempotency-Key': idempotencyKey },
+    });
+    return data;
+  },
   buyItem: async (itemId: string, quantity: number) => {
     const { data } = await api.post('/shop/buy', { itemId, quantity });
     return data;
   },
-  buyBulk: async (items: { itemId: string, quantity: number }[]) => {
+  buyBulk: async (items: { itemId: string; quantity: number }[]) => {
     const { data } = await api.post('/shop/buy-bulk', { items });
     return data;
   },
@@ -101,7 +108,7 @@ export const shopApi = {
     const { data } = await api.post('/shop/sell', { itemId, quantity });
     return data;
   },
-  sellBulk: async (items: { itemId: string, quantity: number }[]) => {
+  sellBulk: async (items: { itemId: string; quantity: number }[]) => {
     const { data } = await api.post('/shop/sell-bulk', { items });
     return data;
   },
@@ -112,7 +119,7 @@ export const shopApi = {
   buyMove: async (moveId: number) => {
     const { data } = await api.post('/shop/moves/buy', { moveId });
     return data;
-  }
+  },
 };
 
 export const worldApi = {
