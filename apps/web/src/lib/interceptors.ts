@@ -13,12 +13,25 @@ declare module 'axios' {
   }
 }
 
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
 export function setupInterceptors() {
   apiClient.interceptors.request.use((config) => {
-    const token = useAuthStore.getState().accessToken;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     logRequest(config);
     return config;
   });
@@ -32,25 +45,45 @@ export function setupInterceptors() {
       const originalRequest = error.config;
       const url = originalRequest?.url || '';
 
+      const isAuthRoute =
+        url.includes('/auth/refresh') ||
+        url.includes('/auth/logout') ||
+        url.includes('/auth/login') ||
+        url.includes('/auth/register');
+
       const shouldAttemptRefresh =
-        error.response?.status === 401 &&
-        !originalRequest?._retry &&
-        !url.includes('/auth/refresh') &&
-        !url.includes('/auth/logout') &&
-        !url.includes('/auth/login');
+        error.response?.status === 401 && !originalRequest?._retry && !isAuthRoute;
 
       if (shouldAttemptRefresh) {
-        originalRequest._retry = true;
-        try {
-          const { data } = await apiClient.post('/auth/refresh', undefined, { silent: true });
-          useAuthStore.getState().setAuth(data.data.accessToken, data.data.user);
-          originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
-          return apiClient(originalRequest);
-        } catch (err) {
-          useAuthStore.getState().logout();
-          logErrorAndToast(err);
-          return Promise.reject(err);
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(() => apiClient(originalRequest))
+            .catch((err) => Promise.reject(err));
         }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        return new Promise((resolve, reject) => {
+          apiClient
+            .post('/auth/refresh', undefined, { silent: true })
+            .then(({ data }) => {
+              useAuthStore.getState().setUser(data.data.user);
+              processQueue(null);
+              resolve(apiClient(originalRequest));
+            })
+            .catch((err) => {
+              processQueue(err);
+              useAuthStore.getState().logout();
+              logErrorAndToast(err);
+              reject(err);
+            })
+            .finally(() => {
+              isRefreshing = false;
+            });
+        });
       }
 
       logErrorAndToast(error);

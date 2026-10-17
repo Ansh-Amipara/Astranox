@@ -123,17 +123,15 @@ Feature-based modules. Shared/cross-cutting code only in `common/`. Don't import
 
 ---
 
-## 7. Auth (current implementation)
+## 7. Auth & Sockets (Phase 1 implementation)
 
-- Passwords: bcryptjs, cost factor 12+ (swapped from native `bcrypt` due to Windows build issues — functionally equivalent, slightly slower, acceptable at this scale).
-- Access token: short-lived JWT, kept **in memory only** on the client (Zustand store), never persisted to `localStorage`.
-- Refresh token: rotated on use, stored hashed server-side, delivered to the client via an **`httpOnly` cookie** (`secure` conditional on `NODE_ENV === 'production'`, `sameSite: 'lax'`). Never in `localStorage`, never in the JSON response body.
-- CORS: `credentials: true`, origin read from config (never `*`, never hardcoded — pulled from env).
-- App boot: a silent `POST /auth/refresh` (cookie-based) rehydrates the session before rendering protected routes; failure renders the logged-out state cleanly (no retry loop).
-- `requireAuth` / `requireAdmin` middleware gate protected routes; ownership checks (a user can only access their own `TrainerSave`/`BattleSession`) are enforced at the service layer, not just via role checks.
-- Rate limiting applied to login/register/refresh.
-
-**Open item — needs a decision, not yet resolved:** a hardcoded "only one admin allowed in the system" lock was added to `admin.service.ts` at some point without being explicitly requested as a design decision. Confirm whether this is intentional or should be reverted before relying on it.
+- **Cookie auth only:** No tokens in JS-readable storage (`localStorage`, `sessionStorage`, or Zustand state). Both the short-lived access token (15m) and rotating refresh token (7d) are delivered as `httpOnly` cookies (`SameSite=Lax`, `Secure` in production, domain via env `COOKIE_DOMAIN`).
+- **Refresh Token Family & Reuse Detection:** Only SHA-256 hashes of refresh tokens are stored in MongoDB (`RefreshToken` collection with `userId`, `tokenHash`, `expiresAt`, `revokedAt`, `replacedBy`, `userAgent`, `ip`). When refreshing, tokens rotate. If a revoked token is replayed, the entire token family is immediately revoked, forcing re-login across all devices.
+- **Session Endpoints:** `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` (revokes current session), and `POST /auth/logout-all` (revokes all refresh tokens and disconnects active user sockets).
+- **CSRF Protection:** State-changing requests (`POST`, `PUT`, `PATCH`, `DELETE`) are protected via `SameSite=Lax` cookies combined with strict `Origin` header verification matching `WEB_ORIGINS`.
+- **Socket.io Authentication & Policy:** Handshake authenticates via the `accessToken` cookie. Enforces a single active socket per user (kicking superseded sessions with `SESSION_SUPERSEDED`), disconnects cleanly on token expiration, and verifies user ownership on all actions (`verifySocketOwnership`).
+- **CORS & Security:** Dynamic CORS and Socket.io origin validation against `WEB_ORIGINS` (no wildcards in production), production Helmet CSP (Cloudinary, raw GitHub sprites, WebSockets), and Express `trust proxy` enabled for ingress/k8s.
+- **Client Request Queue:** On 401, Axios queues concurrent requests behind a single silent `/auth/refresh` call, preventing loops and duplicate refresh storms.
 
 ---
 

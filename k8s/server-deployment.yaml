@@ -51,6 +51,10 @@ spec:
                   optional: true
             - name: CORS_ORIGIN
               value: "https://play.astranox.com"
+            - name: WEB_ORIGINS
+              value: "https://play.astranox.com,https://astranox.com"
+            - name: TRUST_PROXY
+              value: "1"
           resources:
             requests:
               cpu: "250m"

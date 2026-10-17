@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useRef } from 'r
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore, type AuthState } from '@/features/auth/store';
 import { notify } from './toast';
+import { api } from '@/shared/api/api';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -20,10 +21,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isConnected, setIsConnected] = useState(false);
   const wasConnectedRef = useRef(false);
 
-  const accessToken = useAuthStore((state: AuthState) => state.accessToken);
+  const isAuthenticated = useAuthStore((state: AuthState) => state.isAuthenticated);
+  const user = useAuthStore((state: AuthState) => state.user);
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!isAuthenticated || !user) {
+      if (socket) {
+        socket.disconnect();
+      }
       setSocket(null);
       setIsConnected(false);
       wasConnectedRef.current = false;
@@ -37,9 +42,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const newSocket = io(baseUrl, {
       withCredentials: true,
-      auth: {
-        token: accessToken,
-      },
+      transports: ['websocket', 'polling'],
     });
 
     setSocket(newSocket);
@@ -59,8 +62,32 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     });
 
+    // Handle token expiration: silent refresh and reconnect
+    newSocket.on('auth:token_expired', async () => {
+      try {
+        await api.post('/auth/refresh', undefined, { silent: true });
+        newSocket.connect();
+      } catch {
+        useAuthStore.getState().logout();
+      }
+    });
+
+    // Handle session supersede (one active socket per user policy)
+    newSocket.on('auth:superseded', (payload: { message?: string }) => {
+      notify.warning(payload?.message || 'You connected from another session.', {
+        id: 'socket-superseded',
+      });
+      newSocket.disconnect();
+    });
+
+    // Handle session revocation (logout-all)
+    newSocket.on('auth:revoked', (payload: { message?: string }) => {
+      notify.error(payload?.message || 'Session revoked.', { id: 'socket-revoked' });
+      useAuthStore.getState().logout();
+    });
+
     newSocket.on('connect_error', () => {
-      // Avoid spamming if server is temporarily unreachable
+      // Avoid spamming toasts on temporary disconnects
     });
 
     newSocket.on('error:validation', (payload: { message?: string; fields?: Record<string, string> }) => {
@@ -74,7 +101,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => {
       newSocket.close();
     };
-  }, [accessToken]);
+  }, [isAuthenticated, user?.id]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

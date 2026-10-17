@@ -13,6 +13,7 @@ router.post('/register', authLimiter, validate(registerRouteSchema), controller.
 router.post('/login', authLimiter, validate(loginRouteSchema), controller.login);
 router.post('/refresh', authLimiter, controller.refresh);
 router.post('/logout', requireAuth, controller.logout);
+router.post('/logout-all', requireAuth, controller.logoutAll);
 router.post('/update-profile', requireAuth, authLimiter, validate(updateProfileRouteSchema), controller.updateProfile);
 router.get('/profile', requireAuth, controller.getProfile);
 

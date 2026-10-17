@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { socketSubmitTurnSchema } from '@astranox/types';
 import { BattlesService } from './battles.service';
-import { getIO } from '../../socket';
+import { getIO, verifySocketOwnership } from '../../socket';
 import { logger } from '../../config/logger';
 
 @injectable()
@@ -12,7 +12,7 @@ export class BattlesGateway {
     const io = getIO();
 
     io.on('connection', (socket: any) => {
-      const user = socket.user;
+      const user = socket.data?.user || socket.user;
       if (!user) return;
 
       let lastTurnTimestamp = 0;
@@ -29,6 +29,11 @@ export class BattlesGateway {
             return;
           }
           lastTurnTimestamp = now;
+
+          // Verify user ownership
+          if (!verifySocketOwnership(socket, user.id)) {
+            return;
+          }
 
           // Validate payload with shared schema
           const parsed = socketSubmitTurnSchema.safeParse(data);
@@ -48,7 +53,7 @@ export class BattlesGateway {
 
           // Process the turn using the existing BattlesService
           const result = await this.battlesService.submitTurn(user.id, { action: parsed.data.action });
-          
+
           // Emit the state update back to the specific user's room
           io.to(`user:${user.id}`).emit('battle:state_update', result);
         } catch (error: any) {
@@ -59,13 +64,12 @@ export class BattlesGateway {
           });
         }
       });
-      
+
       socket.on('battle:leave', async () => {
-         logger.info(`User ${user.id} left the battle screen.`);
+        logger.info(`User ${user.id} left the battle screen.`);
       });
     });
 
     logger.info('BattlesGateway initialized');
   }
 }
-

@@ -1,5 +1,6 @@
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import type { UserPayload } from '@astranox/types';;
+import type { UserPayload } from '@astranox/types';
 import { env } from '../../config/env';
 
 const ACCESS_SECRET = env.JWT_ACCESS_SECRET;
@@ -19,4 +20,8 @@ export const verifyAccessToken = (token: string): UserPayload => {
 
 export const verifyRefreshToken = (token: string): { id: string } => {
   return jwt.verify(token, REFRESH_SECRET) as { id: string };
+};
+
+export const hashToken = (token: string): string => {
+  return crypto.createHash('sha256').update(token).digest('hex');
 };

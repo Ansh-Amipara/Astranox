@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UnauthorizedError, ForbiddenError } from '../errors/AppError';
 import { verifyAccessToken } from '../utils/jwt';
-import type { UserPayload } from '@astranox/types';;
+import type { UserPayload } from '@astranox/types';
 
 declare global {
   namespace Express {
@@ -12,19 +12,21 @@ declare global {
 }
 
 export const requireAuth = (req: Request, _res: Response, next: NextFunction) => {
+  const cookieToken = req.cookies?.accessToken;
   const authHeader = req.headers.authorization;
+  const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new UnauthorizedError('Missing or invalid authorization header'));
+  const token = cookieToken || headerToken;
+
+  if (!token) {
+    return next(new UnauthorizedError('Missing authentication token'));
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
     const decoded = verifyAccessToken(token);
     req.user = decoded;
     next();
-  } catch (err) {
+  } catch {
     return next(new UnauthorizedError('Token expired or invalid'));
   }
 };

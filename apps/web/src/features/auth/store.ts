@@ -1,31 +1,40 @@
 import { create } from 'zustand';
-import type { UserPayload } from '@astranox/types';;
+import type { UserPayload } from '@astranox/types';
 import { api } from '@/shared/api/api';
 import { getQueryClient } from '@/lib/queryClient';
 
 export interface AuthState {
-  accessToken: string | null;
   user: UserPayload | null;
+  isAuthenticated: boolean;
   isInitialized: boolean;
-  setAuth: (token: string, user: UserPayload) => void;
+  // accessToken kept as null for type compatibility with any legacy read
+  accessToken?: string | null;
+  setUser: (user: UserPayload | null) => void;
+  setAuth: (userOrToken: string | UserPayload, maybeUser?: UserPayload) => void;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
   user: null,
+  isAuthenticated: false,
   isInitialized: false,
+  accessToken: null,
 
-  setAuth: (token, user) => set({ accessToken: token, user, isInitialized: true }),
+  setUser: (user) => set({ user, isAuthenticated: !!user, isInitialized: true, accessToken: null }),
+
+  setAuth: (userOrToken, maybeUser) => {
+    const user = typeof userOrToken === 'string' ? maybeUser || null : userOrToken;
+    set({ user, isAuthenticated: !!user, isInitialized: true, accessToken: null });
+  },
 
   logout: async () => {
     try {
       await api.post('/auth/logout');
-    } catch (e) {
+    } catch {
       // Ignore network errors on logout
     } finally {
-      set({ accessToken: null, user: null, isInitialized: true });
+      set({ user: null, isAuthenticated: false, isInitialized: true, accessToken: null });
       getQueryClient().clear();
     }
   },
@@ -33,14 +42,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   initialize: async () => {
     try {
       const { data } = await api.post('/auth/refresh', undefined, { silent: true });
-      set({ 
-        accessToken: data.data.accessToken, 
+      set({
         user: data.data.user,
-        isInitialized: true 
+        isAuthenticated: true,
+        isInitialized: true,
+        accessToken: null,
       });
     } catch {
-      // AGENTS.md Rule 7: failure renders the logged-out state cleanly (no retry loop)
-      set({ accessToken: null, user: null, isInitialized: true });
+      // Failure renders the logged-out state cleanly (no retry loop)
+      set({ user: null, isAuthenticated: false, isInitialized: true, accessToken: null });
     }
   },
 }));

@@ -20,9 +20,9 @@ import { beforeAll, afterAll, beforeEach } from 'vitest';
 export const clearDatabase = async () => {
   // Clear all collections safely
   const collections = [
+    prismaTest.refreshToken.deleteMany(),
     prismaTest.trainerSave.deleteMany(),
     prismaTest.user.deleteMany()
-    // add others if needed, but for auth/trainers we mainly need these
   ];
   await prismaTest.$transaction(collections);
 };

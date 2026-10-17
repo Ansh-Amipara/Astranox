@@ -1,10 +1,6 @@
 import { injectable } from 'tsyringe';
-
-import type { User } from '@prisma/client';
+import type { User, RefreshToken } from '@prisma/client';
 import { prisma } from '../../core/db/prisma';
-
-
-
 
 @injectable()
 export class AuthRepository {
@@ -33,5 +29,47 @@ export class AuthRepository {
       data,
     });
   }
-}
 
+  async createRefreshToken(data: {
+    userId: string;
+    tokenHash: string;
+    expiresAt: Date;
+    userAgent?: string;
+    ip?: string;
+  }): Promise<RefreshToken> {
+    return prisma.refreshToken.create({
+      data: {
+        ...data,
+        revokedAt: null,
+      },
+    });
+  }
+
+  async findRefreshTokenByHash(tokenHash: string): Promise<(RefreshToken & { user: User }) | null> {
+    return prisma.refreshToken.findUnique({
+      where: { tokenHash },
+      include: { user: true },
+    });
+  }
+
+  async revokeRefreshToken(id: string, replacedBy?: string): Promise<RefreshToken> {
+    return prisma.refreshToken.update({
+      where: { id },
+      data: {
+        revokedAt: new Date(),
+        replacedBy,
+      },
+    });
+  }
+
+  async revokeAllUserRefreshTokens(userId: string): Promise<{ count: number }> {
+    return prisma.refreshToken.updateMany({
+      where: {
+        userId,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+  }
+}

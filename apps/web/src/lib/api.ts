@@ -13,7 +13,11 @@ declare module 'axios' {
   }
 }
 
-export const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? `http://${window.location.hostname}:4005` : 'http://localhost:4005');
+export const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined'
+    ? `http://${window.location.hostname}:4005`
+    : 'http://localhost:4005');
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -22,14 +26,26 @@ export const api = axios.create({
 
 export { getSpriteUrl } from './axios';
 
+// Singleton refresh state and queue
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
   logRequest(config);
-
   return config;
 });
 
@@ -42,24 +58,45 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const url = originalRequest?.url || '';
 
-    const isRetryable401 = error.response?.status === 401 && !originalRequest?._retry && !url.includes('/auth/refresh') && !url.includes('/auth/logout') && !url.includes('/auth/login');
+    const isAuthRoute =
+      url.includes('/auth/refresh') ||
+      url.includes('/auth/logout') ||
+      url.includes('/auth/login') ||
+      url.includes('/auth/register');
+
+    const isRetryable401 =
+      error.response?.status === 401 && !originalRequest?._retry && !isAuthRoute;
 
     if (isRetryable401) {
-      originalRequest._retry = true;
-      try {
-        const { data } = await axios.post(
-          `${api.defaults.baseURL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-        useAuthStore.getState().setAuth(data.data.accessToken, data.data.user);
-
-        originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
-        return api(originalRequest);
-      } catch (err) {
-        useAuthStore.getState().logout();
-        return Promise.reject(err);
+      if (isRefreshing) {
+        // Queue concurrent requests while a refresh is in-flight
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
       }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      return new Promise((resolve, reject) => {
+        axios
+          .post(`${API_URL}/auth/refresh`, {}, { withCredentials: true })
+          .then(({ data }) => {
+            useAuthStore.getState().setUser(data.data.user);
+            processQueue(null);
+            resolve(api(originalRequest));
+          })
+          .catch((refreshError) => {
+            processQueue(refreshError);
+            useAuthStore.getState().logout();
+            reject(refreshError);
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
+      });
     }
 
     logErrorAndToast(error);
@@ -81,7 +118,7 @@ export const trainerApi = {
   getMe: async () => {
     const { data } = await api.get('/trainers/me');
     return data.data;
-  }
+  },
 };
 
 export const shopApi = {
@@ -138,7 +175,7 @@ export const worldApi = {
   getProgress: async () => {
     const { data } = await api.get('/world/progress');
     return data.data;
-  }
+  },
 };
 
 export const battleApi = {
@@ -146,10 +183,10 @@ export const battleApi = {
     const { data } = await api.post('/battles/turn', { action: 'run' });
     return data.data;
   },
-  engageCustomBattle: async (params: { speciesId: number, level: number, battleType?: string }) => {
+  engageCustomBattle: async (params: { speciesId: number; level: number; battleType?: string }) => {
     const { data } = await api.post('/battles/engage-custom', params);
     return data.data;
-  }
+  },
 };
 
 export const pokedexApi = {

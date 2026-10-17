@@ -10,7 +10,10 @@ const envSchema = z.object({
   JWT_ACCESS_SECRET: z.string().min(16),
   JWT_REFRESH_SECRET: z.string().min(16),
   REDIS_URL: z.string().url().default('redis://localhost:6379'),
-  CORS_ORIGIN: z.string().url().or(z.literal('true')),
+  CORS_ORIGIN: z.string().url().or(z.literal('true')).optional(),
+  WEB_ORIGINS: z.string().default('http://localhost:5173,http://localhost:4001'),
+  COOKIE_DOMAIN: z.string().optional(),
+  TRUST_PROXY: z.string().default('1'),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
@@ -28,4 +31,14 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
+const rawOrigins = parsed.data.WEB_ORIGINS 
+  ? parsed.data.WEB_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+  : [];
+if (parsed.data.CORS_ORIGIN && parsed.data.CORS_ORIGIN !== 'true' && !rawOrigins.includes(parsed.data.CORS_ORIGIN)) {
+  rawOrigins.push(parsed.data.CORS_ORIGIN);
+}
+
+export const env = {
+  ...parsed.data,
+  allowedOrigins: rawOrigins,
+};

@@ -9,7 +9,7 @@ initSentry();
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { ASTRANOX_VERSION } from '@astranox/constants';;
+import { ASTRANOX_VERSION } from '@astranox/constants';
 import cookieParser from 'cookie-parser';
 
 import { authRoutes } from './modules/auth/auth.routes';
@@ -26,20 +26,75 @@ import towerRoutes from './modules/tower/tower.routes';
 import { riftRoutes } from './modules/rift/rift.routes';
 import exploreRoutes from './modules/explore/explore.routes';
 import { errorHandler } from './core/middleware/error-handler';
+import { ForbiddenError } from './core/errors/AppError';
 import { httpLogger } from './core/middleware/http-logger';
+import { verifyCsrf } from './core/middleware/csrf';
 import { marketplaceRoutes } from './modules/marketplace/marketplace.routes';
 import eventsRoutes from './modules/events/events.routes';
 
 const app = express();
 
+// Configure trust proxy for ingress / load balancers
+app.set('trust proxy', env.TRUST_PROXY === 'true' ? true : Number(env.TRUST_PROXY) || 1);
+
 // The request handler must be the first middleware on the app
 Sentry.setupExpressErrorHandler(app);
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(cors({ origin: env.CORS_ORIGIN === 'true' ? true : env.CORS_ORIGIN, credentials: true }));
+// Content Security Policy & Security Headers via Helmet
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'blob:',
+          'https://res.cloudinary.com',
+          'https://raw.githubusercontent.com',
+        ],
+        connectSrc: [
+          "'self'",
+          ...env.allowedOrigins,
+          'ws:',
+          'wss:',
+        ],
+        fontSrc: ["'self'", 'https:', 'data:'],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+      },
+    },
+  })
+);
+
+// Dynamic CORS configuration
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      const isAllowed = env.allowedOrigins.some(
+        (allowed) => allowed === origin || allowed === '*'
+      );
+      if (isAllowed) {
+        return callback(null, true);
+      }
+      return callback(new ForbiddenError(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'X-Request-Id'],
+    exposedHeaders: ['X-Request-Id'],
+  })
+);
+
 app.use(httpLogger);
 app.use(express.json());
 app.use(cookieParser());
+app.use(verifyCsrf);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', version: ASTRANOX_VERSION });
@@ -67,8 +122,8 @@ app.use('*', (req, res) => {
     success: false,
     error: {
       code: 'NOT_FOUND',
-      message: `Cannot ${req.method} ${req.originalUrl}`
-    }
+      message: `Cannot ${req.method} ${req.originalUrl}`,
+    },
   });
 });
 

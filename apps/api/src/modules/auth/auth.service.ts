@@ -5,8 +5,14 @@ import type { LoginDto } from './dto/request/LoginDto';
 import type { RegisterDto } from './dto/request/RegisterDto';
 import type { AuthResultDto } from './dto/response/LoginResponseDto';
 import { AuthMapper } from './dto/mapper';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../core/utils/jwt';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  hashToken,
+} from '../../core/utils/jwt';
 import { ValidationError, UnauthorizedError } from '../../core/errors/AppError';
+import { logger } from '../../config/logger';
 
 @injectable()
 export class AuthService {
@@ -19,7 +25,7 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(input.password, 12);
-    
+
     await this.repo.createUser({
       username: input.username,
       email: input.email,
@@ -29,7 +35,10 @@ export class AuthService {
     return { message: 'User registered successfully' };
   }
 
-  async login(input: LoginDto): Promise<AuthResultDto> {
+  async login(
+    input: LoginDto,
+    meta?: { userAgent?: string; ip?: string }
+  ): Promise<AuthResultDto> {
     const user = await this.repo.findByUsername(input.username);
     if (!user) {
       throw new UnauthorizedError('Invalid credentials');
@@ -41,12 +50,20 @@ export class AuthService {
     }
 
     const userDto = AuthMapper.toUserDto(user);
-
     const accessToken = generateAccessToken(userDto);
     const refreshToken = generateRefreshToken(user.id);
-    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    const tokenHash = hashToken(refreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    await this.repo.updateRefreshToken(user.id, refreshTokenHash);
+    await this.repo.createRefreshToken({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+      userAgent: meta?.userAgent,
+      ip: meta?.ip,
+    });
+
+    await this.repo.updateRefreshToken(user.id, tokenHash);
 
     return {
       auth: { accessToken, user: userDto },
@@ -54,55 +71,123 @@ export class AuthService {
     };
   }
 
-  async refresh(token: string): Promise<AuthResultDto> {
+  async refresh(
+    token: string,
+    meta?: { userAgent?: string; ip?: string }
+  ): Promise<AuthResultDto> {
+    let decoded: { id: string };
     try {
-      const decoded = verifyRefreshToken(token);
-      const user = await this.repo.findById(decoded.id);
-      
-      if (!user || !user.refreshTokenHash) {
-        throw new UnauthorizedError('Invalid refresh token');
-      }
+      decoded = verifyRefreshToken(token);
+    } catch {
+      throw new UnauthorizedError('Invalid or expired refresh token');
+    }
 
-      const isValid = await bcrypt.compare(token, user.refreshTokenHash);
-      if (!isValid) {
+    const tokenHash = hashToken(token);
+    const storedToken = await this.repo.findRefreshTokenByHash(tokenHash);
+
+    if (!storedToken) {
+      // Fallback for legacy user.refreshTokenHash
+      const user = await this.repo.findById(decoded.id);
+      if (!user || user.refreshTokenHash !== tokenHash) {
         throw new UnauthorizedError('Invalid refresh token');
       }
 
       const userDto = AuthMapper.toUserDto(user);
-
       const accessToken = generateAccessToken(userDto);
       const newRefreshToken = generateRefreshToken(user.id);
-      const refreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
+      const newTokenHash = hashToken(newRefreshToken);
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-      await this.repo.updateRefreshToken(user.id, refreshTokenHash);
+      await this.repo.createRefreshToken({
+        userId: user.id,
+        tokenHash: newTokenHash,
+        expiresAt,
+        userAgent: meta?.userAgent,
+        ip: meta?.ip,
+      });
+      await this.repo.updateRefreshToken(user.id, newTokenHash);
 
       return {
         auth: { accessToken, user: userDto },
         refreshToken: newRefreshToken,
       };
-    } catch (err) {
-      throw new UnauthorizedError('Invalid refresh token');
+    }
+
+    // Reuse detection: if a revoked token is reused, revoke the whole family
+    if (storedToken.revokedAt) {
+      logger.warn(
+        `🚨 Refresh token reuse detected for user ${storedToken.userId}! Revoking all sessions.`
+      );
+      await this.repo.revokeAllUserRefreshTokens(storedToken.userId);
+      await this.repo.updateRefreshToken(storedToken.userId, null);
+      throw new UnauthorizedError('Token reuse detected. All sessions revoked.');
+    }
+
+    if (storedToken.expiresAt < new Date()) {
+      await this.repo.revokeRefreshToken(storedToken.id);
+      throw new UnauthorizedError('Refresh token expired');
+    }
+
+    const user = storedToken.user;
+    const userDto = AuthMapper.toUserDto(user);
+    const accessToken = generateAccessToken(userDto);
+    const newRefreshToken = generateRefreshToken(user.id);
+    const newTokenHash = hashToken(newRefreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    // Rotate: revoke current and link to new
+    await this.repo.revokeRefreshToken(storedToken.id, newTokenHash);
+
+    await this.repo.createRefreshToken({
+      userId: user.id,
+      tokenHash: newTokenHash,
+      expiresAt,
+      userAgent: meta?.userAgent,
+      ip: meta?.ip,
+    });
+    await this.repo.updateRefreshToken(user.id, newTokenHash);
+
+    return {
+      auth: { accessToken, user: userDto },
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  async logout(token?: string, userId?: string): Promise<void> {
+    if (token) {
+      const tokenHash = hashToken(token);
+      const storedToken = await this.repo.findRefreshTokenByHash(tokenHash);
+      if (storedToken) {
+        await this.repo.revokeRefreshToken(storedToken.id);
+      }
+    }
+    if (userId) {
+      await this.repo.updateRefreshToken(userId, null);
     }
   }
 
-  async logout(userId: string): Promise<void> {
+  async logoutAll(userId: string): Promise<void> {
+    await this.repo.revokeAllUserRefreshTokens(userId);
     await this.repo.updateRefreshToken(userId, null);
   }
 
-  async updateProfile(userId: string, input: { username: string }): Promise<{ accessToken: string, user: any }> {
+  async updateProfile(
+    userId: string,
+    input: { username: string }
+  ): Promise<{ accessToken: string; user: any }> {
     const existing = await this.repo.findByUsername(input.username);
     if (existing && existing.id !== userId) {
       throw new ValidationError('Username is already taken');
     }
-    
+
     try {
       const updatedUser = await this.repo.updateProfile(userId, input);
       const userDto = AuthMapper.toUserDto(updatedUser);
       const accessToken = generateAccessToken(userDto);
-      
+
       return { accessToken, user: userDto };
     } catch (err: any) {
-      if (err.code === 'P2002') { // Prisma unique constraint violation
+      if (err.code === 'P2002') {
         throw new ValidationError('Username is already taken');
       }
       throw err;
