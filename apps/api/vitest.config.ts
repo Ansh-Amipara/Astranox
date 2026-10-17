@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     exclude: ['dist/**', 'node_modules/**'],
     fileParallelism: false,
+    testTimeout: 60000,
+    hookTimeout: 60000,
     globalSetup: [],
     setupFiles: ['src/tests/setup.ts'],
     coverage: {

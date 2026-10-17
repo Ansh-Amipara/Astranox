@@ -173,6 +173,24 @@ export class TradesService {
         data: { status: TradeStatus.CANCELLED }
       });
 
+      // Record AuditLog
+      await tx.auditLog.create({
+        data: {
+          actorId: receiverTrainer.userId,
+          actorType: 'user',
+          action: 'TRADE_COMPLETED',
+          entityType: 'TRADE_REQUEST',
+          entityId: tradeId,
+          reason: `Trade accepted between initiator ${trade.initiatorId} and receiver ${trade.receiverId}`,
+          meta: {
+            initiatorTrainerId: trade.initiatorId,
+            receiverTrainerId: trade.receiverId,
+            offeredPokemonId: trade.offeredPokemonId,
+            requestedPokemonId: trade.requestedPokemonId,
+          },
+        },
+      });
+
       return { success: true };
     });
   }

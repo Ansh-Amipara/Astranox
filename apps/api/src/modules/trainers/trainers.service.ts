@@ -11,6 +11,7 @@ import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 import type { BoostPotentialDto } from './dto/request/BoostPotentialDto';
 import type { BoostIvDto } from './dto/request/BoostIvDto';
 import { PokemonPotential } from '@prisma/client';
+import { ECONOMY_CONSTANTS, RANK_ORDER } from '@astranox/constants';
 
 // Allowed pseudo-legendaries
 const ALLOWED_STARTER_IDS = [
@@ -149,16 +150,10 @@ export class TrainersService {
     }
 
     // Calculate XP reward
-    const xpReward = Math.floor(pokemonToSmelt.currentXp * 0.60);
+    const xpReward = Math.floor(pokemonToSmelt.currentXp * ECONOMY_CONSTANTS.SMELT_XP_RATIO);
 
     // Calculate Pearl rewards
-    const potentialOrder = [
-      'F', 'E', 'D', 'C', 'B', 'A',
-      'S_MINUS', 'S', 'S_PLUS',
-      'SS_MINUS', 'SS', 'SS_PLUS',
-      'SSS_MINUS', 'SSS', 'SSS_PLUS',
-      'EX'
-    ];
+    const potentialOrder = RANK_ORDER;
     
     // The specific pearl mapping logic used in the game DB
     const getPearlItemId = (potential: string) => {

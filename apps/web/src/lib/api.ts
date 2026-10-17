@@ -134,19 +134,27 @@ export const shopApi = {
     return data;
   },
   buyItem: async (itemId: string, quantity: number) => {
-    const { data } = await api.post('/shop/buy', { itemId, quantity });
+    const { data } = await api.post('/shop/buy', { itemId, quantity }, {
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+    });
     return data;
   },
   buyBulk: async (items: { itemId: string; quantity: number }[]) => {
-    const { data } = await api.post('/shop/buy-bulk', { items });
+    const { data } = await api.post('/shop/buy-bulk', { items }, {
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+    });
     return data;
   },
   sellItem: async (itemId: string, quantity: number) => {
-    const { data } = await api.post('/shop/sell', { itemId, quantity });
+    const { data } = await api.post('/shop/sell', { itemId, quantity }, {
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+    });
     return data;
   },
   sellBulk: async (items: { itemId: string; quantity: number }[]) => {
-    const { data } = await api.post('/shop/sell-bulk', { items });
+    const { data } = await api.post('/shop/sell-bulk', { items }, {
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+    });
     return data;
   },
   getMoves: async () => {
@@ -154,7 +162,9 @@ export const shopApi = {
     return data.data;
   },
   buyMove: async (moveId: number) => {
-    const { data } = await api.post('/shop/moves/buy', { moveId });
+    const { data } = await api.post('/shop/moves/buy', { moveId }, {
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+    });
     return data;
   },
 };

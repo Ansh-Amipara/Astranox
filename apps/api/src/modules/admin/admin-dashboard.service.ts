@@ -38,11 +38,19 @@ export class AdminDashboardService {
       }),
     ]);
 
-    const adminIds = Array.from(new Set(recentActions.map((a) => a.adminId)));
-    const adminUsers = await prisma.user.findMany({
-      where: { id: { in: adminIds } },
-      select: { id: true, username: true },
-    });
+    const adminIds = Array.from(
+      new Set(
+        recentActions
+          .map((a) => (a as any).actorId || a.adminId)
+          .filter((id): id is string => typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id))
+      )
+    );
+    const adminUsers = adminIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: adminIds } },
+          select: { id: true, username: true },
+        })
+      : [];
     const adminMap = new Map(adminUsers.map((u) => [u.id, u.username]));
 
     const stats: AdminStatsDto = {
@@ -60,20 +68,23 @@ export class AdminDashboardService {
         { itemKey: 'ultra-ball', name: 'Ultra Ball', totalPurchased: 88, totalVolume: 704000 },
         { itemKey: 'orb', name: 'IV Orb', totalPurchased: 34, totalVolume: 8500000 },
       ],
-      recentActions: recentActions.map((a) => ({
-        id: a.id,
-        adminId: a.adminId,
-        adminUsername: adminMap.get(a.adminId) || 'Staff',
-        action: a.action,
-        entityType: a.entityType,
-        entityId: a.entityId,
-        reason: a.reason,
-        requestId: a.requestId,
-        beforeValues: a.beforeValues,
-        afterValues: a.afterValues,
-        ipAddress: a.ipAddress,
-        createdAt: a.createdAt.toISOString(),
-      })),
+      recentActions: recentActions.map((a) => {
+        const actor = a.adminId || (a as any).actorId;
+        return {
+          id: a.id,
+          adminId: actor || null,
+          adminUsername: (actor ? adminMap.get(actor) : undefined) || 'Staff',
+          action: a.action,
+          entityType: a.entityType,
+          entityId: a.entityId,
+          reason: a.reason,
+          requestId: a.requestId,
+          beforeValues: a.beforeValues,
+          afterValues: a.afterValues,
+          ipAddress: a.ipAddress,
+          createdAt: a.createdAt.toISOString(),
+        };
+      }),
     };
 
     await this.cache.set(this.CACHE_KEY, stats, this.TTL_SECONDS);

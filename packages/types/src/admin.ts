@@ -127,7 +127,7 @@ export interface AdminStatsDto {
 
 export interface AuditLogDto {
   id: string;
-  adminId: string;
+  adminId?: string | null;
   adminUsername?: string;
   action: string;
   entityType: string;

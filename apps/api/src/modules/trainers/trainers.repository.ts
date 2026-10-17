@@ -2,6 +2,7 @@ import { injectable } from 'tsyringe';
 import { PrismaClient, TrainerSave, PokemonPotential } from '@prisma/client';
 import { ValidationError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
+import { getXpForLevel } from '@astranox/constants';
 
 
 
@@ -53,7 +54,6 @@ export class TrainersRepository {
   }
 
   async setStarter(trainerId: string, speciesId: number): Promise<TrainerSave> {
-    const { getXpForLevel } = require('../../game/battle/level-math');
     return prisma.$transaction(async (tx) => {
       const starter = await tx.ownedPokemon.create({
         data: {

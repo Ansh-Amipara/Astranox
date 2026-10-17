@@ -63,13 +63,24 @@ export class AuthRepository {
   }
 
   async revokeAllUserRefreshTokens(userId: string): Promise<{ count: number }> {
-    return prisma.refreshToken.updateMany({
-      where: {
-        userId,
-      },
-      data: {
-        revokedAt: new Date(),
-      },
-    });
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        return await prisma.refreshToken.updateMany({
+          where: {
+            userId,
+            revokedAt: null,
+          },
+          data: {
+            revokedAt: new Date(),
+          },
+        });
+      } catch (err) {
+        retries--;
+        if (retries === 0) throw err;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
+    return { count: 0 };
   }
 }

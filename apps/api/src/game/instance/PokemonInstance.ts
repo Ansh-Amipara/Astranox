@@ -1,37 +1,16 @@
 import { PokemonInstancePayload, PokemonInstance } from './types';
 import { calculateHP, calculateStat } from '../battle/stats';
 import { calculatePokemonCP } from './cp';
+import {
+  getMaxLevelForPotential,
+  RANK_ORDER,
+  BATTLE_CONSTANTS,
+} from '@astranox/constants';
 
-export function getMaxLevelForPotential(potential: string): number {
-  switch (potential) {
-    case 'F': return 25;
-    case 'E': return 50;
-    case 'D': return 75;
-    case 'C': return 100;
-    case 'B': return 150;
-    case 'A': return 200;
-    case 'S_MINUS': return 300;
-    case 'S': return 350;
-    case 'S_PLUS': return 400;
-    case 'SS_MINUS': return 500;
-    case 'SS': return 600;
-    case 'SS_PLUS': return 700;
-    case 'SSS_MINUS': return 800;
-    case 'SSS': return 900;
-    case 'SSS_PLUS': return 1000;
-    case 'EX': return 5000;
-    default: return 5000;
-  }
-}
+export { getMaxLevelForPotential };
 
 export function getMinPotentialForLevel(level: number, minTier: string = 'F'): string {
-  const tiers = [
-    'F', 'E', 'D', 'C', 'B', 'A',
-    'S_MINUS', 'S', 'S_PLUS',
-    'SS_MINUS', 'SS', 'SS_PLUS',
-    'SSS_MINUS', 'SSS', 'SSS_PLUS',
-    'EX'
-  ];
+  const tiers = RANK_ORDER;
 
   let requiredTierIndex = tiers.length - 1;
   for (let i = 0; i < tiers.length; i++) {
@@ -41,7 +20,7 @@ export function getMinPotentialForLevel(level: number, minTier: string = 'F'): s
     }
   }
 
-  const minTierIndex = tiers.indexOf(minTier);
+  const minTierIndex = (tiers as readonly string[]).indexOf(minTier);
   return tiers[Math.max(requiredTierIndex, Math.max(0, minTierIndex))];
 }
 

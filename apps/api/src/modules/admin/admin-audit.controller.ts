@@ -58,27 +58,38 @@ export class AdminAuditController {
         }),
       ]);
 
-      const adminIds = Array.from(new Set(logs.map((l) => l.adminId)));
-      const admins = await prisma.user.findMany({
-        where: { id: { in: adminIds } },
-        select: { id: true, username: true },
-      });
+      const adminIds = Array.from(
+        new Set(
+          logs
+            .map((l) => (l as any).actorId || l.adminId)
+            .filter((id): id is string => typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id))
+        )
+      );
+      const admins = adminIds.length > 0
+        ? await prisma.user.findMany({
+            where: { id: { in: adminIds } },
+            select: { id: true, username: true },
+          })
+        : [];
       const adminMap = new Map(admins.map((a) => [a.id, a.username]));
 
-      const items = logs.map((l) => ({
-        id: l.id,
-        adminId: l.adminId,
-        adminUsername: adminMap.get(l.adminId) || 'Staff',
-        action: l.action,
-        entityType: l.entityType,
-        entityId: l.entityId,
-        reason: l.reason,
-        requestId: l.requestId,
-        beforeValues: l.beforeValues,
-        afterValues: l.afterValues,
-        ipAddress: l.ipAddress,
-        createdAt: l.createdAt.toISOString(),
-      }));
+      const items = logs.map((l) => {
+        const actor = l.adminId || (l as any).actorId;
+        return {
+          id: l.id,
+          adminId: actor || null,
+          adminUsername: (actor ? adminMap.get(actor) : undefined) || 'Staff',
+          action: l.action,
+          entityType: l.entityType,
+          entityId: l.entityId,
+          reason: l.reason,
+          requestId: l.requestId,
+          beforeValues: l.beforeValues,
+          afterValues: l.afterValues,
+          ipAddress: l.ipAddress,
+          createdAt: l.createdAt.toISOString(),
+        };
+      });
 
       res.json({
         success: true,

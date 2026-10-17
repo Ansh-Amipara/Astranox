@@ -2,6 +2,7 @@ import { injectable } from 'tsyringe';
 import { PokemonPotential } from '@prisma/client';
 import crypto from 'crypto';
 import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
+import { getXpForLevel } from '@astranox/constants';
 import { toActivePokemon } from '../../battles/services/battle-session.service';
 import { NotFoundError } from '../../../core/errors/AppError';
 import { prisma } from '../../../core/db/prisma';
@@ -107,8 +108,6 @@ export class PokemonGeneratorService {
       type: m.move.type.name
     }));
 
-    const { getXpForLevel } = require('../../../game/battle/level-math');
-    
     const wildInstance = createPokemonInstance({
       id: crypto.randomUUID(),
       nickname: species.name,

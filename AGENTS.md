@@ -312,3 +312,17 @@ pnpm build
   - Price changes exceeding 50% (`SHOP_LIMITS.EXTREME_PRICE_CHANGE_PERCENT`) require explicit confirmation (`confirmExtreme: true`).
   - Bulk price adjustments support dry-run preview mode (`dryRun: true`) before applying changes.
 
+---
+
+## 19. Game Integrity, Idempotency & Balance Architecture
+
+- **Cookie Auth Only:** No tokens in JS-readable storage (`localStorage`, `sessionStorage`, or client state). Both access tokens (15m) and refresh tokens (7d) are delivered as `httpOnly` cookies.
+- **Idempotency on Mutations:** Every mutation of currency or items (purchases, trades, rewards, claims, shop sell, admin grants) strictly requires an `Idempotency-Key` header with distributed lock and MongoDB `IdempotencyKey` caching safeguards.
+- **Immutable Audit Logging:** Every mutating transaction (currency changes, item grants/removals, purchases, trades, admin actions, bans, feature flag updates) writes an append-only `AuditLog` entry inside the transaction.
+- **Game Balance Centralization:** Balance numbers, formulas, and thresholds live ONLY in `@astranox/constants` (`battle`, `catch`, `progression`, `economy`, `limits`). Never inline magic numbers in pages or services.
+- **Guarded Balances:** Balances and quantities can never go negative. Enforce conditional balance checks inside transactional boundaries (`prisma.$transaction`).
+- **Data Versioning & Migrations:** Game-balance-dependent documents (`TrainerSave`, `OwnedPokemon`, `InventoryItem`, `BattleSession`, `ShopItem`) carry a `dataVersion` integer tracking `CURRENT_DATA_VERSION`. Migrations run sequentially via `pnpm --filter api migrate:data` and support in-memory `migrateOnRead` fallback.
+- **Virtualized Lists:** Every list potentially exceeding 50 items must be virtualized using `@tanstack/react-virtual`.
+- **Comprehensive Screen States:** Every data-fetching screen must explicitly render loading, empty, error, and offline states.
+- **Feature Flags:** All risky or newly introduced features must be guarded behind `FeatureFlagService` and `requireFeatureFlag` middleware.
+

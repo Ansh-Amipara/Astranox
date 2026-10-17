@@ -210,7 +210,7 @@ describe('Admin & Pokémart Shop Integration Suite', () => {
     });
 
     it('handles idempotent replay without double-charging funds', async () => {
-      const idempotencyKey = 'idemp-replay-unique-12345';
+      const idempotencyKey = crypto.randomUUID();
 
       // First purchase of 1 ball (cost 1000, initial 5000)
       const res1 = await request(app)

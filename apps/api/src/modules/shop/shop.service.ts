@@ -4,7 +4,7 @@ import { AppError, NotFoundError, BadRequestError, PriceChangedError, ForbiddenE
 import { RedisLockService } from '../../core/services/redis-lock.service';
 import { CacheService } from '../../core/services/cache.service';
 import { FeatureFlagService } from '../../core/services/feature-flag.service';
-import { DEFAULT_SHOP_CATALOG } from '@astranox/constants';
+import { DEFAULT_SHOP_CATALOG, ECONOMY_CONSTANTS } from '@astranox/constants';
 import type { ShopItemDto, PurchaseShopItemInput, BuyItemInput, BuyBulkInput, BuyMoveInput } from '@astranox/types';
 import { TrainerMapper } from '../trainers/dto/mapper';
 
@@ -389,8 +389,8 @@ export class ShopService {
     }
 
     const shopItem = await prisma.shopItem.findUnique({ where: { key: itemId } });
-    const unitCost = shopItem ? shopItem.price : 100;
-    const unitPayout = Math.floor(unitCost * 0.75);
+    const unitCost = shopItem ? shopItem.price : ECONOMY_CONSTANTS.DEFAULT_SHOP_ITEM_COST;
+    const unitPayout = Math.floor(unitCost * ECONOMY_CONSTANTS.SHOP_SELL_PRICE_RATIO);
     const totalPayout = unitPayout * quantity;
 
     const [updatedTrainer] = await prisma.$transaction([

@@ -94,6 +94,7 @@ model TrainerSave {
   infinityCoins   Int       @default(0)
   storedXp        Int       @default(0)
   rank            TrainerRank @default(F)
+  dataVersion     Int       @default(1)
 
   party        OwnedPokemon[]
   inventory    InventoryItem[]
@@ -159,7 +160,8 @@ model OwnedPokemon {
   tradeListings TradeListing[] @relation("ListingPokemon")
   escrowOffers  EscrowOfferPokemon[] @relation("OfferedPokemon")
 
-  createdAt DateTime @default(now())
+  dataVersion Int      @default(1)
+  createdAt   DateTime @default(now())
 
   @@index([trainerId, isParty])
   @@index([trainerId, isEscrowed])
@@ -227,7 +229,8 @@ model InventoryItem {
   itemId String
   item   Item   @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  quantity Int @default(0)
+  quantity    Int @default(0)
+  dataVersion Int @default(1)
 
   @@unique([trainerId, itemId])
 }
@@ -341,8 +344,9 @@ model BattleSession {
 
   log Json? // Array of TurnEvent
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  dataVersion Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([trainerId, status])
   @@index([status, battleType])
@@ -350,19 +354,51 @@ model BattleSession {
 
 model AuditLog {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  adminId      String   @db.ObjectId
+  actorId      String?  @db.ObjectId
+  actorType    String   @default("user") // "user" | "system" | "admin"
   action       String
   entityType   String
   entityId     String?
   reason       String?
+  before       Json?
+  after        Json?
+  meta         Json?
   requestId    String?
+  ip           String?
+  createdAt    DateTime @default(now())
+
+  // Backward compatibility fields for existing admin queries
+  adminId      String?  @db.ObjectId
   beforeValues Json?
   afterValues  Json?
   ipAddress    String?
-  createdAt    DateTime @default(now())
 
+  @@index([actorId, createdAt])
   @@index([adminId, createdAt])
   @@index([entityType, entityId])
+  @@index([requestId])
+}
+
+model IdempotencyKey {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  key            String
+  userId         String    @db.ObjectId
+  route          String
+  requestHash    String
+  status         String    @default("processing") // "processing" | "completed"
+  responseStatus Int?
+  responseBody   Json?
+  createdAt      DateTime  @default(now())
+
+  @@unique([userId, key])
+  @@index([createdAt])
+}
+
+model MigrationRun {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  batch     Int
+  appliedAt DateTime @default(now())
 }
 
 model ShopItem {

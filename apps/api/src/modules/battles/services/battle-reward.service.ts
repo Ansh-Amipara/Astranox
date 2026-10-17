@@ -1,5 +1,6 @@
 import { injectable } from 'tsyringe';
 import { Prisma, BattleStatus } from '@prisma/client';
+import { getExpYield, getLevelFromXp, getXpForLevel, getMaxLevelForPotential } from '@astranox/constants';
 
 @injectable()
 export class BattleRewardService {
@@ -10,8 +11,6 @@ export class BattleRewardService {
     battleType?: string,
     trainerId?: string
   ): Promise<{ newStatus?: BattleStatus }> {
-    const { getExpYield, getLevelFromXp, getXpForLevel } = require('../../../game/battle/level-math');
-    const { getMaxLevelForPotential } = require('../../../game/instance/PokemonInstance');
     let newStatus: BattleStatus | undefined = undefined;
 
     let xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);

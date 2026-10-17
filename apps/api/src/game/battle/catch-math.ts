@@ -1,4 +1,9 @@
 import { StatusAilment } from '../battle-state/types';
+import {
+  CATCH_CONSTANTS,
+  getBallBonusMultiplier,
+  getStatusBonusMultiplier,
+} from '@astranox/constants';
 
 export interface CatchParams {
   maxHp: number;
@@ -22,37 +27,36 @@ export function calculateCatchResult(params: CatchParams, rngOverrides?: number[
   const { maxHp, currentHp, catchRate, ballBonus, status } = params;
 
   // Master Ball is a guaranteed catch bypass
-  if (ballBonus >= 255) {
-    return { caught: true, shakes: 3 };
+  if (ballBonus >= CATCH_CONSTANTS.MASTER_BALL_THRESHOLD) {
+    return { caught: true, shakes: CATCH_CONSTANTS.MAX_DISPLAY_SHAKES };
   }
 
-  let statusBonus = 1;
-  if (status === 'sleep' || status === 'freeze') {
-    statusBonus = 2.5;
-  } else if (status === 'paralysis' || status === 'poison' || status === 'burn') {
-    statusBonus = 1.5;
-  }
+  const statusBonus = getStatusBonusMultiplier(status);
 
   // Gen V+ base catch formula (a)
-  let a = Math.floor( ( (3 * maxHp - 2 * currentHp) * catchRate * ballBonus ) / (3 * maxHp) ) * statusBonus;
-  
-  if (a >= 255) {
-    return { caught: true, shakes: 3 };
+  let a = Math.floor(((3 * maxHp - 2 * currentHp) * catchRate * ballBonus) / (3 * maxHp)) * statusBonus;
+
+  if (a >= CATCH_CONSTANTS.MAX_CATCH_RATE) {
+    return { caught: true, shakes: CATCH_CONSTANTS.MAX_DISPLAY_SHAKES };
   }
 
   // Calculate probability threshold (b)
   let b = 0;
   if (a > 0) {
-    b = Math.floor(1048560 / Math.sqrt(Math.sqrt(16711680 / a)));
+    b = Math.floor(
+      CATCH_CONSTANTS.THRESHOLD_DIVIDEND /
+        Math.sqrt(Math.sqrt(CATCH_CONSTANTS.THRESHOLD_NUMERATOR / a))
+    );
   }
 
   let shakes = 0;
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < CATCH_CONSTANTS.REQUIRED_SHAKES; i++) {
     // Generate random number between 0 and 65535 inclusive
-    const rand = rngOverrides && rngOverrides[i] !== undefined 
-      ? rngOverrides[i] 
-      : Math.floor(Math.random() * 65536);
-    
+    const rand =
+      rngOverrides && rngOverrides[i] !== undefined
+        ? rngOverrides[i]
+        : Math.floor(Math.random() * 65536);
+
     if (rand < b) {
       shakes++;
     } else {
@@ -61,18 +65,11 @@ export function calculateCatchResult(params: CatchParams, rngOverrides?: number[
   }
 
   return {
-    caught: shakes === 4,
-    shakes: shakes === 4 ? 3 : shakes // 3 visual shakes means caught, otherwise it broke out after 'shakes' wobbles
+    caught: shakes === CATCH_CONSTANTS.REQUIRED_SHAKES,
+    shakes: shakes === CATCH_CONSTANTS.REQUIRED_SHAKES ? CATCH_CONSTANTS.MAX_DISPLAY_SHAKES : shakes,
   };
 }
 
 export function getBallBonus(itemName: string): number {
-  switch (itemName.toLowerCase()) {
-    case 'poke-ball': return 1;
-    case 'great-ball': return 1.5;
-    case 'ultra-ball': return 2;
-    case 'luxury-ball': return 1;
-    case 'master-ball': return 255;
-    default: return 1;
-  }
+  return getBallBonusMultiplier(itemName);
 }

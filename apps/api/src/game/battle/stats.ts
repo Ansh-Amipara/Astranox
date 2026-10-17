@@ -1,8 +1,9 @@
 /**
  * Pure domain logic for Gen V+ Stat Calculations.
- * IMPORTANT: Effort Values (EVs) and Natures have been explicitly removed 
- * from these mechanics per the project's house rules.
+ * Delegated to canonical @astranox/constants balance rules.
  */
+
+import { calculateHpFormula, calculateStatFormula } from '@astranox/constants';
 
 /**
  * Calculates the maximum Hit Points (HP) of a Pokémon.
@@ -10,13 +11,7 @@
  * Note: Shedinja (Base HP 1) always has exactly 1 HP, regardless of IVs/Level.
  */
 export function calculateHP(base: number, iv: number, level: number, isGmax: boolean = false): number {
-  if (base === 1) {
-    return 1; // Shedinja rule
-  }
-  
-  const step1 = Math.floor(((2 * base + iv) * level) / 100);
-  const hp = step1 + level + 10;
-  return isGmax ? hp * 2 : hp;
+  return calculateHpFormula(base, iv, level, isGmax);
 }
 
 /**
@@ -24,6 +19,5 @@ export function calculateHP(base: number, iv: number, level: number, isGmax: boo
  * Formula (No EVs, No Natures): floor( (2 * Base + IV) * Level / 100 ) + 5
  */
 export function calculateStat(base: number, iv: number, level: number): number {
-  const step1 = Math.floor(((2 * base + iv) * level) / 100);
-  return step1 + 5;
+  return calculateStatFormula(base, iv, level);
 }

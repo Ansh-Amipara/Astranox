@@ -13,10 +13,14 @@ import {
 } from '../../core/utils/jwt';
 import { ValidationError, UnauthorizedError } from '../../core/errors/AppError';
 import { logger } from '../../config/logger';
+import { AuditService } from '../../core/services/audit.service';
 
 @injectable()
 export class AuthService {
-  constructor(private repo: AuthRepository) {}
+  constructor(
+    private repo: AuthRepository,
+    private auditService: AuditService
+  ) {}
 
   async register(input: RegisterDto): Promise<{ message: string }> {
     const existingUser = await this.repo.findByUsername(input.username);
@@ -41,13 +45,36 @@ export class AuthService {
   ): Promise<AuthResultDto> {
     const user = await this.repo.findByUsername(input.username);
     if (!user) {
+      await this.auditService.logAuthAttempt({
+        action: 'LOGIN_FAILURE',
+        actorType: 'user',
+        ip: meta?.ip,
+        reason: 'User not found',
+        meta: { username: input.username, userAgent: meta?.userAgent },
+      });
       throw new UnauthorizedError('Invalid credentials');
     }
 
     const isValid = await bcrypt.compare(input.password, user.passwordHash);
     if (!isValid) {
+      await this.auditService.logAuthAttempt({
+        action: 'LOGIN_FAILURE',
+        actorId: user.id,
+        actorType: 'user',
+        ip: meta?.ip,
+        reason: 'Invalid password',
+        meta: { username: input.username, userAgent: meta?.userAgent },
+      });
       throw new UnauthorizedError('Invalid credentials');
     }
+
+    await this.auditService.logAuthAttempt({
+      action: 'LOGIN_SUCCESS',
+      actorId: user.id,
+      actorType: user.role === 'ADMIN' ? 'admin' : 'user',
+      ip: meta?.ip,
+      meta: { username: input.username, userAgent: meta?.userAgent },
+    });
 
     const userDto = AuthMapper.toUserDto(user);
     const accessToken = generateAccessToken(userDto);
