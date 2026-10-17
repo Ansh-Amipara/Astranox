@@ -82,28 +82,28 @@ export function DatePicker({
         <input type="hidden" name={name} value={value} required={required} />
       )}
       <div
-        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white flex justify-between items-center cursor-pointer min-h-[42px]"
+        className="w-full bg-surface-raised border border-border rounded-lg px-4 py-2 text-foreground flex justify-between items-center cursor-pointer min-h-[42px]"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>
           {formattedValue || (
-            <span className="text-slate-400">{placeholder}</span>
+            <span className="text-muted">{placeholder}</span>
           )}
         </span>
-        <Calendar className="w-4 h-4 text-slate-500" />
+        <Calendar className="w-4 h-4 text-subtle" />
       </div>
 
       {isOpen && (
-        <div className="absolute z-[100] mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl p-4 w-64">
+        <div className="absolute z-[100] mt-1 bg-surface border border-border rounded-lg shadow-xl p-4 w-64">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setCurrentMonth(new Date(year, month - 1, 1))}
-              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400"
+              className="p-1 hover:bg-surface-raised rounded text-muted"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-bold text-sm text-slate-900 dark:text-white">
+            <span className="font-bold text-sm text-foreground">
               {currentMonth.toLocaleString('default', {
                 month: 'long',
                 year: 'numeric',
@@ -112,13 +112,13 @@ export function DatePicker({
             <button
               type="button"
               onClick={() => setCurrentMonth(new Date(year, month + 1, 1))}
-              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400"
+              className="p-1 hover:bg-surface-raised rounded text-muted"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-slate-500 font-bold">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-subtle font-bold">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
               <div key={d}>{d}</div>
             ))}
@@ -134,13 +134,7 @@ export function DatePicker({
                   key={i}
                   type="button"
                   onClick={() => handleDateSelect(date)}
-                  className={`p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
-                    isSelected
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white font-bold'
-                      : isToday
-                      ? 'text-purple-600 dark:text-purple-400 font-bold'
-                      : 'text-slate-700 dark:text-slate-300'
-                  }`}
+                  className={`p-1 rounded-md hover:bg-surface-raised transition-colors ${ isSelected ? 'bg-surface-raised hover:bg-surface-raised text-foreground font-bold' : isToday ? 'text-foreground font-bold' : 'text-muted' }`}
                 >
                   {date.getDate()}
                 </button>

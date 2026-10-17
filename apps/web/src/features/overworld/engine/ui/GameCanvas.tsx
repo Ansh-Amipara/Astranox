@@ -114,7 +114,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   }, [mapImageUrl, hasSpawns]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-black">
+    <div ref={containerRef} className="relative w-full h-full bg-background">
       <canvas 
         ref={canvasRef} 
         className="block w-full h-full image-rendering-pixelated"
@@ -122,9 +122,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       
       {/* Encounter Flash / Fade Transition */}
       <div 
-        className={`absolute inset-0 bg-white pointer-events-none transition-opacity duration-1000 ${
-          isFading ? 'opacity-100' : 'opacity-0'
-        }`} 
+        className={`absolute inset-0 bg-primary pointer-events-none transition-opacity duration-1000 ${ isFading ? 'opacity-100' : 'opacity-0' }`} 
       />
     </div>
   );

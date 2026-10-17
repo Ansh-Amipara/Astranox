@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketplaceApi } from '../api';
-import { toast } from 'sonner';
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
 
 export const useSearchListings = (filters: Record<string, unknown>) => {
   return useQuery({
@@ -51,10 +52,10 @@ export const useCancelListing = () => {
       queryClient.invalidateQueries({ queryKey: ['marketplace'] });
       queryClient.invalidateQueries({ queryKey: ['marketplace', 'listing', listingId] });
       queryClient.invalidateQueries({ queryKey: ['pokemon'] });
-      toast.success('Listing cancelled successfully!');
+      notify.success('Listing cancelled successfully!');
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error?.message || 'Failed to cancel listing');
+      notify.error(parseApiError(error).message || 'Failed to cancel listing');
     }
   });
 };

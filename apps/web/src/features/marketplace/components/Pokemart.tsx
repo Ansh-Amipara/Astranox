@@ -161,7 +161,7 @@ export function Pokemart() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-border"></div>
       </div>
     );
   }
@@ -232,25 +232,25 @@ export function Pokemart() {
   }
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         {/* Header and Controls section */}
-        <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div className="mb-8 border-b border-border pb-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight shrink-0">
+            <h1 className="text-3xl font-black text-foreground tracking-tight shrink-0">
               Pokémart
             </h1>
 
-            <div className="w-full md:w-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl flex items-center justify-between gap-3 shadow-sm shrink-0">
+            <div className="w-full md:w-auto bg-surface border border-border px-4 py-2 rounded-xl flex items-center justify-between gap-3 shadow-sm shrink-0">
               <div className="flex items-center gap-2">
                 {storeCurrency.icon}
-                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{storeCurrency.name}</span>
+                <span className="text-sm font-bold text-subtle uppercase tracking-wider">{storeCurrency.name}</span>
               </div>
-              <span className="text-xl font-black text-slate-800 dark:text-slate-200">{storeCurrency.amount.toLocaleString()}</span>
+              <span className="text-xl font-black text-foreground">{storeCurrency.amount.toLocaleString()}</span>
             </div>
           </div>
 
-          <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 w-full bg-white dark:bg-slate-900/50 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 w-full bg-surface/50 p-3 md:p-4 rounded-2xl border border-border shadow-sm">
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto flex-1">
               {/* Category Dropdown */}
@@ -310,10 +310,7 @@ export function Pokemart() {
                 <button
                   onClick={() => setConfirmModal('sell')}
                   disabled={selectedSellItemsCount === 0 || sellBulkMutation.isPending}
-                  className={`px-4 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-1.5 flex-1
-                    ${selectedSellItemsCount > 0
-                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
+                  className={`px-4 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-1.5 flex-1 ${selectedSellItemsCount > 0 ? 'bg-surface-raised hover:bg-surface-raised text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' : 'bg-surface-raised text-muted cursor-not-allowed'}`}
                 >
                   <span className="hidden sm:inline">Sell</span>
                   <span className="sm:hidden">Sell ({selectedSellItemsCount})</span>
@@ -322,10 +319,7 @@ export function Pokemart() {
                 <button
                   onClick={() => setConfirmModal('buy')}
                   disabled={selectedBuyItemsCount === 0 || storeCurrency.amount < totalBulkCost || buyBulkMutation.isPending}
-                  className={`px-4 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-1.5 flex-1
-                    ${selectedBuyItemsCount > 0 && storeCurrency.amount >= totalBulkCost
-                      ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
+                  className={`px-4 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-1.5 flex-1 ${selectedBuyItemsCount > 0 && storeCurrency.amount >= totalBulkCost ? 'bg-surface-raised hover:bg-surface text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' : 'bg-surface-raised text-muted cursor-not-allowed'}`}
                 >
                   <span className="hidden sm:inline">Buy</span>
                   <span className="sm:hidden">Buy ({selectedBuyItemsCount})</span>
@@ -337,9 +331,7 @@ export function Pokemart() {
 
         {/* Message Toast overlay */}
         {message && (
-          <div className={`fixed top-20 right-8 px-6 py-4 rounded-xl shadow-lg z-50 transition-all transform flex items-center gap-3
-          ${message.type === 'success' ? 'bg-green-100 border border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-300' :
-              'bg-red-100 border border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300'}`}>
+          <div className={`fixed top-20 right-8 px-6 py-4 rounded-xl shadow-lg z-50 transition-all transform flex items-center gap-3 ${message.type === 'success' ? 'bg-surface-raised border border-border text-foreground ' : 'bg-surface-raised border border-border text-foreground '}`}>
             {message.type === 'success' ? (
               <Check className="w-5 h-5" />
             ) : (
@@ -350,15 +342,15 @@ export function Pokemart() {
         )}
 
         {/* Table of items */}
-        <div className="bg-white dark:bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden">
+        <div className="bg-surface/80 backdrop-blur rounded-2xl border border-border/50 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className={`w-full text-left border-collapse ${activeCategory === 'moves' ? 'min-w-[320px] sm:min-w-[600px] md:min-w-[800px]' : 'min-w-[320px]'}`}>
               <thead>
                 {activeCategory === 'moves' ? (
-                  <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 w-auto sm:w-48 text-xs sm:text-base">Move</th>
-                    <th className="hidden sm:table-cell p-4 font-bold text-slate-500 dark:text-slate-400 w-32">Type</th>
-                    <th className="hidden sm:table-cell p-4 font-bold text-slate-500 dark:text-slate-400 w-32 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 transition-colors" onClick={() => handleSortMoves('power')}>
+                  <tr className="bg-surface-raised border-b border-border">
+                    <th className="p-2 sm:p-4 font-bold text-muted w-auto sm:w-48 text-xs sm:text-base">Move</th>
+                    <th className="hidden sm:table-cell p-4 font-bold text-muted w-32">Type</th>
+                    <th className="hidden sm:table-cell p-4 font-bold text-muted w-32 cursor-pointer select-none hover:text-subtle transition-colors" onClick={() => handleSortMoves('power')}>
                       <div className="flex items-center gap-1">
                         Power
                         {moveSortConfig?.key === 'power' && (
@@ -366,8 +358,8 @@ export function Pokemart() {
                         )}
                       </div>
                     </th>
-                    <th className="hidden sm:table-cell p-4 font-bold text-slate-500 dark:text-slate-400 w-32">Class</th>
-                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 w-auto sm:w-32 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-xs sm:text-base" onClick={() => handleSortMoves('price')}>
+                    <th className="hidden sm:table-cell p-4 font-bold text-muted w-32">Class</th>
+                    <th className="p-2 sm:p-4 font-bold text-muted w-auto sm:w-32 cursor-pointer select-none hover:text-subtle transition-colors text-xs sm:text-base" onClick={() => handleSortMoves('price')}>
                       <div className="flex items-center gap-1">
                         Price
                         {moveSortConfig?.key === 'price' && (
@@ -375,13 +367,13 @@ export function Pokemart() {
                         )}
                       </div>
                     </th>
-                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-center w-auto sm:w-32 text-xs sm:text-base">Action</th>
+                    <th className="p-2 sm:p-4 font-bold text-muted text-center w-auto sm:w-32 text-xs sm:text-base">Action</th>
                   </tr>
                 ) : (
-                  <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-xs sm:text-base">Item</th>
-                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-right sm:text-left text-xs sm:text-base">Price</th>
-                    <th className="p-2 sm:p-4 font-bold text-slate-500 dark:text-slate-400 text-right sm:text-left text-xs sm:text-base">Quantity</th>
+                  <tr className="bg-surface-raised border-b border-border">
+                    <th className="p-2 sm:p-4 font-bold text-muted text-xs sm:text-base">Item</th>
+                    <th className="p-2 sm:p-4 font-bold text-muted text-right sm:text-left text-xs sm:text-base">Price</th>
+                    <th className="p-2 sm:p-4 font-bold text-muted text-right sm:text-left text-xs sm:text-base">Quantity</th>
                   </tr>
                 )}
               </thead>
@@ -392,35 +384,35 @@ export function Pokemart() {
                   const sellQty = Math.min(qty, ownedQuantity);
 
                   return (
-                    <tr key={item.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={item.id} className="border-b border-border/50 hover:bg-surface-raised transition-colors">
                       <td className="p-2 sm:p-4 align-middle">
                         <div className="flex items-center gap-2 sm:gap-4">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 dark:bg-slate-900 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shrink-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-surface-raised rounded-xl flex items-center justify-center border border-border shrink-0">
                             {item.spriteUrl ? (
                               <img src={item.spriteUrl} alt={item.name} className="w-6 h-6 sm:w-8 sm:h-8 object-contain filter drop-shadow-md" />
                             ) : (
-                              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-surface-raised rounded-full"></div>
                             )}
                           </div>
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-slate-900 dark:text-white capitalize text-xs sm:text-base leading-tight break-words max-w-[100px] sm:max-w-none">{item.name.replace('-', ' ')}</span>
-                            <span className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 w-max mt-0.5">
+                            <span className="font-bold text-foreground capitalize text-xs sm:text-base leading-tight break-words max-w-[100px] sm:max-w-none">{item.name.replace('-', ' ')}</span>
+                            <span className="text-[9px] sm:text-xs font-bold text-muted bg-surface-raised/80 px-1.5 py-0.5 rounded border border-border w-max mt-0.5">
                               Owned: {ownedQuantity.toLocaleString()}
                             </span>
                           </div>
                         </div>
                       </td>
-                      <td className="p-2 sm:p-4 font-bold text-slate-700 dark:text-slate-300 text-right sm:text-left align-middle">
+                      <td className="p-2 sm:p-4 font-bold text-muted text-right sm:text-left align-middle">
                         <div className="flex items-center justify-end sm:justify-start gap-1 sm:gap-1.5 text-xs sm:text-sm">
                           <span className="scale-75 sm:scale-100">{storeCurrency.symbol}</span> <span>{item.cost.toLocaleString()}</span>
                         </div>
                       </td>
                       <td className="p-2 sm:p-4 align-middle">
                         <div className="flex items-center justify-end sm:justify-start">
-                          <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 w-max">
+                          <div className="flex items-center bg-surface-raised rounded-lg border border-border w-max">
                             <button
                               onClick={() => handleQuantityChange(item.id, qty - multiplier)}
-                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-l-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-l-lg flex items-center justify-center text-subtle hover:bg-surface-raised transition-colors"
                             >
                               -
                             </button>
@@ -431,11 +423,11 @@ export function Pokemart() {
                                 const val = e.target.value.replace(/\D/g, '');
                                 handleQuantityChange(item.id, val ? parseInt(val) : 0);
                               }}
-                              className="w-8 sm:w-12 text-center bg-transparent font-bold text-slate-700 dark:text-white outline-none text-xs sm:text-sm"
+                              className="w-8 sm:w-12 text-center bg-transparent font-bold text-subtle outline-none text-xs sm:text-sm"
                             />
                             <button
                               onClick={() => handleQuantityChange(item.id, qty + multiplier)}
-                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-r-lg flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                              className="w-7 h-7 sm:w-8 sm:h-8 rounded-r-lg flex items-center justify-center text-subtle hover:bg-surface-raised transition-colors"
                             >
                               +
                             </button>
@@ -450,31 +442,31 @@ export function Pokemart() {
                   const canAfford = storeCurrency.amount >= m.price;
 
                   return (
-                    <tr key={m.id} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={m.id} className="border-b border-border/50 hover:bg-surface-raised transition-colors">
                       <td className="p-2 sm:p-4">
                         <div className="flex flex-col gap-1">
-                          <span className="font-bold text-slate-900 dark:text-white capitalize text-xs sm:text-base">{m.move.name.replace(/-/g, ' ')}</span>
-                          <div className="sm:hidden flex items-center gap-1 text-[10px] font-bold text-slate-500 capitalize">
+                          <span className="font-bold text-foreground capitalize text-xs sm:text-base">{m.move.name.replace(/-/g, ' ')}</span>
+                          <div className="sm:hidden flex items-center gap-1 text-[10px] font-bold text-subtle capitalize">
                             <img src={getTypeSpriteUrl(m.move.type.name, true)} alt={m.move.type.name} className="h-3 w-auto object-contain drop-shadow-sm" />
                             {m.move.type.name} • {m.move.power > 0 ? m.move.power : '-'} {m.move.damageClass === 'status' ? 'Status' : 'Pwr'}
                           </div>
                         </div>
                       </td>
                       <td className="hidden sm:table-cell p-4">
-                        <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">
+                        <div className="flex items-center gap-2 text-sm font-bold text-muted capitalize">
                           <img src={getTypeSpriteUrl(m.move.type.name, true)} alt={m.move.type.name} className="h-4 w-auto object-contain drop-shadow-sm" />
                           {m.move.type.name}
                         </div>
                       </td>
-                      <td className="hidden sm:table-cell p-4 font-bold text-slate-700 dark:text-slate-300">
+                      <td className="hidden sm:table-cell p-4 font-bold text-muted">
                         {m.move.power > 0 ? m.move.power : '-'}
                       </td>
                       <td className="hidden sm:table-cell p-4">
-                        <span className="text-sm font-bold text-slate-900 dark:text-white capitalize">
+                        <span className="text-sm font-bold text-foreground capitalize">
                           {m.move.damageClass}
                         </span>
                       </td>
-                      <td className="p-2 sm:p-4 font-bold text-slate-700 dark:text-slate-300">
+                      <td className="p-2 sm:p-4 font-bold text-muted">
                         <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-base">
                           <span className="scale-75 sm:scale-100 flex items-center">{storeCurrency.symbol}</span>
                           <span>{m.price.toLocaleString()}</span>
@@ -482,17 +474,14 @@ export function Pokemart() {
                       </td>
                       <td className="p-2 sm:p-4 text-center">
                         {isOwned ? (
-                          <span className="px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs sm:text-base">
+                          <span className="px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-bold bg-surface-raised text-muted text-xs sm:text-base">
                             Owned
                           </span>
                         ) : (
                           <button
                             onClick={() => handleBuyMove(m)}
                             disabled={!canAfford || buyMoveMutation.isPending}
-                            className={`px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-bold shadow-sm transition-all whitespace-nowrap text-xs sm:text-base ${canAfford
-                                ? 'bg-slate-800 hover:bg-slate-900 text-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
-                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
-                              }`}
+                            className={`px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-bold shadow-sm transition-all whitespace-nowrap text-xs sm:text-base ${canAfford ? 'bg-surface-raised hover:bg-surface text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' : 'bg-surface-raised text-muted cursor-not-allowed' }`}
                           >
                             {buyMoveMutation.isPending ? 'Buying' : 'Buy'}
                           </button>
@@ -518,16 +507,16 @@ export function Pokemart() {
         }).filter(x => confirmModal === 'buy' ? x.qty > 0 : x.sellQty > 0);
 
         return (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-200">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 text-center">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-surface border border-border rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-200">
+              <h2 className="text-2xl font-black text-foreground mb-2 text-center">
                 Confirm {confirmModal === 'buy' ? 'Purchase' : 'Sale'}
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 font-medium mb-4 text-center text-sm">
+              <p className="text-muted font-medium mb-4 text-center text-sm">
                 You are about to {confirmModal === 'buy' ? 'buy' : 'sell'} {confirmModal === 'buy' ? selectedBuyItemsCount : selectedSellItemsCount} items.
               </p>
               
-              <div className="w-full max-h-48 overflow-y-auto bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800 mb-4 flex flex-col gap-2 custom-scrollbar">
+              <div className="w-full max-h-48 overflow-y-auto bg-surface-raised rounded-2xl p-3 border border-border mb-4 flex flex-col gap-2 custom-scrollbar">
                 {itemsToProcess.map(({ item, qty, sellQty }) => {
                   const displayQty = confirmModal === 'buy' ? qty : sellQty;
                   const itemTotal = confirmModal === 'buy' ? item.cost * qty : Math.floor(item.cost * 0.75) * sellQty;
@@ -537,13 +526,13 @@ export function Pokemart() {
                         {item.spriteUrl ? (
                           <img src={item.spriteUrl} alt={item.name} className="w-6 h-6 object-contain" />
                         ) : (
-                          <div className="w-4 h-4 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                          <div className="w-4 h-4 bg-surface-raised rounded-full"></div>
                         )}
-                        <span className="font-bold text-slate-700 dark:text-slate-300 capitalize text-sm">{item.name.replace('-', ' ')}</span>
+                        <span className="font-bold text-muted capitalize text-sm">{item.name.replace('-', ' ')}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-slate-500">x{displayQty}</span>
-                        <span className="text-sm font-bold text-slate-900 dark:text-white w-12 text-right">
+                        <span className="text-xs font-bold text-subtle">x{displayQty}</span>
+                        <span className="text-sm font-bold text-foreground w-12 text-right">
                           {itemTotal.toLocaleString()}
                         </span>
                       </div>
@@ -552,11 +541,11 @@ export function Pokemart() {
                 })}
               </div>
 
-              <div className="w-full bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 mb-6 flex flex-col items-center">
-                <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
+              <div className="w-full bg-surface-raised rounded-2xl p-4 border border-border mb-6 flex flex-col items-center">
+                <span className="block text-xs font-bold text-muted mb-1 uppercase tracking-wider">
                   Total {confirmModal === 'buy' ? 'Cost' : 'Payout'}
                 </span>
-                <div className="flex items-center justify-center gap-2 text-2xl font-black text-slate-900 dark:text-white">
+                <div className="flex items-center justify-center gap-2 text-2xl font-black text-foreground">
                   <span>{storeCurrency.icon}</span>
                   <span>{(confirmModal === 'buy' ? totalBulkCost : totalBulkPayout).toLocaleString()}</span>
                 </div>
@@ -565,16 +554,13 @@ export function Pokemart() {
               <div className="flex w-full gap-3">
                 <button 
                   onClick={() => setConfirmModal(null)}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors"
+                  className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-muted font-bold rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={confirmModal === 'buy' ? executeBulkBuy : executeBulkSell}
-                  className={`flex-1 py-3 font-bold rounded-xl text-white shadow-lg transition-colors flex items-center justify-center gap-2
-                    ${confirmModal === 'buy' 
-                      ? 'bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-slate-900/20' 
-                      : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20'}`}
+                  className={`flex-1 py-3 font-bold rounded-xl text-foreground shadow-lg transition-colors flex items-center justify-center gap-2 ${confirmModal === 'buy' ? 'bg-surface-raised hover:bg-surface-raised shadow-glow' : 'bg-surface-raised hover:bg-surface-raised shadow-glow'}`}
                 >
                   Confirm
                 </button>

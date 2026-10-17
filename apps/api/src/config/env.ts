@@ -20,7 +20,11 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('❌ Invalid environment variables:', parsed.error.format());
+  console.error('❌ Invalid environment configuration:');
+  for (const issue of parsed.error.issues) {
+    const field = issue.path.join('.') || 'root';
+    console.error(`   - ${field}: ${issue.message}`);
+  }
   process.exit(1);
 }
 

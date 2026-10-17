@@ -51,18 +51,18 @@ export function SelectDropdown({
 }: SelectProps) {
   const selectedOption = options.find((o) => o.value === value);
 
-  const focusRingClass = 'focus-visible:ring-white';
-  const activeBgClass = 'bg-neutral-800 text-white font-bold';
+  const focusRingClass = 'focus-visible:ring-border';
+  const activeBgClass = 'bg-surface-raised text-foreground font-bold';
 
   return (
     <RadixSelect.Root value={value} onValueChange={onChange} disabled={disabled}>
       <RadixSelect.Trigger
         className={cn(
-          'flex items-center justify-between w-full px-4 py-2 rounded-xl bg-neutral-900/80 border border-neutral-800 text-neutral-100 shadow-sm focus:outline-none focus-visible:ring-2 font-semibold transition-colors',
+          'flex items-center justify-between w-full px-4 py-2 rounded-xl bg-surface border border-border text-foreground shadow-sm focus:outline-none focus-visible:ring-2 font-semibold transition-colors',
           focusRingClass,
           disabled
             ? 'opacity-50 cursor-not-allowed'
-            : 'hover:bg-neutral-900 hover:border-neutral-600',
+            : 'hover:bg-surface hover:border-border',
           className
         )}
       >
@@ -75,7 +75,7 @@ export function SelectDropdown({
               <span className="capitalize truncate">{selectedOption.label}</span>
             </>
           ) : (
-            <span className="truncate text-neutral-500">{placeholder}</span>
+            <span className="truncate text-subtle">{placeholder}</span>
           )}
         </div>
         <RadixSelect.Icon asChild>
@@ -86,7 +86,7 @@ export function SelectDropdown({
       <RadixSelect.Portal>
         <RadixSelect.Content
           className={cn(
-            'z-[150] bg-neutral-950 border border-neutral-800 text-white rounded-xl shadow-2xl overflow-hidden max-h-80',
+            'z-[150] bg-background border border-border text-foreground rounded-xl shadow-2xl overflow-hidden max-h-80',
             dropdownClassName
           )}
           position="popper"
@@ -100,7 +100,7 @@ export function SelectDropdown({
                   key={option.value}
                   value={option.value}
                   className={cn(
-                    'flex items-center gap-2 text-left px-3 py-2 rounded-lg transition-colors w-full cursor-default select-none outline-none data-[highlighted]:bg-neutral-800 text-neutral-200 font-semibold',
+                    'flex items-center gap-2 text-left px-3 py-2 rounded-lg transition-colors w-full cursor-default select-none outline-none data-[highlighted]:bg-surface-raised text-foreground font-semibold',
                     isSelected && `${activeBgClass} font-bold`,
                     option.className
                   )}

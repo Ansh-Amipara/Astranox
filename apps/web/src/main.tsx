@@ -15,7 +15,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <QueryProvider>
         <SocketProvider>
           <App />
-          <Toaster richColors position="bottom-right" />
+          <Toaster
+            position="top-right"
+            visibleToasts={3}
+            toastOptions={{
+              className: 'bg-surface text-foreground border border-border shadow-md font-sans text-sm',
+            }}
+          />
         </SocketProvider>
       </QueryProvider>
     </ErrorBoundary>

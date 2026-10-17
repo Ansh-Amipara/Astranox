@@ -89,19 +89,19 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
       {activeMenuPkm && (
         <Modal isOpen={true} onClose={() => setActiveMenuPkm(null)} className="max-w-xs" hideHeader>
           <div className="p-4 flex flex-col">
-            <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
               <img
                 src={getSpriteUrl(activeMenuPkm.speciesId)}
-                className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg object-contain pixelated border border-slate-200 dark:border-slate-700"
+                className="w-12 h-12 bg-surface-raised rounded-lg object-contain pixelated border border-border"
               />
               <div>
-                <h3 className="font-bold capitalize text-slate-900 dark:text-white">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
-                <p className="text-xs font-bold text-slate-500">
+                <h3 className="font-bold capitalize text-foreground">{activeMenuPkm.nickname || activeMenuPkm.species?.name}</h3>
+                <p className="text-xs font-bold text-subtle">
                   Lv. {activeMenuPkm.level}
                   {activeMenuPkm.potential && activeMenuPkm.level >= getMaxLevelForPotential(activeMenuPkm.potential as string) ? (
-                    <span className="font-bold text-red-500 ml-1 uppercase text-[10px]">Capped</span>
+                    <span className="font-bold text-foreground ml-1 uppercase text-[10px]">Capped</span>
                   ) : (
-                    <span className="font-medium text-slate-400 opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span>
+                    <span className="font-medium text-muted opacity-80 ml-1">• {activeMenuPkm.currentXp.toLocaleString()} XP</span>
                   )}
                 </p>
               </div>
@@ -110,7 +110,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => { promptDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
               >
                 View Details
               </button>
@@ -122,7 +122,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   navigate(`/pokemon/${activeMenuPkm.id}/moves`, { state: { pokemon: activeMenuPkm } });
                   setActiveMenuPkm(null);
                 }}
-                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
               >
                 Change Moves
               </button>
@@ -138,7 +138,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                         setActiveMenuPkm(null);
                       }}
                       disabled={devolveMutation.isPending}
-                      className="w-full text-left px-4 py-3 rounded-xl font-bold transition-colors bg-fuchsia-100 hover:bg-fuchsia-200 dark:bg-fuchsia-900/50 dark:hover:bg-fuchsia-800 text-fuchsia-900 dark:text-fuchsia-100"
+                      className="w-full text-left px-4 py-3 rounded-xl font-bold transition-colors bg-surface-raised hover:bg-surface-raised text-foreground"
                     >
                       {devolveMutation.isPending ? 'Reverting...' : 'Revert Form (Devolve)'}
                     </button>
@@ -153,7 +153,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                       setActiveMenuPkm(null);
                     }}
                     disabled={!canEvolve}
-                    className={`w-full text-left px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 cursor-not-allowed'}`}
+                    className={`w-full text-left px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-surface-raised hover:bg-surface-raised text-foreground' : 'bg-surface-raised/50 text-muted cursor-not-allowed'}`}
                   >
                     {canEvolve ? 'Evolution' : 'Fully Evolved'}
                   </button>
@@ -166,7 +166,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     promptBoostPotential(activeMenuPkm);
                     setActiveMenuPkm(null);
                   }}
-                  className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                  className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
                 >
                   Boost Potential
                 </button>
@@ -177,7 +177,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   promptEnhanceIvs(activeMenuPkm);
                   setActiveMenuPkm(null);
                 }}
-                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white"
+                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
               >
                 Enhance IVs
               </button>
@@ -186,7 +186,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 onClick={() => promptSmelt(activeMenuPkm.id)}
                 disabled={isSmelting || activeMenuPkm.isParty}
                 title={activeMenuPkm.isParty ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
-                className="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold transition-colors text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed text-center"
+                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground disabled:opacity-50 disabled:cursor-not-allowed text-center"
               >
                 {isSmelting ? 'Smelting...' : 'Smelt Pokemon'}
               </button>
@@ -194,7 +194,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
             <button
               onClick={() => setActiveMenuPkm(null)}
-              className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 w-full"
+              className="mt-4 pt-4 border-t border-border text-sm font-bold text-subtle hover:text-subtle w-full"
             >
               Cancel
             </button>

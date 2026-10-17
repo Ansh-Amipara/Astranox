@@ -1,101 +1,108 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, type LoginInput } from '@astranox/types';
 import { apiClient } from '@/lib/axios';
 import { useAuthStore } from '@/features/auth/store';
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
+import { Field, Input, Button } from '@/components/ui';
 import { Loader2 } from 'lucide-react';
 
 export function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
-
   const from = searchParams?.get('from') || '/team';
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+  });
 
+  const onSubmit = async (data: LoginInput) => {
     try {
-      const response = await apiClient.post('/auth/login', { username, password });
+      const response = await apiClient.post('/auth/login', data);
       const { accessToken, user } = response.data.data;
-
       setAuth(accessToken, user);
+      notify.success('Session initialized successfully');
       navigate(from);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Invalid credentials');
-    } finally {
-      setIsLoading(false);
+    } catch (err: unknown) {
+      const parsed = parseApiError(err);
+      if (parsed.fields) {
+        for (const [key, msg] of Object.entries(parsed.fields)) {
+          if (key in data) {
+            setError(key as keyof LoginInput, { message: msg });
+          }
+        }
+      } else {
+        setError('root', { message: parsed.message || 'Invalid credentials' });
+        notify.error(parsed.message || 'Invalid credentials');
+      }
     }
   };
 
   return (
-    <div className="relative flex min-h-screen items-start sm:pt-24 justify-center overflow-hidden bg-black text-white">
+    <div className="relative flex min-h-screen items-start sm:pt-24 justify-center overflow-hidden bg-background text-foreground">
       {/* Monochrome Glass Card */}
-      <div className="relative z-10 w-full max-w-md min-h-screen sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-neutral-800 bg-neutral-950 p-8 shadow-2xl">
+      <div className="relative z-10 w-full max-w-md min-h-screen sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-border bg-background p-8 shadow-2xl">
         <div className="mb-8 text-center flex flex-col items-center">
           <img src="/logo.webp" alt="Astranox" className="w-16 h-16 object-contain mb-3 drop-shadow-md" />
-          <h1 className="text-4xl font-black tracking-tight text-white">
-            Astranox
-          </h1>
-          <p className="text-xs uppercase font-bold tracking-widest text-neutral-400 mt-2">Trainer Portal</p>
+          <h1 className="text-4xl font-black tracking-tight text-foreground">Astranox</h1>
+          <p className="text-xs uppercase font-bold tracking-widest text-muted mt-2">Trainer Portal</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-neutral-300">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-white placeholder-neutral-500 transition-all focus:border-white focus:outline-none focus:ring-1 focus:ring-white"
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <Field label="Username" error={errors.username?.message} required>
+            <Input
+              {...register('username')}
               placeholder="username"
-              required
+              autoComplete="username"
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-neutral-300">Password</label>
-            <input
+          <Field label="Password" error={errors.password?.message} required>
+            <Input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-white placeholder-neutral-500 transition-all focus:border-white focus:outline-none focus:ring-1 focus:ring-white"
+              {...register('password')}
               placeholder="••••••••"
-              required
+              autoComplete="current-password"
             />
-          </div>
+          </Field>
 
-          {error && (
-            <div className="rounded-xl bg-neutral-900 p-3 text-sm text-neutral-200 border border-neutral-700">
-              {error}
+          {errors.root?.message && (
+            <div className="rounded-xl bg-surface p-3 text-sm text-foreground border border-border">
+              {errors.root.message}
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
-            disabled={isLoading}
-            className="group relative w-full overflow-hidden rounded-xl bg-white px-4 py-3 text-sm font-extrabold text-black transition-all hover:bg-neutral-200 hover:scale-[1.01] border border-white shadow-glow disabled:opacity-50 disabled:hover:scale-100"
+            disabled={isSubmitting}
+            className="w-full"
           >
-            <span className="relative z-10 flex items-center justify-center">
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin text-black" />
-              ) : (
-                'Initialize Session'
-              )}
-            </span>
-          </button>
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
+                Initializing...
+              </span>
+            ) : (
+              'Initialize Session'
+            )}
+          </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-neutral-400">
+        <p className="mt-6 text-center text-sm text-muted">
           New trainer?{' '}
-          <Link to="/register" className="text-white font-bold hover:underline transition-colors">
+          <Link to="/register" className="text-foreground font-bold hover:underline transition-colors">
             Create an account
           </Link>
         </p>
@@ -105,3 +112,5 @@ export function Login() {
 }
 
 export const LoginForm = Login;
+export default Login;
+

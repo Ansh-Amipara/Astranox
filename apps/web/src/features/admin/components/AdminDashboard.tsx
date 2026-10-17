@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { SpeciesDto, OwnedPokemonDto } from '@astranox/types';;
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
+import { SpeciesDto, OwnedPokemonDto } from '@astranox/types';
 // @ts-ignore
 type UserPayload = any;
 import { Banknote, Gift, Pencil, X } from 'lucide-react';
@@ -56,10 +57,10 @@ export function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
-      toast.success('Currency added successfully!');
+      notify.success('Currency added successfully!');
     },
-    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(`Error: ${err.response?.data?.error?.message || (err as any).message}`);
+    onError: (err: unknown) => {
+      notify.error(parseApiError(err).message || 'Failed to add currency');
     }
   });
 
@@ -69,10 +70,10 @@ export function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
-      toast.success('Pokémon added successfully!');
+      notify.success('Pokémon added successfully!');
     },
-    onError: (err: { response?: { data?: { error?: { message?: string } } }; message?: string }) => {
-      toast.error(`Error: ${err.response?.data?.error?.message || (err as any).message}`);
+    onError: (err: unknown) => {
+      notify.error(parseApiError(err).message || 'Failed to add Pokémon');
     }
   });
 
@@ -92,40 +93,40 @@ export function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUserPokemon', selectedUser?.id] });
-      toast.success('Pokémon edited successfully!');
+      notify.success('Pokémon edited successfully!');
       setSelectedPokemonToEdit(null);
       setEditXp(0);
       setUseEditIvs(false);
     },
-    onError: (err: { response?: { data?: { error?: { message?: string } } }; message?: string }) => {
-      toast.error(`Error: ${err.response?.data?.error?.message || (err as any).message}`);
+    onError: (err: unknown) => {
+      notify.error(parseApiError(err).message || 'Failed to edit Pokémon');
     }
   });
 
   if (isLoading) {
-    return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex items-center justify-center font-bold text-2xl">Loading Admin Dashboard...</div>;
+    return <div className="min-h-screen bg-background text-foreground flex items-center justify-center font-bold text-2xl">Loading Admin Dashboard...</div>;
   }
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2">User Management</h1>
+          <h1 className="text-3xl font-black tracking-tight text-foreground mb-2">User Management</h1>
         </div>
 
         <div className="w-full">
 
           {/* User List */}
-          <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-2xl">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Registered Users</h2>
+          <div className="w-full bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="p-6 border-b border-border bg-surface-raised">
+              <h2 className="text-xl font-bold text-foreground">Registered Users</h2>
             </div>
             <div className="md:overflow-x-auto">
               <table className="w-full text-left border-collapse block md:table md:min-w-[800px]">
                 <thead className="hidden md:table-header-group">
-                  <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm">
+                  <tr className="bg-background border-b border-border text-muted text-sm">
                     <th className="p-4 font-bold whitespace-nowrap">Username</th>
                     <th className="p-4 font-bold whitespace-nowrap">Email</th>
                     <th className="p-4 font-bold whitespace-nowrap">Astral Coins</th>
@@ -134,50 +135,50 @@ export function AdminDashboard() {
                     <th className="p-4 font-bold text-right whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50 md:bg-transparent dark:bg-slate-950 md:dark:bg-transparent">
+                <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-border bg-surface-raised md:bg-transparent md:">
                   {users?.map((user: UserPayload) => (
                     <tr
                       key={user.id}
-                      className={`block md:table-row bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 md:border-none rounded-xl md:rounded-none overflow-hidden shadow-sm md:shadow-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'ring-2 ring-blue-500 md:ring-0 md:bg-blue-50 dark:md:bg-blue-900/20' : ''}`}
+                      className={`block md:table-row bg-surface border border-border md:border-none rounded-xl md:rounded-none overflow-hidden shadow-sm md:shadow-none hover:bg-surface-raised transition-colors cursor-pointer ${selectedUser?.id === user.id ? 'ring-2 ring-border md:ring-0 md:bg-surface-raised ' : ''}`}
                       onClick={() => setSelectedUser(user)}
                     >
-                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                         <div className="flex justify-between items-center md:block">
-                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Username</span>
-                          <span className="font-bold text-slate-900 dark:text-white">{user.username} {user.role === 'ADMIN' && <span className="ml-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black uppercase">Admin</span>}</span>
+                          <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Username</span>
+                          <span className="font-bold text-foreground">{user.username} {user.role === 'ADMIN' && <span className="ml-2 bg-surface-raised text-foreground text-[10px] px-2 py-0.5 rounded-full font-black uppercase">Admin</span>}</span>
                         </div>
                       </td>
-                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                         <div className="flex justify-between items-center md:block">
-                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Email</span>
-                          <span className="text-slate-500 dark:text-slate-400 font-medium">{user.email}</span>
+                          <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Email</span>
+                          <span className="text-muted font-medium">{user.email}</span>
                         </div>
                       </td>
-                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                         <div className="flex justify-between items-center md:block">
-                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Astral Coins</span>
-                          <span className="text-amber-500 font-bold">{user.trainerSave?.astralCoins ?? 0}</span>
+                          <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Astral Coins</span>
+                          <span className="text-foreground font-bold">{user.trainerSave?.astralCoins ?? 0}</span>
                         </div>
                       </td>
-                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                         <div className="flex justify-between items-center md:block">
-                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Infinity Coins</span>
-                          <span className="text-purple-500 font-bold">{user.trainerSave?.infinityCoins ?? 0}</span>
+                          <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Infinity Coins</span>
+                          <span className="text-foreground font-bold">{user.trainerSave?.infinityCoins ?? 0}</span>
                         </div>
                       </td>
-                      <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                      <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                         <div className="flex justify-between items-center md:block">
-                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Party Size</span>
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">{user.trainerSave?.party?.length ?? 0} / 6</span>
+                          <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Party Size</span>
+                          <span className="text-muted font-medium">{user.trainerSave?.party?.length ?? 0} / 6</span>
                         </div>
                       </td>
-                      <td className="block md:table-cell p-3 md:p-4 bg-slate-50 dark:bg-slate-800/30 md:bg-transparent">
+                      <td className="block md:table-cell p-3 md:p-4 bg-surface-raised/30 md:bg-transparent">
                         <div className="flex justify-between md:justify-end items-center gap-2">
-                          <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Actions</span>
+                          <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Actions</span>
                           <div className="flex gap-2">
                             <button
                               aria-label="Inject Currency"
-                              className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 bg-white dark:bg-slate-800 md:bg-transparent border border-slate-200 dark:border-slate-700 md:border-none"
+                              className="text-muted hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none"
                               onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('currency'); }}
                               title="Inject Currency"
                             >
@@ -185,7 +186,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               aria-label="Send Pokémon"
-                              className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 bg-white dark:bg-slate-800 md:bg-transparent border border-slate-200 dark:border-slate-700 md:border-none"
+                              className="text-muted hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none"
                               onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('sendPokemon'); }}
                               title="Send Pokémon"
                             >
@@ -193,7 +194,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               aria-label="Edit Pokémon"
-                              className="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 bg-white dark:bg-slate-800 md:bg-transparent border border-slate-200 dark:border-slate-700 md:border-none"
+                              className="text-muted hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none"
                               onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('editPokemon'); }}
                               title="Edit Pokémon"
                             >
@@ -211,28 +212,28 @@ export function AdminDashboard() {
 
           {/* Management Modal */}
           {selectedUser && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" onClick={() => { setSelectedUser(null); setModalMode(null); }}>
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface/50 backdrop-blur-sm" onClick={() => { setSelectedUser(null); setModalMode(null); }}>
+              <div className="bg-surface border border-border rounded-2xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none" onClick={(e) => e.stopPropagation()}>
                 <button
                   aria-label="Close"
                   onClick={() => { setSelectedUser(null); setModalMode(null); }}
-                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-full p-1"
+                  className="absolute top-4 right-4 text-muted hover:text-subtle bg-surface-raised rounded-full p-1"
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <div className="mb-6 pb-6 border-b border-slate-200 dark:border-slate-800 pr-8">
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1">
+                <div className="mb-6 pb-6 border-b border-border pr-8">
+                  <h2 className="text-xl font-black text-foreground mb-1">
                     {modalMode === 'currency' && `Inject Currency to ${selectedUser.username}`}
                     {modalMode === 'sendPokemon' && `Send Pokémon to ${selectedUser.username}`}
                     {modalMode === 'editPokemon' && `Edit ${selectedUser.username}'s Pokémon`}
                   </h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Fill out the details below.</p>
+                  <p className="text-muted text-sm font-medium">Fill out the details below.</p>
                 </div>
 
                 <div className="space-y-4">
                   {modalMode === "currency" && (<>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                  <div className="bg-background p-5 rounded-xl border border-border">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                       Inject Currency
                     </h3>
                     <div className="flex gap-3">
@@ -243,12 +244,12 @@ export function AdminDashboard() {
                           const val = e.target.value.replace(/\D/g, '');
                           setMoneyAmount(val ? Number(val) : 0);
                         }}
-                        className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-emerald-500 transition-colors"
+                        className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
                       />
                       <select 
                         value={currencyType} 
                         onChange={(e) => setCurrencyType(e.target.value as any)}
-                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-800 dark:text-slate-200 font-bold"
+                        className="bg-surface border border-border rounded-lg px-4 py-2 text-foreground font-bold"
                       >
                         <option value="astralCoins">Astral</option>
                         <option value="infinityCoins">Infinity</option>
@@ -256,7 +257,7 @@ export function AdminDashboard() {
                       <button
                         onClick={() => addMoneyMutation.mutate({ userId: selectedUser.id, amount: moneyAmount, currencyType })}
                         disabled={addMoneyMutation.isPending || !selectedUser.trainerSave}
-                        className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                        className="bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-2 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50"
                       >
                         Add
                       </button>
@@ -264,14 +265,14 @@ export function AdminDashboard() {
                   </div>
 
                   </>)}{modalMode === "sendPokemon" && (<>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                  <div className="bg-background p-5 rounded-xl border border-border">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                       Give Pokémon
                     </h3>
                     <div className="space-y-4">
                       <div className="relative">
                         <div className="flex justify-between items-end mb-1">
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pokémon Species</label>
+                          <label className="block text-xs font-bold text-muted uppercase tracking-wider">Pokémon Species</label>
                         </div>
                         <div className="flex gap-2">
                           <Dropdown
@@ -300,18 +301,18 @@ export function AdminDashboard() {
                               setShowSpeciesDropdown(true);
                             }}
                             placeholder="Search Pokémon..."
-                            className="w-2/3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                            className="w-2/3 bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
                           />
                         </div>
                         {showSpeciesDropdown && (
-                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-h-48 overflow-y-auto shadow-xl">
+                          <div className="absolute z-10 w-full mt-1 bg-surface border border-border rounded-lg max-h-48 overflow-y-auto shadow-xl">
                             {speciesList
                               ?.filter((s: SpeciesDto) => categoryFilter === 'All' || s.category === categoryFilter)
                               .filter((s: SpeciesDto) => s.name.toLowerCase().includes(speciesSearch.toLowerCase()) || s.id.toString() === speciesSearch)
                               .map((s: SpeciesDto) => (
                                 <div
                                   key={s.id}
-                                  className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-blue-600 cursor-pointer text-slate-900 dark:text-white capitalize text-sm font-medium flex justify-between"
+                                  className="px-3 py-2 hover:bg-surface-raised cursor-pointer text-foreground capitalize text-sm font-medium flex justify-between"
                                   onClick={() => {
                                     setSpeciesId(s.id);
                                     setSpeciesSearch(s.name);
@@ -319,14 +320,14 @@ export function AdminDashboard() {
                                   }}
                                 >
                                   <span>{s.name}</span>
-                                  <span className="text-slate-500 dark:text-slate-400 text-xs">#{s.id}</span>
+                                  <span className="text-muted text-xs">#{s.id}</span>
                                 </div>
                               ))}
                           </div>
                         )}
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Potential</label>
+                        <label className="block text-xs font-bold text-muted mb-1 uppercase tracking-wider">Potential</label>
                         <Dropdown
                           value={pokemonPotential}
                           onChange={(val) => {
@@ -338,7 +339,7 @@ export function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Level (1-{getMaxLevelForPotential(pokemonPotential)})</label>
+                        <label className="block text-xs font-bold text-muted mb-1 uppercase tracking-wider">Level (1-{getMaxLevelForPotential(pokemonPotential)})</label>
                         <input
                           type="text"
                           value={pokemonLevel || ''}
@@ -346,17 +347,17 @@ export function AdminDashboard() {
                             const val = e.target.value.replace(/\D/g, '');
                             setPokemonLevel(val ? Math.min(getMaxLevelForPotential(pokemonPotential), Number(val)) : 0);
                           }}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
                         />
                       </div>
 
-                      <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
-                        <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">
+                      <div className="mt-4 border-t border-border pt-4">
+                        <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-muted">
                           <input 
                             type="checkbox" 
                             checked={useCustomIvs} 
                             onChange={(e) => setUseCustomIvs(e.target.checked)}
-                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                            className="w-4 h-4 rounded text-foreground focus:ring-border"
                           />
                           Set Custom IVs (0-31)
                         </label>
@@ -365,7 +366,7 @@ export function AdminDashboard() {
                           <div className="grid grid-cols-3 gap-3">
                             {['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'].map(stat => (
                               <div key={stat}>
-                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
+                                <label className="block text-[10px] font-bold text-muted mb-1 uppercase tracking-wider">
                                   {stat.replace('iv', '')}
                                 </label>
                                 <input
@@ -375,7 +376,7 @@ export function AdminDashboard() {
                                     const val = e.target.value.replace(/\D/g, '');
                                     setCustomIvs(prev => ({ ...prev, [stat]: val ? Math.min(31, Number(val)) : 0 }));
                                   }}
-                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors text-center"
+                                  className="w-full bg-surface border border-border rounded-lg px-2 py-1 text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors text-center"
                                 />
                               </div>
                             ))}
@@ -394,7 +395,7 @@ export function AdminDashboard() {
                           });
                         }}
                         disabled={addPokemonMutation.isPending || !selectedUser.trainerSave}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 mt-2"
+                        className="w-full bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 mt-2"
                       >
                         Generate & Give
                       </button>
@@ -402,8 +403,8 @@ export function AdminDashboard() {
                   </div>
 
                   </>)}{modalMode === "editPokemon" && (<>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                  <div className="bg-background p-5 rounded-xl border border-border">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                       Edit Existing Pokémon
                     </h3>
                     {!selectedPokemonToEdit ? (
@@ -416,26 +417,26 @@ export function AdminDashboard() {
                               setEditPotential(p.potential || '');
                               setEditIvs({ ivHp: p.ivHp, ivAttack: p.ivAttack, ivDefense: p.ivDefense, ivSpAtk: p.ivSpAtk, ivSpDef: p.ivSpDef, ivSpeed: p.ivSpeed });
                             }}
-                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="bg-surface border border-border p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-surface-raised transition-colors"
                           >
                             <div>
-                              <p className="font-bold text-slate-900 dark:text-white capitalize">{p.speciesName} <span className="text-xs text-slate-500 ml-1">Lv. {p.level}</span></p>
-                              <p className="text-xs text-slate-500">XP: {p.currentXp} | {p.isParty ? 'In Party' : `Box ${p.boxNumber ?? 0}`}</p>
+                              <p className="font-bold text-foreground capitalize">{p.speciesName} <span className="text-xs text-subtle ml-1">Lv. {p.level}</span></p>
+                              <p className="text-xs text-subtle">XP: {p.currentXp} | {p.isParty ? 'In Party' : `Box ${p.boxNumber ?? 0}`}</p>
                             </div>
-                            <span className="text-blue-500 font-bold text-sm">Edit</span>
+                            <span className="text-foreground font-bold text-sm">Edit</span>
                           </div>
                         ))}
-                        {userPokemon?.length === 0 && <p className="text-slate-500 text-sm italic">User has no Pokémon.</p>}
+                        {userPokemon?.length === 0 && <p className="text-subtle text-sm italic">User has no Pokémon.</p>}
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg mb-2">
-                          <p className="font-bold text-slate-900 dark:text-white capitalize">{selectedPokemonToEdit.speciesName} <span className="text-xs text-slate-500 ml-1">Lv. {selectedPokemonToEdit.level}</span></p>
-                          <button onClick={() => setSelectedPokemonToEdit(null)} className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white">Cancel</button>
+                        <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg mb-2">
+                          <p className="font-bold text-foreground capitalize">{selectedPokemonToEdit.speciesName} <span className="text-xs text-subtle ml-1">Lv. {selectedPokemonToEdit.level}</span></p>
+                          <button onClick={() => setSelectedPokemonToEdit(null)} className="text-xs font-bold text-subtle hover:text-foreground">Cancel</button>
                         </div>
                         
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Potential</label>
+                          <label className="block text-xs font-bold text-muted mb-1 uppercase tracking-wider">Potential</label>
                           <Dropdown
                             value={editPotential}
                             onChange={(val) => setEditPotential(val)}
@@ -446,7 +447,7 @@ export function AdminDashboard() {
                         </div>
                         <div>
                           <div className="flex justify-between items-end mb-1">
-                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Add XP</label>
+                            <label className="block text-xs font-bold text-muted uppercase tracking-wider">Add XP</label>
                             <button
                               onClick={() => {
                                 const maxLevel = getMaxLevelForPotential(editPotential);
@@ -454,7 +455,7 @@ export function AdminDashboard() {
                                 const requiredXp = maxTotalXp - (selectedPokemonToEdit.currentXp || 0);
                                 setEditXp(Math.max(0, requiredXp));
                               }}
-                              className="text-[10px] font-bold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 uppercase px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded"
+                              className="text-[10px] font-bold text-foreground hover:text-foreground uppercase px-2 py-0.5 bg-surface-raised rounded"
                             >
                               Max
                             </button>
@@ -466,17 +467,17 @@ export function AdminDashboard() {
                               const val = e.target.value.replace(/\D/g, '');
                               setEditXp(val ? Number(val) : 0);
                             }}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors"
+                            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
                           />
                         </div>
 
-                        <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
-                          <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">
+                        <div className="mt-4 border-t border-border pt-4">
+                          <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-muted">
                             <input 
                               type="checkbox" 
                               checked={useEditIvs} 
                               onChange={(e) => setUseEditIvs(e.target.checked)}
-                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                              className="w-4 h-4 rounded text-foreground focus:ring-border"
                             />
                             Modify IVs (0-31)
                           </label>
@@ -485,7 +486,7 @@ export function AdminDashboard() {
                             <div className="grid grid-cols-3 gap-3">
                               {['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'].map(stat => (
                                 <div key={stat}>
-                                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
+                                  <label className="block text-[10px] font-bold text-muted mb-1 uppercase tracking-wider">
                                     {stat.replace('iv', '')}
                                   </label>
                                   <input
@@ -495,7 +496,7 @@ export function AdminDashboard() {
                                       const val = e.target.value.replace(/\D/g, '');
                                       setEditIvs(prev => ({ ...prev, [stat]: val ? Math.min(31, Number(val)) : 0 }));
                                     }}
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-900 dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors text-center"
+                                    className="w-full bg-surface border border-border rounded-lg px-2 py-1 text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors text-center"
                                   />
                                 </div>
                               ))}
@@ -514,7 +515,7 @@ export function AdminDashboard() {
                             });
                           }}
                           disabled={editPokemonMutation.isPending || (!editXp && !useEditIvs && editPotential === selectedPokemonToEdit.potential)}
-                          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50 mt-2"
+                          className="w-full bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 mt-2"
                         >
                           Save Changes
                         </button>

@@ -1,28 +1,36 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300..900&display=swap");
 
 @theme {
-  /* Monochrome Ink Palette (Black, White, Neutral Greys) */
-  --color-ink-dark: #09090b;
-  --color-ink-light: #71717a;
-  --color-ink-paper: #ffffff;
-  --color-ink-blue: #27272a;
+  --color-*: initial;   /* removes Tailwind's default palette */
 
-  /* Monochrome Siltstone Palette (Grayscale Accent Tokens) */
-  --color-silt-khaki: #71717a;
-  --color-silt-pale: #f4f4f5;
-  --color-silt-peach: #e4e4e7;
-  --color-silt-gold: #ffffff;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
 
-  /* Global Semantic Monochrome Tokens */
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
-  --color-secondary: #27272a;
-  --color-secondary-foreground: #ffffff;
-  --color-surface: #121212;
-  --color-surface-hover: #1c1c1f;
-  --color-border: #27272a;
-  --color-muted: #71717a;
+  --color-background: #ffffff;
+  --color-surface: #f4f4f6;
+  --color-surface-raised: #e9e9ed;
+  --color-border: #dcdce2;
+  --color-foreground: #09090b;
+  --color-muted: #5e5e6e;
+  --color-subtle: #8e8e9e;
+  --color-primary: #09090b;
+  --color-primary-foreground: #ffffff;
+
+  /* Functional Semantic Tokens (Health, Success, Warning, Danger) */
+  --color-health-high: #22c55e;
+  --color-health-mid: #eab308;
+  --color-health-low: #ef4444;
+
+  --color-success: #16a34a;
+  --color-success-foreground: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-foreground: #ffffff;
+  --color-danger: #dc2626;
+  --color-danger-foreground: #ffffff;
+
+  --font-sans: "Outfit", sans-serif;
 
   /* Radius Tokens */
   --radius-xs: 0.125rem;
@@ -33,42 +41,25 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
 
-  /* Monochrome Shadows */
-  --shadow-glow: 0 0 15px rgba(255, 255, 255, 0.15);
-  --shadow-glow-lg: 0 0 25px rgba(255, 255, 255, 0.25);
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.8);
-  --shadow-glow-card: 0 0 20px rgba(255, 255, 255, 0.05);
-  --shadow-glow-card-hover: 0 0 30px rgba(255, 255, 255, 0.12);
-
-  /* Custom Animations */
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-glow: glow 2s ease-in-out infinite alternate;
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-
-  @keyframes glow {
-    0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
-    100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.15); }
-  }
+  /* Monochrome Shadows (tuned for white background) */
+  --shadow-glow: 0 0 15px rgba(0, 0, 0, 0.08);
+  --shadow-glow-lg: 0 0 25px rgba(0, 0, 0, 0.14);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-glow-card: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-glow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.10);
 }
 
-@custom-variant dark (&:is(.dark *));
-
 @layer base {
-  body {
-    font-family: 'Outfit', sans-serif;
-    @apply bg-black text-white antialiased selection:bg-white selection:text-black;
+  html {
+    font-family: var(--font-sans);
   }
 
-  html, body {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-    background-color: #000000;
-    color: #ffffff;
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   /* Prevent iOS zoom on inputs */
@@ -79,7 +70,7 @@
   html::-webkit-scrollbar,
   body::-webkit-scrollbar,
   *::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
   }
 }
 

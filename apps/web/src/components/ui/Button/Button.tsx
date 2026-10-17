@@ -4,20 +4,20 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+  'inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background',
   {
     variants: {
       variant: {
         primary:
-          'bg-white text-black hover:bg-neutral-200 border border-white shadow-glow hover:shadow-glow-lg',
+          'bg-primary text-primary-foreground hover:bg-surface-raised hover:text-foreground border border-border shadow-glow hover:shadow-glow-lg',
         secondary:
-          'bg-neutral-900 text-neutral-200 border border-neutral-700 hover:bg-neutral-800 hover:border-neutral-500 hover:text-white backdrop-blur-md',
+          'bg-surface text-foreground border border-border hover:bg-surface-raised hover:border-border backdrop-blur-md',
         ghost:
-          'bg-transparent text-neutral-400 hover:bg-neutral-800/60 hover:text-white',
+          'bg-transparent text-muted hover:bg-surface-raised/60 hover:text-foreground',
         danger:
-          'bg-neutral-900 text-neutral-200 border border-neutral-700 hover:bg-neutral-800 hover:text-white',
+          'bg-danger text-danger-foreground border border-danger hover:bg-danger/90 shadow-sm',
         outline:
-          'bg-transparent border-2 border-neutral-600 text-neutral-200 hover:bg-white hover:text-black hover:border-white',
+          'bg-transparent border border-border text-foreground hover:bg-surface-raised hover:text-foreground hover:border-border',
       },
       size: {
         sm: 'px-3 py-1.5 text-xs',

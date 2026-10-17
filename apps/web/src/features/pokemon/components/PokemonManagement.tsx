@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
-import { toast } from 'sonner';
-import { OwnedPokemonDto, MoveDto } from '@astranox/types';;
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
+import { OwnedPokemonDto, MoveDto } from '@astranox/types';
 import { PokemonModalsRef } from './PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
@@ -50,10 +51,10 @@ export function PokemonManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
-      toast.success('Removed from team!');
+      notify.success('Removed from team!');
     },
     onError: (err: unknown) => {
-      toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to remove from team');
+      notify.error(parseApiError(err).message || 'Failed to remove from team');
     }
   });
 
@@ -65,17 +66,17 @@ export function PokemonManagement() {
       queryClient.invalidateQueries({ queryKey: ['trainerSave'] });
       queryClient.invalidateQueries({ queryKey: ['allPokemon'] });
       setSelectedForTeam(null);
-      toast.success('Added to team!');
+      notify.success('Added to team!');
     },
     onError: (err: unknown) => {
-      toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to add to team');
+      notify.error(parseApiError(err).message || 'Failed to add to team');
     }
   });
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-black text-white p-4 md:p-6 min-h-[calc(100vh-64px)] flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-border"></div>
       </div>
     );
   }
@@ -88,16 +89,16 @@ export function PokemonManagement() {
   const isInParty = (pokemon: OwnedPokemonDto) => activePartyIds.has(pokemon.id);
 
   return (
-    <div className="flex-1 bg-black text-white p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <h1 className="text-3xl font-black tracking-tight">My Pokémon</h1>
         </div>
 
 
         {allPokemon.length === 0 ? (
-          <div className="text-center p-12 bg-neutral-950 rounded-3xl border border-neutral-800">
-            <p className="text-neutral-500">You don't have any Pokémon yet.</p>
+          <div className="text-center p-12 bg-background rounded-3xl border border-border">
+            <p className="text-subtle">You don't have any Pokémon yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -129,28 +130,28 @@ export function PokemonManagement() {
 
         {/* Options Menu Modal */}
         {activeMenuPkm && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
-            <div role="dialog" aria-modal="true" className="bg-neutral-950 border border-neutral-800 rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center gap-4 mb-4 border-b border-neutral-800 pb-4">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
+            <div role="dialog" aria-modal="true" className="bg-background border border-border rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
                 <img
                   src={getSpriteUrl(activeMenuPkm.speciesId)}
-                  className="w-12 h-12 bg-neutral-900 rounded-lg object-contain pixelated border border-neutral-800"
+                  className="w-12 h-12 bg-surface rounded-lg object-contain pixelated border border-border"
                 />
                 <div>
-                  <h3 className="font-bold capitalize text-white flex items-center gap-2">
+                  <h3 className="font-bold capitalize text-foreground flex items-center gap-2">
                     {activeMenuPkm.nickname || (activeMenuPkm as unknown as { name?: string })?.name || activeMenuPkm.speciesName}
                     {activeMenuPkm.isBound && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-800 text-neutral-300 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-raised text-muted uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
                         🔒 Bound
                       </span>
                     )}
                   </h3>
-                  <p className="text-xs font-bold text-neutral-400">
+                  <p className="text-xs font-bold text-muted">
                     Lv. {activeMenuPkm.level}
                     {activeMenuPkm.potential && activeMenuPkm.level >= getMaxLevelForPotential(activeMenuPkm.potential as string) ? (
-                      <span className="font-bold text-neutral-300 ml-1 uppercase text-[10px] bg-neutral-800 px-1 py-0.5 rounded">Capped</span>
+                      <span className="font-bold text-muted ml-1 uppercase text-[10px] bg-surface-raised px-1 py-0.5 rounded">Capped</span>
                     ) : (
-                      <span className="font-medium text-neutral-500 opacity-80 ml-1">• {(activeMenuPkm.currentXp || 0).toLocaleString()} XP</span>
+                      <span className="font-medium text-subtle opacity-80 ml-1">• {(activeMenuPkm.currentXp || 0).toLocaleString()} XP</span>
                     )}
                   </p>
                 </div>
@@ -158,12 +159,12 @@ export function PokemonManagement() {
 
               {activeMenuPkm.isEscrowed ? (
                 <div className="flex flex-col gap-2">
-                  <div className="bg-neutral-900 text-neutral-300 p-3 rounded-xl text-sm font-bold text-center border border-neutral-800">
+                  <div className="bg-surface text-muted p-3 rounded-xl text-sm font-bold text-center border border-border">
                     This Pokémon is currently locked in a Marketplace trade or offer and cannot be modified.
                   </div>
                   <button
                     onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
                   >
                     View Details
                   </button>
@@ -172,21 +173,21 @@ export function PokemonManagement() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
                   >
                     View Details
                   </button>
 
                   <button
                     onClick={() => { modalsRef.current?.openMoves(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
                   >
                     Change Moves
                   </button>
 
                   <button
                     onClick={() => { modalsRef.current?.openEvolve(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
                   >
                     Evolution
                   </button>
@@ -194,7 +195,7 @@ export function PokemonManagement() {
                   {activeMenuPkm.potential !== 'ETERNAL' && (
                     <button
                       onClick={() => { modalsRef.current?.openBoost(activeMenuPkm); setActiveMenuPkm(null); }}
-                      className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800"
+                      className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
                     >
                       Boost Potential
                     </button>
@@ -205,14 +206,14 @@ export function PokemonManagement() {
                       modalsRef.current?.openGiveXp(activeMenuPkm);
                       setActiveMenuPkm(null);
                     }}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800 flex items-center justify-center gap-1.5"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center gap-1.5"
                   >
                     Give XP
                   </button>
 
                   <button
                     onClick={() => { modalsRef.current?.openIVs(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-white border border-neutral-800"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
                   >
                     Enhance IVs
                   </button>
@@ -224,7 +225,7 @@ export function PokemonManagement() {
                         removeMutation.mutate(activeMenuPkm.id);
                         setActiveMenuPkm(null);
                       }}
-                      className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-neutral-300 border border-neutral-800 disabled:opacity-50"
+                      className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-muted border border-border disabled:opacity-50"
                     >
                       Remove from Team
                     </button>
@@ -234,7 +235,7 @@ export function PokemonManagement() {
                         setSelectedForTeam(activeMenuPkm.id);
                         setActiveMenuPkm(null);
                       }}
-                      className="w-full text-center px-4 py-3 bg-white hover:bg-neutral-200 text-black rounded-xl font-bold transition-colors border border-white"
+                      className="w-full text-center px-4 py-3 bg-primary hover:bg-surface-raised text-primary-foreground rounded-xl font-bold transition-colors border border-border"
                     >
                       Add to Team
                     </button>
@@ -244,7 +245,7 @@ export function PokemonManagement() {
                     onClick={() => promptSmelt(activeMenuPkm.id)}
                     disabled={isSmelting || isInParty(activeMenuPkm)}
                     title={isInParty(activeMenuPkm) ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
-                    className="w-full text-center px-4 py-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl font-bold transition-colors text-neutral-400 hover:text-white border border-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-muted hover:text-foreground border border-border disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {isSmelting ? 'Smelting...' : 'Smelt Pokemon'}
                   </button>
@@ -253,7 +254,7 @@ export function PokemonManagement() {
 
               <button
                 onClick={() => setActiveMenuPkm(null)}
-                className="mt-4 pt-4 border-t border-neutral-800 text-sm font-bold text-neutral-400 hover:text-white w-full transition-colors"
+                className="mt-4 pt-4 border-t border-border text-sm font-bold text-muted hover:text-foreground w-full transition-colors"
               >
                 Cancel
               </button>
@@ -263,23 +264,23 @@ export function PokemonManagement() {
 
         {/* Slot Selection Modal */}
         {selectedForTeam && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div role="dialog" aria-modal="true" className="bg-neutral-950 text-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-neutral-800">
-              <h2 className="text-2xl font-black mb-2 text-white">Select Team Slot</h2>
-              <p className="text-neutral-400 mb-6">Which slot should this Pokémon take? (1-6)</p>
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div role="dialog" aria-modal="true" className="bg-background text-foreground rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-border">
+              <h2 className="text-2xl font-black mb-2 text-foreground">Select Team Slot</h2>
+              <p className="text-muted mb-6">Which slot should this Pokémon take? (1-6)</p>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {[0, 1, 2, 3, 4, 5].map(slot => (
                   <button
                     key={slot}
                     onClick={() => addMutation.mutate({ pokemonId: selectedForTeam, position: slot })}
-                    className="py-3 px-4 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white font-bold rounded-xl transition-colors flex items-center justify-between"
+                    className="py-3 px-4 bg-surface hover:bg-surface-raised border border-border text-foreground font-bold rounded-xl transition-colors flex items-center justify-between"
                   >
                     <span>Slot {slot + 1}</span>
                     {save?.party?.find((p: OwnedPokemonDto) => p.position === slot) ? (
-                      <span className="text-xs text-neutral-300 bg-neutral-800 px-2 py-1 rounded border border-neutral-700">Replace</span>
+                      <span className="text-xs text-muted bg-surface-raised px-2 py-1 rounded border border-border">Replace</span>
                     ) : (
-                      <span className="text-xs text-white bg-neutral-800 px-2 py-1 rounded border border-neutral-600 font-bold">Empty</span>
+                      <span className="text-xs text-foreground bg-surface-raised px-2 py-1 rounded border border-border font-bold">Empty</span>
                     )}
                   </button>
                 ))}
@@ -287,7 +288,7 @@ export function PokemonManagement() {
 
               <button
                 onClick={() => setSelectedForTeam(null)}
-                className="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white font-bold rounded-xl transition-colors border border-neutral-800"
+                className="w-full py-3 bg-surface hover:bg-surface-raised text-muted hover:text-foreground font-bold rounded-xl transition-colors border border-border"
               >
                 Cancel
               </button>

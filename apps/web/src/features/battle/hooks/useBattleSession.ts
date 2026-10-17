@@ -2,9 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { getEventMessage } from '../utils';
 import { useSocket } from '@/lib/SocketContext';
-import { toast } from 'sonner';
 import { useEffect } from 'react';
-import { BattleSessionDto, TurnEventDto, ActivePokemonDto } from '@astranox/types';;
+import { BattleSessionDto, TurnEventDto, ActivePokemonDto } from '@astranox/types';
 
 export function useBattleSession() {
   const queryClient = useQueryClient();

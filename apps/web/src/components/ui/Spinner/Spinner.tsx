@@ -13,10 +13,10 @@ export const spinnerVariants = cva(
         xl: 'h-12 w-12',
       },
       color: {
-        default: 'text-neutral-400',
+        default: 'text-muted',
         silt: 'text-silt-gold',
-        white: 'text-white',
-        primary: 'text-white',
+        white: 'text-foreground',
+        primary: 'text-foreground',
       },
     },
     defaultVariants: {

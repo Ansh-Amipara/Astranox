@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { registerSchema, loginSchema, updateProfileSchema } from '@astranox/types';;
+import { registerSchema, loginSchema, updateProfileSchema } from '@astranox/types';
 
 export const registerRouteSchema = z.object({
   body: registerSchema

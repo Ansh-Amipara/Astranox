@@ -7,6 +7,9 @@ import { Modal } from '@/shared/ui/Modal';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
+
 interface Props {
   isFinished: boolean;
   status: string;
@@ -24,7 +27,7 @@ export const BattleResultModal = memo(function BattleResultModal({
   lastTurnEvents,
   wildSpeciesName,
   returnUrl,
-  arenaTrainerId,
+  arenaTrainerId
 }: Props) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -43,8 +46,7 @@ export const BattleResultModal = memo(function BattleResultModal({
       queryClient.removeQueries({ queryKey: ['activeBattle'] });
     },
     onError: (err: any) => {
-      console.error(err);
-      alert(err.response?.data?.error?.message || 'Failed to start arena battle again');
+      notify.error(parseApiError(err).message || 'Failed to start arena battle again');
     }
   });
 
@@ -64,15 +66,15 @@ export const BattleResultModal = memo(function BattleResultModal({
   const displayEvents = rewardEvents;
 
   const eventsNode: any = displayEvents.length > 0 ? (
-    <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1 max-h-48 overflow-y-auto custom-scrollbar">
-      <span className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Got:</span>
+    <div className="w-full bg-surface-raised/50 rounded-xl p-4 mb-6 border border-border flex flex-col items-center gap-1 max-h-48 overflow-y-auto custom-scrollbar">
+      <span className="text-sm font-black text-muted uppercase tracking-widest mb-1">Got:</span>
       {(displayEvents as string[]).map((msg: string, i: number) => {
         const cleanMsg = msg.replace(/Battle Won! Reward:\s*/gi, '')
                             .replace(/Reward:\s*/gi, '')
                             .replace(/\+/g, '')
                             .trim();
         return (
-          <p key={i} className="text-center font-bold text-slate-700 dark:text-slate-300">
+          <p key={i} className="text-center font-bold text-muted">
             {cleanMsg}
           </p>
         );
@@ -84,9 +86,11 @@ export const BattleResultModal = memo(function BattleResultModal({
     <Modal isOpen={true} onClose={() => {}} className="max-w-xl" hideHeader>
       <div className="p-8 flex flex-col items-center">
         <h2 className={`text-3xl font-black mb-6 tracking-wide uppercase text-center ${
-          status === 'WON' || status === 'CAUGHT' ? 'text-green-600 dark:text-green-400' :
-          status === 'FLED' ? 'text-blue-600 dark:text-blue-400' :
-          'text-red-600 dark:text-red-400'
+          status === 'WON' || status === 'CAUGHT'
+            ? 'text-success'
+            : status === 'FLED'
+            ? 'text-warning'
+            : 'text-danger'
         }`}>
           {status === 'WON' ? 'VICTORY!' : status === 'CAUGHT' ? 'GOTCHA!' : status === 'FLED' ? 'FLED!' : 'DEFEATED!'}
         </h2>
@@ -96,26 +100,26 @@ export const BattleResultModal = memo(function BattleResultModal({
 
         {/* Tower Rewards */}
         {battleType === 'TOWER' && status === 'WON' && towerData?.activeEncounter?.reward && (
-          <div className="w-full bg-neutral-900 rounded-xl p-6 mb-6 border border-neutral-800 flex flex-row items-center justify-around shadow-inner">
+          <div className="w-full bg-surface rounded-xl p-6 mb-6 border border-border flex flex-row items-center justify-around shadow-inner">
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-neutral-950 rounded-xl flex items-center justify-center shadow-sm border border-neutral-800">
+              <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center shadow-sm border border-border">
                 <img src="/infinity.webp" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Coins</span>
-                <span className="text-xl font-black text-white">
+                <span className="text-[10px] font-black text-muted uppercase tracking-widest">Coins</span>
+                <span className="text-xl font-black text-foreground">
                   +{(towerData.activeEncounter.reward as any).infinityCoins || 0}
                 </span>
               </div>
             </div>
-            <div className="w-px h-16 bg-neutral-800"></div>
+            <div className="w-px h-16 bg-surface-raised"></div>
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-neutral-950 rounded-xl flex items-center justify-center shadow-sm border border-neutral-800">
+              <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center shadow-sm border border-border">
                 <img src="/xp.webp" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Stored XP</span>
-                <span className="text-xl font-black text-white">
+                <span className="text-[10px] font-black text-muted uppercase tracking-widest">Stored XP</span>
+                <span className="text-xl font-black text-foreground">
                   +{(towerData.activeEncounter.reward as any).storedXp || 0}
                 </span>
               </div>
@@ -124,11 +128,11 @@ export const BattleResultModal = memo(function BattleResultModal({
         )}
 
         <div className={`w-full py-4 px-6 rounded-xl mb-8 border font-bold text-center text-lg ${
-          status === 'WON' || status === 'CAUGHT' 
-            ? 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400'
-            : status === 'FLED' 
-            ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
-            : 'bg-red-100 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
+          status === 'WON' || status === 'CAUGHT'
+            ? 'bg-success/10 border-success/30 text-success'
+            : status === 'FLED'
+            ? 'bg-warning/10 border-warning/30 text-warning'
+            : 'bg-danger/10 border-danger/30 text-danger'
         }`}>
           {status === 'WON' ? (battleType === 'TOWER' ? 'You cleared the floor!' : battleType === 'RIFT' ? 'You cleared the Rift floor!' : battleType === 'NPC' ? 'You defeated the opponent!' : `You defeated the wild ${wildSpeciesName}!`) : 
            status === 'CAUGHT' ? `You caught ${wildSpeciesName}!` :
@@ -140,7 +144,7 @@ export const BattleResultModal = memo(function BattleResultModal({
             <button
               disabled={arenaEncounterMutation.isPending || completeTower.isPending || completeRift.isPending || abandonRift.isPending}
               onClick={() => arenaEncounterMutation.mutate(arenaTrainerId)}
-              className="w-full py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
+              className="w-full py-4 bg-gradient-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised text-foreground rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
             >
               {arenaEncounterMutation.isPending ? 'Starting...' : 'Fight Again'}
             </button>
@@ -189,7 +193,7 @@ export const BattleResultModal = memo(function BattleResultModal({
                 handleReturn();
               }
             }} 
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
+            className="w-full py-4 bg-gradient-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised text-foreground rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
           >
             {completeTower.isPending || completeRift.isPending || abandonRift.isPending ? 'Processing...' : 'Return'}
           </button>

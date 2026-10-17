@@ -53,28 +53,28 @@ export function useGiveXpPokemon(save: TrainerSaveDto | null, onSuccessCallback?
     return (
       <Modal isOpen={true} onClose={() => setGiveXpPkm(null)} className="max-w-md" hideHeader>
         <div className="p-4 sm:p-6 flex flex-col max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center gap-4 mb-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
             <img
               src={getSpriteUrl(giveXpPkm.speciesId)}
-              className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl object-contain pixelated border border-slate-200 dark:border-slate-700"
+              className="w-14 h-14 bg-surface-raised rounded-xl object-contain pixelated border border-border"
             />
             <div>
-              <h3 className="font-extrabold text-lg capitalize text-slate-900 dark:text-white">{giveXpPkm.nickname || giveXpPkm.species?.name}</h3>
-              <p className="text-xs font-bold text-slate-500">
-                Lv. {giveXpPkm.level} {addedAmount > 0 && <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">→ Lv. {previewLvl}</span>} • {newTotalXp.toLocaleString()} XP (Cap: Lv. {maxLvl})
+              <h3 className="font-extrabold text-lg capitalize text-foreground">{giveXpPkm.nickname || giveXpPkm.species?.name}</h3>
+              <p className="text-xs font-bold text-subtle">
+                Lv. {giveXpPkm.level} {addedAmount > 0 && <span className="text-foreground font-extrabold">→ Lv. {previewLvl}</span>} • {newTotalXp.toLocaleString()} XP (Cap: Lv. {maxLvl})
               </p>
             </div>
           </div>
 
-          <div className="bg-neutral-900 p-3 rounded-xl mb-4 border border-neutral-800 flex justify-between items-center text-sm">
-            <span className="font-semibold text-neutral-300">Your Stored XP:</span>
-            <span className="font-black text-white flex items-center gap-1.5">
+          <div className="bg-surface p-3 rounded-xl mb-4 border border-border flex justify-between items-center text-sm">
+            <span className="font-semibold text-muted">Your Stored XP:</span>
+            <span className="font-black text-foreground flex items-center gap-1.5">
               <img src="/xp.webp" alt="XP" className="w-4 h-4 object-contain" />
               {save?.storedXp?.toLocaleString() || 0} XP
             </span>
           </div>
 
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-subtle uppercase tracking-wider mb-2">
             Amount of XP to Give:
           </label>
           <input
@@ -86,7 +86,7 @@ export function useGiveXpPokemon(save: TrainerSaveDto | null, onSuccessCallback?
               setXpAmountInput(capped > 0 ? capped.toString() : '');
             }}
             placeholder="Enter XP amount"
-            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-lg mb-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-3 bg-surface-raised border border-border rounded-xl font-bold text-lg mb-3 text-foreground focus:outline-none focus:ring-2 focus:ring-border"
           />
 
           {/* Quick Amount Buttons */}
@@ -95,21 +95,21 @@ export function useGiveXpPokemon(save: TrainerSaveDto | null, onSuccessCallback?
               <button
                 key={amt}
                 onClick={() => handleAddXp(amt)}
-                className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                className="py-1.5 px-2 bg-surface-raised hover:bg-surface-raised border border-border rounded-lg text-xs font-bold text-muted transition-colors"
               >
                 +{amt >= 1000 ? `${amt / 1000}k` : amt}
               </button>
             ))}
             <button
               onClick={handleMaxXp}
-              className="py-1.5 px-2 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 border border-indigo-300 dark:border-indigo-700/60 rounded-lg text-xs font-black text-indigo-700 dark:text-indigo-300 transition-colors uppercase tracking-wider"
+              className="py-1.5 px-2 bg-surface-raised hover:bg-surface-raised border border-border/60 rounded-lg text-xs font-black text-foreground transition-colors uppercase tracking-wider"
             >
               Max
             </button>
           </div>
 
           {distributeXpMutation.isError && (
-            <p className="text-sm font-bold text-red-500 mb-4 text-center">
+            <p className="text-sm font-bold text-foreground mb-4 text-center">
               {(distributeXpMutation.error as any)?.response?.data?.error?.message || 'Failed to distribute XP'}
             </p>
           )}
@@ -117,7 +117,7 @@ export function useGiveXpPokemon(save: TrainerSaveDto | null, onSuccessCallback?
           <div className="flex gap-3">
             <button
               onClick={() => setGiveXpPkm(null)}
-              className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors"
+              className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors"
             >
               Cancel
             </button>
@@ -129,7 +129,7 @@ export function useGiveXpPokemon(save: TrainerSaveDto | null, onSuccessCallback?
                 }
               }}
               disabled={!xpAmountInput || parseInt(xpAmountInput, 10) <= 0 || distributeXpMutation.isPending}
-              className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+              className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors shadow-lg shadow-glow disabled:opacity-50"
             >
               {distributeXpMutation.isPending ? 'Giving XP...' : 'Give XP'}
             </button>

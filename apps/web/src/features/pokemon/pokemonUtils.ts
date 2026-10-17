@@ -2,26 +2,26 @@ export function getPotentialBadgeClasses(potential: string): string {
   const baseClasses = "text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border transition-colors";
   
   const themeMap: Record<string, string> = {
-    'F': "border-neutral-800 bg-neutral-900 text-neutral-400",
-    'E': "border-neutral-800 bg-neutral-900 text-neutral-400",
-    'D': "border-neutral-700 bg-neutral-900 text-neutral-300",
-    'C': "border-neutral-700 bg-neutral-900 text-neutral-200",
-    'B': "border-neutral-600 bg-neutral-800 text-neutral-200",
-    'A': "border-neutral-500 bg-neutral-800 text-white font-extrabold",
+    'F': "border-border bg-surface text-muted",
+    'E': "border-border bg-surface text-muted",
+    'D': "border-border bg-surface text-muted",
+    'C': "border-border bg-surface text-foreground",
+    'B': "border-border bg-surface-raised text-foreground",
+    'A': "border-border bg-surface-raised text-foreground font-extrabold",
 
-    'S_MINUS': "border-neutral-400 bg-neutral-900 text-white font-extrabold",
-    'S': "border-neutral-400 bg-neutral-800 text-white font-extrabold",
-    'S_PLUS': "border-neutral-300 bg-neutral-800 text-white font-extrabold shadow-sm",
+    'S_MINUS': "border-border bg-surface text-foreground font-extrabold",
+    'S': "border-border bg-surface-raised text-foreground font-extrabold",
+    'S_PLUS': "border-border bg-surface-raised text-foreground font-extrabold shadow-sm",
 
-    'SS_MINUS': "border-neutral-300 bg-neutral-900 text-white font-black",
-    'SS': "border-neutral-200 bg-neutral-800 text-white font-black",
-    'SS_PLUS': "border-white bg-neutral-900 text-white font-black shadow-glow",
+    'SS_MINUS': "border-border bg-surface text-foreground font-black",
+    'SS': "border-border bg-surface-raised text-foreground font-black",
+    'SS_PLUS': "border-border bg-surface-raised text-foreground font-black shadow-glow",
 
-    'SSS_MINUS': "border-white bg-neutral-800 text-white font-black shadow-glow",
-    'SSS': "border-white bg-black text-white font-black ring-1 ring-neutral-400 shadow-glow",
-    'SSS_PLUS': "border-white bg-white text-black font-black shadow-glow-lg",
+    'SSS_MINUS': "border-border bg-surface-raised text-foreground font-black shadow-glow",
+    'SSS': "border-foreground bg-surface text-foreground font-black ring-1 ring-border shadow-glow",
+    'SSS_PLUS': "border-foreground bg-primary text-primary-foreground font-black shadow-glow-lg",
     
-    'EX': "border-white bg-white text-black font-black shadow-glow-lg ring-1 ring-white",
+    'EX': "border-foreground bg-primary text-primary-foreground font-black shadow-glow-lg ring-1 ring-foreground",
   };
 
   const theme = themeMap[potential] || themeMap['D'];

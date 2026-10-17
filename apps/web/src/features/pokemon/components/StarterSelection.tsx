@@ -63,13 +63,13 @@ export function StarterSelection() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black px-4 py-12 text-white overflow-hidden transition-colors duration-200">
+    <div className="relative min-h-screen bg-background px-4 py-12 text-foreground overflow-hidden transition-colors duration-200">
       <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl mb-4">
+          <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl mb-4">
             Choose Your <span className="underline decoration-white decoration-4 underline-offset-8">Partner</span>
           </h1>
-          <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
+          <p className="text-lg text-muted max-w-2xl mx-auto">
             Welcome to Astranox. Choose one of the classic starter Pokémon from any generation to begin your journey.
           </p>
         </div>
@@ -81,11 +81,7 @@ export function StarterSelection() {
               <div
                 key={pkm.id}
                 onClick={() => setSelectedId(pkm.id)}
-                className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-300 ${
-                  isSelected
-                    ? 'border-white bg-neutral-900 shadow-[0_0_30px_rgba(255,255,255,0.2)] scale-105'
-                    : 'border-neutral-800 bg-neutral-950/80 hover:border-neutral-600 hover:bg-neutral-900/80 hover:scale-[1.02]'
-                }`}
+                className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-300 ${ isSelected ? 'border-border bg-surface shadow-glow scale-105' : 'border-border bg-background/80 hover:border-border hover:bg-surface/80 hover:scale-[1.02]' }`}
               >
                 <div className="relative z-20 flex flex-col items-center p-6">
                   <img
@@ -94,8 +90,8 @@ export function StarterSelection() {
                     className="h-32 w-32 object-contain transition-transform duration-500 group-hover:scale-110"
                     style={{ imageRendering: 'auto' }}
                   />
-                  <h3 className="mt-4 text-xl font-bold text-white capitalize">{pkm.name}</h3>
-                  <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">{pkm.type}</span>
+                  <h3 className="mt-4 text-xl font-bold text-foreground capitalize">{pkm.name}</h3>
+                  <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">{pkm.type}</span>
                 </div>
               </div>
             );
@@ -103,7 +99,7 @@ export function StarterSelection() {
         </div>
 
         {/* Fixed Confirmation Bar */}
-        <div className={`fixed bottom-0 left-0 right-0 border-t border-neutral-800 bg-black/95 backdrop-blur-md p-6 transform transition-transform duration-300 z-50 ${selectedId ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className={`fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur-md p-6 transform transition-transform duration-300 z-50 ${selectedId ? 'translate-y-0' : 'translate-y-full'}`}>
           <div className="max-w-5xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               {selectedId && (
@@ -114,8 +110,8 @@ export function StarterSelection() {
                 />
               )}
               <div>
-                <p className="text-sm text-neutral-400 font-semibold">Selected Partner</p>
-                <p className="text-xl font-black text-white">
+                <p className="text-sm text-muted font-semibold">Selected Partner</p>
+                <p className="text-xl font-black text-foreground">
                   {ALL_GENERATION_STARTERS.find(p => p.id === selectedId)?.name}
                 </p>
               </div>
@@ -124,7 +120,7 @@ export function StarterSelection() {
             <button
               onClick={handleConfirm}
               disabled={mutation.isPending}
-              className="rounded-xl bg-white px-8 py-3 font-extrabold text-black transition-all hover:bg-neutral-200 hover:scale-105 border border-white shadow-glow disabled:opacity-50 disabled:hover:scale-100"
+              className="rounded-xl bg-primary px-8 py-3 font-extrabold text-primary-foreground transition-all hover:bg-surface-raised hover:scale-105 border border-border shadow-glow disabled:opacity-50 disabled:hover:scale-100"
             >
               {mutation.isPending ? 'Confirming...' : 'Confirm Selection'}
             </button>
@@ -132,7 +128,7 @@ export function StarterSelection() {
         </div>
         
         {mutation.isError && (
-          <div className="mt-4 rounded-xl bg-neutral-900 p-4 text-center text-white border border-neutral-700">
+          <div className="mt-4 rounded-xl bg-surface p-4 text-center text-foreground border border-border">
             {mutation.error instanceof Error ? mutation.error.message : 'Failed to choose starter.'}
           </div>
         )}

@@ -10,6 +10,15 @@ export class AppError extends Error {
   }
 }
 
+export class ValidationError extends AppError {
+  public fields?: Record<string, string>;
+
+  constructor(message = 'Invalid input', fields?: Record<string, string>) {
+    super(message, 400, 'VALIDATION_ERROR');
+    this.fields = fields;
+  }
+}
+
 export class UnauthorizedError extends AppError {
   constructor(message = 'Unauthorized') {
     super(message, 401, 'UNAUTHORIZED');
@@ -22,17 +31,27 @@ export class ForbiddenError extends AppError {
   }
 }
 
-export class ValidationError extends AppError {
-  public details?: any;
-
-  constructor(message = 'Validation Error', details?: any) {
-    super(message, 400, 'VALIDATION_ERROR');
-    this.details = details;
-  }
-}
-
 export class NotFoundError extends AppError {
   constructor(message = 'Not Found') {
     super(message, 404, 'NOT_FOUND');
   }
 }
+
+export class ConflictError extends AppError {
+  constructor(message = 'Resource already exists') {
+    super(message, 409, 'CONFLICT');
+  }
+}
+
+export class RateLimitError extends AppError {
+  constructor(message = 'Too many requests. Please slow down.') {
+    super(message, 429, 'RATE_LIMIT_EXCEEDED');
+  }
+}
+
+export class BadRequestError extends AppError {
+  constructor(message = 'Bad Request') {
+    super(message, 400, 'BAD_REQUEST');
+  }
+}
+

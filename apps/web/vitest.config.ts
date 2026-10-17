@@ -12,6 +12,7 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.ts'],
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@astranox/types': path.resolve(__dirname, '../../packages/types/index.ts'),
     },
   },
 });

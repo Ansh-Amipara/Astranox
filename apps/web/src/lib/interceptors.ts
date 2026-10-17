@@ -32,14 +32,14 @@ export function setupInterceptors() {
       const originalRequest = error.config;
       const url = originalRequest?.url || '';
 
-      logErrorAndToast(error);
-      if (
-        error.response?.status === 401 && 
-        !originalRequest?._retry && 
-        !url.includes('/auth/refresh') && 
-        !url.includes('/auth/logout') && 
-        !url.includes('/auth/login')
-      ) {
+      const shouldAttemptRefresh =
+        error.response?.status === 401 &&
+        !originalRequest?._retry &&
+        !url.includes('/auth/refresh') &&
+        !url.includes('/auth/logout') &&
+        !url.includes('/auth/login');
+
+      if (shouldAttemptRefresh) {
         originalRequest._retry = true;
         try {
           const { data } = await apiClient.post('/auth/refresh', undefined, { silent: true });
@@ -48,14 +48,17 @@ export function setupInterceptors() {
           return apiClient(originalRequest);
         } catch (err) {
           useAuthStore.getState().logout();
+          logErrorAndToast(err);
           return Promise.reject(err);
         }
       }
 
+      logErrorAndToast(error);
+
       const customError = new Error(
         error.response?.data?.error?.message || error.message || 'An unexpected error occurred'
       ) as Error & { code?: string; status?: number; data?: unknown };
-      
+
       customError.code = error.response?.data?.error?.code || 'UNKNOWN_ERROR';
       customError.status = error.response?.status;
       customError.data = error.response?.data;

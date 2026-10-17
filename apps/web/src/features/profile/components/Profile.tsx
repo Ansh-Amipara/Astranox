@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { updateProfileSchema } from '@astranox/types';
 import { api } from '@/shared/api/api';
 import { useAuthStore } from '@/features/auth/store';
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
 
 const formatRank = (rank: string) => {
   if (!rank) return 'Unranked';
@@ -13,21 +15,30 @@ export function Profile() {
   const { user, setAuth } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState(user?.username || '');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (username: string) => {
-      const { data } = await api.post('/auth/update-profile', { username });
+      const parsed = updateProfileSchema.safeParse({ username });
+      if (!parsed.success) {
+        throw new Error(parsed.error.issues[0]?.message || 'Invalid username');
+      }
+      const { data } = await api.post('/auth/update-profile', { username: parsed.data.username });
       return data;
     },
     onSuccess: (res) => {
       if (res.success && res.data) {
         setAuth(res.data.accessToken, res.data.user);
         setIsEditing(false);
-        toast.success('Username updated successfully');
+        setUsernameError(null);
+        notify.success('Username updated successfully');
       }
     },
-    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(err.response?.data?.error?.message || 'Failed to update username');
+    onError: (err: unknown) => {
+      const parsed = parseApiError(err);
+      const msg = parsed.fields?.username || parsed.message || (err as Error)?.message || 'Failed to update username';
+      setUsernameError(msg);
+      notify.error(msg);
     }
   });
 
@@ -45,53 +56,64 @@ export function Profile() {
   if (!user) return null;
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-4rem)] p-4 md:p-8 flex flex-col bg-slate-50">
-      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200 flex-grow flex flex-col">
+    <div className="w-full h-full min-h-[calc(100vh-4rem)] p-4 md:p-8 flex flex-col bg-surface-raised">
+      <div className="bg-primary rounded-xl shadow-md overflow-hidden border border-border flex-grow flex flex-col">
         <div className="p-4 md:p-8 flex-grow">
-          <h1 className="text-3xl font-bold text-slate-800 mb-6">Player Profile</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-6">Player Profile</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
-            <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 h-full">
-              <h2 className="text-xl font-semibold text-slate-700 mb-4 border-b pb-2">Character</h2>
+            <div className="bg-surface-raised p-6 rounded-lg border border-border h-full">
+              <h2 className="text-xl font-semibold text-subtle mb-4 border-b pb-2">Character</h2>
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <span className="text-slate-500 font-medium">Username :</span>
+                  <span className="text-subtle font-medium">Username :</span>
                   {isEditing ? (
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={newUsername}
-                        onChange={(e) => setNewUsername(e.target.value)}
-                        className="px-2 py-1 border border-slate-300 rounded-md text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => updateProfileMutation.mutate(newUsername)}
-                        disabled={updateProfileMutation.isPending || !newUsername || newUsername === user.username}
-                        className="text-xs bg-red-500 text-white px-2 py-1.5 rounded hover:bg-red-600 disabled:opacity-50 font-medium transition-colors"
-                      >
-                        {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditing(false);
-                          setNewUsername(user.username);
-                        }}
-                        disabled={updateProfileMutation.isPending}
-                        className="text-xs bg-slate-200 text-slate-700 px-2 py-1.5 rounded hover:bg-slate-300 font-medium transition-colors"
-                      >
-                        Cancel
-                      </button>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={newUsername}
+                          onChange={(e) => {
+                            setNewUsername(e.target.value);
+                            setUsernameError(null);
+                          }}
+                          className="px-2 py-1 border border-border rounded-md text-sm outline-none focus:border-border focus:ring-1 focus:ring-border bg-surface text-foreground"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => updateProfileMutation.mutate(newUsername)}
+                          disabled={updateProfileMutation.isPending || !newUsername || newUsername === user.username}
+                          className="text-xs bg-surface-raised text-foreground px-2 py-1.5 rounded hover:bg-surface-raised disabled:opacity-50 font-medium transition-colors border border-border"
+                        >
+                          {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsEditing(false);
+                            setNewUsername(user.username);
+                            setUsernameError(null);
+                          }}
+                          disabled={updateProfileMutation.isPending}
+                          className="text-xs bg-surface-raised text-subtle px-2 py-1.5 rounded hover:bg-surface-raised font-medium transition-colors border border-border"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      {usernameError && (
+                        <span className="text-xs font-semibold text-foreground tracking-tight">
+                          • {usernameError}
+                        </span>
+                      )}
                     </div>
                   ) : (
                     <div className="flex items-center space-x-3">
-                      <span className="text-slate-800 font-bold">{user.username}</span>
+                      <span className="text-foreground font-bold">{user.username}</span>
                       <button
                         onClick={() => {
                           setNewUsername(user.username);
                           setIsEditing(true);
                         }}
-                        className="text-xs text-slate-500 hover:text-red-500 transition-colors font-medium border border-slate-200 hover:border-red-200 bg-white px-2 py-1 rounded"
+                        className="text-xs text-subtle hover:text-foreground transition-colors font-medium border border-border hover:border-border bg-primary px-2 py-1 rounded"
                       >
                         Edit
                       </button>
@@ -101,47 +123,47 @@ export function Profile() {
               </div>
             </div>
 
-            <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 h-full">
-              <h2 className="text-xl font-semibold text-slate-700 mb-4 border-b pb-2">Progression</h2>
+            <div className="bg-surface-raised p-6 rounded-lg border border-border h-full">
+              <h2 className="text-xl font-semibold text-subtle mb-4 border-b pb-2">Progression</h2>
               {isLoading ? (
                 <div className="animate-pulse space-y-3">
-                  <div className="h-5 bg-slate-200 rounded w-full"></div>
-                  <div className="h-5 bg-slate-200 rounded w-full"></div>
-                  <div className="h-5 bg-slate-200 rounded w-full"></div>
+                  <div className="h-5 bg-surface-raised rounded w-full"></div>
+                  <div className="h-5 bg-surface-raised rounded w-full"></div>
+                  <div className="h-5 bg-surface-raised rounded w-full"></div>
                 </div>
               ) : trainerSave ? (
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-slate-500 font-medium">Player CP</span>
-                    <span className="text-blue-600 font-black text-lg">{playerCp.toLocaleString()}</span>
+                  <div className="flex justify-between items-center p-3 bg-primary rounded-lg border border-border">
+                    <span className="text-subtle font-medium">Player CP</span>
+                    <span className="text-foreground font-black text-lg">{playerCp.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-slate-500 font-medium">Rank</span>
-                    <span className="text-slate-800 font-bold text-lg">{formatRank(trainerSave.rank)}</span>
+                  <div className="flex justify-between items-center p-3 bg-primary rounded-lg border border-border">
+                    <span className="text-subtle font-medium">Rank</span>
+                    <span className="text-foreground font-bold text-lg">{formatRank(trainerSave.rank)}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 p-3 bg-neutral-900 rounded-lg border border-neutral-800 flex flex-col">
-                      <span className="text-neutral-400 font-medium text-xs uppercase tracking-widest">Astral Coins</span>
+                    <div className="flex-1 p-3 bg-surface rounded-lg border border-border flex flex-col">
+                      <span className="text-muted font-medium text-xs uppercase tracking-widest">Astral Coins</span>
                       <div className="flex items-center gap-2 mt-2">
                         <img src="/astral.webp" alt="Astral" className="w-6 h-6 object-contain" />
-                        <span className="text-white font-black text-xl">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
+                        <span className="text-foreground font-black text-xl">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
-                    <div className="flex-1 p-3 bg-neutral-900 rounded-lg border border-neutral-800 flex flex-col">
-                      <span className="text-neutral-400 font-medium text-xs uppercase tracking-widest">Infinity Coins</span>
+                    <div className="flex-1 p-3 bg-surface rounded-lg border border-border flex flex-col">
+                      <span className="text-muted font-medium text-xs uppercase tracking-widest">Infinity Coins</span>
                       <div className="flex items-center gap-2 mt-2">
                         <img src="/infinity.webp" alt="Infinity" className="w-6 h-6 object-contain" />
-                        <span className="text-white font-black text-xl">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
+                        <span className="text-foreground font-black text-xl">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-slate-100">
-                    <span className="text-slate-500 font-medium">Badges</span>
-                    <span className="text-slate-800 font-bold text-lg">{trainerSave.badges?.length || 0}</span>
+                  <div className="flex justify-between items-center p-3 bg-primary rounded-lg border border-border">
+                    <span className="text-subtle font-medium">Badges</span>
+                    <span className="text-foreground font-bold text-lg">{trainerSave.badges?.length || 0}</span>
                   </div>
                 </div>
               ) : (
-                <div className="text-slate-500">Failed to load progression data.</div>
+                <div className="text-subtle">Failed to load progression data.</div>
               )}
             </div>
           </div>

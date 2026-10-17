@@ -8,12 +8,12 @@ export const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-neutral-800 text-neutral-300 border border-neutral-700',
-        success: 'bg-neutral-800 text-white border border-neutral-600',
-        warning: 'bg-neutral-800 text-neutral-200 border border-neutral-600',
-        error: 'bg-neutral-900 text-neutral-300 border border-neutral-700',
-        silt: 'bg-white text-black border border-white font-black shadow-[0_0_10px_rgba(255,255,255,0.2)]',
-        ink: 'bg-black text-white border border-neutral-800',
+        default: 'bg-surface-raised text-muted border border-border',
+        success: 'bg-success/10 text-success border border-success/30',
+        warning: 'bg-warning/10 text-warning border border-warning/30',
+        error: 'bg-danger/10 text-danger border border-danger/30',
+        silt: 'bg-primary text-primary-foreground border border-border font-black shadow-glow',
+        ink: 'bg-surface text-foreground border border-border',
       },
       size: {
         sm: 'px-2 py-0.5 text-[9px]',

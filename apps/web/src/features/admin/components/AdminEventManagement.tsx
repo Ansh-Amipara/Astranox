@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
-import { toast } from 'sonner';
-import { SpeciesDto } from '@astranox/types';;
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
+import { SpeciesDto } from '@astranox/types';
 import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Modal } from '@/shared/ui/Modal';
@@ -47,13 +48,13 @@ export function AdminEventManagement() {
       return api.post('/admin/events', data);
     },
     onSuccess: () => {
-      toast.success('Event saved successfully');
+      notify.success('Event saved successfully');
       queryClient.invalidateQueries({ queryKey: ['adminEvents'] });
       setIsModalOpen(false);
       setEditingEvent(null);
     },
-    onError: (err: { response?: { data?: { error?: { message?: string } } } }) => {
-      toast.error(err?.response?.data?.error?.message || 'Failed to save event');
+    onError: (err: unknown) => {
+      notify.error(parseApiError(err).message || 'Failed to save event');
     }
   });
 
@@ -62,7 +63,7 @@ export function AdminEventManagement() {
       return api.delete(`/admin/events/${id}`);
     },
     onSuccess: () => {
-      toast.success('Event deleted');
+      notify.success('Event deleted');
       queryClient.invalidateQueries({ queryKey: ['adminEvents'] });
     }
   });
@@ -104,12 +105,12 @@ export function AdminEventManagement() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white leading-tight">
+        <h1 className="text-3xl font-black text-foreground leading-tight">
           Events
         </h1>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors whitespace-nowrap"
+          className="flex items-center gap-2 px-4 py-2 bg-surface-raised text-foreground rounded-lg font-bold hover:bg-surface-raised transition-colors whitespace-nowrap"
         >
           <FiPlus className="w-5 h-5" /> New
         </button>
@@ -117,12 +118,12 @@ export function AdminEventManagement() {
 
       {isLoading ? (
         <div className="flex justify-center p-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-border"></div>
         </div>
       ) : (
         <div className="md:overflow-x-auto">
           <table className="w-full text-left border-collapse block md:table md:min-w-[800px]">
-            <thead className="hidden md:table-header-group bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 text-sm uppercase font-bold tracking-wider">
+            <thead className="hidden md:table-header-group bg-surface-raised/50 border-b border-border text-subtle text-sm uppercase font-bold tracking-wider">
               <tr>
                 <th className="p-4 whitespace-nowrap">Status</th>
                 <th className="p-4 whitespace-nowrap">Name</th>
@@ -131,61 +132,61 @@ export function AdminEventManagement() {
                 <th className="p-4 text-right whitespace-nowrap">Reward</th>
               </tr>
             </thead>
-            <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50 md:bg-transparent dark:bg-slate-950 md:dark:bg-transparent">
+            <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-border bg-surface-raised md:bg-transparent md:">
               {eventsData?.map((evt: { id: string, name: string, status: string, startDate: string, endDate: string, rules: any, description: string, isActive: boolean, taskType: string, rewardConfig?: any }) => (
-                <tr key={evt.id} className="block md:table-row bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 md:border-none rounded-xl md:rounded-none overflow-hidden shadow-sm md:shadow-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                <tr key={evt.id} className="block md:table-row bg-surface border border-border md:border-none rounded-xl md:rounded-none overflow-hidden shadow-sm md:shadow-none hover:bg-surface-raised transition-colors">
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                     <div className="flex justify-between items-center md:block">
-                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Status</span>
+                      <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Status</span>
                       {new Date() >= new Date(evt.startDate) && new Date() <= new Date(evt.endDate) ? (
-                        <span className="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded w-fit text-xs">
+                        <span className="flex items-center gap-1 text-foreground font-bold bg-surface-raised px-2 py-1 rounded w-fit text-xs">
                           <FiCheckCircle /> Active
                         </span>
                       ) : new Date() < new Date(evt.startDate) ? (
-                        <span className="flex items-center gap-1 text-blue-600 font-bold bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded w-fit text-xs">
+                        <span className="flex items-center gap-1 text-foreground font-bold bg-surface-raised px-2 py-1 rounded w-fit text-xs">
                           <FiCircle /> Future
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1 text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded w-fit text-xs">
+                        <span className="flex items-center gap-1 text-subtle font-bold bg-surface-raised px-2 py-1 rounded w-fit text-xs">
                           <FiCircle /> Inactive
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                     <div className="flex justify-between items-center md:block">
-                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider mr-4">Name</span>
+                      <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider mr-4">Name</span>
                       <div className="text-right md:text-left">
-                        <div className="font-bold text-slate-900 dark:text-white">{evt.name}</div>
-                        <div className="text-sm text-slate-500 truncate max-w-[150px] md:max-w-xs">{evt.description}</div>
+                        <div className="font-bold text-foreground">{evt.name}</div>
+                        <div className="text-sm text-subtle truncate max-w-[150px] md:max-w-xs">{evt.description}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                     <div className="flex justify-between items-center md:block">
-                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Task Type</span>
-                      <span className="font-mono text-sm text-purple-600 dark:text-purple-400">{evt.taskType}</span>
+                      <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Task Type</span>
+                      <span className="font-mono text-sm text-foreground">{evt.taskType}</span>
                     </div>
                   </td>
-                  <td className="block md:table-cell p-3 md:p-4 border-b border-slate-100 dark:border-slate-800 md:border-none">
+                  <td className="block md:table-cell p-3 md:p-4 border-b border-border md:border-none">
                     <div className="flex justify-between items-center md:block">
-                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Dates</span>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 text-right md:text-left">
+                      <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Dates</span>
+                      <div className="text-sm text-muted text-right md:text-left">
                         <div>Start: {new Date(evt.startDate).toLocaleDateString('en-GB')}</div>
                         <div>End: {new Date(evt.endDate).toLocaleDateString('en-GB')}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="block md:table-cell p-3 md:p-4 bg-slate-50 dark:bg-slate-800/30 md:bg-transparent">
+                  <td className="block md:table-cell p-3 md:p-4 bg-surface-raised/30 md:bg-transparent">
                     <div className="flex justify-between md:justify-end items-center gap-2">
-                      <span className="md:hidden font-bold text-slate-400 text-xs uppercase tracking-wider">Reward</span>
+                      <span className="md:hidden font-bold text-muted text-xs uppercase tracking-wider">Reward</span>
                       <div className="text-right flex flex-col items-end">
-                        <span className="font-bold text-slate-900 dark:text-white">
+                        <span className="font-bold text-foreground">
                           {evt.rewardConfig?.speciesId 
                             ? speciesList.find((s: any) => s.id === evt.rewardConfig.speciesId)?.name || `Species #${evt.rewardConfig.speciesId}`
                             : 'No Pokémon'}
                         </span>
-                        <span className="text-xs font-bold text-amber-500 uppercase">
+                        <span className="text-xs font-bold text-foreground uppercase">
                           {evt.rewardConfig?.potential || 'NONE'}
                         </span>
                       </div>
@@ -195,7 +196,7 @@ export function AdminEventManagement() {
               ))}
               {(!eventsData || eventsData.length === 0) && (
                 <tr className="block md:table-row">
-                  <td colSpan={5} className="block md:table-cell p-8 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-xl md:rounded-none">No events found.</td>
+                  <td colSpan={5} className="block md:table-cell p-8 text-center text-subtle bg-surface rounded-xl md:rounded-none">No events found.</td>
                 </tr>
               )}
             </tbody>
@@ -232,34 +233,34 @@ export function AdminEventManagement() {
                 };
                 saveMutation.mutate(data);
               } catch (err) {
-                toast.error("Failed to parse form data");
+                notify.error("Failed to parse form data");
               }
             }} className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-3 md:col-span-1">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Name</label>
-                  <input name="name" required defaultValue={editingEvent?.name} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
+                  <label className="block text-sm font-bold text-muted mb-1">Name</label>
+                  <input name="name" required defaultValue={editingEvent?.name} className="w-full bg-surface-raised border border-border rounded-lg px-4 py-2 text-foreground" />
                 </div>
                 <div className="col-span-3 md:col-span-1">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
+                  <label className="block text-sm font-bold text-muted mb-1">Start Date</label>
                   <DatePicker name="startDate" required value={editingEvent?.startDate ? new Date(editingEvent.startDate).toISOString().slice(0, 10) : ''} className="w-full" />
                 </div>
                 <div className="col-span-3 md:col-span-1">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">End Date</label>
+                  <label className="block text-sm font-bold text-muted mb-1">End Date</label>
                   <DatePicker name="endDate" required value={editingEvent?.endDate ? new Date(editingEvent.endDate).toISOString().slice(0, 10) : ''} className="w-full" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                <textarea name="description" rows={2} required defaultValue={editingEvent?.description} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white" />
+                <label className="block text-sm font-bold text-muted mb-1">Description</label>
+                <textarea name="description" rows={2} required defaultValue={editingEvent?.description} className="w-full bg-surface-raised border border-border rounded-lg px-4 py-2 text-foreground" />
               </div>
 
-              <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
-                <h3 className="font-black text-slate-900 dark:text-white">Task Configuration</h3>
+              <div className="bg-surface-raised/50 p-4 rounded-xl border border-border space-y-4">
+                <h3 className="font-black text-foreground">Task Configuration</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Task Type</label>
+                    <label className="block text-sm font-bold text-muted mb-1">Task Type</label>
                     <Dropdown
                       value={formState.taskType}
                       onChange={v => setFormState({ ...formState, taskType: v })}
@@ -275,18 +276,18 @@ export function AdminEventManagement() {
                     <input type="hidden" name="taskType" value={formState.taskType} />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm font-bold text-muted mb-1">
                       {['CLEAR_TOWER', 'CLEAR_RIFT'].includes(formState.taskType) ? 'Floors to Clear (Max 100)' : 'Required Count (Max 100)'}
                     </label>
                     <input type="text" name="task_requiredCount" required defaultValue={editingEvent?.taskConfig?.requiredCount || 5} onChange={(e) => {
                       let val = e.target.value.replace(/\D/g, '');
                       if (Number(val) > 100) val = '100';
                       e.target.value = val;
-                    }} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                    }} className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-border" />
                   </div>
                   {['DEFEAT_WILD_POKEMON', 'CAPTURE_POKEMON'].includes(formState.taskType) && (
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Target Type (Optional)</label>
+                      <label className="block text-sm font-bold text-muted mb-1">Target Type (Optional)</label>
                       <Dropdown
                         value={formState.taskPokemonType}
                         onChange={v => setFormState({ ...formState, taskPokemonType: v })}
@@ -306,26 +307,26 @@ export function AdminEventManagement() {
                 </div>
               </div>
 
-              <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
-                <h3 className="font-black text-slate-900 dark:text-white">Reward Configuration</h3>
+              <div className="bg-surface-raised/50 p-4 rounded-xl border border-border space-y-4">
+                <h3 className="font-black text-foreground">Reward Configuration</h3>
 
                 <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Search Species</label>
+                      <label className="block text-sm font-bold text-muted mb-1">Search Species</label>
                       <input
                         type="text"
                         placeholder="Search name..."
                         value={speciesSearch}
                         onChange={e => setSpeciesSearch(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-border"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Select Species</label>
+                      <label className="block text-sm font-bold text-muted mb-1">Select Species</label>
                       {speciesLoading ? (
-                        <div className="text-slate-500 text-sm py-2 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">Loading...</div>
+                        <div className="text-subtle text-sm py-2 px-4 bg-surface border border-border rounded-lg">Loading...</div>
                       ) : (
                         <>
                           <Dropdown
@@ -351,7 +352,7 @@ export function AdminEventManagement() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                      <label className="block text-sm font-bold text-muted mb-1">Category</label>
                       <Dropdown
                         value={formState.speciesFilterCategory}
                         onChange={v => setFormState({ ...formState, speciesFilterCategory: v })}
@@ -365,7 +366,7 @@ export function AdminEventManagement() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Potential</label>
+                      <label className="block text-sm font-bold text-muted mb-1">Potential</label>
                       <Dropdown
                         value={formState.rewardPotential}
                         onChange={v => setFormState({ ...formState, rewardPotential: v, rewardLevel: getMaxLevelForPotential(v) })}
@@ -382,14 +383,14 @@ export function AdminEventManagement() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Level (Max {getMaxLevelForPotential(formState.rewardPotential)})</label>
+                      <label className="block text-sm font-bold text-muted mb-1">Level (Max {getMaxLevelForPotential(formState.rewardPotential)})</label>
                       <input type="text" name="reward_level" required value={formState.rewardLevel} onChange={(e) => {
                         let val = e.target.value.replace(/\D/g, '');
                         if (Number(val) > getMaxLevelForPotential(formState.rewardPotential)) {
                           val = String(getMaxLevelForPotential(formState.rewardPotential));
                         }
                         setFormState({ ...formState, rewardLevel: val });
-                      }} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                      }} className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-border" />
                     </div>
                   </div>
                 </div>
@@ -397,10 +398,10 @@ export function AdminEventManagement() {
               </div>
             </form>
           </div>
-          <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
+          <div className="px-6 py-4 border-t border-border bg-surface-raised/50 flex justify-end gap-3">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-muted font-bold hover:bg-surface-raised rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -408,7 +409,7 @@ export function AdminEventManagement() {
               type="submit"
               form="event-form"
               disabled={saveMutation.isPending}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors"
+              className="px-6 py-2 bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors"
             >
               {saveMutation.isPending ? 'Saving...' : 'Save Event'}
             </button>

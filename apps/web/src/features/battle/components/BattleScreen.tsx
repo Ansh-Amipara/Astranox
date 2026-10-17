@@ -62,15 +62,15 @@ export function BattleScreen() {
   const returnUrl = searchParams?.get('returnUrl') || '/';
   const arenaTrainerId = searchParams?.get('arenaTrainerId') || null;
 
-  if (isLoading) return <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Battle...</div>;
+  if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center text-foreground transition-colors duration-200">Loading Battle...</div>;
 
   if (error || !battleRes) {
     return (
-      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white gap-4 transition-colors duration-200 p-6 text-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-foreground gap-4 transition-colors duration-200 p-6 text-center">
         <h2 className="text-2xl font-black">No Active Battle</h2>
-        <p className="text-slate-500 max-w-sm text-sm">You currently do not have an ongoing battle session. Start a new encounter below!</p>
+        <p className="text-subtle max-w-sm text-sm">You currently do not have an ongoing battle session. Start a new encounter below!</p>
         <div className="flex gap-3">
-          <button onClick={() => navigate(returnUrl)} className="px-5 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl font-bold transition-colors">
+          <button onClick={() => navigate(returnUrl)} className="px-5 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors">
             Return
           </button>
         </div>

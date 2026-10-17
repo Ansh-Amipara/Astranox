@@ -1,83 +1,105 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { adminLoginSchema, type AdminLoginInput } from '@astranox/types';
 import { useAuthStore } from '@/features/auth/store';
 import { apiClient } from '@/lib/axios';
+import { notify } from '@/lib/toast';
+import { parseApiError } from '@/lib/apiError';
+import { Field, Input, Button } from '@/components/ui';
+import { Loader2 } from 'lucide-react';
 
 export function AdminLogin() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
   const navigate = useNavigate();
-  const setAuth = useAuthStore(state => state.setAuth);
+  const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<AdminLoginInput>({
+    resolver: zodResolver(adminLoginSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+  });
 
+  const onSubmit = async (data: AdminLoginInput) => {
     try {
-      const { data } = await apiClient.post('/auth/login', { username, password });
-      
-      if (data.data.user.role !== 'ADMIN') {
+      const response = await apiClient.post('/auth/login', data);
+      const { accessToken, user } = response.data.data;
+
+      if (user.role !== 'ADMIN') {
         throw new Error('This account does not have admin privileges.');
       }
-      
-      setAuth(data.data.accessToken, data.data.user);
+
+      setAuth(accessToken, user);
+      notify.success('Admin session initialized');
       navigate('/admin/dashboard');
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: { message?: string } } } };
-      setError(error.response?.data?.error?.message || 'Login failed');
-    } finally {
-      setIsLoading(false);
+      const parsed = parseApiError(err);
+      if (parsed.fields) {
+        for (const [key, msg] of Object.entries(parsed.fields)) {
+          if (key in data) {
+            setError(key as keyof AdminLoginInput, { message: msg });
+          }
+        }
+      } else {
+        const errorMsg = parsed.message || (err as Error)?.message || 'Login failed';
+        setError('root', { message: errorMsg });
+        notify.error(errorMsg);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-start sm:pt-24 justify-center sm:p-4">
-      <div className="max-w-md w-full min-h-screen sm:min-h-0 bg-white dark:bg-slate-900 border-0 sm:border border-slate-200 dark:border-slate-800 p-8 rounded-none sm:rounded-2xl shadow-2xl">
+    <div className="min-h-screen bg-background flex items-start sm:pt-24 justify-center sm:p-4">
+      <div className="max-w-md w-full min-h-screen sm:min-h-0 bg-surface border-0 sm:border border-border p-8 rounded-none sm:rounded-2xl shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Admin Portal</h1>
+          <h1 className="text-3xl font-black text-foreground mb-2 tracking-tight">Admin Portal</h1>
+          <p className="text-xs uppercase font-bold tracking-widest text-muted">Restricted Terminal Access</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-sm font-bold">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Username</label>
-            <input 
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-medium"
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <Field label="Username" error={errors.username?.message} required>
+            <Input
+              {...register('username')}
               placeholder="admin"
-              required
+              autoComplete="username"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Password</label>
-            <input 
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors font-medium"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+          </Field>
 
-          <button 
+          <Field label="Password" error={errors.password?.message} required>
+            <Input
+              type="password"
+              {...register('password')}
+              placeholder="••••••••"
+              autoComplete="current-password"
+            />
+          </Field>
+
+          {errors.root?.message && (
+            <div className="rounded-xl bg-surface-raised border border-border p-4 text-foreground text-sm font-bold">
+              {errors.root.message}
+            </div>
+          )}
+
+          <Button
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 mt-8"
+            disabled={isSubmitting}
+            className="w-full mt-4"
           >
-            {isLoading ? 'Authenticating...' : 'Access Terminal'}
-          </button>
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
+                Authenticating...
+              </span>
+            ) : (
+              'Access Terminal'
+            )}
+          </Button>
         </form>
       </div>
     </div>
@@ -85,4 +107,3 @@ export function AdminLogin() {
 }
 
 export const AdminLoginForm = AdminLogin;
-

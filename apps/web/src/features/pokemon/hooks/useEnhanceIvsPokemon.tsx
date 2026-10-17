@@ -55,22 +55,22 @@ export function useEnhanceIvsPokemon(save: TrainerSaveDto | null, onSuccessCallb
     return (
       <Modal isOpen={true} onClose={() => { if (!boostIvMutation.isPending) setBoostIvPkm(null); }} className="max-w-lg" hideHeader>
         <div className="p-8 flex flex-col relative overflow-hidden text-center">
-          <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-br from-surface to-surface-raised pointer-events-none" />
 
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6 relative z-10 tracking-widest uppercase">
+          <h2 className="text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
             Enhance IVs
           </h2>
 
-          <div className="relative z-10 mb-6 flex justify-center gap-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner">
+          <div className="relative z-10 mb-6 flex justify-center gap-4 bg-surface-raised p-1.5 rounded-xl border border-border shadow-inner">
             <button
               onClick={() => setSelectedIvItem('bottle-cap')}
-              className={`flex-1 py-2 rounded-lg font-bold transition-all ${!isGold ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200 dark:border-slate-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 border border-transparent'}`}
+              className={`flex-1 py-2 rounded-lg font-bold transition-all ${!isGold ? 'bg-surface text-foreground shadow-sm border border-border' : 'text-subtle hover:text-muted border border-transparent'}`}
             >
               Bottle Cap
             </button>
             <button
               onClick={() => setSelectedIvItem('gold-bottle-cap')}
-              className={`flex-1 py-2 rounded-lg font-bold transition-all ${isGold ? 'bg-white dark:bg-slate-700 text-yellow-600 dark:text-yellow-400 shadow-sm border border-slate-200 dark:border-slate-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 border border-transparent'}`}
+              className={`flex-1 py-2 rounded-lg font-bold transition-all ${isGold ? 'bg-surface text-foreground shadow-sm border border-border' : 'text-subtle hover:text-muted border border-transparent'}`}
             >
               Gold Bottle Cap
             </button>
@@ -82,7 +82,7 @@ export function useEnhanceIvsPokemon(save: TrainerSaveDto | null, onSuccessCallb
                 <button
                   key={opt.key}
                   onClick={() => setSelectedIvStat(opt.key)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-surface-raised text-foreground border-border shadow-md' : 'bg-surface text-muted border-border hover:bg-surface-raised '}`}
                 >
                   {opt.label}: {(boostIvPkm as unknown as Record<string, number>)[opt.key]}
                 </button>
@@ -92,39 +92,39 @@ export function useEnhanceIvsPokemon(save: TrainerSaveDto | null, onSuccessCallb
 
           <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
             <div className="flex flex-col items-center">
-              <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">
+              <span className="font-bold text-muted text-sm">
                 {isGold ? 'All IVs' : 'Current IV'}
               </span>
-              <span className="font-black text-slate-900 dark:text-white text-3xl">{isGold ? 'VARIES' : statValue}</span>
+              <span className="font-black text-foreground text-3xl">{isGold ? 'VARIES' : statValue}</span>
             </div>
 
             {!isMaxed && (
-              <div className="flex flex-col items-center justify-center text-blue-500 animate-pulse">
+              <div className="flex flex-col items-center justify-center text-foreground animate-pulse">
                 <ArrowRight className="w-8 h-8" strokeWidth={2.5} />
               </div>
             )}
 
             {!isMaxed && (
               <div className="flex flex-col items-center">
-                <span className="font-bold text-slate-900 dark:text-white text-sm">
+                <span className="font-bold text-foreground text-sm">
                   {isGold ? 'All IVs' : 'Next IV'}
                 </span>
-                <span className="font-black text-blue-500 text-3xl">31</span>
+                <span className="font-black text-foreground text-3xl">31</span>
               </div>
             )}
             {isMaxed && (
               <div className="flex flex-col items-center justify-center ml-8">
-                <span className="text-3xl font-black text-yellow-500 uppercase tracking-widest drop-shadow-md">MAXED!</span>
+                <span className="text-3xl font-black text-foreground uppercase tracking-widest drop-shadow-md">MAXED!</span>
               </div>
             )}
           </div>
 
           {!isMaxed && (
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 relative z-10 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Required Item</h4>
+            <div className="bg-surface-raised/50 rounded-2xl p-5 mb-8 relative z-10 border border-border">
+              <h4 className="text-xs uppercase font-bold text-muted tracking-wider mb-3">Required Item</h4>
               <div className="flex flex-col items-center">
-                <span className="text-xl font-black text-slate-800 dark:text-white">{requiredItemName}</span>
-                <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 ${hasCrystal ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span className="text-xl font-black text-foreground">{requiredItemName}</span>
+                <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-surface border border-border ${hasCrystal ? 'text-foreground' : 'text-foreground'}`}>
                   In Bag: {ownedCrystal?.quantity || 0}
                 </span>
               </div>
@@ -135,7 +135,7 @@ export function useEnhanceIvsPokemon(save: TrainerSaveDto | null, onSuccessCallb
             <button
               onClick={() => setBoostIvPkm(null)}
               disabled={boostIvMutation.isPending}
-              className="px-6 py-3 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
+              className="px-6 py-3 font-bold text-muted hover:bg-surface-raised rounded-xl transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -144,7 +144,7 @@ export function useEnhanceIvsPokemon(save: TrainerSaveDto | null, onSuccessCallb
               <button
                 onClick={() => boostIvMutation.mutate({ pokemonId: boostIvPkm.id, itemId: requiredItemId, stat: selectedIvStat })}
                 disabled={boostIvMutation.isPending}
-                className="px-8 py-3 font-black tracking-widest text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                className="px-8 py-3 font-black tracking-widest text-foreground bg-surface-raised hover:bg-surface-raised rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
               >
                 {boostIvMutation.isPending ? 'ENHANCING...' : 'ENHANCE IV!'}
               </button>

@@ -7,11 +7,11 @@ export const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-neutral-950 border-neutral-800 text-white shadow-xl',
+        default: 'bg-background border-border text-foreground shadow-xl',
         glass:
-          'bg-black/80 backdrop-blur-xl border-neutral-800/80 shadow-[0_8px_32px_rgba(0,0,0,0.8)] text-white',
+          'bg-surface/80 backdrop-blur-xl border-border shadow-glow text-foreground',
         glow:
-          'bg-neutral-950 border-neutral-700 shadow-glow-card hover:shadow-glow-card-hover hover:border-neutral-400 text-white',
+          'bg-background border-border shadow-glow-card hover:shadow-glow-card-hover hover:border-border text-foreground',
       },
       padding: {
         none: '',
@@ -61,7 +61,7 @@ export function CardRoot({
       className={cn(
         cardVariants({ variant, padding }),
         isInteractive &&
-          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         className
       )}
       {...props}

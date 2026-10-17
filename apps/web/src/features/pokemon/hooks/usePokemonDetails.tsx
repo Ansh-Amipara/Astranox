@@ -31,17 +31,17 @@ export function usePokemonDetails() {
           <div className="flex items-center gap-4">
             <img
               src={getSpriteUrl(detailsPkm.speciesId)}
-              className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-xl object-contain pixelated border border-slate-200 dark:border-slate-700"
+              className="w-20 h-20 bg-surface-raised rounded-xl object-contain pixelated border border-border"
             />
             <div>
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white capitalize">
+              <h2 className="text-3xl font-black text-foreground capitalize">
                 {detailsPkm.nickname || detailsPkm.species?.name}
               </h2>
               <div className="flex flex-wrap items-center gap-2 mt-2">
-                <span className="text-xs px-2 py-1 rounded font-bold border border-blue-200 dark:border-blue-800 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400">
+                <span className="text-xs px-2 py-1 rounded font-bold border border-border bg-surface-raised text-foreground">
                   Lv. {detailsPkm.level}
                 </span>
-                <span className="text-xs px-2 py-1 rounded font-bold border border-amber-200 dark:border-amber-800 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                <span className="text-xs px-2 py-1 rounded font-bold border border-border bg-surface-raised text-foreground uppercase tracking-wider">
                   Rank {getBattleRank(detailsPkm.speciesId)}
                 </span>
                 {detailsPkm.potential && (
@@ -50,23 +50,23 @@ export function usePokemonDetails() {
                   </span>
                 )}
                 {detailsPkm.potential && detailsPkm.level >= getMaxLevelForPotential(detailsPkm.potential as string) && (
-                  <span className="text-xs px-2 py-1 rounded font-bold border border-red-200 dark:border-red-900/50 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase tracking-wider">
+                  <span className="text-xs px-2 py-1 rounded font-bold border border-border/50 bg-surface-raised text-foreground uppercase tracking-wider">
                     Capped
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <button onClick={() => setDetailsPkm(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl">✕</button>
+          <button onClick={() => setDetailsPkm(null)} className="text-muted hover:text-subtle text-xl">✕</button>
         </div>
 
         <div className="w-full">
           {/* Stats section */}
           <div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">Stats Overview</h3>
-            <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <h3 className="text-lg font-bold text-foreground mb-3 border-b border-border pb-2">Stats Overview</h3>
+            <div className="overflow-hidden rounded-lg border border-border bg-surface">
               <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold">
+                <thead className="bg-surface-raised/50 text-muted text-xs uppercase font-bold">
                   <tr>
                     <th className="px-4 py-3">Stat</th>
                     <th className="px-4 py-3 text-center">Base</th>
@@ -74,7 +74,7 @@ export function usePokemonDetails() {
                     <th className="px-4 py-3 text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {[
                     { label: 'HP', stat: calculateHP(detailsPkm.species.hp, detailsPkm.ivHp || 0, detailsPkm.level, detailsPkm.species.isGmax), iv: detailsPkm.ivHp || 0, base: detailsPkm.species.hp },
                     { label: 'Attack', stat: calculateStat(detailsPkm.species.attack, detailsPkm.ivAttack || 0, detailsPkm.level), iv: detailsPkm.ivAttack || 0, base: detailsPkm.species.attack },
@@ -83,11 +83,11 @@ export function usePokemonDetails() {
                     { label: 'Sp. Def', stat: calculateStat(detailsPkm.species.spDef, detailsPkm.ivSpDef || 0, detailsPkm.level), iv: detailsPkm.ivSpDef || 0, base: detailsPkm.species.spDef },
                     { label: 'Speed', stat: calculateStat(detailsPkm.species.speed, detailsPkm.ivSpeed || 0, detailsPkm.level), iv: detailsPkm.ivSpeed || 0, base: detailsPkm.species.speed },
                   ].map(s => (
-                    <tr key={s.label} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
-                      <td className="px-4 py-2 text-slate-700 dark:text-slate-300">{s.label}</td>
-                      <td className="px-4 py-2 text-center text-slate-700 dark:text-slate-300">{s.base}</td>
-                      <td className="px-4 py-2 text-center text-slate-700 dark:text-slate-300">{s.iv}</td>
-                      <td className="px-4 py-2 text-right text-slate-700 dark:text-slate-300">{s.stat}</td>
+                    <tr key={s.label} className="hover:bg-surface-raised transition-colors">
+                      <td className="px-4 py-2 text-muted">{s.label}</td>
+                      <td className="px-4 py-2 text-center text-muted">{s.base}</td>
+                      <td className="px-4 py-2 text-center text-muted">{s.iv}</td>
+                      <td className="px-4 py-2 text-right text-muted">{s.stat}</td>
                     </tr>
                   ))}
                 </tbody>

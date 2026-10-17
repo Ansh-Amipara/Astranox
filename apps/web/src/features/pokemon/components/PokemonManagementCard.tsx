@@ -22,16 +22,16 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
           onClick(p);
         }
       }}
-      className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black ${inParty ? 'border-white shadow-glow' : 'border-neutral-800'} bg-neutral-950 shadow-lg hover:border-neutral-500`}
+      className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-border focus-visible:ring-offset-black ${inParty ? 'border-border shadow-glow' : 'border-border'} bg-background shadow-lg hover:border-border`}
       onClick={() => onClick(p)}
     >
       {inParty && !p.isEscrowed && (
-        <div className="absolute top-3 right-3 bg-white text-black text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10 shadow-sm">
+        <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10 shadow-sm">
           In Party
         </div>
       )}
       {p.isEscrowed && (
-        <div className="absolute top-3 right-3 bg-neutral-700 text-white text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
+        <div className="absolute top-3 right-3 bg-surface-raised text-foreground text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
           In Trade
         </div>
       )}
@@ -39,7 +39,7 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
       <div className="p-4 md:p-5 flex flex-col gap-4">
         {/* Top Section: Image and Core Info */}
         <div className="flex items-start gap-4 md:gap-5">
-          <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 flex items-center justify-center bg-neutral-900 rounded-xl border border-neutral-800 shadow-inner relative">
+          <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 flex items-center justify-center bg-surface rounded-xl border border-border shadow-inner relative">
             <img
               src={p.species?.spriteUrl || (p as unknown as { spriteUrl?: string }).spriteUrl || getSpriteUrl(p.speciesId)}
               alt={(p as unknown as { name?: string }).name || p.speciesName}
@@ -50,10 +50,10 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
           <div className="flex-1 min-w-0 flex flex-col">
             {/* Header: Name and Bound Status */}
             <div className="flex items-start justify-between gap-2 mb-1.5">
-              <h3 className="text-lg md:text-xl font-extrabold text-white capitalize truncate flex items-center gap-1.5">
+              <h3 className="text-lg md:text-xl font-extrabold text-foreground capitalize truncate flex items-center gap-1.5">
                 <span className="truncate">{p.nickname || p.speciesName}</span>
                 {p.isBound && (
-                  <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-800 text-neutral-300 uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                  <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-raised text-muted uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
                     <span aria-hidden="true">🔒</span> Bound
                   </span>
                 )}
@@ -77,23 +77,23 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
                   {formatPotential(p.potential)}
                 </span>
               )}
-              <span className="text-xs px-2 py-0.5 rounded font-black border border-neutral-700 bg-neutral-900 text-neutral-300 uppercase tracking-wider">
+              <span className="text-xs px-2 py-0.5 rounded font-black border border-border bg-surface text-muted uppercase tracking-wider">
                 CP {p.cp?.toLocaleString() || 0}
               </span>
             </div>
 
             {/* Level and XP */}
             <div className="flex items-center gap-2">
-              <div className="flex items-center bg-neutral-900 text-white px-2 py-0.5 rounded border border-neutral-700">
+              <div className="flex items-center bg-surface text-foreground px-2 py-0.5 rounded border border-border">
                 <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
                 <span className="text-sm font-black">{p.level}</span>
               </div>
               {p.potential && p.level >= getMaxLevelForPotential(p.potential as string) ? (
-                <div className="flex items-center bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded border border-neutral-600">
+                <div className="flex items-center bg-surface-raised text-muted px-2 py-0.5 rounded border border-border">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
                 </div>
               ) : (
-                <div className="flex items-center bg-neutral-900 text-neutral-400 px-2 py-0.5 rounded border border-neutral-800">
+                <div className="flex items-center bg-surface text-muted px-2 py-0.5 rounded border border-border">
                   <span className="text-[10px] font-bold uppercase mr-1 opacity-70">XP</span>
                   <span className="text-xs font-bold">{(p.currentXp || 0).toLocaleString()}</span>
                 </div>
@@ -103,20 +103,20 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
         </div>
 
         {/* Moves Section */}
-        <div className="w-full pt-3 border-t border-neutral-800 grid grid-cols-2 gap-2">
+        <div className="w-full pt-3 border-t border-border grid grid-cols-2 gap-2">
           {[0, 1, 2, 3].map(i => {
             const move = p.equippedMoves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
             return (
-              <div key={i} className="bg-neutral-900 px-2 py-1.5 rounded border border-neutral-800 flex items-center gap-2 overflow-hidden h-8">
+              <div key={i} className="bg-surface px-2 py-1.5 rounded border border-border flex items-center gap-2 overflow-hidden h-8">
                 {move ? (
                   <>
                     <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
-                    <span className="font-bold text-neutral-200 capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
+                    <span className="font-bold text-foreground capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
                   </>
                 ) : (
                   <>
-                    <div className="w-3.5 h-3.5 rounded-full border-2 border-neutral-700 opacity-50 shrink-0 mx-0.5"></div>
-                    <span className="text-neutral-500 italic text-[10px] uppercase tracking-wider">- Empty -</span>
+                    <div className="w-3.5 h-3.5 rounded-full border-2 border-border opacity-50 shrink-0 mx-0.5"></div>
+                    <span className="text-subtle italic text-[10px] uppercase tracking-wider">- Empty -</span>
                   </>
                 )}
               </div>
