@@ -19,7 +19,7 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center p-1 border border-slate-200 dark:border-slate-700 shrink-0">
-              <img src={getSpriteUrl(species.id)} alt={species.name} className="w-12 h-12 object-contain drop-shadow-sm" loading="lazy" />
+              <img src={getSpriteUrl(species.id, species.spriteUrl)} alt={species.name} className="w-12 h-12 object-contain drop-shadow-sm" loading="lazy" />
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-slate-900 dark:text-white capitalize text-lg">
@@ -94,7 +94,7 @@ export const PokedexRow = React.memo(({ species }: PokedexRowProps) => {
         <div className="px-6 py-4 flex items-center gap-4">
           <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center p-1 border border-slate-200 dark:border-slate-700 shrink-0">
             <img
-              src={getSpriteUrl(species.id)}
+              src={getSpriteUrl(species.id, species.spriteUrl)}
               alt={species.name}
               className="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-110 transition-transform"
               loading="lazy"
