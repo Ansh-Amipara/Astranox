@@ -1,2 +1,2 @@
-export * from './axios';
-export * from './interceptors';
+export * from '@/lib/axios';
+export * from '@/lib/interceptors';

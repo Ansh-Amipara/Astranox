@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
-import { useAuthStore } from '@/modules/auth/store/auth.store';
+import { useAuthStore } from '@/features/auth/store';
 import { User as UserIcon, LogOut, ShieldAlert, Menu, X, Crown } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 

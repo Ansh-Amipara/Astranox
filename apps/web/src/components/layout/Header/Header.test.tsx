@@ -3,10 +3,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Header, Navbar } from './Header';
 import { describe, it, expect, vi } from 'vitest';
-import { useAuthStore } from '@/modules/auth/store/auth.store';
+import { useAuthStore } from '@/features/auth/store';
 
 // Mock the auth store to simulate a logged-in state
-vi.mock('@/modules/auth/store/auth.store', () => ({
+vi.mock('@/features/auth/store', () => ({
   useAuthStore: vi.fn(),
 }));
 

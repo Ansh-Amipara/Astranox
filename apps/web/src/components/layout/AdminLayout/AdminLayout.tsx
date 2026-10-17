@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { useAuthStore } from '@/modules/auth/store/auth.store';
+import { useAuthStore } from '@/features/auth/store';
 import { LogOut, Menu, X, Gamepad2 } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ModuleErrorFallback } from '@/shared/ui/ErrorFallback';

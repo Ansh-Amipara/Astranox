@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { useAuthStore } from '@/modules/auth/store/auth.store';
-import { logRequest, logResponse, logErrorAndToast } from './logger';
+import { useAuthStore } from '@/features/auth/store';
+import { logRequest, logResponse, logErrorAndToast } from '@/lib/logger';
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
