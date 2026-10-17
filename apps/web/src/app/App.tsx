@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Layouts and Guards
-import { Navbar } from '@/widgets/navbar/ui/Navbar';
+import { Header as Navbar } from '@/components/layout/Header';
 import { AuthGuard } from '@/modules/auth/components/AuthGuard';
 import { RequireStarterGuard } from '@/modules/auth/components/RequireStarterGuard';
 import { AdminGuard } from '@/modules/auth/components/AdminGuard';
-import { AdminLayout } from '@/widgets/admin-layout/ui/AdminLayout';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ModuleErrorFallback } from '@/shared/ui/ErrorFallback';
 

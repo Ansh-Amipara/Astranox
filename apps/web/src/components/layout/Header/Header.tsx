@@ -6,7 +6,7 @@ import { useAuthStore } from '@/modules/auth/store/auth.store';
 import { User as UserIcon, LogOut, ShieldAlert, Menu, X, Crown } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 
-export function Navbar() {
+export function Header() {
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -156,3 +156,6 @@ export function Navbar() {
     </>
   );
 }
+
+export const Navbar = Header;
+
