@@ -38,14 +38,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         user: data.data.user,
         isInitialized: true 
       });
-    } catch (error: unknown) {
-      const err = error as { status?: number; response?: { status?: number } };
-      if (err?.status === 401 || err?.response?.status === 401) {
-        set({ accessToken: null, user: null, isInitialized: true });
-      } else {
-        // Critical network or server error during boot
-        throw error;
-      }
+    } catch {
+      // AGENTS.md Rule 7: failure renders the logged-out state cleanly (no retry loop)
+      set({ accessToken: null, user: null, isInitialized: true });
     }
   },
 }));
