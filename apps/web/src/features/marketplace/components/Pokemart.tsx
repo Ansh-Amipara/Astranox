@@ -200,10 +200,10 @@ export function Pokemart() {
   const getStoreCurrency = () => {
     switch (storeType) {
       case 'infinity':
-        return { name: 'Infinity Coins', amount: save?.infinityCoins || 0, icon: <img src="/infinity.png" alt="Infinity Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/infinity.png" alt="Infinity Coins" className="w-4 h-4 object-contain" /> };
+        return { name: 'Infinity Coins', amount: save?.infinityCoins || 0, icon: <img src="/infinity.webp" alt="Infinity Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/infinity.webp" alt="Infinity Coins" className="w-4 h-4 object-contain" /> };
       case 'astral':
       default:
-        return { name: 'Astral Coins', amount: save?.astralCoins || 0, icon: <img src="/astral.png" alt="Astral Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/astral.png" alt="Astral Coins" className="w-4 h-4 object-contain" /> };
+        return { name: 'Astral Coins', amount: save?.astralCoins || 0, icon: <img src="/astral.webp" alt="Astral Coins" className="w-5 h-5 object-contain" />, symbol: <img src="/astral.webp" alt="Astral Coins" className="w-4 h-4 object-contain" /> };
     }
   };
   const storeCurrency = getStoreCurrency();

@@ -11,6 +11,7 @@ describe('Badge primitive', () => {
   it('renders variant correctly', () => {
     render(<Badge variant="success">Completed</Badge>);
     const badge = screen.getByText('Completed');
-    expect(badge.className).toContain('text-emerald-400');
+    expect(badge.className).toContain('text-white');
+    expect(badge.className).toContain('bg-neutral-800');
   });
 });

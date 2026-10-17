@@ -44,7 +44,7 @@ export function DialogContent({
       <RadixDialog.Content
         ref={ref}
         className={cn(
-          'fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] sm:w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden focus:outline-none',
+          'fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] sm:w-full max-w-lg rounded-3xl bg-neutral-950 border border-neutral-800 text-white shadow-2xl flex flex-col max-h-[90vh] overflow-hidden focus:outline-none',
           className
         )}
         {...props}
@@ -62,7 +62,7 @@ export function DialogHeader({
   return (
     <div
       className={cn(
-        'px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0',
+        'px-6 py-4 border-b border-neutral-800 flex justify-between items-center shrink-0',
         className
       )}
       {...props}
@@ -77,7 +77,7 @@ export function DialogFooter({
   return (
     <div
       className={cn(
-        'px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 shrink-0',
+        'px-6 py-4 border-t border-neutral-800 flex items-center justify-end gap-2 shrink-0',
         className
       )}
       {...props}
@@ -94,7 +94,7 @@ export function DialogTitle({ className, ref, ...props }: DialogTitleProps) {
   return (
     <RadixDialog.Title
       ref={ref}
-      className={cn('text-xl font-black text-slate-900 dark:text-white', className)}
+      className={cn('text-xl font-black text-white', className)}
       {...props}
     />
   );
@@ -145,7 +145,7 @@ export function DialogConvenience({
         <DialogOverlay />
         <RadixDialog.Content
           className={cn(
-            'fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] sm:w-full rounded-3xl bg-white dark:bg-slate-900 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden',
+            'fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] sm:w-full rounded-3xl bg-neutral-950 border border-neutral-800 text-white shadow-2xl flex flex-col max-h-[90vh] overflow-hidden',
             className
           )}
           aria-describedby="dialog-description"
@@ -158,15 +158,15 @@ export function DialogConvenience({
           </VisuallyHidden.Root>
 
           {!hideHeader && title && (
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
-              <h2 className="text-xl font-black text-slate-900 dark:text-white">
+            <div className="px-6 py-4 border-b border-neutral-800 flex justify-between items-center shrink-0">
+              <h2 className="text-xl font-black text-white">
                 {title}
               </h2>
               <DialogClose asChild>
                 <button
                   type="button"
                   aria-label="Close dialog"
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500 focus:outline-none focus:ring-2 focus:ring-silt-gold"
+                  className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
                 >
                   <X className="w-6 h-6" />
                 </button>

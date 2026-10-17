@@ -96,26 +96,26 @@ export const BattleResultModal = memo(function BattleResultModal({
 
         {/* Tower Rewards */}
         {battleType === 'TOWER' && status === 'WON' && towerData?.activeEncounter?.reward && (
-          <div className="w-full bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 mb-6 border border-slate-200 dark:border-slate-700 flex flex-row items-center justify-around shadow-inner">
+          <div className="w-full bg-neutral-900 rounded-xl p-6 mb-6 border border-neutral-800 flex flex-row items-center justify-around shadow-inner">
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center shadow-sm border border-yellow-200/50 dark:border-yellow-800/50">
-                <img src="/infinity.png" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
+              <div className="w-12 h-12 bg-neutral-950 rounded-xl flex items-center justify-center shadow-sm border border-neutral-800">
+                <img src="/infinity.webp" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Coins</span>
-                <span className="text-xl font-black text-yellow-600 dark:text-yellow-400">
+                <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Coins</span>
+                <span className="text-xl font-black text-white">
                   +{(towerData.activeEncounter.reward as any).infinityCoins || 0}
                 </span>
               </div>
             </div>
-            <div className="w-px h-16 bg-slate-200 dark:bg-slate-700"></div>
+            <div className="w-px h-16 bg-neutral-800"></div>
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center shadow-sm border border-blue-200/50 dark:border-blue-800/50">
-                <img src="/xp.png" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
+              <div className="w-12 h-12 bg-neutral-950 rounded-xl flex items-center justify-center shadow-sm border border-neutral-800">
+                <img src="/xp.webp" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stored XP</span>
-                <span className="text-xl font-black text-blue-600 dark:text-blue-400">
+                <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Stored XP</span>
+                <span className="text-xl font-black text-white">
                   +{(towerData.activeEncounter.reward as any).storedXp || 0}
                 </span>
               </div>

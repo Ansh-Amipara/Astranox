@@ -16,7 +16,7 @@ export const spinnerVariants = cva(
         default: 'text-neutral-400',
         silt: 'text-silt-gold',
         white: 'text-white',
-        primary: 'text-blue-500',
+        primary: 'text-white',
       },
     },
     defaultVariants: {

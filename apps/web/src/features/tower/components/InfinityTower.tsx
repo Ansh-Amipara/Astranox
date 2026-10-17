@@ -172,29 +172,29 @@ export const InfinityTowerPage: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-8 max-w-3xl mx-auto shadow-inner">
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 bg-neutral-900 border border-neutral-800 rounded-2xl p-4 mb-8 max-w-3xl mx-auto shadow-inner">
                   
                   {/* Coins */}
                   <div className="flex items-center gap-4 justify-center">
-                    <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center shadow-sm border border-yellow-200/50 dark:border-yellow-800/50 shrink-0">
-                      <img src="/infinity.png" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
+                    <div className="w-12 h-12 bg-neutral-950 rounded-xl flex items-center justify-center shadow-sm border border-neutral-800 shrink-0">
+                      <img src="/infinity.webp" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
                     </div>
                     <div className="flex flex-col text-left">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Coins</span>
-                      <span className="text-xl font-black text-yellow-600 dark:text-yellow-400 leading-none">
+                      <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-0.5">Coins</span>
+                      <span className="text-xl font-black text-white leading-none">
                         +{(activeEncounter.reward as { infinityCoins?: number })?.infinityCoins || 0}
                       </span>
                     </div>
                   </div>
 
                   {/* XP */}
-                  <div className="flex items-center gap-4 justify-center sm:border-l border-slate-200 dark:border-slate-700 py-4 sm:py-0">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center shadow-sm border border-blue-200/50 dark:border-blue-800/50 shrink-0">
-                      <img src="/xp.png" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
+                  <div className="flex items-center gap-4 justify-center sm:border-l border-neutral-800 py-4 sm:py-0">
+                    <div className="w-12 h-12 bg-neutral-950 rounded-xl flex items-center justify-center shadow-sm border border-neutral-800 shrink-0">
+                      <img src="/xp.webp" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
                     </div>
                     <div className="flex flex-col text-left">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Stored XP</span>
-                      <span className="text-xl font-black text-blue-600 dark:text-blue-400 leading-none">
+                      <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-0.5">Stored XP</span>
+                      <span className="text-xl font-black text-white leading-none">
                         +{(activeEncounter.reward as { storedXp?: number })?.storedXp || 0}
                       </span>
                     </div>

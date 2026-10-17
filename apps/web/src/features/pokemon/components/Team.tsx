@@ -926,10 +926,10 @@ export function TeamPage() {
                 </div>
               </div>
 
-              <div className="bg-slate-100 dark:bg-slate-800/60 p-3 rounded-xl mb-4 border border-slate-200 dark:border-slate-700 flex justify-between items-center text-sm">
-                <span className="font-semibold text-slate-600 dark:text-slate-300">Your Stored XP:</span>
-                <span className="font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-                  <img src="/xp.png" alt="XP" className="w-4 h-4 object-contain" />
+              <div className="bg-neutral-900 p-3 rounded-xl mb-4 border border-neutral-800 flex justify-between items-center text-sm">
+                <span className="font-semibold text-neutral-300">Your Stored XP:</span>
+                <span className="font-black text-white flex items-center gap-1.5">
+                  <img src="/xp.webp" alt="XP" className="w-4 h-4 object-contain" />
                   {save?.storedXp?.toLocaleString() || 0} XP
                 </span>
               </div>

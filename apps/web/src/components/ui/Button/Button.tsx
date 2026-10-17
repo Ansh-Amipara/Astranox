@@ -4,20 +4,20 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-silt-gold focus-visible:ring-offset-2 focus-visible:ring-offset-ink-dark',
+  'inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
   {
     variants: {
       variant: {
         primary:
-          'bg-silt-gold text-ink-dark hover:bg-silt-peach shadow-glow hover:shadow-glow-lg',
+          'bg-white text-black hover:bg-neutral-200 border border-white shadow-glow hover:shadow-glow-lg',
         secondary:
-          'bg-ink-light/20 text-ink-light border border-ink-light/30 hover:bg-ink-light/30 hover:border-silt-pale hover:text-silt-pale backdrop-blur-md',
+          'bg-neutral-900 text-neutral-200 border border-neutral-700 hover:bg-neutral-800 hover:border-neutral-500 hover:text-white backdrop-blur-md',
         ghost:
-          'bg-transparent text-ink-light hover:bg-ink-light/10 hover:text-silt-pale',
+          'bg-transparent text-neutral-400 hover:bg-neutral-800/60 hover:text-white',
         danger:
-          'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/40 hover:text-red-200',
+          'bg-neutral-900 text-neutral-200 border border-neutral-700 hover:bg-neutral-800 hover:text-white',
         outline:
-          'bg-transparent border-2 border-silt-khaki text-silt-khaki hover:bg-silt-khaki hover:text-ink-dark',
+          'bg-transparent border-2 border-neutral-600 text-neutral-200 hover:bg-white hover:text-black hover:border-white',
       },
       size: {
         sm: 'px-3 py-1.5 text-xs',

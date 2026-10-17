@@ -7,7 +7,7 @@ import { StarterSelection } from '@/features/pokemon/components/StarterSelection
 import { FiBox, FiMap, FiShoppingCart, FiTarget, FiBookOpen, FiLayers, FiAperture, FiInfo, FiShoppingBag } from 'react-icons/fi';
 
 export function Home() {
-  const { user } = useAuthStore();
+  const { user: _user } = useAuthStore();
   const navigate = useNavigate();
 
   const { data: save, isLoading: isSaveLoading } = useQuery({
@@ -19,7 +19,7 @@ export function Home() {
   });
 
   if (isSaveLoading) {
-    return <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-900 dark:text-white transition-colors duration-200">Loading Trainer Data...</div>;
+    return <div className="min-h-screen bg-black flex items-center justify-center text-white font-bold">Loading Trainer Data...</div>;
   }
 
   if (!save?.starterChosenAt) {
@@ -30,70 +30,69 @@ export function Home() {
   const teamCp = party.reduce((sum: number, p: any) => sum + (p.cp || 0), 0);
 
   return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-black text-white p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6 max-w-none">
 
         {/* Header Section */}
         <div className="w-full">
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm flex items-center gap-2 sm:gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center p-1">
-                <img src="/astral.png" alt="Astral Coins" className="w-full h-full object-contain" />
+            <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-neutral-700 transition-all overflow-hidden">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center p-1">
+                <img src="/astral.webp" alt="Astral Coins" className="w-full h-full object-contain" />
               </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Astral Coins</p>
-                <p className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 truncate">{save.astralCoins?.toLocaleString() || 0}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider truncate">Astral Coins</p>
+                <p className="text-base sm:text-lg font-black text-white truncate">{save.astralCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm flex items-center gap-2 sm:gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center p-1">
-                <img src="/infinity.png" alt="Infinity Coins" className="w-full h-full object-contain" />
+            <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-neutral-700 transition-all overflow-hidden">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center p-1">
+                <img src="/infinity.webp" alt="Infinity Coins" className="w-full h-full object-contain" />
               </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Infinity Coins</p>
-                <p className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 truncate">{save.infinityCoins?.toLocaleString() || 0}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider truncate">Infinity Coins</p>
+                <p className="text-base sm:text-lg font-black text-white truncate">{save.infinityCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm flex items-center gap-2 sm:gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center p-1.5">
-                <img src="/xp.png" alt="Stored XP" className="w-full h-full object-contain" />
+            <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-neutral-700 transition-all overflow-hidden">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center p-1.5">
+                <img src="/xp.webp" alt="Stored XP" className="w-full h-full object-contain" />
               </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Stored XP</p>
-                <p className="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400 truncate">{save.storedXp?.toLocaleString() || 0} XP</p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm flex items-center gap-2 sm:gap-3 hover:-translate-y-1 transition-transform overflow-hidden">
-              <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Trainer Rank</p>
-                <p className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 uppercase truncate">{save.rank.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '')}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider truncate">Stored XP</p>
+                <p className="text-base sm:text-lg font-black text-white truncate">{save.storedXp?.toLocaleString() || 0} XP</p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm flex items-center gap-2 sm:gap-3 hover:-translate-y-1 transition-transform overflow-hidden col-span-2 md:col-span-1">
+            <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-neutral-700 transition-all overflow-hidden">
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Player CP</p>
-                <p className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200 truncate">{teamCp.toLocaleString()}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider truncate">Trainer Rank</p>
+                <p className="text-base sm:text-lg font-black text-white uppercase truncate">{save.rank?.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '') || 'F'}</p>
+              </div>
+            </div>
+
+            <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-neutral-700 transition-all overflow-hidden col-span-2 md:col-span-1">
+              <div className="truncate">
+                <p className="text-[10px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider truncate">Player CP</p>
+                <p className="text-base sm:text-lg font-black text-white truncate">{teamCp.toLocaleString()}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Active Party (Full Width) */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-blue-500/10 transition-colors"></div>
+        <div className="bg-neutral-950 border border-neutral-800 rounded-3xl p-5 shadow-xl relative overflow-hidden group">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6 relative z-10">
-            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
               Active Party
             </h2>
             <div className="flex gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
-              <button onClick={() => navigate('/pokemon')} className="text-purple-600 dark:text-purple-400 font-bold hover:underline text-sm flex items-center gap-1">
+              <button onClick={() => navigate('/pokemon')} className="text-neutral-400 font-bold hover:text-white hover:underline text-sm flex items-center gap-1 transition-colors">
                 PC Box &rarr;
               </button>
-              <button onClick={() => navigate('/team')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-sm flex items-center gap-1">
+              <button onClick={() => navigate('/team')} className="text-white font-bold hover:underline text-sm flex items-center gap-1 transition-colors">
                 Manage Team &rarr;
               </button>
             </div>
@@ -105,36 +104,36 @@ export function Home() {
                 <div
                   key={i}
                   className={`relative rounded-2xl p-4 border flex flex-col items-center text-center transition-all ${pkm
-                    ? 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md'
-                    : 'border-dashed border-slate-300 dark:border-slate-700 bg-transparent opacity-50'
+                    ? 'border-neutral-800 bg-neutral-900/60 hover:border-neutral-600 hover:shadow-lg'
+                    : 'border-dashed border-neutral-800 bg-transparent opacity-40'
                     }`}
                 >
                   {pkm ? (
                     <>
                       <img
-                        src={getSpriteUrl(pkm.speciesId)}
+                        src={getSpriteUrl(pkm.speciesId, pkm.species?.spriteUrl)}
                         alt={pkm.species?.name}
                         className="w-16 h-16 object-contain pixelated mb-2 drop-shadow-md hover:scale-110 transition-transform"
                       />
-                      <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200 capitalize truncate w-full">
+                      <h3 className="font-bold text-sm text-white capitalize truncate w-full">
                         {pkm.nickname || pkm.species?.name}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-bold text-neutral-300 bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded">
                           Lv {pkm.level}
                         </span>
                         {pkm.potential && (
-                          <span className="text-[10px] uppercase font-bold text-yellow-600 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/50 px-1 rounded">
+                          <span className="text-[10px] uppercase font-black text-white bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded">
                             {pkm.potential.split('_')[0]}
                           </span>
                         )}
                       </div>
-                      <div className="mt-2 text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded w-full border border-indigo-100 dark:border-indigo-800/50 truncate">
+                      <div className="mt-2 text-xs font-black text-white bg-neutral-900 px-2 py-1 rounded w-full border border-neutral-800 truncate">
                         CP {pkm.cp?.toLocaleString() || 0}
                       </div>
                     </>
                   ) : (
-                    <div className="w-16 h-16 border-2 border-slate-300 dark:border-slate-600 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 font-black mb-2">
+                    <div className="w-16 h-16 border-2 border-neutral-800 rounded-full flex items-center justify-center text-neutral-600 font-black mb-2">
                       ?
                     </div>
                   )}
@@ -149,96 +148,96 @@ export function Home() {
 
           {/* Actions (Left 2 Columns) */}
           <div className="lg:col-span-2 grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            <button onClick={() => navigate('/explore')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-green-300 dark:hover:border-green-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/explore')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Explore</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Explore</h3>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiMap className="text-xl sm:text-2xl text-blue-500 dark:text-blue-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiMap className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/arena')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/arena')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Battle Arena</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Battle Arena</h3>
               </div>
-              <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiTarget className="text-xl sm:text-2xl text-indigo-500 dark:text-indigo-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiTarget className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/tower')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/tower')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Infinity Tower</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Infinity Tower</h3>
               </div>
-              <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiLayers className="text-xl sm:text-2xl text-indigo-500 dark:text-indigo-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiLayers className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/rift')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/rift')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Void Rifts</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Void Rifts</h3>
               </div>
-              <div className="bg-purple-50 dark:bg-purple-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiAperture className="text-xl sm:text-2xl text-purple-500 dark:text-purple-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiAperture className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/shop')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/shop')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Poké Mart</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Poké Mart</h3>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiShoppingCart className="text-xl sm:text-2xl text-blue-500 dark:text-blue-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiShoppingCart className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/pokedex')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/pokedex')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Pokédex</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Pokédex</h3>
               </div>
-              <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiBookOpen className="text-xl sm:text-2xl text-indigo-500 dark:text-indigo-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiBookOpen className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/info')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/info')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Game Info</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Game Info</h3>
               </div>
-              <div className="bg-slate-50 dark:bg-slate-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiInfo className="text-xl sm:text-2xl text-slate-500 dark:text-slate-300" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiInfo className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
 
-            <button onClick={() => navigate('/marketplace')} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md text-center sm:text-left">
+            <button onClick={() => navigate('/marketplace')} className="bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-2xl text-center sm:text-left">
               <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-slate-900 dark:text-white truncate">Marketplace</h3>
+                <h3 className="text-sm sm:text-xl font-bold text-white truncate">Marketplace</h3>
               </div>
-              <div className="bg-purple-50 dark:bg-purple-900/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiShoppingBag className="text-xl sm:text-2xl text-purple-500 dark:text-purple-400" />
+              <div className="bg-neutral-900 border border-neutral-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
+                <FiShoppingBag className="text-xl sm:text-2xl text-white" />
               </div>
             </button>
           </div>
 
           {/* Inventory Stats (Right Column) */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between h-full">
+            <div className="bg-neutral-950 border border-neutral-800 rounded-3xl p-5 shadow-xl flex flex-col justify-between h-full">
               <div>
-                <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
-                  <FiBox className="text-purple-500" /> Inventory Stats
+                <h2 className="text-xl font-black text-white mb-3 flex items-center gap-2">
+                  <FiBox className="text-white" /> Inventory Stats
                 </h2>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                    <span className="font-bold text-slate-600 dark:text-slate-400 text-sm">Total Items</span>
-                    <span className="font-black text-slate-900 dark:text-white">
+                  <div className="flex justify-between items-center p-3 bg-neutral-900/80 border border-neutral-800/80 rounded-xl">
+                    <span className="font-bold text-neutral-400 text-sm">Total Items</span>
+                    <span className="font-black text-white">
                       {save.inventory?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                    <span className="font-bold text-slate-600 dark:text-slate-400 text-sm">Unique Items</span>
-                    <span className="font-black text-slate-900 dark:text-white">
+                  <div className="flex justify-between items-center p-3 bg-neutral-900/80 border border-neutral-800/80 rounded-xl">
+                    <span className="font-bold text-neutral-400 text-sm">Unique Items</span>
+                    <span className="font-black text-white">
                       {save.inventory?.length || 0}
                     </span>
                   </div>
@@ -246,7 +245,7 @@ export function Home() {
               </div>
 
               <div className="mt-4">
-                <button onClick={() => navigate('/inventory')} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
+                <button onClick={() => navigate('/inventory')} className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
                   <FiBox /> Open Inventory
                 </button>
               </div>
@@ -255,15 +254,6 @@ export function Home() {
         </div>
 
       </div>
-      <style>{`
-        ::-webkit-scrollbar {
-          display: none;
-        }
-        * {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 }

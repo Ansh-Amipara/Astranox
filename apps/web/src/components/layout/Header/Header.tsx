@@ -20,6 +20,15 @@ export function Header() {
     enabled: !!user,
   });
 
+  const { data: save } = useQuery({
+    queryKey: ['trainerSave'],
+    queryFn: async () => {
+      const res = await api.get('/trainers/me');
+      return res.data.data;
+    },
+    enabled: !!user,
+  });
+
   const navLinks = [
     { to: '/arena', label: 'Arena' },
     { to: '/tower', label: 'Tower' },
@@ -38,14 +47,14 @@ export function Header() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-black/90 border-b border-neutral-800 shadow-sm transition-colors duration-300">
       <div className="w-full px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* Logo & Mobile Menu Toggle */}
           <div className="flex items-center flex-shrink-0 pr-4">
             <button 
-              className="lg:hidden mr-3 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+              className="lg:hidden mr-3 text-neutral-400 hover:text-white"
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open menu"
             >
@@ -53,8 +62,8 @@ export function Header() {
             </button>
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-500/40 rounded-full blur-md group-hover:bg-blue-400/30 transition-colors duration-300"></div>
-                <img src="/logo.png" alt="Astranox" className="w-9 h-9 object-contain relative z-10" />
+                <div className="absolute inset-0 bg-white/10 rounded-full blur-md group-hover:bg-white/20 transition-colors duration-300"></div>
+                <img src="/logo.webp" alt="Astranox" className="w-9 h-9 object-contain relative z-10" />
               </div>
             </Link>
           </div>
@@ -69,8 +78,8 @@ export function Header() {
                     key={link.to}
                     to={link.to}
                     className={`px-3 py-1.5 rounded-lg text-sm font-bold uppercase tracking-wider whitespace-nowrap flex-shrink-0 transition-all duration-300 ${isActive
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                      ? 'bg-white text-black font-extrabold shadow-sm'
+                      : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
                       }`}
                   >
                     {link.label}
@@ -80,13 +89,30 @@ export function Header() {
             </div>
           </div>
 
-          {/* User Actions */}
+          {/* User Actions & Currencies */}
           <div className="flex items-center space-x-3 pl-4 flex-shrink-0">
             {user && (
               <>
+                {save && (
+                  <div className="hidden xl:flex items-center gap-2 mr-1">
+                    <div className="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-sm" title="Astral Coins">
+                      <img src="/astral.webp" alt="Astral" className="w-4 h-4 object-contain" />
+                      <span>{save.astralCoins?.toLocaleString() || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-sm" title="Infinity Coins">
+                      <img src="/infinity.webp" alt="Infinity" className="w-4 h-4 object-contain" />
+                      <span>{save.infinityCoins?.toLocaleString() || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-xl text-xs font-bold text-white shadow-sm" title="Stored XP">
+                      <img src="/xp.webp" alt="Stored XP" className="w-4 h-4 object-contain" />
+                      <span>{save.storedXp?.toLocaleString() || 0}</span>
+                    </div>
+                  </div>
+                )}
+
                 {user.role === 'ADMIN' && (
                   <Link to="/admin/dashboard" className="mr-1">
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 transition-colors">
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-neutral-900 text-white border border-neutral-700 rounded-xl hover:bg-neutral-800 transition-colors">
                       <Crown className="w-4 h-4" /> <span className="hidden sm:inline">Admin</span>
                     </button>
                   </Link>
@@ -95,12 +121,12 @@ export function Header() {
                 <Link to="/profile">
                   <button
                     aria-label="Profile"
-                    className="flex items-center justify-center w-8 h-8 bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 rounded-xl"
+                    className="flex items-center justify-center w-8 h-8 bg-neutral-900 text-neutral-200 border border-neutral-800 hover:bg-neutral-800 hover:text-white rounded-xl transition-colors"
                   >
                     <UserIcon className="w-4 h-4" />
                   </button>
                 </Link>
-                <button aria-label="Logout" onClick={logout} className="flex items-center justify-center w-8 h-8 text-slate-500 rounded-xl">
+                <button aria-label="Logout" onClick={logout} className="flex items-center justify-center w-8 h-8 text-neutral-400 hover:text-white hover:bg-neutral-900 rounded-xl transition-colors">
                   <LogOut className="w-4 h-4" />
                 </button>
               </>
@@ -113,26 +139,47 @@ export function Header() {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[110] lg:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Mobile Sidebar Drawer */}
       <div 
-        className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xl z-[120] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${
+        className={`fixed top-0 left-0 h-full w-64 bg-black border-r border-neutral-800 shadow-xl z-[120] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-slate-800">
-          <span className="font-bold text-lg text-slate-900 dark:text-white">Menu</span>
+        <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-800">
+          <div className="flex items-center gap-2">
+            <img src="/logo.webp" alt="Astranox Menu Logo" className="w-7 h-7 object-contain" />
+            <span className="font-bold text-lg text-white">Menu</span>
+          </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            className="text-neutral-400 hover:text-white"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
+
+        {/* Mobile Currencies */}
+        {save && (
+          <div className="p-3 border-b border-neutral-800 grid grid-cols-3 gap-2">
+            <div className="flex flex-col items-center p-2 rounded-xl bg-neutral-900 border border-neutral-800" title="Astral Coins">
+              <img src="/astral.webp" alt="Astral" className="w-5 h-5 object-contain mb-1" />
+              <span className="text-[11px] font-black text-white truncate max-w-full">{save.astralCoins?.toLocaleString() || 0}</span>
+            </div>
+            <div className="flex flex-col items-center p-2 rounded-xl bg-neutral-900 border border-neutral-800" title="Infinity Coins">
+              <img src="/infinity.webp" alt="Infinity" className="w-5 h-5 object-contain mb-1" />
+              <span className="text-[11px] font-black text-white truncate max-w-full">{save.infinityCoins?.toLocaleString() || 0}</span>
+            </div>
+            <div className="flex flex-col items-center p-2 rounded-xl bg-neutral-900 border border-neutral-800" title="Stored XP">
+              <img src="/xp.webp" alt="Stored XP" className="w-5 h-5 object-contain mb-1" />
+              <span className="text-[11px] font-black text-white truncate max-w-full">{save.storedXp?.toLocaleString() || 0}</span>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col py-4 px-2 space-y-1">
           {navLinks.map((link) => {
             const isActive = location.pathname.startsWith(link.to);
@@ -143,8 +190,8 @@ export function Header() {
                 onClick={() => setIsSidebarOpen(false)}
                 className={`px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
                   isActive
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                    ? 'bg-white text-black font-extrabold shadow-sm'
+                    : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
                 }`}
               >
                 {link.label}

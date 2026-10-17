@@ -33,58 +33,55 @@ export function Register() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-start sm:pt-24 justify-center overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-      {/* Premium Animated Gradient Background */}
-      <div className="absolute -top-[20%] -left-[10%] h-[70%] w-[50%] animate-[pulse_8s_ease-in-out_infinite] rounded-full bg-blue-600/20 blur-[120px]"></div>
-      <div className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[50%] animate-[pulse_8s_ease-in-out_infinite_reverse] rounded-full bg-purple-600/20 blur-[120px]"></div>
-
-      {/* Glassmorphism Card */}
-      <div className="relative z-10 w-full max-w-md min-h-screen sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
-        <div className="mb-8 text-center">
-          <h1 className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent">
+    <div className="relative flex min-h-screen items-start sm:pt-24 justify-center overflow-hidden bg-black text-white">
+      {/* Monochrome Glass Card */}
+      <div className="relative z-10 w-full max-w-md min-h-screen sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-neutral-800 bg-neutral-950 p-8 shadow-2xl">
+        <div className="mb-8 text-center flex flex-col items-center">
+          <img src="/logo.webp" alt="Astranox" className="w-16 h-16 object-contain mb-3 drop-shadow-md" />
+          <h1 className="text-4xl font-black tracking-tight text-white">
             Join Astranox
           </h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Register a new trainer account.</p>
+          <p className="text-xs uppercase font-bold tracking-widest text-neutral-400 mt-2">Register a new trainer account</p>
         </div>
 
         {success ? (
-          <div className="rounded-lg bg-green-500/10 p-4 text-center border border-green-500/20">
-            <h3 className="text-lg font-medium text-green-400">Registration Successful!</h3>
-            <p className="mt-2 text-sm text-green-300/80">Redirecting to login...</p>
+          <div className="rounded-xl bg-neutral-900 p-4 text-center border border-neutral-700">
+            <h3 className="text-lg font-bold text-white">Registration Successful!</h3>
+            <p className="mt-2 text-sm text-neutral-400">Redirecting to login...</p>
           </div>
         ) : (
           <form onSubmit={handleRegister} className="space-y-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Username</label>
+              <label className="mb-2 block text-sm font-semibold text-neutral-300">Username</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 bg-white dark:bg-black/20 px-4 py-3 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-white placeholder-neutral-500 transition-all focus:border-white focus:outline-none focus:ring-1 focus:ring-white"
                 placeholder="AshKetchum"
                 required
               />
             </div>
             
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+              <label className="mb-2 block text-sm font-semibold text-neutral-300">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 bg-white dark:bg-black/20 px-4 py-3 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-white placeholder-neutral-500 transition-all focus:border-white focus:outline-none focus:ring-1 focus:ring-white"
                 placeholder="ash@pallet.town"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+              <label className="mb-2 block text-sm font-semibold text-neutral-300">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 bg-white dark:bg-black/20 px-4 py-3 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-white placeholder-neutral-500 transition-all focus:border-white focus:outline-none focus:ring-1 focus:ring-white"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -92,7 +89,7 @@ export function Register() {
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">
+              <div className="rounded-xl bg-neutral-900 p-3 text-sm text-neutral-200 border border-neutral-700">
                 {error}
               </div>
             )}
@@ -100,20 +97,20 @@ export function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-70 disabled:hover:scale-100"
+              className="group relative w-full overflow-hidden rounded-xl bg-white px-4 py-3 text-sm font-extrabold text-black transition-all hover:bg-neutral-200 hover:scale-[1.01] border border-white shadow-glow disabled:opacity-50 disabled:hover:scale-100"
             >
               <span className="relative z-10 flex items-center justify-center">
                 {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                  <Loader2 className="h-5 w-5 animate-spin text-black" />
                 ) : (
                   'Register Account'
                 )}
               </span>
             </button>
             
-            <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-6 text-center text-sm text-neutral-400">
               Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+              <Link to="/login" className="text-white font-bold hover:underline transition-colors">
                 Sign in
               </Link>
             </p>

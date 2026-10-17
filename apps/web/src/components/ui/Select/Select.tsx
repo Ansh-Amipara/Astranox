@@ -51,24 +51,18 @@ export function SelectDropdown({
 }: SelectProps) {
   const selectedOption = options.find((o) => o.value === value);
 
-  const focusRingClass =
-    activeColor === 'emerald'
-      ? 'focus-visible:ring-emerald-500'
-      : 'focus-visible:ring-blue-500';
-  const activeBgClass =
-    activeColor === 'emerald'
-      ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-      : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400';
+  const focusRingClass = 'focus-visible:ring-white';
+  const activeBgClass = 'bg-neutral-800 text-white font-bold';
 
   return (
     <RadixSelect.Root value={value} onValueChange={onChange} disabled={disabled}>
       <RadixSelect.Trigger
         className={cn(
-          'flex items-center justify-between w-full px-4 py-2 rounded-xl bg-ink-dark/30 border border-ink-light/20 text-slate-200 shadow-sm focus:outline-none focus-visible:ring-2 font-semibold transition-colors',
+          'flex items-center justify-between w-full px-4 py-2 rounded-xl bg-neutral-900/80 border border-neutral-800 text-neutral-100 shadow-sm focus:outline-none focus-visible:ring-2 font-semibold transition-colors',
           focusRingClass,
           disabled
             ? 'opacity-50 cursor-not-allowed'
-            : 'hover:bg-ink-dark/50 hover:border-silt-gold/40',
+            : 'hover:bg-neutral-900 hover:border-neutral-600',
           className
         )}
       >
@@ -92,7 +86,7 @@ export function SelectDropdown({
       <RadixSelect.Portal>
         <RadixSelect.Content
           className={cn(
-            'z-[150] bg-neutral-900 border border-ink-light/20 rounded-xl shadow-2xl overflow-hidden max-h-80',
+            'z-[150] bg-neutral-950 border border-neutral-800 text-white rounded-xl shadow-2xl overflow-hidden max-h-80',
             dropdownClassName
           )}
           position="popper"
@@ -106,7 +100,7 @@ export function SelectDropdown({
                   key={option.value}
                   value={option.value}
                   className={cn(
-                    'flex items-center gap-2 text-left px-3 py-2 rounded-lg transition-colors w-full cursor-default select-none outline-none data-[highlighted]:bg-neutral-800 text-slate-200 font-semibold',
+                    'flex items-center gap-2 text-left px-3 py-2 rounded-lg transition-colors w-full cursor-default select-none outline-none data-[highlighted]:bg-neutral-800 text-neutral-200 font-semibold',
                     isSelected && `${activeBgClass} font-bold`,
                     option.className
                   )}

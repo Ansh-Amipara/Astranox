@@ -120,18 +120,18 @@ export function Profile() {
                     <span className="text-slate-800 font-bold text-lg">{formatRank(trainerSave.rank)}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 p-3 bg-white rounded-lg border border-slate-100 flex flex-col">
-                      <span className="text-slate-500 font-medium text-xs uppercase tracking-widest">Astral Coins</span>
+                    <div className="flex-1 p-3 bg-neutral-900 rounded-lg border border-neutral-800 flex flex-col">
+                      <span className="text-neutral-400 font-medium text-xs uppercase tracking-widest">Astral Coins</span>
                       <div className="flex items-center gap-2 mt-2">
-                        <img src="/astral.png" alt="Astral" className="w-6 h-6 object-contain" />
-                        <span className="text-amber-500 font-black text-xl">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
+                        <img src="/astral.webp" alt="Astral" className="w-6 h-6 object-contain" />
+                        <span className="text-white font-black text-xl">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
-                    <div className="flex-1 p-3 bg-white rounded-lg border border-slate-100 flex flex-col">
-                      <span className="text-slate-500 font-medium text-xs uppercase tracking-widest">Infinity Coins</span>
+                    <div className="flex-1 p-3 bg-neutral-900 rounded-lg border border-neutral-800 flex flex-col">
+                      <span className="text-neutral-400 font-medium text-xs uppercase tracking-widest">Infinity Coins</span>
                       <div className="flex items-center gap-2 mt-2">
-                        <img src="/infinity.png" alt="Infinity" className="w-6 h-6 object-contain" />
-                        <span className="text-purple-500 font-black text-xl">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
+                        <img src="/infinity.webp" alt="Infinity" className="w-6 h-6 object-contain" />
+                        <span className="text-white font-black text-xl">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
                   </div>
