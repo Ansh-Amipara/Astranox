@@ -14,6 +14,22 @@
   --color-silt-peach: #FFB16E;
   --color-silt-gold: #CCA25A;
 
+  /* Radius Tokens */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Shadow Tokens */
+  --shadow-glow: 0 0 15px rgba(204, 162, 90, 0.4);
+  --shadow-glow-lg: 0 0 25px rgba(255, 177, 110, 0.6);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-glow-card: 0 0 20px rgba(204, 162, 90, 0.15);
+  --shadow-glow-card-hover: 0 0 30px rgba(204, 162, 90, 0.25);
+
   /* Custom Animations */
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-float: float 3s ease-in-out infinite;

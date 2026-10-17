@@ -21,14 +21,14 @@ describe('GlobalErrorFallback', () => {
 
   it('renders the error message correctly', () => {
     renderComponent(new Error('Test error message'));
-    expect(screen.getByText('Oops, something went wrong!')).toBeInTheDocument();
+    expect(screen.getByText('A Fatal Error Occurred')).toBeInTheDocument();
     expect(screen.getByText('Test error message')).toBeInTheDocument();
   });
 
-  it('calls resetErrorBoundary when Return Home is clicked', () => {
+  it('calls resetErrorBoundary when Reload Application is clicked', () => {
     renderComponent(new Error('Test error message'));
-    const returnHomeButton = screen.getByRole('button', { name: /return home/i });
-    fireEvent.click(returnHomeButton);
+    const reloadButton = screen.getByRole('button', { name: /reload application/i });
+    fireEvent.click(reloadButton);
     expect(mockReset).toHaveBeenCalledTimes(1);
   });
 });

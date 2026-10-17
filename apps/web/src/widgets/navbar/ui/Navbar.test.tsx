@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navbar } from './Navbar';
 import { describe, it, expect, vi } from 'vitest';
 import { useAuthStore } from '@/modules/auth/store/auth.store';
@@ -8,6 +10,15 @@ vi.mock('@/modules/auth/store/auth.store', () => ({
   useAuthStore: vi.fn(),
 }));
 
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
 describe('Navbar Component', () => {
   it('renders the branding text correctly', () => {
     // Setup mock return value
@@ -16,12 +27,17 @@ describe('Navbar Component', () => {
       logout: vi.fn()
     });
 
+    const queryClient = createTestQueryClient();
     render(
-      <Navbar />
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <Navbar />
+        </MemoryRouter>
+      </QueryClientProvider>
     );
 
     // Verify the brand name (alt text of the image)
-    expect(screen.getByAltText('Astranox Logo')).toBeInTheDocument();
+    expect(screen.getByAltText('Astranox')).toBeInTheDocument();
   });
 
   it('renders links for a logged-in user', () => {
@@ -30,14 +46,19 @@ describe('Navbar Component', () => {
       logout: vi.fn()
     });
 
+    const queryClient = createTestQueryClient();
     render(
-      <Navbar />
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <Navbar />
+        </MemoryRouter>
+      </QueryClientProvider>
     );
 
-    expect(screen.getByText('Pokémon')).toBeInTheDocument();
-    expect(screen.getByText('Fight')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Trainer' })).toBeInTheDocument();
-    expect(screen.getByText('Pokémart')).toBeInTheDocument();
-    expect(screen.getByText('Social')).toBeInTheDocument();
+    expect(screen.getAllByText('Pokémon')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Arena')[0]).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Logout' })).toBeInTheDocument();
+    expect(screen.getAllByText('Pokémart')[0]).toBeInTheDocument();
   });
 });
