@@ -3,6 +3,35 @@
   "plugins": ["react", "typescript", "oxc"],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@radix-ui/*"],
+            "message": "Direct @radix-ui/* imports are forbidden outside of components/ui. Import from @/components/ui instead."
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/features/*", "@/features", "@/pages/*", "@/pages"],
+                "message": "components/ui must never import from features/* or pages/*"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }
