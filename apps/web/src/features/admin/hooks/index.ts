@@ -4,3 +4,7 @@ export * from './useAdminDashboard';
 export * from './useAdminFlags';
 export * from './useAdminAnnouncements';
 export * from './useAdminAudit';
+export * from './useAdminBalance';
+export * from './useAdminArena';
+export * from './useAdminDungeons';
+export * from './useAdminEvents';

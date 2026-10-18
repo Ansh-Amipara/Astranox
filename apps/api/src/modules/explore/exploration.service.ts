@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { canMove, getMapById, rollEncounter, MapDirection, Position } from '@astranox/game-map';
-import { EXPLORATION_CONSTANTS } from '@astranox/constants';
 import { CacheService } from '../../core/services/cache.service';
+import { BalanceService } from '../balance/balance.service';
 import { FeatureFlagService } from '../../core/services/feature-flag.service';
 import { TrainersRepository } from '../trainers/trainers.repository';
 import { EncounterService } from './services/encounter.service';
@@ -22,6 +22,7 @@ export interface RedisExploreSession {
 export class ExplorationService {
   constructor(
     private cache: CacheService,
+    private balanceService: BalanceService,
     private flagService: FeatureFlagService,
     private trainersRepo: TrainersRepository,
     private encounterService: EncounterService
@@ -54,10 +55,11 @@ export class ExplorationService {
     let session = await this.cache.get<RedisExploreSession>(key);
 
     if (!session) {
-      const mapId = requestedMapId || (trainerSave as any).currentMapId || EXPLORATION_CONSTANTS.DEFAULT_SPAWN_MAP_ID;
-      const x = (trainerSave as any).posX ?? EXPLORATION_CONSTANTS.DEFAULT_SPAWN_X;
-      const y = (trainerSave as any).posY ?? EXPLORATION_CONSTANTS.DEFAULT_SPAWN_Y;
-      const facing = ((trainerSave as any).facing as MapDirection) || EXPLORATION_CONSTANTS.DEFAULT_SPAWN_FACING;
+      const expConfig = await this.balanceService.get('exploration');
+      const mapId = requestedMapId || (trainerSave as any).currentMapId || expConfig.DEFAULT_SPAWN_MAP_ID;
+      const x = (trainerSave as any).posX ?? expConfig.DEFAULT_SPAWN_X;
+      const y = (trainerSave as any).posY ?? expConfig.DEFAULT_SPAWN_Y;
+      const facing = ((trainerSave as any).facing as MapDirection) || expConfig.DEFAULT_SPAWN_FACING;
 
       session = {
         mapId,
@@ -127,9 +129,10 @@ export class ExplorationService {
     }
 
     // 2. Enforce move cooldown / rate limiting
+    const expConfig = await this.balanceService.get('exploration');
     const now = Date.now();
     const timeDelta = now - session.lastMoveTimestamp;
-    if (timeDelta < EXPLORATION_CONSTANTS.MOVE_COOLDOWN_MS) {
+    if (timeDelta < expConfig.MOVE_COOLDOWN_MS) {
       return {
         rejected: true,
         reason: 'MOVE_TOO_FAST',
@@ -206,7 +209,7 @@ export class ExplorationService {
           nextX,
           nextY,
           () => Math.random(),
-          EXPLORATION_CONSTANTS.ENCOUNTER_CHANCE_GRASS
+          expConfig.ENCOUNTER_CHANCE_GRASS
         );
 
         if (rollRes.triggered && rollRes.encounter) {
@@ -251,11 +254,13 @@ export class ExplorationService {
   /**
    * Updates immunity steps after a battle completes.
    */
-  async grantEncounterImmunity(userId: string, steps: number = EXPLORATION_CONSTANTS.POST_BATTLE_IMMUNITY_STEPS) {
+  async grantEncounterImmunity(userId: string, steps?: number) {
+    const config = await this.balanceService.get('exploration');
+    const immunitySteps = steps ?? config.POST_BATTLE_IMMUNITY_STEPS;
     const key = this.getSessionKey(userId);
     const session = await this.cache.get<RedisExploreSession>(key);
     if (session) {
-      session.immunityStepsRemaining = steps;
+      session.immunityStepsRemaining = immunitySteps;
       await this.cache.set(key, session, 86400);
     }
   }
@@ -264,20 +269,21 @@ export class ExplorationService {
    * Resets player position back to their last heal point on defeat.
    */
   async respawnPlayer(userId: string) {
+    const config = await this.balanceService.get('exploration');
     const trainerSave = await this.trainersRepo.findByUserId(userId);
-    const spawnMapId = (trainerSave as any)?.lastHealMapId || EXPLORATION_CONSTANTS.DEFAULT_SPAWN_MAP_ID;
-    const spawnX = (trainerSave as any)?.lastHealX ?? EXPLORATION_CONSTANTS.DEFAULT_SPAWN_X;
-    const spawnY = (trainerSave as any)?.lastHealY ?? EXPLORATION_CONSTANTS.DEFAULT_SPAWN_Y;
+    const spawnMapId = (trainerSave as any)?.lastHealMapId || config.DEFAULT_SPAWN_MAP_ID;
+    const spawnX = (trainerSave as any)?.lastHealX ?? config.DEFAULT_SPAWN_X;
+    const spawnY = (trainerSave as any)?.lastHealY ?? config.DEFAULT_SPAWN_Y;
 
     const key = this.getSessionKey(userId);
     const session: RedisExploreSession = {
       mapId: spawnMapId,
       x: spawnX,
       y: spawnY,
-      facing: EXPLORATION_CONSTANTS.DEFAULT_SPAWN_FACING,
+      facing: config.DEFAULT_SPAWN_FACING,
       lastMoveTimestamp: Date.now(),
       seq: 0,
-      immunityStepsRemaining: EXPLORATION_CONSTANTS.POST_BATTLE_IMMUNITY_STEPS,
+      immunityStepsRemaining: config.POST_BATTLE_IMMUNITY_STEPS,
     };
 
     await this.cache.set(key, session, 86400);

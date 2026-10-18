@@ -1,7 +1,30 @@
+import { z } from 'zod';
+
 /**
  * Battle domain balance constants and formulas.
  * Canonical to Gen V+ mechanics as enforced by AGENTS.md.
  */
+
+export const battleBalanceSchema = z.object({
+  STAB_MULTIPLIER: z.number().min(1.0).max(3.0).describe('STAB (Same Type Attack Bonus) multiplier'),
+  CRITICAL_HIT_MULTIPLIER: z.number().min(1.0).max(3.0).describe('Critical hit damage multiplier'),
+  BASE_DAMAGE_OFFSET: z.number().min(0).max(20).describe('Gen V+ base damage additive offset'),
+  BASE_DAMAGE_DIVISOR: z.number().min(1).max(200).describe('Gen V+ base damage formula divisor'),
+  LEVEL_SCALING_OFFSET: z.number().min(0).max(10).describe('Intermediate level scaling offset'),
+  LEVEL_SCALING_FACTOR: z.number().min(0.01).max(2.0).describe('Intermediate level scaling multiplier: 2 / 5'),
+  MIN_DAMAGE: z.number().min(0).max(100).describe('Minimum guaranteed damage when effectiveness > 0'),
+  HP_BASE_OFFSET: z.number().min(0).max(50).describe('Base HP calculation additive offset: +10'),
+  STAT_BASE_OFFSET: z.number().min(0).max(50).describe('Non-HP stat calculation additive offset: +5'),
+  STAT_BASE_MULTIPLIER: z.number().min(1).max(10).describe('Stat calculation base stat multiplier: 2'),
+  STAT_LEVEL_DIVISOR: z.number().min(1).max(500).describe('Stat calculation level divisor: 100'),
+  GMAX_HP_MULTIPLIER: z.number().min(1).max(5).describe('Gigantamax HP multiplier'),
+  SHEDINJA_HP: z.number().min(1).max(1).describe('Shedinja base HP hardcoded exception'),
+  MIN_IV: z.number().min(0).max(31).describe('Minimum individual value (IV)'),
+  MAX_IV: z.number().min(0).max(31).describe('Maximum individual value (IV)'),
+  MAX_ACCURACY: z.number().min(1).max(100).describe('Maximum accuracy roll threshold'),
+});
+
+export type BattleBalanceConfig = z.infer<typeof battleBalanceSchema>;
 
 export const BATTLE_CONSTANTS = {
   /** STAB (Same Type Attack Bonus) multiplier */

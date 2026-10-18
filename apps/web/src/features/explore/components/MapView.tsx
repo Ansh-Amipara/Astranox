@@ -121,7 +121,7 @@ export const MapView: React.FC<MapViewProps> = ({ mapId, playerPos, className = 
           ref={canvasRef}
           data-testid="explore-canvas"
           style={{ width: `${VIEW_W * TILE_SIZE}px`, height: `${VIEW_H * TILE_SIZE}px` }}
-          className="block max-w-full h-auto aspect-[11/9] cursor-default"
+          className="block max-w-full w-full h-auto aspect-[11/9] cursor-default touch-none canvas-touch-guard"
           aria-hidden="true"
         />
 

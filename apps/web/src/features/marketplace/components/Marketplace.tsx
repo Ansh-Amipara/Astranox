@@ -216,7 +216,7 @@ export function MarketplacePage() {
                     cancelOfferMutation.mutate(offer.id);
                   }}
                   disabled={cancelOfferMutation.isPending}
-                  className="px-4 py-2 bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center shrink-0"
                 >
                   Cancel Offer
                 </button>
@@ -229,18 +229,18 @@ export function MarketplacePage() {
   };
 
   return (
-    <div className="flex-1 bg-background p-4 md:p-6 min-h-[calc(100vh-64px)]">
+    <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)]">
       <div className="w-full mx-auto">
-        <div className="flex flex-row justify-between items-center mb-8 gap-2 md:gap-4">
+        <div className="flex flex-row justify-between items-center mb-6 sm:mb-8 gap-2 md:gap-4">
           <div className="min-w-0">
-            <h1 className="text-3xl font-black text-foreground flex items-center gap-2 truncate">
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2 truncate">
               Trade Exchange
             </h1>
           </div>
 
           <button
             onClick={() => navigate('/marketplace/create')}
-            className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors shrink-0 text-sm md:text-base"
+            className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors shrink-0 text-sm md:text-base"
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5" /> 
             <span className="hidden sm:inline">Create Listing</span>
@@ -253,7 +253,7 @@ export function MarketplacePage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-2 md:px-6 py-2 rounded-lg text-xs sm:text-sm font-bold capitalize transition-all ${activeTab === tab ? 'bg-surface text-foreground shadow-sm' : 'text-subtle hover:text-subtle ' }`}
+              className={`flex-1 px-2 md:px-6 py-2.5 min-h-[44px] rounded-lg text-xs sm:text-sm font-bold capitalize transition-all flex items-center justify-center ${activeTab === tab ? 'bg-surface text-foreground shadow-sm' : 'text-subtle hover:text-subtle ' }`}
             >
               {tab.replace('-', ' ')}
             </button>

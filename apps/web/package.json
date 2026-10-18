@@ -7,8 +7,9 @@
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "oxlint && pnpm run check:colors",
+    "lint": "oxlint && pnpm run check:colors && pnpm run check:responsive",
     "check:colors": "node scripts/check-colors.js",
+    "check:responsive": "node scripts/check-responsive.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

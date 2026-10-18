@@ -356,6 +356,7 @@ model BattleSession {
 
   log Json? // Array of TurnEvent
 
+  balanceVersion Int?     @default(1)
   dataVersion Int      @default(1)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -413,6 +414,24 @@ model MigrationRun {
   appliedAt DateTime @default(now())
 }
 
+model BalanceConfig {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  section     String    // 'battle' | 'catch' | 'exploration' | 'progression' | 'economy' | 'limits' | 'arena' | 'rank' | 'tower' | 'rift'
+  version     Int       @default(1)
+  values      Json      // ONLY the overridden values
+  status      String    @default("draft") // 'draft' | 'active' | 'archived'
+  createdBy   String?   @db.ObjectId
+  publishedBy String?   @db.ObjectId
+  publishedAt DateTime?
+  reason      String?
+  dataVersion Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([section, version])
+  @@index([section, status])
+}
+
 model ShopItem {
   id                 String    @id @default(auto()) @map("_id") @db.ObjectId
   key                String    @unique
@@ -425,6 +444,10 @@ model ShopItem {
   saleStartsAt       DateTime?
   saleEndsAt         DateTime?
   enabled            Boolean   @default(true)
+  isArchived         Boolean   @default(false)
+  spriteUrl          String?
+  effectType         String?
+  effectConfig       Json?
   minLevel           Int?
   dailyLimitPerUser  Int?
   totalStock         Int?
@@ -436,6 +459,7 @@ model ShopItem {
   createdAt          DateTime  @default(now())
 
   @@index([category, sortOrder])
+  @@index([isArchived, enabled])
 }
 
 model ShopPriceHistory {
@@ -537,6 +561,7 @@ model InfinityTowerState {
   floorsCompleted     Int      @default(0)
   totalVictories      Int      @default(0)
   totalDefeats        Int      @default(0)
+  balanceVersion      Int?     @default(1)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
@@ -592,7 +617,7 @@ model RiftDungeonState {
   currentRunStartedAt DateTime?
   
   totalRiftsCleared   Int      @default(0)
-  
+  balanceVersion      Int?     @default(1)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
@@ -687,15 +712,21 @@ model EventChallenge {
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean  @default(false)
+  isArchived  Boolean  @default(false)
 
   taskType    EventTaskType
   taskConfig  Json     // e.g., { requiredCount: 5, pokemonType: "Fire" }
   rewardConfig Json    // e.g., { speciesId: 6, form: "Mega", potential: "DIAMOND", level: 5 }
+  pokemonPool Json?    // array of { speciesId: number, name: string, minLevel: number, maxLevel: number, weight: number }
 
   playerProgress PlayerEventProgress[]
 
+  dataVersion Int      @default(1)
+  updatedBy   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([isActive, isArchived])
 }
 
 model PlayerEventProgress {
@@ -729,6 +760,89 @@ model EncounterHistory {
 
   @@index([userId, createdAt])
   @@index([trainerId, createdAt])
+}
+
+// ----------------------------------------------------------------------
+// ARENA & RANK UP CONTENT MANAGEMENT
+// ----------------------------------------------------------------------
+
+model ArenaTrainer {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  key             String   @unique
+  name            String
+  targetRank      String   // e.g. "F", "E", "D", "C", "B", "A", "S_MINUS", "S", "S_PLUS"
+  level           Int
+  team            String[] // array of species slugs/names
+  coins           Int
+  xp              Int
+  theme           String
+  ratingDelta     Int      @default(25)
+  cooldownMinutes Int      @default(0)
+  enabled         Boolean  @default(true)
+  isArchived      Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  dataVersion     Int      @default(1)
+  updatedBy       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([targetRank, isArchived, enabled])
+}
+
+model RankDefinition {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  rank            TrainerRank @unique
+  name            String
+  minLevel        Int
+  maxLevel        Int
+  requiredWins    Int         @default(0)
+  examinerName    String
+  examinerLevel   Int
+  examinerAce     String
+  examinerTeam    String[]
+  rewardCoins     Int
+  rewardXp        Int
+  rewardItems     String[]    @default([])
+  enabled         Boolean     @default(true)
+  sortOrder       Int         @default(0)
+  dataVersion     Int         @default(1)
+  updatedBy       String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+// ----------------------------------------------------------------------
+// DUNGEON FLOOR RULES (INFINITY TOWER & VOID RIFTS)
+// ----------------------------------------------------------------------
+
+enum DungeonType {
+  INFINITY_TOWER
+  VOID_RIFT
+}
+
+model DungeonFloorRule {
+  id                  String         @id @default(auto()) @map("_id") @db.ObjectId
+  dungeonType         DungeonType
+  floorNumber         Int
+  difficulty          RiftDifficulty?
+  title               String?
+  enemyPool           Json           // array of { speciesId: number, name?: string, level?: number, weight?: number } or static team
+  scalingFactor       Float          @default(1.0)
+  rewardCoins         Int            @default(0)
+  rewardInfinityCoins Int            @default(0)
+  rewardItems         Json?          // array of { itemKey: string, quantity: number, chance?: number }
+  ruleModifiers       Json?          // e.g. { weather?: string, banTypes?: string[], hpMultiplier?: number }
+  isBossFloor         Boolean        @default(false)
+  enabled             Boolean        @default(true)
+  isArchived          Boolean        @default(false)
+  sortOrder           Int            @default(0)
+  dataVersion         Int            @default(1)
+  updatedBy           String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@unique([dungeonType, floorNumber, difficulty])
+  @@index([dungeonType, isArchived, enabled])
 }
 
 

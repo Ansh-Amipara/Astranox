@@ -45,7 +45,8 @@ export function calculateDamage(
   attacker: BattlePokemon,
   defender: BattlePokemon,
   move: MoveData,
-  rng: () => number
+  rng: () => number,
+  balanceConfig: typeof BATTLE_CONSTANTS = BATTLE_CONSTANTS
 ): DamageResult {
   // 1. Accuracy Check
   if (move.accuracy && move.accuracy < 100) {
@@ -86,12 +87,12 @@ export function calculateDamage(
   // step1 = floor( (2 * Level) / 5 ) + 2
   // step2 = floor( step1 * Power * A / D )
   // baseDamage = floor( step2 / 50 ) + 2
-  const levelMult = Math.floor((2 * attacker.level) / 5) + BATTLE_CONSTANTS.LEVEL_SCALING_OFFSET;
+  const levelMult = Math.floor((2 * attacker.level) / 5) + balanceConfig.LEVEL_SCALING_OFFSET;
   const statMult = Math.floor(levelMult * move.power * (attackStat / defenseStat));
-  let currentDamage = Math.floor(statMult / BATTLE_CONSTANTS.BASE_DAMAGE_DIVISOR) + BATTLE_CONSTANTS.BASE_DAMAGE_OFFSET;
+  let currentDamage = Math.floor(statMult / balanceConfig.BASE_DAMAGE_DIVISOR) + balanceConfig.BASE_DAMAGE_OFFSET;
 
   if (isCritical) {
-    currentDamage = Math.floor(currentDamage * BATTLE_CONSTANTS.CRITICAL_HIT_MULTIPLIER);
+    currentDamage = Math.floor(currentDamage * balanceConfig.CRITICAL_HIT_MULTIPLIER);
   }
 
   // Random factor between 0.85 and 1.00 (85 to 100 / 100)
@@ -99,7 +100,7 @@ export function calculateDamage(
   currentDamage = Math.floor(currentDamage * randomFactor);
 
   if (isStab) {
-    currentDamage = Math.floor(currentDamage * BATTLE_CONSTANTS.STAB_MULTIPLIER);
+    currentDamage = Math.floor(currentDamage * balanceConfig.STAB_MULTIPLIER);
   }
 
   currentDamage = Math.floor(currentDamage * effectiveness);

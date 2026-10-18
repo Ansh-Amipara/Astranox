@@ -1,27 +1,26 @@
 import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
-import { EventsRepository } from '../events/events.repository';
+import { AdminEventsService } from './admin-events.service';
 
 @injectable()
 export class AdminEventsController {
-  constructor(private repo: EventsRepository) {}
+  constructor(private service: AdminEventsService) {}
+
+  getAllEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { isArchived } = req.query as Record<string, string>;
+      const events = await this.service.getAllEvents(isArchived);
+      res.json({ success: true, data: events });
+    } catch (err) {
+      next(err);
+    }
+  };
 
   createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = req.body;
-      if (data.isActive) {
-        await this.repo.deactivateAllEvents();
-      }
-      const event = await this.repo.createEvent({
-        name: data.name,
-        description: data.description,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
-        isActive: data.isActive,
-        taskType: data.taskType,
-        taskConfig: data.taskConfig,
-        rewardConfig: data.rewardConfig
-      });
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
+      const event = await this.service.createEvent(adminId, req.body, requestId);
       res.status(201).json({ success: true, data: event });
     } catch (err) {
       next(err);
@@ -30,36 +29,37 @@ export class AdminEventsController {
 
   updateEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
       const { id } = req.params;
-      const data = req.body;
-      if (data.isActive) {
-        await this.repo.deactivateAllEvents();
-      }
-      const event = await this.repo.updateEvent(id, {
-        ...data,
-        startDate: data.startDate ? new Date(data.startDate) : undefined,
-        endDate: data.endDate ? new Date(data.endDate) : undefined
-      });
+      const event = await this.service.updateEvent(adminId, id, req.body, requestId);
       res.json({ success: true, data: event });
     } catch (err) {
       next(err);
     }
   };
 
-  deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
+  archiveEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
       const { id } = req.params;
-      await this.repo.deleteEvent(id);
-      res.json({ success: true });
+      const { reason } = req.body;
+      const event = await this.service.archiveEvent(adminId, id, reason, requestId);
+      res.json({ success: true, data: event });
     } catch (err) {
       next(err);
     }
   };
 
-  getAllEvents = async (_req: Request, res: Response, next: NextFunction) => {
+  unarchiveEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const events = await this.repo.getAllEvents();
-      res.json({ success: true, data: events });
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
+      const { id } = req.params;
+      const { reason } = req.body;
+      const event = await this.service.unarchiveEvent(adminId, id, reason, requestId);
+      res.json({ success: true, data: event });
     } catch (err) {
       next(err);
     }

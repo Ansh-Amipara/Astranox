@@ -51,9 +51,9 @@ export function Register() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-start sm:pt-24 justify-center overflow-hidden bg-background text-foreground">
+    <div className="relative flex min-h-[100dvh] items-start sm:pt-24 justify-center overflow-hidden bg-background text-foreground">
       {/* Monochrome Glass Card */}
-      <div className="relative z-10 w-full max-w-md min-h-screen sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-border bg-background p-8 shadow-2xl">
+      <div className="relative z-10 w-full max-w-md min-h-[100dvh] sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-border bg-background p-5 sm:p-8 pt-safe pb-safe shadow-2xl">
         <div className="mb-8 text-center flex flex-col items-center">
           <img src="/logo.webp" alt="Astranox" className="w-16 h-16 object-contain mb-3 drop-shadow-md" />
           <h1 className="text-4xl font-black tracking-tight text-foreground">Join Astranox</h1>

@@ -104,24 +104,24 @@ export function AdminDashboard() {
   });
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background text-foreground flex items-center justify-center font-bold text-2xl">Loading Admin Dashboard...</div>;
+    return <div className="min-h-[100dvh] bg-background text-foreground flex items-center justify-center font-bold text-xl sm:text-2xl">Loading Admin Dashboard...</div>;
   }
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight text-foreground mb-2">User Management</h1>
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mb-1 sm:mb-2">User Management</h1>
         </div>
 
         <div className="w-full">
 
           {/* User List */}
           <div className="w-full bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-border bg-surface-raised">
-              <h2 className="text-xl font-bold text-foreground">Registered Users</h2>
+            <div className="p-4 sm:p-6 border-b border-border bg-surface-raised">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">Registered Users</h2>
             </div>
             <div className="md:overflow-x-auto">
               <table className="w-full text-left border-collapse block md:table md:min-w-[800px]">
@@ -135,7 +135,7 @@ export function AdminDashboard() {
                     <th className="p-4 font-bold text-right whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0 divide-y-0 md:divide-y divide-border bg-surface-raised md:bg-transparent md:">
+                <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-3 sm:p-4 md:p-0 divide-y-0 md:divide-y divide-border bg-surface-raised md:bg-transparent">
                   {users?.map((user: UserPayload) => (
                     <tr
                       key={user.id}
@@ -178,7 +178,7 @@ export function AdminDashboard() {
                           <div className="flex gap-2">
                             <button
                               aria-label="Inject Currency"
-                              className="text-muted hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none"
+                              className="text-muted hover:text-foreground transition-colors p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none touch-manipulation"
                               onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('currency'); }}
                               title="Inject Currency"
                             >
@@ -186,7 +186,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               aria-label="Send Pokémon"
-                              className="text-muted hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none"
+                              className="text-muted hover:text-foreground transition-colors p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none touch-manipulation"
                               onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('sendPokemon'); }}
                               title="Send Pokémon"
                             >
@@ -194,7 +194,7 @@ export function AdminDashboard() {
                             </button>
                             <button
                               aria-label="Edit Pokémon"
-                              className="text-muted hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none"
+                              className="text-muted hover:text-foreground transition-colors p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-surface-raised bg-surface md:bg-transparent border border-border md:border-none touch-manipulation"
                               onClick={(e) => { e.stopPropagation(); setSelectedUser(user); setModalMode('editPokemon'); }}
                               title="Edit Pokémon"
                             >
@@ -212,31 +212,32 @@ export function AdminDashboard() {
 
           {/* Management Modal */}
           {selectedUser && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface/50 backdrop-blur-sm" onClick={() => { setSelectedUser(null); setModalMode(null); }}>
-              <div className="bg-surface border border-border rounded-2xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => { setSelectedUser(null); setModalMode(null); }}>
+              <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl w-full max-w-2xl max-h-[85dvh] overflow-y-auto flex flex-col pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200 relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none" onClick={(e) => e.stopPropagation()}>
+                <div className="sm:hidden mx-auto -mt-1 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
                 <button
                   aria-label="Close"
                   onClick={() => { setSelectedUser(null); setModalMode(null); }}
-                  className="absolute top-4 right-4 text-muted hover:text-subtle bg-surface-raised rounded-full p-1"
+                  className="absolute top-3 sm:top-4 right-3 sm:right-4 text-muted hover:text-foreground bg-surface-raised rounded-full p-2 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <div className="mb-6 pb-6 border-b border-border pr-8">
-                  <h2 className="text-xl font-black text-foreground mb-1">
+                <div className="mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-border pr-8">
+                  <h2 className="text-lg sm:text-xl font-black text-foreground mb-1">
                     {modalMode === 'currency' && `Inject Currency to ${selectedUser.username}`}
                     {modalMode === 'sendPokemon' && `Send Pokémon to ${selectedUser.username}`}
                     {modalMode === 'editPokemon' && `Edit ${selectedUser.username}'s Pokémon`}
                   </h2>
-                  <p className="text-muted text-sm font-medium">Fill out the details below.</p>
+                  <p className="text-muted text-xs sm:text-sm font-medium">Fill out the details below.</p>
                 </div>
 
                 <div className="space-y-4">
                   {modalMode === "currency" && (<>
-                  <div className="bg-background p-5 rounded-xl border border-border">
+                  <div className="bg-background p-4 sm:p-5 rounded-xl border border-border">
                     <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                       Inject Currency
                     </h3>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="text"
                         value={moneyAmount || ''}
@@ -244,12 +245,12 @@ export function AdminDashboard() {
                           const val = e.target.value.replace(/\D/g, '');
                           setMoneyAmount(val ? Number(val) : 0);
                         }}
-                        className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
+                        className="flex-1 min-h-[44px] bg-surface border border-border rounded-lg px-3 py-2 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors touch-manipulation"
                       />
                       <select 
                         value={currencyType} 
                         onChange={(e) => setCurrencyType(e.target.value as any)}
-                        className="bg-surface border border-border rounded-lg px-4 py-2 text-foreground font-bold"
+                        className="min-h-[44px] bg-surface border border-border rounded-lg px-4 py-2 text-base sm:text-sm text-foreground font-bold touch-manipulation"
                       >
                         <option value="astralCoins">Astral</option>
                         <option value="infinityCoins">Infinity</option>
@@ -257,7 +258,7 @@ export function AdminDashboard() {
                       <button
                         onClick={() => addMoneyMutation.mutate({ userId: selectedUser.id, amount: moneyAmount, currencyType })}
                         disabled={addMoneyMutation.isPending || !selectedUser.trainerSave}
-                        className="bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-2 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50"
+                        className="min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-2 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 touch-manipulation flex items-center justify-center"
                       >
                         Add
                       </button>
@@ -265,7 +266,7 @@ export function AdminDashboard() {
                   </div>
 
                   </>)}{modalMode === "sendPokemon" && (<>
-                  <div className="bg-background p-5 rounded-xl border border-border">
+                  <div className="bg-background p-4 sm:p-5 rounded-xl border border-border">
                     <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                       Give Pokémon
                     </h3>
@@ -274,7 +275,7 @@ export function AdminDashboard() {
                         <div className="flex justify-between items-end mb-1">
                           <label className="block text-xs font-bold text-muted uppercase tracking-wider">Pokémon Species</label>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Dropdown
                             value={categoryFilter}
                             onChange={(val) => {
@@ -290,7 +291,7 @@ export function AdminDashboard() {
                               { value: 'Ultra Beast', label: 'Ultra Beast' },
                               { value: 'Paradox', label: 'Paradox' }
                             ]}
-                            className="w-1/3"
+                            className="w-full sm:w-1/3 min-h-[44px]"
                           />
                           <input
                             type="text"
@@ -301,7 +302,7 @@ export function AdminDashboard() {
                               setShowSpeciesDropdown(true);
                             }}
                             placeholder="Search Pokémon..."
-                            className="w-2/3 bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
+                            className="w-full sm:w-2/3 min-h-[44px] bg-surface border border-border rounded-lg px-3 py-2 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors touch-manipulation"
                           />
                         </div>
                         {showSpeciesDropdown && (
@@ -312,7 +313,7 @@ export function AdminDashboard() {
                               .map((s: SpeciesDto) => (
                                 <div
                                   key={s.id}
-                                  className="px-3 py-2 hover:bg-surface-raised cursor-pointer text-foreground capitalize text-sm font-medium flex justify-between"
+                                  className="px-3 py-2.5 min-h-[44px] hover:bg-surface-raised cursor-pointer text-foreground capitalize text-sm font-medium flex items-center justify-between touch-manipulation"
                                   onClick={() => {
                                     setSpeciesId(s.id);
                                     setSpeciesSearch(s.name);
@@ -335,7 +336,7 @@ export function AdminDashboard() {
                             setPokemonLevel(Math.min(pokemonLevel, getMaxLevelForPotential(val)));
                           }}
                           options={POTENTIALS.map(p => ({ value: p, label: p.replace('_', ' ') }))}
-                          className="w-full"
+                          className="w-full min-h-[44px]"
                         />
                       </div>
                       <div>
@@ -347,12 +348,12 @@ export function AdminDashboard() {
                             const val = e.target.value.replace(/\D/g, '');
                             setPokemonLevel(val ? Math.min(getMaxLevelForPotential(pokemonPotential), Number(val)) : 0);
                           }}
-                          className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
+                          className="w-full min-h-[44px] bg-surface border border-border rounded-lg px-3 py-2 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors touch-manipulation"
                         />
                       </div>
 
                       <div className="mt-4 border-t border-border pt-4">
-                        <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-muted">
+                        <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-muted min-h-[44px]">
                           <input 
                             type="checkbox" 
                             checked={useCustomIvs} 
@@ -363,7 +364,7 @@ export function AdminDashboard() {
                         </label>
                         
                         {useCustomIvs && (
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             {['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'].map(stat => (
                               <div key={stat}>
                                 <label className="block text-[10px] font-bold text-muted mb-1 uppercase tracking-wider">
@@ -376,7 +377,7 @@ export function AdminDashboard() {
                                     const val = e.target.value.replace(/\D/g, '');
                                     setCustomIvs(prev => ({ ...prev, [stat]: val ? Math.min(31, Number(val)) : 0 }));
                                   }}
-                                  className="w-full bg-surface border border-border rounded-lg px-2 py-1 text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors text-center"
+                                  className="w-full min-h-[44px] bg-surface border border-border rounded-lg px-2 py-1 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors text-center touch-manipulation"
                                 />
                               </div>
                             ))}
@@ -395,7 +396,7 @@ export function AdminDashboard() {
                           });
                         }}
                         disabled={addPokemonMutation.isPending || !selectedUser.trainerSave}
-                        className="w-full bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 mt-2"
+                        className="w-full min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 mt-2 touch-manipulation flex items-center justify-center"
                       >
                         Generate & Give
                       </button>
@@ -403,12 +404,12 @@ export function AdminDashboard() {
                   </div>
 
                   </>)}{modalMode === "editPokemon" && (<>
-                  <div className="bg-background p-5 rounded-xl border border-border">
+                  <div className="bg-background p-4 sm:p-5 rounded-xl border border-border">
                     <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                       Edit Existing Pokémon
                     </h3>
                     {!selectedPokemonToEdit ? (
-                      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                      <div className="space-y-2 max-h-60 overflow-y-auto pr-1 sm:pr-2">
                         {userPokemon?.map((p: OwnedPokemonDto) => (
                           <div 
                             key={p.id} 
@@ -417,13 +418,13 @@ export function AdminDashboard() {
                               setEditPotential(p.potential || '');
                               setEditIvs({ ivHp: p.ivHp, ivAttack: p.ivAttack, ivDefense: p.ivDefense, ivSpAtk: p.ivSpAtk, ivSpDef: p.ivSpDef, ivSpeed: p.ivSpeed });
                             }}
-                            className="bg-surface border border-border p-3 rounded-lg flex justify-between items-center cursor-pointer hover:bg-surface-raised transition-colors"
+                            className="bg-surface border border-border p-3 min-h-[44px] rounded-lg flex justify-between items-center cursor-pointer hover:bg-surface-raised transition-colors touch-manipulation"
                           >
                             <div>
-                              <p className="font-bold text-foreground capitalize">{p.speciesName} <span className="text-xs text-subtle ml-1">Lv. {p.level}</span></p>
+                              <p className="font-bold text-foreground capitalize text-sm sm:text-base">{p.speciesName} <span className="text-xs text-subtle ml-1">Lv. {p.level}</span></p>
                               <p className="text-xs text-subtle">XP: {p.currentXp} | {p.isParty ? 'In Party' : `Box ${p.boxNumber ?? 0}`}</p>
                             </div>
-                            <span className="text-foreground font-bold text-sm">Edit</span>
+                            <span className="text-foreground font-bold text-sm min-h-[44px] flex items-center">Edit</span>
                           </div>
                         ))}
                         {userPokemon?.length === 0 && <p className="text-subtle text-sm italic">User has no Pokémon.</p>}
@@ -431,8 +432,8 @@ export function AdminDashboard() {
                     ) : (
                       <div className="space-y-4">
                         <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg mb-2">
-                          <p className="font-bold text-foreground capitalize">{selectedPokemonToEdit.speciesName} <span className="text-xs text-subtle ml-1">Lv. {selectedPokemonToEdit.level}</span></p>
-                          <button onClick={() => setSelectedPokemonToEdit(null)} className="text-xs font-bold text-subtle hover:text-foreground">Cancel</button>
+                          <p className="font-bold text-foreground capitalize text-sm sm:text-base">{selectedPokemonToEdit.speciesName} <span className="text-xs text-subtle ml-1">Lv. {selectedPokemonToEdit.level}</span></p>
+                          <button onClick={() => setSelectedPokemonToEdit(null)} className="text-xs font-bold text-subtle hover:text-foreground min-h-[44px] px-2 touch-manipulation flex items-center">Cancel</button>
                         </div>
                         
                         <div>
@@ -441,7 +442,7 @@ export function AdminDashboard() {
                             value={editPotential}
                             onChange={(val) => setEditPotential(val)}
                             options={POTENTIALS.map(p => ({ value: p, label: p.replace('_', ' ') }))}
-                            className="!w-full mb-3"
+                            className="!w-full mb-3 min-h-[44px]"
                             dropdownClassName="!w-full max-h-60"
                           />
                         </div>
@@ -455,7 +456,7 @@ export function AdminDashboard() {
                                 const requiredXp = maxTotalXp - (selectedPokemonToEdit.currentXp || 0);
                                 setEditXp(Math.max(0, requiredXp));
                               }}
-                              className="text-[10px] font-bold text-foreground hover:text-foreground uppercase px-2 py-0.5 bg-surface-raised rounded"
+                              className="text-[10px] font-bold text-foreground hover:text-foreground uppercase px-2 py-1 bg-surface-raised rounded min-h-[32px] touch-manipulation"
                             >
                               Max
                             </button>
@@ -467,12 +468,12 @@ export function AdminDashboard() {
                               const val = e.target.value.replace(/\D/g, '');
                               setEditXp(val ? Number(val) : 0);
                             }}
-                            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-foreground font-bold focus:outline-none focus:border-border transition-colors"
+                            className="w-full min-h-[44px] bg-surface border border-border rounded-lg px-3 py-2 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors touch-manipulation"
                           />
                         </div>
 
                         <div className="mt-4 border-t border-border pt-4">
-                          <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-muted">
+                          <label className="flex items-center gap-2 cursor-pointer mb-3 text-sm font-bold text-muted min-h-[44px]">
                             <input 
                               type="checkbox" 
                               checked={useEditIvs} 
@@ -483,7 +484,7 @@ export function AdminDashboard() {
                           </label>
                           
                           {useEditIvs && (
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                               {['ivHp', 'ivAttack', 'ivDefense', 'ivSpAtk', 'ivSpDef', 'ivSpeed'].map(stat => (
                                 <div key={stat}>
                                   <label className="block text-[10px] font-bold text-muted mb-1 uppercase tracking-wider">
@@ -496,7 +497,7 @@ export function AdminDashboard() {
                                       const val = e.target.value.replace(/\D/g, '');
                                       setEditIvs(prev => ({ ...prev, [stat]: val ? Math.min(31, Number(val)) : 0 }));
                                     }}
-                                    className="w-full bg-surface border border-border rounded-lg px-2 py-1 text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors text-center"
+                                    className="w-full min-h-[44px] bg-surface border border-border rounded-lg px-2 py-1 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors text-center touch-manipulation"
                                   />
                                 </div>
                               ))}
@@ -515,7 +516,7 @@ export function AdminDashboard() {
                             });
                           }}
                           disabled={editPokemonMutation.isPending || (!editXp && !useEditIvs && editPotential === selectedPokemonToEdit.potential)}
-                          className="w-full bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 mt-2"
+                          className="w-full min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold px-4 py-3 rounded-lg transition-colors shadow-lg shadow-glow disabled:opacity-50 mt-2 touch-manipulation flex items-center justify-center"
                         >
                           Save Changes
                         </button>

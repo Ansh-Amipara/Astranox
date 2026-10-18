@@ -102,19 +102,41 @@ export function DataTable<T>({
 
   return (
     <div className="w-full space-y-4">
-      {/* Mobile Card Layout (visible on mobile if renderMobileCard provided) */}
-      {renderMobileCard && (
-        <div className="block md:hidden space-y-3">
-          {data.map((item) => (
-            <div key={keyExtractor(item)}>{renderMobileCard(item)}</div>
-          ))}
-        </div>
-      )}
+      {/* Mobile Card Layout (auto-rendered or custom on mobile < md) */}
+      <div className="block md:hidden space-y-3">
+        {data.map((item) => (
+          <div
+            key={keyExtractor(item)}
+            className="bg-surface border border-border rounded-2xl p-4 shadow-sm"
+          >
+            {renderMobileCard ? (
+              renderMobileCard(item)
+            ) : (
+              <div className="divide-y divide-border/40 space-y-2">
+                {columns.map((col, idx) => {
+                  const colKey = col.key || col.accessorKey || String(idx);
+                  return (
+                    <div
+                      key={colKey}
+                      className="flex items-center justify-between pt-2 first:pt-0 gap-3 text-sm"
+                    >
+                      <span className="font-semibold text-muted shrink-0 text-xs uppercase tracking-wider">
+                        {col.header}
+                      </span>
+                      <div className="text-right text-foreground font-medium truncate max-w-[65%]">
+                        {col.cell(item)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
 
-      {/* Desktop Table Layout (hidden on mobile if mobile card provided) */}
-      <div
-        className={`${renderMobileCard ? 'hidden md:block' : 'block'} bg-surface border border-border rounded-2xl overflow-hidden shadow-sm`}
-      >
+      {/* Desktop Table Layout (hidden on mobile < md) */}
+      <div className="hidden md:block bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
         <div
           ref={parentRef}
           className="overflow-x-auto max-h-[700px] overflow-y-auto relative custom-scrollbar"

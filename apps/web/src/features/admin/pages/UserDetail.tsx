@@ -325,26 +325,28 @@ export function UserDetail() {
 
       {/* Grant Currency Modal */}
       {isCurrencyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <h3 className="text-base font-black text-foreground">Grant Currency</h3>
               <button
                 onClick={() => setIsCurrencyModalOpen(false)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-bold text-foreground mb-1">Currency Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setCurrencyType('astralCoins')}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                    className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                       currencyType === 'astralCoins'
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -355,7 +357,7 @@ export function UserDetail() {
                   <button
                     type="button"
                     onClick={() => setCurrencyType('infinityCoins')}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                    className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                       currencyType === 'infinityCoins'
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -373,7 +375,7 @@ export function UserDetail() {
                   value={currencyAmount}
                   onChange={(e) => setCurrencyAmount(e.target.value.replace(/\D/g, ''))}
                   placeholder="Enter amount..."
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
                 />
               </div>
 
@@ -385,18 +387,18 @@ export function UserDetail() {
               />
             </div>
 
-            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setIsCurrencyModalOpen(false)}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveGrantCurrency}
                 disabled={grantCurrencyMutation.isPending || currencyReason.trim().length < 5}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 {grantCurrencyMutation.isPending ? 'Granting...' : 'Grant Currency'}
               </Button>
@@ -407,19 +409,21 @@ export function UserDetail() {
 
       {/* Grant Item Modal */}
       {isItemModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <h3 className="text-base font-black text-foreground">Grant Item</h3>
               <button
                 onClick={() => setIsItemModalOpen(false)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-bold text-foreground mb-1">Item Key</label>
                 <input
@@ -427,7 +431,7 @@ export function UserDetail() {
                   value={itemKey}
                   onChange={(e) => setItemKey(e.target.value.trim().toLowerCase())}
                   placeholder="e.g. ultra_ball, rare_candy"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden font-mono"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden font-mono touch-manipulation"
                 />
               </div>
 
@@ -438,7 +442,7 @@ export function UserDetail() {
                   value={itemQuantity}
                   onChange={(e) => setItemQuantity(e.target.value.replace(/\D/g, ''))}
                   placeholder="Quantity (e.g. 5)"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
                 />
               </div>
 
@@ -450,18 +454,18 @@ export function UserDetail() {
               />
             </div>
 
-            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setIsItemModalOpen(false)}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveGrantItem}
                 disabled={grantItemMutation.isPending || itemReason.trim().length < 5}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 {grantItemMutation.isPending ? 'Granting...' : 'Grant Item'}
               </Button>

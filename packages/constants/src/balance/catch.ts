@@ -1,7 +1,35 @@
+import { z } from 'zod';
+
 /**
  * Catch domain balance constants and formulas.
  * Canonical to Gen V+ mechanics as enforced by AGENTS.md.
  */
+
+export const catchBalanceSchema = z.object({
+  BALL_BONUS: z.object({
+    'poke-ball': z.number().min(0.1).max(255).describe('Poke Ball catch multiplier'),
+    'great-ball': z.number().min(0.1).max(255).describe('Great Ball catch multiplier'),
+    'ultra-ball': z.number().min(0.1).max(255).describe('Ultra Ball catch multiplier'),
+    'luxury-ball': z.number().min(0.1).max(255).describe('Luxury Ball catch multiplier'),
+    'master-ball': z.number().min(0.1).max(255).describe('Master Ball catch multiplier'),
+  }),
+  STATUS_BONUS: z.object({
+    sleep: z.number().min(1.0).max(10.0).describe('Sleep status multiplier'),
+    freeze: z.number().min(1.0).max(10.0).describe('Freeze status multiplier'),
+    paralysis: z.number().min(1.0).max(10.0).describe('Paralysis status multiplier'),
+    poison: z.number().min(1.0).max(10.0).describe('Poison status multiplier'),
+    burn: z.number().min(1.0).max(10.0).describe('Burn status multiplier'),
+    none: z.number().min(1.0).max(10.0).describe('No status multiplier'),
+  }),
+  MAX_CATCH_RATE: z.number().min(1).max(255).describe('Maximum species catch rate byte value'),
+  REQUIRED_SHAKES: z.number().min(1).max(10).describe('Total shake iterations required for capture'),
+  MAX_DISPLAY_SHAKES: z.number().min(1).max(10).describe('Maximum displayed shake animations'),
+  THRESHOLD_DIVIDEND: z.number().min(1000).max(10000000).describe('Gen V+ shake probability threshold dividend'),
+  THRESHOLD_NUMERATOR: z.number().min(1000).max(50000000).describe('Gen V+ shake probability threshold numerator constant'),
+  MASTER_BALL_THRESHOLD: z.number().min(1).max(255).describe('Master ball bypass threshold'),
+});
+
+export type CatchBalanceConfig = z.infer<typeof catchBalanceSchema>;
 
 export const CATCH_CONSTANTS = {
   /** Ball multiplier bonuses */

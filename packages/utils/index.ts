@@ -1,1 +1,1 @@
-export {};
+export * from './src/deep-merge';

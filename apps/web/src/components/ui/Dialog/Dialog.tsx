@@ -44,11 +44,18 @@ export function DialogContent({
       <RadixDialog.Content
         ref={ref}
         className={cn(
-          'fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] sm:w-full max-w-lg rounded-3xl bg-background border border-border text-foreground shadow-2xl flex flex-col max-h-[90vh] overflow-hidden focus:outline-none',
+          'fixed z-50 bg-background border border-border text-foreground shadow-2xl flex flex-col focus:outline-none overflow-hidden',
+          // Mobile: bottom sheet (slides up, 90dvh max height, safe area padding)
+          'bottom-0 left-0 right-0 w-full rounded-t-3xl rounded-b-none border-b-0 max-h-[90dvh] pb-safe',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom duration-300 ease-out',
+          // Desktop (md+): centered dialog
+          'md:bottom-auto md:top-[50%] md:left-[50%] md:translate-x-[-50%] md:translate-y-[-50%] md:w-full md:max-w-lg md:rounded-3xl md:border-b md:max-h-[85dvh]',
+          'md:data-[state=closed]:slide-out-to-bottom-0 md:data-[state=open]:slide-in-from-bottom-0 md:data-[state=open]:zoom-in-95 md:data-[state=closed]:zoom-out-95',
           className
         )}
         {...props}
       >
+        <div className="md:hidden mx-auto my-2.5 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
         {children}
       </RadixDialog.Content>
     </DialogPortal>
@@ -145,11 +152,18 @@ export function DialogConvenience({
         <DialogOverlay />
         <RadixDialog.Content
           className={cn(
-            'fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] sm:w-full rounded-3xl bg-background border border-border text-foreground shadow-2xl flex flex-col max-h-[90vh] overflow-hidden',
+            'fixed z-50 bg-background border border-border text-foreground shadow-2xl flex flex-col overflow-hidden',
+            // Mobile (<md): bottom sheet
+            'bottom-0 left-0 right-0 w-full rounded-t-3xl rounded-b-none border-b-0 max-h-[90dvh] pb-safe',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom duration-300 ease-out',
+            // Desktop (md+): centered dialog
+            'md:bottom-auto md:top-[50%] md:left-[50%] md:translate-x-[-50%] md:translate-y-[-50%] md:w-full md:rounded-3xl md:border-b md:max-h-[85dvh]',
+            'md:data-[state=closed]:slide-out-to-bottom-0 md:data-[state=open]:slide-in-from-bottom-0 md:data-[state=open]:zoom-in-95 md:data-[state=closed]:zoom-out-95',
             className
           )}
           aria-describedby="dialog-description"
         >
+          <div className="md:hidden mx-auto my-2.5 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
           <VisuallyHidden.Root>
             <RadixDialog.Title>{title ? String(title) : 'Dialog Modal'}</RadixDialog.Title>
             <RadixDialog.Description id="dialog-description">

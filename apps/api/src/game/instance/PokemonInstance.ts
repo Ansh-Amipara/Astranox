@@ -4,16 +4,17 @@ import { calculatePokemonCP } from './cp';
 import {
   getMaxLevelForPotential,
   RANK_ORDER,
+  ProgressionBalanceConfig,
 } from '@astranox/constants';
 
 export { getMaxLevelForPotential };
 
-export function getMinPotentialForLevel(level: number, minTier: string = 'F'): string {
+export function getMinPotentialForLevel(level: number, minTier: string = 'F', config?: ProgressionBalanceConfig): string {
   const tiers = RANK_ORDER;
 
   let requiredTierIndex = tiers.length - 1;
   for (let i = 0; i < tiers.length; i++) {
-    if (level <= getMaxLevelForPotential(tiers[i])) {
+    if (level <= getMaxLevelForPotential(tiers[i], config)) {
       requiredTierIndex = i;
       break;
     }
@@ -27,7 +28,7 @@ export function getMinPotentialForLevel(level: number, minTier: string = 'F'): s
  * Validates and constructs a fully hydrated PokemonInstance from a payload.
  * Pure logic function that uses the Phase 5 mathematical engine.
  */
-export function createPokemonInstance(payload: PokemonInstancePayload): PokemonInstance {
+export function createPokemonInstance(payload: PokemonInstancePayload, config?: ProgressionBalanceConfig): PokemonInstance {
   // 1. Validate IVs (Must be 0-31)
   const ivs = Object.values(payload.ivs);
   for (const iv of ivs) {
@@ -37,7 +38,7 @@ export function createPokemonInstance(payload: PokemonInstancePayload): PokemonI
   }
 
   // 2. Validate Level against Potential Cap
-  const maxLevel = getMaxLevelForPotential(payload.potential);
+  const maxLevel = getMaxLevelForPotential(payload.potential, config);
   if (payload.level < 1 || payload.level > maxLevel) {
     throw new Error(`Invalid Level: ${payload.level}. Level must be strictly between 1 and ${maxLevel} for potential ${payload.potential}.`);
   }

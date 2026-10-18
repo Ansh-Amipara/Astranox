@@ -84,8 +84,8 @@ export const BattleResultModal = memo(function BattleResultModal({
 
   return (
     <Modal isOpen={true} onClose={() => {}} className="max-w-xl" hideHeader>
-      <div className="p-8 flex flex-col items-center">
-        <h2 className={`text-3xl font-black mb-6 tracking-wide uppercase text-center ${
+      <div className="p-4 sm:p-8 flex flex-col items-center">
+        <h2 className={`text-2xl sm:text-3xl font-black mb-4 sm:mb-6 tracking-wide uppercase text-center ${
           status === 'WON' || status === 'CAUGHT'
             ? 'text-success'
             : status === 'FLED'
@@ -100,7 +100,7 @@ export const BattleResultModal = memo(function BattleResultModal({
 
         {/* Tower Rewards */}
         {battleType === 'TOWER' && status === 'WON' && towerData?.activeEncounter?.reward && (
-          <div className="w-full bg-surface rounded-xl p-6 mb-6 border border-border flex flex-row items-center justify-around shadow-inner">
+          <div className="w-full bg-surface rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 border border-border flex flex-row items-center justify-around shadow-inner">
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center shadow-sm border border-border">
                 <img src="/infinity.webp" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
@@ -127,7 +127,7 @@ export const BattleResultModal = memo(function BattleResultModal({
           </div>
         )}
 
-        <div className={`w-full py-4 px-6 rounded-xl mb-8 border font-bold text-center text-lg ${
+        <div className={`w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl mb-6 sm:mb-8 border font-bold text-center text-base sm:text-lg ${
           status === 'WON' || status === 'CAUGHT'
             ? 'bg-success/10 border-success/30 text-success'
             : status === 'FLED'
@@ -139,12 +139,12 @@ export const BattleResultModal = memo(function BattleResultModal({
            status === 'FLED' ? 'Got away safely!' : 'Better luck next time!'}
         </div>
 
-        <div className="flex gap-4 w-full">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
           {battleType === 'NPC' && arenaTrainerId && (
             <button
               disabled={arenaEncounterMutation.isPending || completeTower.isPending || completeRift.isPending || abandonRift.isPending}
               onClick={() => arenaEncounterMutation.mutate(arenaTrainerId)}
-              className="w-full py-4 bg-gradient-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised text-foreground rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
+              className="w-full min-h-[44px] py-3.5 sm:py-4 bg-gradient-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised text-foreground rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 touch-manipulation"
             >
               {arenaEncounterMutation.isPending ? 'Starting...' : 'Fight Again'}
             </button>
@@ -193,7 +193,7 @@ export const BattleResultModal = memo(function BattleResultModal({
                 handleReturn();
               }
             }} 
-            className="w-full py-4 bg-gradient-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised text-foreground rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
+            className="w-full min-h-[44px] py-3.5 sm:py-4 bg-gradient-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised text-foreground rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 touch-manipulation"
           >
             {completeTower.isPending || completeRift.isPending || abandonRift.isPending ? 'Processing...' : 'Return'}
           </button>

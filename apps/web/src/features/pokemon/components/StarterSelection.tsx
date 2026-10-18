@@ -63,34 +63,34 @@ export function StarterSelection() {
   };
 
   return (
-    <div className="relative min-h-screen bg-background px-4 py-12 text-foreground overflow-hidden transition-colors duration-200">
+    <div className="relative min-h-[100dvh] bg-background px-4 py-8 sm:py-12 text-foreground overflow-hidden transition-colors duration-200 pb-32">
       <div className="relative z-10 mx-auto max-w-5xl">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl mb-4">
+        <div className="mb-8 sm:mb-12 text-center">
+          <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-5xl mb-3 sm:mb-4">
             Choose Your <span className="underline decoration-white decoration-4 underline-offset-8">Partner</span>
           </h1>
-          <p className="text-lg text-muted max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-muted max-w-2xl mx-auto">
             Welcome to Astranox. Choose one of the classic starter Pokémon from any generation to begin your journey.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12">
           {ALL_GENERATION_STARTERS.map((pkm) => {
             const isSelected = selectedId === pkm.id;
             return (
               <div
                 key={pkm.id}
                 onClick={() => setSelectedId(pkm.id)}
-                className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-300 ${ isSelected ? 'border-border bg-surface shadow-glow scale-105' : 'border-border bg-background/80 hover:border-border hover:bg-surface/80 hover:scale-[1.02]' }`}
+                className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-300 ${ isSelected ? 'border-border bg-surface shadow-glow scale-[1.02] sm:scale-105' : 'border-border bg-background/80 hover:border-border hover:bg-surface/80 hover:scale-[1.01] sm:hover:scale-[1.02]' }`}
               >
-                <div className="relative z-20 flex flex-col items-center p-6">
+                <div className="relative z-20 flex flex-col items-center p-4 sm:p-6">
                   <img
                     src={getSpriteUrl(pkm.id)}
                     alt={pkm.name}
-                    className="h-32 w-32 object-contain transition-transform duration-500 group-hover:scale-110"
+                    className="h-24 w-24 sm:h-32 sm:w-32 object-contain transition-transform duration-500 group-hover:scale-110"
                     style={{ imageRendering: 'auto' }}
                   />
-                  <h3 className="mt-4 text-xl font-bold text-foreground capitalize">{pkm.name}</h3>
+                  <h3 className="mt-3 sm:mt-4 text-lg sm:text-xl font-bold text-foreground capitalize">{pkm.name}</h3>
                   <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">{pkm.type}</span>
                 </div>
               </div>
@@ -99,19 +99,19 @@ export function StarterSelection() {
         </div>
 
         {/* Fixed Confirmation Bar */}
-        <div className={`fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur-md p-6 transform transition-transform duration-300 z-50 ${selectedId ? 'translate-y-0' : 'translate-y-full'}`}>
-          <div className="max-w-5xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className={`fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur-md p-4 sm:p-6 pb-safe transform transition-transform duration-300 z-50 ${selectedId ? 'translate-y-0' : 'translate-y-full'}`}>
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
               {selectedId && (
                 <img
                   src={getSpriteUrl(selectedId)}
-                  className="h-16 w-16"
+                  className="h-12 w-12 sm:h-16 sm:w-16 shrink-0"
                   style={{ imageRendering: 'auto' }}
                 />
               )}
               <div>
-                <p className="text-sm text-muted font-semibold">Selected Partner</p>
-                <p className="text-xl font-black text-foreground">
+                <p className="text-xs sm:text-sm text-muted font-semibold">Selected Partner</p>
+                <p className="text-lg sm:text-xl font-black text-foreground">
                   {ALL_GENERATION_STARTERS.find(p => p.id === selectedId)?.name}
                 </p>
               </div>
@@ -120,7 +120,7 @@ export function StarterSelection() {
             <button
               onClick={handleConfirm}
               disabled={mutation.isPending}
-              className="rounded-xl bg-primary px-8 py-3 font-extrabold text-primary-foreground transition-all hover:bg-surface-raised hover:scale-105 border border-border shadow-glow disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full sm:w-auto rounded-xl bg-primary px-6 sm:px-8 py-3 min-h-[44px] font-extrabold text-primary-foreground transition-all hover:bg-surface-raised sm:hover:scale-105 border border-border shadow-glow disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center"
             >
               {mutation.isPending ? 'Confirming...' : 'Confirm Selection'}
             </button>

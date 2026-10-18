@@ -79,6 +79,22 @@ export class BattleSessionService {
   ) {}
 
   async getArenaTrainers() {
+    const custom = await prisma.arenaTrainer.findMany({
+      where: { isArchived: false, enabled: true },
+      orderBy: [{ sortOrder: 'asc' }, { level: 'asc' }],
+    });
+    if (custom.length > 0) {
+      return custom.map(t => ({
+        id: t.key,
+        name: t.name,
+        targetRank: t.targetRank,
+        level: t.level,
+        team: t.team,
+        coins: t.coins,
+        xp: t.xp,
+        theme: t.theme,
+      }));
+    }
     return ARENA_TRAINERS;
   }
 
@@ -459,7 +475,22 @@ export class BattleSessionService {
       throw new ValidationError('You are already in a battle.');
     }
 
-    const config = RANK_EXAMINERS[targetRank];
+    const dbRank = await prisma.rankDefinition.findUnique({
+      where: { rank: targetRank as any },
+    });
+    const config = dbRank
+      ? {
+          name: dbRank.examinerName,
+          targetRank: dbRank.rank,
+          level: dbRank.examinerLevel,
+          ace: dbRank.examinerAce,
+          team: dbRank.examinerTeam,
+          coins: dbRank.rewardCoins,
+          xp: dbRank.rewardXp,
+          items: dbRank.rewardItems,
+        }
+      : RANK_EXAMINERS[targetRank];
+
     if (!config) {
       throw new ValidationError(`No examiner configured for rank ${targetRank}`);
     }
@@ -587,7 +618,22 @@ export class BattleSessionService {
       throw new ValidationError('You are already in a battle.');
     }
 
-    const config = ARENA_TRAINERS.find(t => t.id === trainerId);
+    const dbTrainer = await prisma.arenaTrainer.findUnique({
+      where: { key: trainerId },
+    });
+    const config = dbTrainer
+      ? {
+          id: dbTrainer.key,
+          name: dbTrainer.name,
+          targetRank: dbTrainer.targetRank,
+          level: dbTrainer.level,
+          team: dbTrainer.team,
+          coins: dbTrainer.coins,
+          xp: dbTrainer.xp,
+          theme: dbTrainer.theme,
+        }
+      : ARENA_TRAINERS.find(t => t.id === trainerId);
+
     if (!config) {
       throw new NotFoundError(`Arena trainer not found.`);
     }

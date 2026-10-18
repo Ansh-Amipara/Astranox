@@ -5,6 +5,7 @@ import { CacheService } from '../../core/services/cache.service';
 import { DEFAULT_SHOP_CATALOG, SHOP_LIMITS } from '@astranox/constants';
 import type {
   ShopItemDto,
+  CreateShopItemInput,
   UpdateShopItemInput,
   BulkPriceUpdateInput,
   BulkPriceResultDto,
@@ -24,7 +25,41 @@ export class AdminShopService {
     return true;
   }
 
-  async getAdminShopItems(query: { category?: string; search?: string; enabled?: string }): Promise<ShopItemDto[]> {
+  private mapToDto(item: any, catalogMap?: Map<string, any>): ShopItemDto {
+    const onSale = this.isSaleActive(item);
+    const effectivePrice = onSale && item.salePrice != null ? item.salePrice : item.price;
+    const defaultMeta = catalogMap ? catalogMap.get(item.key) : DEFAULT_SHOP_CATALOG.find((c) => c.key === item.key);
+
+    return {
+      id: item.id,
+      key: item.key,
+      name: item.name,
+      category: item.category,
+      description: item.description,
+      currency: item.currency as 'astralCoins' | 'infinityCoins',
+      price: item.price,
+      salePrice: item.salePrice,
+      saleStartsAt: item.saleStartsAt ? item.saleStartsAt.toISOString() : null,
+      saleEndsAt: item.saleEndsAt ? item.saleEndsAt.toISOString() : null,
+      effectivePrice,
+      isOnSale: onSale,
+      enabled: item.enabled,
+      isArchived: item.isArchived ?? false,
+      minLevel: item.minLevel,
+      dailyLimitPerUser: item.dailyLimitPerUser,
+      totalStock: item.totalStock,
+      stockRemaining: item.stockRemaining,
+      sortOrder: item.sortOrder,
+      spriteUrl: item.spriteUrl || defaultMeta?.spriteUrl || null,
+      effectType: item.effectType || null,
+      effectConfig: item.effectConfig || null,
+      dataVersion: item.dataVersion,
+      updatedBy: item.updatedBy,
+      updatedAt: item.updatedAt.toISOString(),
+    };
+  }
+
+  async getAdminShopItems(query: { category?: string; search?: string; enabled?: string; isArchived?: string }): Promise<ShopItemDto[]> {
     const where: any = {};
 
     if (query.category && query.category !== 'all') {
@@ -42,43 +77,188 @@ export class AdminShopService {
       where.enabled = query.enabled === 'true';
     }
 
+    if (query.isArchived === 'true') {
+      where.isArchived = true;
+    } else if (query.isArchived === 'all') {
+      // Return both active and archived
+    } else {
+      where.isArchived = false;
+    }
+
     const items = await prisma.shopItem.findMany({
       where,
       orderBy: [{ sortOrder: 'asc' }, { price: 'asc' }],
     });
 
     const catalogMap = new Map(DEFAULT_SHOP_CATALOG.map((c) => [c.key, c]));
+    return items.map((item) => this.mapToDto(item, catalogMap));
+  }
 
-    return items.map((item) => {
-      const onSale = this.isSaleActive(item);
-      const effectivePrice = onSale && item.salePrice != null ? item.salePrice : item.price;
-      const defaultMeta = catalogMap.get(item.key);
-
-      return {
-        id: item.id,
-        key: item.key,
-        name: item.name,
-        category: item.category,
-        description: item.description,
-        currency: item.currency as 'astralCoins' | 'infinityCoins',
-        price: item.price,
-        salePrice: item.salePrice,
-        saleStartsAt: item.saleStartsAt ? item.saleStartsAt.toISOString() : null,
-        saleEndsAt: item.saleEndsAt ? item.saleEndsAt.toISOString() : null,
-        effectivePrice,
-        isOnSale: onSale,
-        enabled: item.enabled,
-        minLevel: item.minLevel,
-        dailyLimitPerUser: item.dailyLimitPerUser,
-        totalStock: item.totalStock,
-        stockRemaining: item.stockRemaining,
-        sortOrder: item.sortOrder,
-        spriteUrl: defaultMeta?.spriteUrl || null,
-        dataVersion: item.dataVersion,
-        updatedBy: item.updatedBy,
-        updatedAt: item.updatedAt.toISOString(),
-      };
+  async createShopItem(
+    adminId: string,
+    input: CreateShopItemInput,
+    requestId?: string
+  ): Promise<ShopItemDto> {
+    const existing = await prisma.shopItem.findUnique({
+      where: { key: input.key },
     });
+
+    if (existing) {
+      throw new BadRequestError(`Shop item with key '${input.key}' already exists.`);
+    }
+
+    const [created] = await prisma.$transaction([
+      prisma.shopItem.create({
+        data: {
+          key: input.key,
+          name: input.name,
+          category: input.category,
+          description: input.description,
+          currency: input.currency,
+          price: input.price,
+          salePrice: input.salePrice,
+          saleStartsAt: input.saleStartsAt ? new Date(input.saleStartsAt) : null,
+          saleEndsAt: input.saleEndsAt ? new Date(input.saleEndsAt) : null,
+          enabled: input.enabled ?? true,
+          isArchived: false,
+          minLevel: input.minLevel,
+          dailyLimitPerUser: input.dailyLimitPerUser,
+          totalStock: input.totalStock,
+          stockRemaining: input.totalStock,
+          sortOrder: input.sortOrder ?? 0,
+          spriteUrl: input.spriteUrl || null,
+          effectType: input.effectType || null,
+          effectConfig: input.effectConfig || null,
+          updatedBy: adminId,
+          dataVersion: 1,
+        },
+      }),
+      prisma.item.upsert({
+        where: { id: input.key },
+        create: {
+          id: input.key,
+          name: input.name,
+          cost: input.price,
+          description: input.description,
+          category: input.category,
+          spriteUrl: input.spriteUrl || null,
+        },
+        update: {
+          name: input.name,
+          cost: input.price,
+          description: input.description,
+          category: input.category,
+          spriteUrl: input.spriteUrl || null,
+        },
+      }),
+      prisma.auditLog.create({
+        data: {
+          adminId,
+          action: 'SHOP_ITEM_CREATE',
+          entityType: 'SHOP_ITEM',
+          entityId: input.key,
+          reason: input.reason,
+          requestId: requestId || null,
+          beforeValues: null,
+          afterValues: input,
+        },
+      }),
+    ]);
+
+    await this.cache.del('shop:catalog:public');
+    return this.mapToDto(created);
+  }
+
+  async archiveShopItem(
+    adminId: string,
+    key: string,
+    reason: string,
+    requestId?: string
+  ): Promise<ShopItemDto> {
+    if (!reason || reason.trim().length < 5) {
+      throw new BadRequestError('A reason of at least 5 characters is required to archive an item.');
+    }
+
+    const item = await prisma.shopItem.findUnique({
+      where: { key },
+    });
+
+    if (!item) {
+      throw new NotFoundError(`Shop item with key '${key}' not found.`);
+    }
+
+    const [updated] = await prisma.$transaction([
+      prisma.shopItem.update({
+        where: { key },
+        data: {
+          isArchived: true,
+          enabled: false,
+          updatedBy: adminId,
+          dataVersion: { increment: 1 },
+        },
+      }),
+      prisma.auditLog.create({
+        data: {
+          adminId,
+          action: 'SHOP_ITEM_ARCHIVE',
+          entityType: 'SHOP_ITEM',
+          entityId: key,
+          reason,
+          requestId: requestId || null,
+          beforeValues: { isArchived: item.isArchived, enabled: item.enabled },
+          afterValues: { isArchived: true, enabled: false },
+        },
+      }),
+    ]);
+
+    await this.cache.del('shop:catalog:public');
+    return this.mapToDto(updated);
+  }
+
+  async unarchiveShopItem(
+    adminId: string,
+    key: string,
+    reason: string,
+    requestId?: string
+  ): Promise<ShopItemDto> {
+    if (!reason || reason.trim().length < 5) {
+      throw new BadRequestError('A reason of at least 5 characters is required to restore an item.');
+    }
+
+    const item = await prisma.shopItem.findUnique({
+      where: { key },
+    });
+
+    if (!item) {
+      throw new NotFoundError(`Shop item with key '${key}' not found.`);
+    }
+
+    const [updated] = await prisma.$transaction([
+      prisma.shopItem.update({
+        where: { key },
+        data: {
+          isArchived: false,
+          enabled: true,
+          updatedBy: adminId,
+          dataVersion: { increment: 1 },
+        },
+      }),
+      prisma.auditLog.create({
+        data: {
+          adminId,
+          action: 'SHOP_ITEM_UNARCHIVE',
+          entityType: 'SHOP_ITEM',
+          entityId: key,
+          reason,
+          requestId: requestId || null,
+          beforeValues: { isArchived: item.isArchived, enabled: item.enabled },
+          afterValues: { isArchived: false, enabled: true },
+        },
+      }),
+    ]);
+
+    await this.cache.del('shop:catalog:public');
+    return this.mapToDto(updated);
   }
 
   async updateShopItem(
@@ -145,7 +325,22 @@ export class AdminShopService {
         updateData.stockRemaining = input.totalStock;
       }
     }
-    if (input.stockRemaining !== undefined) updateData.stockRemaining = input.stockRemaining;
+    if (input.name !== undefined) updateData.name = input.name;
+    if (input.category !== undefined) updateData.category = input.category;
+    if (input.description !== undefined) updateData.description = input.description;
+    if (input.currency !== undefined) updateData.currency = input.currency;
+    if (input.sortOrder !== undefined) updateData.sortOrder = input.sortOrder;
+    if (input.spriteUrl !== undefined) updateData.spriteUrl = input.spriteUrl;
+    if (input.effectType !== undefined) updateData.effectType = input.effectType;
+    if (input.effectConfig !== undefined) updateData.effectConfig = input.effectConfig;
+    if (input.isArchived !== undefined) updateData.isArchived = input.isArchived;
+
+    const itemSyncData: any = {};
+    if (input.name !== undefined) itemSyncData.name = input.name;
+    if (input.category !== undefined) itemSyncData.category = input.category;
+    if (input.description !== undefined) itemSyncData.description = input.description;
+    if (input.price !== undefined) itemSyncData.cost = input.price;
+    if (input.spriteUrl !== undefined) itemSyncData.spriteUrl = input.spriteUrl;
 
     // Atomic update + History + AuditLog
     const [updated] = await prisma.$transaction([
@@ -153,6 +348,14 @@ export class AdminShopService {
         where: { key },
         data: updateData,
       }),
+      ...(Object.keys(itemSyncData).length > 0
+        ? [
+            prisma.item.updateMany({
+              where: { id: key },
+              data: itemSyncData,
+            }),
+          ]
+        : []),
       // Write price history if price or sale price changed
       ...(input.price !== undefined || input.salePrice !== undefined
         ? [
@@ -185,32 +388,7 @@ export class AdminShopService {
     ]);
 
     await this.cache.del('shop:catalog:public');
-
-    const onSale = this.isSaleActive(updated);
-    return {
-      id: updated.id,
-      key: updated.key,
-      name: updated.name,
-      category: updated.category,
-      description: updated.description,
-      currency: updated.currency as 'astralCoins' | 'infinityCoins',
-      price: updated.price,
-      salePrice: updated.salePrice,
-      saleStartsAt: updated.saleStartsAt ? updated.saleStartsAt.toISOString() : null,
-      saleEndsAt: updated.saleEndsAt ? updated.saleEndsAt.toISOString() : null,
-      effectivePrice: onSale && updated.salePrice != null ? updated.salePrice : updated.price,
-      isOnSale: onSale,
-      enabled: updated.enabled,
-      minLevel: updated.minLevel,
-      dailyLimitPerUser: updated.dailyLimitPerUser,
-      totalStock: updated.totalStock,
-      stockRemaining: updated.stockRemaining,
-      sortOrder: updated.sortOrder,
-      spriteUrl: defaultDef?.spriteUrl || null,
-      dataVersion: updated.dataVersion,
-      updatedBy: updated.updatedBy,
-      updatedAt: updated.updatedAt.toISOString(),
-    };
+    return this.mapToDto(updated);
   }
 
   async applyBulkPriceUpdate(
@@ -415,30 +593,6 @@ export class AdminShopService {
     ]);
 
     await this.cache.del('shop:catalog:public');
-
-    return {
-      id: updated.id,
-      key: updated.key,
-      name: updated.name,
-      category: updated.category,
-      description: updated.description,
-      currency: updated.currency as 'astralCoins' | 'infinityCoins',
-      price: updated.price,
-      salePrice: null,
-      saleStartsAt: null,
-      saleEndsAt: null,
-      effectivePrice: updated.price,
-      isOnSale: false,
-      enabled: updated.enabled,
-      minLevel: updated.minLevel,
-      dailyLimitPerUser: updated.dailyLimitPerUser,
-      totalStock: updated.totalStock,
-      stockRemaining: updated.stockRemaining,
-      sortOrder: updated.sortOrder,
-      spriteUrl: defaultDef.spriteUrl,
-      dataVersion: updated.dataVersion,
-      updatedBy: updated.updatedBy,
-      updatedAt: updated.updatedAt.toISOString(),
-    };
+    return this.mapToDto(updated);
   }
 }

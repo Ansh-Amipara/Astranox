@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { BattleEngineState, PlayerAction, resolveTurn } from '@astranox/battle-engine';
-import { EXPLORATION_CONSTANTS } from '@astranox/constants';
 import { CacheService } from '../../../core/services/cache.service';
+import { BalanceService } from '../../balance/balance.service';
 import { RedisLockService } from '../../../core/services/redis-lock.service';
 import { prisma } from '../../../core/db/prisma';
 import { NotFoundError, ValidationError } from '../../../core/errors/AppError';
@@ -12,6 +12,7 @@ import { EncounterService } from '../../explore/services/encounter.service';
 export class WildBattleService {
   constructor(
     private cache: CacheService,
+    private balanceService: BalanceService,
     private lockService: RedisLockService,
     private finalizer: BattleFinalizerService,
     private encounterService: EncounterService
@@ -80,8 +81,18 @@ export class WildBattleService {
         });
       }
 
-      // Execute turn in pure battle engine
-      const turnResult = resolveTurn(rawState, action);
+      // Load balance configs matching this battle's snapshot version
+      const [battleConfig, catchConfig, explorationConfig] = await Promise.all([
+        this.balanceService.get('battle', rawState.balanceVersion),
+        this.balanceService.get('catch', rawState.balanceVersion),
+        this.balanceService.get('exploration', rawState.balanceVersion),
+      ]);
+
+      // Execute turn in pure battle engine with snapshot configs
+      const turnResult = resolveTurn(rawState, action, {
+        battle: battleConfig,
+        catch: catchConfig,
+      });
 
       let finalResult = null;
       if (turnResult.state.outcome !== null) {
@@ -97,7 +108,7 @@ export class WildBattleService {
       await this.cache.set(
         battleKey,
         turnResult.state,
-        EXPLORATION_CONSTANTS.ABANDONED_BATTLE_TTL_SECONDS
+        explorationConfig.ABANDONED_BATTLE_TTL_SECONDS
       );
 
       return {

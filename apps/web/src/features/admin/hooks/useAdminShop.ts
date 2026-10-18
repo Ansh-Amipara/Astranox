@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { notify } from '@/lib/toast';
-import {
+import type {
   ShopItemDto,
   ShopPriceHistoryDto,
+  CreateShopItemInput,
   UpdateShopItemInput,
+  ArchiveShopItemInput,
   BulkPriceUpdateInput,
   BulkPriceResultDto,
   ResetShopItemInput,
@@ -16,7 +18,12 @@ export const adminShopKeys = {
   history: (key: string) => [...adminShopKeys.all, 'history', key] as const,
 };
 
-export function useAdminShopItems(filters?: { category?: string; search?: string; enabled?: 'true' | 'false' }) {
+export function useAdminShopItems(filters?: {
+  category?: string;
+  search?: string;
+  enabled?: 'true' | 'false';
+  isArchived?: 'true' | 'false' | 'all';
+}) {
   return useQuery<ShopItemDto[]>({
     queryKey: adminShopKeys.items(filters),
     queryFn: async () => {
@@ -37,6 +44,30 @@ export function useShopPriceHistory(key: string, enabled: boolean = true) {
   });
 }
 
+export function useCreateShopItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateShopItemInput) => {
+      const res = await api.post('/admin/shop/items', data, {
+        headers: {
+          'Idempotency-Key': crypto.randomUUID(),
+        },
+      });
+      return res.data.data as ShopItemDto;
+    },
+    onSuccess: (createdItem) => {
+      notify.success(`Created "${createdItem.name}" in Pokémart!`);
+      queryClient.invalidateQueries({ queryKey: adminShopKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['shopItems'] });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.error?.message || 'Failed to create shop item';
+      notify.error(message, { id: 'admin-create-shop-error' });
+    },
+  });
+}
+
 export function useUpdateShopItem() {
   const queryClient = useQueryClient();
 
@@ -53,6 +84,46 @@ export function useUpdateShopItem() {
     onError: (error: any) => {
       const message = error.response?.data?.error?.message || 'Failed to update shop item';
       notify.error(message, { id: 'admin-update-shop-error' });
+    },
+  });
+}
+
+export function useArchiveShopItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ key, data }: { key: string; data: ArchiveShopItemInput }) => {
+      const res = await api.delete(`/admin/shop/items/${key}`, { data });
+      return res.data.data as ShopItemDto;
+    },
+    onSuccess: (archivedItem) => {
+      notify.success(`Archived "${archivedItem.name}" from catalog`);
+      queryClient.invalidateQueries({ queryKey: adminShopKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['shopItems'] });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.error?.message || 'Failed to archive item';
+      notify.error(message, { id: 'admin-archive-shop-error' });
+    },
+  });
+}
+
+export function useUnarchiveShopItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ key, data }: { key: string; data: ArchiveShopItemInput }) => {
+      const res = await api.post(`/admin/shop/items/${key}/restore`, data);
+      return res.data.data as ShopItemDto;
+    },
+    onSuccess: (restoredItem) => {
+      notify.success(`Restored "${restoredItem.name}" to catalog`);
+      queryClient.invalidateQueries({ queryKey: adminShopKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['shopItems'] });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.error?.message || 'Failed to restore item';
+      notify.error(message, { id: 'admin-unarchive-shop-error' });
     },
   });
 }

@@ -1,9 +1,10 @@
 import { injectable } from 'tsyringe';
 import { BattleEngineState, TurnEvent } from '@astranox/battle-engine';
-import { CURRENT_DATA_VERSION, EXPLORATION_CONSTANTS } from '@astranox/constants';
+import { CURRENT_DATA_VERSION } from '@astranox/constants';
 import { prisma } from '../../../core/db/prisma';
 import { AuditService } from '../../../core/services/audit.service';
 import { CacheService } from '../../../core/services/cache.service';
+import { BalanceService } from '../../balance/balance.service';
 import { RedisLockService } from '../../../core/services/redis-lock.service';
 import { logger } from '../../../config/logger';
 
@@ -27,6 +28,7 @@ export class BattleFinalizerService {
   constructor(
     private audit: AuditService,
     private cache: CacheService,
+    private balanceService: BalanceService,
     private lockService: RedisLockService
   ) {}
 
@@ -61,10 +63,11 @@ export class BattleFinalizerService {
       }
 
       let result: FinalizeResult = { outcome };
+      const expConfig = await this.balanceService.get('exploration', state.balanceVersion);
 
       await prisma.$transaction(async (tx) => {
         if (outcome === 'WON') {
-          const coinsEarned = state.wildPokemon.level * EXPLORATION_CONSTANTS.WIN_CURRENCY_MULTIPLIER;
+          const coinsEarned = state.wildPokemon.level * expConfig.WIN_CURRENCY_MULTIPLIER;
           const xpEarned = Math.floor((state.wildPokemon.baseExp || 64) * (state.wildPokemon.level / 5));
 
           const currentCoins = trainerSave.astralCoins;
@@ -118,7 +121,7 @@ export class BattleFinalizerService {
 
           result.rewards = { coins: coinsEarned, xp: xpEarned };
         } else if (outcome === 'CAPTURED') {
-          const coinsEarned = EXPLORATION_CONSTANTS.CAPTURE_CURRENCY_REWARD;
+          const coinsEarned = expConfig.CAPTURE_CURRENCY_REWARD;
           const currentPartyCount = trainerSave.party.length;
           const isParty = currentPartyCount < 6;
 
@@ -220,14 +223,14 @@ export class BattleFinalizerService {
         } else if (outcome === 'DEFEATED') {
           const currentCoins = trainerSave.astralCoins;
           const penalty = Math.min(
-            Math.floor(currentCoins * EXPLORATION_CONSTANTS.DEFEAT_CURRENCY_PENALTY_RATIO),
-            EXPLORATION_CONSTANTS.DEFEAT_CURRENCY_PENALTY_CAP
+            Math.floor(currentCoins * expConfig.DEFEAT_CURRENCY_PENALTY_RATIO),
+            expConfig.DEFEAT_CURRENCY_PENALTY_CAP
           );
           const newCoins = Math.max(0, currentCoins - penalty);
 
-          const spawnMapId = (trainerSave as any).lastHealMapId || EXPLORATION_CONSTANTS.DEFAULT_SPAWN_MAP_ID;
-          const spawnX = (trainerSave as any).lastHealX ?? EXPLORATION_CONSTANTS.DEFAULT_SPAWN_X;
-          const spawnY = (trainerSave as any).lastHealY ?? EXPLORATION_CONSTANTS.DEFAULT_SPAWN_Y;
+          const spawnMapId = (trainerSave as any).lastHealMapId || expConfig.DEFAULT_SPAWN_MAP_ID;
+          const spawnX = (trainerSave as any).lastHealX ?? expConfig.DEFAULT_SPAWN_X;
+          const spawnY = (trainerSave as any).lastHealY ?? expConfig.DEFAULT_SPAWN_Y;
 
           await tx.trainerSave.update({
             where: { id: trainerSave.id },
@@ -236,7 +239,7 @@ export class BattleFinalizerService {
               currentMapId: spawnMapId,
               posX: spawnX,
               posY: spawnY,
-              facing: EXPLORATION_CONSTANTS.DEFAULT_SPAWN_FACING,
+              facing: expConfig.DEFAULT_SPAWN_FACING,
             },
           });
 
@@ -301,12 +304,12 @@ export class BattleFinalizerService {
       const exploreKey = `explore:${userId}`;
       const exploreSession = await this.cache.get<any>(exploreKey);
       if (exploreSession) {
-        exploreSession.immunityStepsRemaining = EXPLORATION_CONSTANTS.POST_BATTLE_IMMUNITY_STEPS;
+        exploreSession.immunityStepsRemaining = expConfig.POST_BATTLE_IMMUNITY_STEPS;
         if (result.respawnPosition) {
           exploreSession.mapId = result.respawnPosition.mapId;
           exploreSession.x = result.respawnPosition.x;
           exploreSession.y = result.respawnPosition.y;
-          exploreSession.facing = EXPLORATION_CONSTANTS.DEFAULT_SPAWN_FACING;
+          exploreSession.facing = expConfig.DEFAULT_SPAWN_FACING;
         }
         await this.cache.set(exploreKey, exploreSession, 86400);
       }

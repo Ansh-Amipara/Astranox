@@ -75,7 +75,7 @@ export function PokemonManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex justify-center items-center">
+      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-64px)] flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-border"></div>
       </div>
     );
@@ -89,19 +89,19 @@ export function PokemonManagement() {
   const isInParty = (pokemon: OwnedPokemonDto) => activePartyIds.has(pokemon.id);
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         <div className="flex items-center justify-between border-b border-border pb-4">
-          <h1 className="text-3xl font-black tracking-tight">My Pokémon</h1>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">My Pokémon</h1>
         </div>
 
 
         {allPokemon.length === 0 ? (
-          <div className="text-center p-12 bg-background rounded-3xl border border-border">
+          <div className="text-center p-8 sm:p-12 bg-background rounded-3xl border border-border">
             <p className="text-subtle">You don't have any Pokémon yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             {allPokemon.map((p: OwnedPokemonDto) => (
               <PokemonManagementCard
                 key={p.id}
@@ -114,7 +114,7 @@ export function PokemonManagement() {
         )}
 
         {totalPages > 1 && (
-          <div className="flex justify-center pt-8 pb-4">
+          <div className="flex justify-center pt-6 sm:pt-8 pb-4">
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
         )}
@@ -130,12 +130,13 @@ export function PokemonManagement() {
 
         {/* Options Menu Modal */}
         {activeMenuPkm && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
-            <div role="dialog" aria-modal="true" className="bg-background border border-border rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-60 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
+            <div role="dialog" aria-modal="true" className="bg-background border border-border rounded-t-3xl sm:rounded-2xl p-4 sm:p-5 w-full max-w-md max-h-[85dvh] overflow-y-auto flex flex-col shadow-2xl pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+              <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
               <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
                 <img
                   src={getSpriteUrl(activeMenuPkm.speciesId)}
-                  className="w-12 h-12 bg-surface rounded-lg object-contain pixelated border border-border"
+                  className="w-12 h-12 bg-surface rounded-lg object-contain pixelated border border-border shrink-0"
                 />
                 <div>
                   <h3 className="font-bold capitalize text-foreground flex items-center gap-2">
@@ -164,7 +165,7 @@ export function PokemonManagement() {
                   </div>
                   <button
                     onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center"
                   >
                     View Details
                   </button>
@@ -173,21 +174,21 @@ export function PokemonManagement() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => { modalsRef.current?.openDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center"
                   >
                     View Details
                   </button>
 
                   <button
                     onClick={() => { modalsRef.current?.openMoves(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center"
                   >
                     Change Moves
                   </button>
 
                   <button
                     onClick={() => { modalsRef.current?.openEvolve(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center"
                   >
                     Evolution
                   </button>
@@ -195,7 +196,7 @@ export function PokemonManagement() {
                   {activeMenuPkm.potential !== 'ETERNAL' && (
                     <button
                       onClick={() => { modalsRef.current?.openBoost(activeMenuPkm); setActiveMenuPkm(null); }}
-                      className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
+                      className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center"
                     >
                       Boost Potential
                     </button>
@@ -206,14 +207,14 @@ export function PokemonManagement() {
                       modalsRef.current?.openGiveXp(activeMenuPkm);
                       setActiveMenuPkm(null);
                     }}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center gap-1.5"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center gap-1.5"
                   >
                     Give XP
                   </button>
 
                   <button
                     onClick={() => { modalsRef.current?.openIVs(activeMenuPkm); setActiveMenuPkm(null); }}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground border border-border flex items-center justify-center"
                   >
                     Enhance IVs
                   </button>
@@ -225,7 +226,7 @@ export function PokemonManagement() {
                         removeMutation.mutate(activeMenuPkm.id);
                         setActiveMenuPkm(null);
                       }}
-                      className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-muted border border-border disabled:opacity-50"
+                      className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-muted border border-border disabled:opacity-50 flex items-center justify-center"
                     >
                       Remove from Team
                     </button>
@@ -235,7 +236,7 @@ export function PokemonManagement() {
                         setSelectedForTeam(activeMenuPkm.id);
                         setActiveMenuPkm(null);
                       }}
-                      className="w-full text-center px-4 py-3 bg-primary hover:bg-surface-raised text-primary-foreground rounded-xl font-bold transition-colors border border-border"
+                      className="w-full text-center px-4 py-3 min-h-[44px] bg-primary hover:bg-surface-raised text-primary-foreground rounded-xl font-bold transition-colors border border-border flex items-center justify-center"
                     >
                       Add to Team
                     </button>
@@ -245,7 +246,7 @@ export function PokemonManagement() {
                     onClick={() => promptSmelt(activeMenuPkm.id)}
                     disabled={isSmelting || isInParty(activeMenuPkm)}
                     title={isInParty(activeMenuPkm) ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
-                    className="w-full text-center px-4 py-3 bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-muted hover:text-foreground border border-border disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full text-center px-4 py-3 min-h-[44px] bg-surface hover:bg-surface-raised rounded-xl font-bold transition-colors text-muted hover:text-foreground border border-border disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {isSmelting ? 'Smelting...' : 'Smelt Pokemon'}
                   </button>
@@ -254,7 +255,7 @@ export function PokemonManagement() {
 
               <button
                 onClick={() => setActiveMenuPkm(null)}
-                className="mt-4 pt-4 border-t border-border text-sm font-bold text-muted hover:text-foreground w-full transition-colors"
+                className="mt-4 pt-4 border-t border-border text-sm font-bold text-muted hover:text-foreground w-full transition-colors min-h-[44px] flex items-center justify-center"
               >
                 Cancel
               </button>
@@ -264,17 +265,18 @@ export function PokemonManagement() {
 
         {/* Slot Selection Modal */}
         {selectedForTeam && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div role="dialog" aria-modal="true" className="bg-background text-foreground rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-border">
-              <h2 className="text-2xl font-black mb-2 text-foreground">Select Team Slot</h2>
-              <p className="text-muted mb-6">Which slot should this Pokémon take? (1-6)</p>
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4" onClick={() => setSelectedForTeam(null)}>
+            <div role="dialog" aria-modal="true" className="bg-background text-foreground rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 max-w-md w-full max-h-[85dvh] overflow-y-auto shadow-2xl border border-border pb-safe animate-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+              <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+              <h2 className="text-xl sm:text-2xl font-black mb-2 text-foreground">Select Team Slot</h2>
+              <p className="text-sm sm:text-base text-muted mb-6">Which slot should this Pokémon take? (1-6)</p>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {[0, 1, 2, 3, 4, 5].map(slot => (
                   <button
                     key={slot}
                     onClick={() => addMutation.mutate({ pokemonId: selectedForTeam, position: slot })}
-                    className="py-3 px-4 bg-surface hover:bg-surface-raised border border-border text-foreground font-bold rounded-xl transition-colors flex items-center justify-between"
+                    className="py-3 px-4 min-h-[44px] bg-surface hover:bg-surface-raised border border-border text-foreground font-bold rounded-xl transition-colors flex items-center justify-between"
                   >
                     <span>Slot {slot + 1}</span>
                     {save?.party?.find((p: OwnedPokemonDto) => p.position === slot) ? (
@@ -288,7 +290,7 @@ export function PokemonManagement() {
 
               <button
                 onClick={() => setSelectedForTeam(null)}
-                className="w-full py-3 bg-surface hover:bg-surface-raised text-muted hover:text-foreground font-bold rounded-xl transition-colors border border-border"
+                className="w-full py-3 min-h-[44px] bg-surface hover:bg-surface-raised text-muted hover:text-foreground font-bold rounded-xl transition-colors border border-border flex items-center justify-center"
               >
                 Cancel
               </button>

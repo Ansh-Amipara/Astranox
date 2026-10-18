@@ -58,7 +58,7 @@ export function SelectDropdown({
     <RadixSelect.Root value={value} onValueChange={onChange} disabled={disabled}>
       <RadixSelect.Trigger
         className={cn(
-          'flex items-center justify-between w-full px-4 py-2 rounded-xl bg-surface border border-border text-foreground shadow-sm focus:outline-none focus-visible:ring-2 font-semibold transition-colors',
+          'flex items-center justify-between w-full min-h-[44px] px-4 py-2.5 text-base sm:text-sm rounded-xl bg-surface border border-border text-foreground shadow-sm focus:outline-none focus-visible:ring-2 font-semibold transition-colors touch-manipulation',
           focusRingClass,
           disabled
             ? 'opacity-50 cursor-not-allowed'
@@ -91,6 +91,7 @@ export function SelectDropdown({
           )}
           position="popper"
           sideOffset={6}
+          collisionPadding={12}
         >
           <RadixSelect.Viewport className={optionsContainerClassName}>
             {options.map((option) => {
@@ -100,7 +101,7 @@ export function SelectDropdown({
                   key={option.value}
                   value={option.value}
                   className={cn(
-                    'flex items-center gap-2 text-left px-3 py-2 rounded-lg transition-colors w-full cursor-default select-none outline-none data-[highlighted]:bg-surface-raised text-foreground font-semibold',
+                    'flex items-center gap-2 text-left min-h-[44px] px-3.5 py-2.5 text-base sm:text-sm rounded-lg transition-colors w-full cursor-default select-none outline-none data-[highlighted]:bg-surface-raised text-foreground font-semibold touch-manipulation',
                     isSelected && `${activeBgClass} font-bold`,
                     option.className
                   )}

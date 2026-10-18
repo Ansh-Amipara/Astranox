@@ -15,7 +15,7 @@ export function RequireRole({ allowedRoles, children }: RequireRoleProps) {
 
   if (!isInitialized) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-background">
+      <div className="flex min-h-[100dvh] w-full items-center justify-center bg-background">
         <Spinner size="lg" />
       </div>
     );

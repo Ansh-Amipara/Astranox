@@ -33,6 +33,8 @@ import { verifyCsrf } from './core/middleware/csrf';
 import { marketplaceRoutes } from './modules/marketplace/marketplace.routes';
 import eventsRoutes from './modules/events/events.routes';
 import { flagsRoutes } from './modules/flags/flags.routes';
+import { container } from 'tsyringe';
+import { ConfigBalanceController } from './modules/balance/config-balance.controller';
 
 const app = express();
 
@@ -102,6 +104,9 @@ app.use(verifyCsrf);
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', version: ASTRANOX_VERSION });
 });
+
+const configBalanceController = container.resolve(ConfigBalanceController);
+app.get('/config/balance', configBalanceController.getPublicBalanceConfig);
 
 app.use('/auth', authRoutes);
 app.use('/trainers', trainersRoutes);

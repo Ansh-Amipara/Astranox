@@ -283,10 +283,17 @@ importers:
         version: 1.6.1(@types/node@24.13.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(lightningcss@1.32.0)
 
   packages/constants:
+    dependencies:
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
     devDependencies:
       typescript:
         specifier: ^5.2.2
         version: 5.9.3
+      vitest:
+        specifier: ^1.2.0
+        version: 1.6.1(@types/node@24.13.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(lightningcss@1.32.0)
 
   packages/database:
     dependencies:

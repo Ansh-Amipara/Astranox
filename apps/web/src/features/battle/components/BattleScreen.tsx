@@ -87,7 +87,7 @@ export function BattleScreen() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-foreground">
+      <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center p-6 text-foreground">
         <div className="w-full max-w-4xl bg-surface border border-border rounded-3xl p-6 md:p-8 space-y-8">
           {/* Opponent HUD Skeleton */}
           <div className="flex justify-between items-start">
@@ -126,7 +126,7 @@ export function BattleScreen() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center p-6">
         <ErrorState
           title="Battle Connection Error"
           message={(error as Error)?.message || 'Failed to communicate with the battle engine.'}
@@ -139,7 +139,7 @@ export function BattleScreen() {
 
   if (!battleRes) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center p-6">
         <EmptyState
           title="No Active Battle"
           description="You currently do not have an active encounter or battle session."

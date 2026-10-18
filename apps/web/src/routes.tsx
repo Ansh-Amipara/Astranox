@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Layouts and Guards
-import { Header } from '@/components/layout/Header';
+import { Header, BottomNav } from '@/components/layout';
 import { AuthGuard } from '@/features/auth/components/AuthGuard';
 import { RequireStarterGuard } from '@/features/auth/components/RequireStarterGuard';
 import { AdminGuard } from '@/features/auth/components/AdminGuard';
@@ -65,11 +65,20 @@ const AdminEvents = React.lazy(() =>
 const AdminFlags = React.lazy(() =>
   import('@/features/admin/pages/Flags').then((m) => ({ default: m.Flags }))
 );
+const AdminBalance = React.lazy(() =>
+  import('@/features/admin/pages/Balance').then((m) => ({ default: m.Balance }))
+);
 const AdminAnnouncements = React.lazy(() =>
   import('@/features/admin/pages/Announcements').then((m) => ({ default: m.Announcements }))
 );
 const AdminAuditLog = React.lazy(() =>
   import('@/features/admin/pages/AuditLog').then((m) => ({ default: m.AuditLog }))
+);
+const AdminArena = React.lazy(() =>
+  import('@/features/admin/pages/Arena').then((m) => ({ default: m.Arena }))
+);
+const AdminDungeons = React.lazy(() =>
+  import('@/features/admin/pages/Dungeons').then((m) => ({ default: m.Dungeons }))
 );
 
 const ComponentShowcase = import.meta.env.DEV
@@ -100,11 +109,12 @@ function GameLayout() {
         <RequireStarterGuard>
           <OfflineBanner />
           <Header />
-          <main className="flex-1 flex flex-col relative w-full overflow-x-hidden">
+          <main className="flex-1 flex flex-col relative w-full overflow-x-hidden pb-16 lg:pb-0">
             <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
               <Outlet />
             </ErrorBoundary>
           </main>
+          <BottomNav />
         </RequireStarterGuard>
       </AuthGuard>
     </MaintenanceGuard>
@@ -171,6 +181,26 @@ export function AppRoutes() {
             }
           />
           <Route
+            path="arena"
+            element={
+              <RequireRole allowedRoles={['ADMIN']}>
+                <AdminSuspense>
+                  <AdminArena />
+                </AdminSuspense>
+              </RequireRole>
+            }
+          />
+          <Route
+            path="dungeons"
+            element={
+              <RequireRole allowedRoles={['ADMIN']}>
+                <AdminSuspense>
+                  <AdminDungeons />
+                </AdminSuspense>
+              </RequireRole>
+            }
+          />
+          <Route
             path="economy"
             element={
               <RequireRole allowedRoles={['ADMIN']}>
@@ -196,6 +226,16 @@ export function AppRoutes() {
               <RequireRole allowedRoles={['ADMIN']}>
                 <AdminSuspense>
                   <AdminFlags />
+                </AdminSuspense>
+              </RequireRole>
+            }
+          />
+          <Route
+            path="balance"
+            element={
+              <RequireRole allowedRoles={['ADMIN']}>
+                <AdminSuspense>
+                  <AdminBalance />
                 </AdminSuspense>
               </RequireRole>
             }

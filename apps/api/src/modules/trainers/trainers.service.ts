@@ -11,7 +11,8 @@ import type { ChangeMovesDto } from './dto/request/ChangeMovesDto';
 import type { BoostPotentialDto } from './dto/request/BoostPotentialDto';
 import type { BoostIvDto } from './dto/request/BoostIvDto';
 import { PokemonPotential } from '@prisma/client';
-import { ECONOMY_CONSTANTS, RANK_ORDER } from '@astranox/constants';
+import { RANK_ORDER } from '@astranox/constants';
+import { BalanceService } from '../balance/balance.service';
 
 // Allowed pseudo-legendaries
 const ALLOWED_STARTER_IDS = [
@@ -22,7 +23,10 @@ const ALLOWED_STARTER_IDS = [
 
 @injectable()
 export class TrainersService {
-  constructor(private repo: TrainersRepository) {}
+  constructor(
+    private repo: TrainersRepository,
+    private balanceService: BalanceService
+  ) {}
 
   async getMySave(userId: string): Promise<TrainerSaveDto> {
     let save = await this.repo.findByUserId(userId);
@@ -150,7 +154,8 @@ export class TrainersService {
     }
 
     // Calculate XP reward
-    const xpReward = Math.floor(pokemonToSmelt.currentXp * ECONOMY_CONSTANTS.SMELT_XP_RATIO);
+    const economyConfig = await this.balanceService.get('economy');
+    const xpReward = Math.floor(pokemonToSmelt.currentXp * economyConfig.SMELT_XP_RATIO);
 
     // Calculate Pearl rewards
     const potentialOrder = RANK_ORDER;

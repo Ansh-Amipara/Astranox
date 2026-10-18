@@ -19,7 +19,7 @@ export function Home() {
   });
 
   if (isSaveLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center text-foreground font-bold">Loading Trainer Data...</div>;
+    return <div className="min-h-[100dvh] bg-background flex items-center justify-center text-foreground font-bold">Loading Trainer Data...</div>;
   }
 
   if (!save?.starterChosenAt) {
@@ -30,7 +30,7 @@ export function Home() {
   const teamCp = party.reduce((sum: number, p: any) => sum + (p.cp || 0), 0);
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6 max-w-none">
 
         {/* Header Section */}

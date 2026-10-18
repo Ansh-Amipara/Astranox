@@ -36,23 +36,23 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="p-6 bg-surface border border-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 bg-surface border border-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">Staff Administration</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Staff Administration</h1>
           <p className="text-xs text-muted mt-1">
             System overview, economy vitals, and player moderation controls.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Link
             to="/admin/shop"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[44px] flex-1 sm:flex-initial rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity touch-manipulation"
           >
             <span>Manage Pokémart</span>
           </Link>
           <Link
             to="/admin/audit"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-raised border border-border text-foreground text-xs font-bold hover:bg-surface transition-colors"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[44px] flex-1 sm:flex-initial rounded-xl bg-surface-raised border border-border text-foreground text-xs font-bold hover:bg-surface transition-colors touch-manipulation"
           >
             <span>View Audit Logs</span>
             <ArrowRight className="w-3.5 h-3.5" />

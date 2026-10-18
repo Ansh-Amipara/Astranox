@@ -21,7 +21,7 @@ import { Smartphone, Monitor, Zap, Sparkles } from 'lucide-react';
 export function ComponentShowcase() {
   const isSystemReducedMotion = useReducedMotion();
   const [emulatedReducedMotion, setEmulatedReducedMotion] = useState(false);
-  const [isMobileFrame, setIsMobileFrame] = useState(false);
+  const [viewportMode, setViewportMode] = useState<'full' | '320' | '360' | '390' | '768' | '1024'>('full');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectValue, setSelectValue] = useState('charizard');
   const [page, setPage] = useState(1);
@@ -30,49 +30,63 @@ export function ComponentShowcase() {
 
   const activeReducedMotion = isSystemReducedMotion || emulatedReducedMotion;
 
+  const viewportWidthClass = {
+    full: 'max-w-6xl space-y-12',
+    '320': 'max-w-[320px] border-4 border-border rounded-3xl p-3 shadow-2xl bg-background overflow-x-hidden space-y-8',
+    '360': 'max-w-[360px] border-4 border-border rounded-3xl p-4 shadow-2xl bg-background overflow-x-hidden space-y-8',
+    '390': 'max-w-[390px] border-4 border-border rounded-3xl p-4 shadow-2xl bg-background overflow-x-hidden space-y-8',
+    '768': 'max-w-[768px] border-4 border-border rounded-3xl p-6 shadow-2xl bg-background overflow-x-hidden space-y-10',
+    '1024': 'max-w-[1024px] border-4 border-border rounded-3xl p-6 shadow-2xl bg-background overflow-x-hidden space-y-12',
+  }[viewportMode];
+
   return (
-    <div className={`min-h-screen bg-background text-foreground p-4 md:p-8 ${activeReducedMotion ? 'motion-reduce' : ''}`}>
+    <div className={`min-h-[100dvh] bg-background text-foreground p-3 sm:p-4 md:p-8 ${activeReducedMotion ? 'motion-reduce' : ''}`}>
       {/* Dev Control Bar */}
-      <div className="max-w-6xl mx-auto mb-8 bg-surface border border-border rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+      <div className="max-w-6xl mx-auto mb-6 sm:mb-8 bg-surface border border-border rounded-2xl p-3 sm:p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-foreground" />
-            <h1 className="text-xl font-black text-foreground tracking-tight">Design System & UI Primitives Showcase</h1>
+            <Sparkles className="w-5 h-5 text-foreground shrink-0" />
+            <h1 className="text-lg sm:text-xl font-black text-foreground tracking-tight">Design System & UI Primitives Showcase</h1>
           </div>
           <p className="text-xs text-muted mt-0.5">Development-only environment (`/dev/components`) for visual QA and responsive audit.</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Reduced Motion Toggle */}
           <button
             onClick={() => setEmulatedReducedMotion(!emulatedReducedMotion)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl border text-xs font-semibold transition-colors touch-manipulation ${
               activeReducedMotion
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-surface-raised text-muted border-border hover:text-foreground'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
-            Reduced Motion: {activeReducedMotion ? 'ON' : 'OFF'}
+            Motion: {activeReducedMotion ? 'Reduced' : 'Normal'}
           </button>
 
-          {/* 360px Mobile Frame Toggle */}
-          <button
-            onClick={() => setIsMobileFrame(!isMobileFrame)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${
-              isMobileFrame
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-surface-raised text-muted border-border hover:text-foreground'
-            }`}
-          >
-            {isMobileFrame ? <Monitor className="w-3.5 h-3.5" /> : <Smartphone className="w-3.5 h-3.5" />}
-            {isMobileFrame ? 'Desktop View' : '360px Mobile Frame'}
-          </button>
+          {/* Viewport Frame Switchers */}
+          <div className="flex items-center bg-surface-raised border border-border rounded-xl p-1 gap-1">
+            {(['full', '320', '360', '390', '768', '1024'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewportMode(mode)}
+                className={`px-2.5 py-1.5 min-h-[36px] sm:min-h-[38px] rounded-lg text-xs font-bold transition-all touch-manipulation ${
+                  viewportMode === mode
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted hover:text-foreground hover:bg-surface'
+                }`}
+                title={`Simulate ${mode === 'full' ? 'Full Responsive Width' : mode + 'px'}`}
+              >
+                {mode === 'full' ? 'Full' : `${mode}px`}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Main Container - Supports 360px Mobile Frame Wrapper */}
-      <div className={`mx-auto transition-all ${isMobileFrame ? 'max-w-[360px] border-4 border-border rounded-3xl p-4 shadow-2xl bg-background overflow-hidden' : 'max-w-6xl space-y-12'}`}>
+      {/* Main Container - Supports Simulated Viewport Widths */}
+      <div className={`mx-auto transition-all ${viewportWidthClass}`}>
         
         {/* Section 1: Buttons & Interactive Targets */}
         <section className="space-y-4">

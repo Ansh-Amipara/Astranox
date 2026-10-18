@@ -46,14 +46,14 @@ export function Header() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-background/90 border-b border-border shadow-sm transition-colors duration-300">
+      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-background/90 border-b border-border shadow-sm pt-safe transition-colors duration-300">
       <div className="w-full px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* Logo & Mobile Menu Toggle */}
           <div className="flex items-center flex-shrink-0 pr-4">
             <button 
-              className="lg:hidden mr-3 text-muted hover:text-foreground"
+              className="lg:hidden -ml-2 mr-2 w-11 h-11 flex items-center justify-center text-muted hover:text-foreground active:bg-surface rounded-xl touch-manipulation"
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open menu"
             >
@@ -86,7 +86,7 @@ export function Header() {
           </div>
 
           {/* User Actions & Currencies */}
-          <div className="flex items-center space-x-3 pl-4 flex-shrink-0">
+          <div className="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-4 flex-shrink-0">
             {user && (
               <>
                 {save && (
@@ -108,7 +108,7 @@ export function Header() {
 
                 {user.role === 'ADMIN' && (
                   <Link to="/admin/dashboard" className="mr-1">
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-surface text-foreground border border-border rounded-xl hover:bg-surface-raised transition-colors">
+                    <button className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-bold bg-surface text-foreground border border-border rounded-xl hover:bg-surface-raised transition-colors touch-manipulation">
                       <Crown className="w-4 h-4" /> <span className="hidden sm:inline">Admin</span>
                     </button>
                   </Link>
@@ -117,12 +117,16 @@ export function Header() {
                 <Link to="/profile">
                   <button
                     aria-label="Profile"
-                    className="flex items-center justify-center w-8 h-8 bg-surface text-foreground border border-border hover:bg-surface-raised hover:text-foreground rounded-xl transition-colors"
+                    className="flex items-center justify-center w-11 h-11 bg-surface text-foreground border border-border hover:bg-surface-raised hover:text-foreground rounded-xl transition-colors touch-manipulation"
                   >
                     <UserIcon className="w-4 h-4" />
                   </button>
                 </Link>
-                <button aria-label="Logout" onClick={logout} className="flex items-center justify-center w-8 h-8 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-colors">
+                <button
+                  aria-label="Logout"
+                  onClick={logout}
+                  className="flex items-center justify-center w-11 h-11 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-colors touch-manipulation"
+                >
                   <LogOut className="w-4 h-4" />
                 </button>
               </>
@@ -142,7 +146,7 @@ export function Header() {
 
       {/* Mobile Sidebar Drawer */}
       <div 
-        className={`fixed top-0 left-0 h-full w-64 bg-background border-r border-border shadow-xl z-[120] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto ${ isSidebarOpen ? 'translate-x-0' : '-translate-x-full' }`}
+        className={`fixed top-0 left-0 h-[100dvh] w-72 max-w-[85vw] bg-background border-r border-border shadow-xl z-[120] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto pt-safe pb-safe ${ isSidebarOpen ? 'translate-x-0' : '-translate-x-full' }`}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-border">
           <div className="flex items-center gap-2">
@@ -151,7 +155,8 @@ export function Header() {
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="text-muted hover:text-foreground"
+            aria-label="Close menu"
+            className="w-11 h-11 flex items-center justify-center text-muted hover:text-foreground active:bg-surface rounded-xl touch-manipulation -mr-2"
           >
             <X className="w-6 h-6" />
           </button>
@@ -182,7 +187,7 @@ export function Header() {
                 key={link.to}
                 to={link.to}
                 onClick={() => setIsSidebarOpen(false)}
-                className={`px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 ${ isActive ? 'bg-primary text-primary-foreground font-extrabold shadow-sm' : 'text-muted hover:bg-surface hover:text-foreground' }`}
+                className={`min-h-[44px] flex items-center px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 touch-manipulation ${ isActive ? 'bg-primary text-primary-foreground font-extrabold shadow-sm' : 'text-muted hover:bg-surface hover:text-foreground' }`}
               >
                 {link.label}
               </Link>

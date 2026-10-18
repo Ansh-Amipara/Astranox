@@ -215,39 +215,39 @@ export function Users() {
           <button
             onClick={() => navigate(`/admin/users/${u.id}`)}
             title="Inspect Full User Details"
-            className="p-1.5 rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors touch-manipulation"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-4 h-4" />
           </button>
           <button
             onClick={() => setCurrencyTargetUser(u)}
             title="Grant In-game Currency"
-            className="p-1.5 rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors touch-manipulation"
           >
-            <Coins className="w-3.5 h-3.5" />
+            <Coins className="w-4 h-4" />
           </button>
           <button
             onClick={() => setItemTargetUser(u)}
             title="Grant Inventory Item"
-            className="p-1.5 rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors touch-manipulation"
           >
-            <Gift className="w-3.5 h-3.5" />
+            <Gift className="w-4 h-4" />
           </button>
           {u.isBanned ? (
             <button
               onClick={() => setUnbanTargetUser(u)}
               title="Lift User Ban"
-              className="p-1.5 rounded-lg bg-surface-raised border border-border text-muted hover:text-foreground transition-colors"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-surface-raised border border-border text-muted hover:text-foreground transition-colors touch-manipulation"
             >
-              <Shield className="w-3.5 h-3.5" />
+              <Shield className="w-4 h-4" />
             </button>
           ) : (
             <button
               onClick={() => setBanTargetUser(u)}
               title="Ban Trainer Account"
-              className="p-1.5 rounded-lg bg-surface-raised border border-border text-danger hover:bg-surface transition-colors"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-surface-raised border border-border text-danger hover:bg-surface transition-colors touch-manipulation"
             >
-              <Ban className="w-3.5 h-3.5" />
+              <Ban className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -258,10 +258,10 @@ export function Users() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="p-6 bg-surface border border-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 bg-surface border border-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-black text-foreground tracking-tight">Trainer Accounts</h1>
+            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Trainer Accounts</h1>
             <Badge variant="ink" className="text-[10px] font-black uppercase">
               {data?.total ?? 0} Total
             </Badge>
@@ -273,7 +273,7 @@ export function Users() {
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 bg-surface border border-border rounded-2xl space-y-3">
+      <div className="p-3 sm:p-4 bg-surface border border-border rounded-2xl space-y-3">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -285,7 +285,7 @@ export function Users() {
                 setPage(1);
               }}
               placeholder="Search by username or email address..."
-              className="w-full pl-9 pr-4 py-2 bg-background border border-border rounded-xl text-xs text-foreground placeholder:text-muted focus:outline-hidden focus:border-foreground"
+              className="w-full pl-9 pr-4 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground placeholder:text-muted focus:outline-hidden focus:border-foreground touch-manipulation"
             />
           </div>
 
@@ -297,7 +297,7 @@ export function Users() {
                 setRoleFilter(e.target.value);
                 setPage(1);
               }}
-              className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+              className="flex-1 sm:flex-initial px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
             >
               <option value="all">All Roles</option>
               <option value="USER">Player (USER)</option>
@@ -311,7 +311,7 @@ export function Users() {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+              className="flex-1 sm:flex-initial px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active Only</option>
@@ -383,9 +383,10 @@ export function Users() {
 
       {/* Grant Currency Modal */}
       {currencyTargetUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-foreground">
                   Grant Currency: {currencyTargetUser.username}
@@ -394,20 +395,21 @@ export function Users() {
               </div>
               <button
                 onClick={() => setCurrencyTargetUser(null)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-bold text-foreground mb-1">Currency Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setCurrencyType('astralCoins')}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                    className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                       currencyType === 'astralCoins'
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -418,7 +420,7 @@ export function Users() {
                   <button
                     type="button"
                     onClick={() => setCurrencyType('infinityCoins')}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                    className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                       currencyType === 'infinityCoins'
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -436,7 +438,7 @@ export function Users() {
                   value={currencyAmount}
                   onChange={(e) => setCurrencyAmount(e.target.value.replace(/\D/g, ''))}
                   placeholder="Enter amount..."
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
                 />
               </div>
 
@@ -448,18 +450,18 @@ export function Users() {
               />
             </div>
 
-            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setCurrencyTargetUser(null)}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveGrantCurrency}
                 disabled={grantCurrencyMutation.isPending || currencyReason.trim().length < 5}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 {grantCurrencyMutation.isPending ? 'Granting...' : 'Grant Currency'}
               </Button>
@@ -470,9 +472,10 @@ export function Users() {
 
       {/* Grant Item Modal */}
       {itemTargetUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-foreground">
                   Grant Item: {itemTargetUser.username}
@@ -481,13 +484,14 @@ export function Users() {
               </div>
               <button
                 onClick={() => setItemTargetUser(null)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-bold text-foreground mb-1">Item Key</label>
                 <input
@@ -495,7 +499,7 @@ export function Users() {
                   value={itemKey}
                   onChange={(e) => setItemKey(e.target.value.trim().toLowerCase())}
                   placeholder="e.g. ultra_ball, rare_candy"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden font-mono"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden font-mono touch-manipulation"
                 />
               </div>
 
@@ -506,7 +510,7 @@ export function Users() {
                   value={itemQuantity}
                   onChange={(e) => setItemQuantity(e.target.value.replace(/\D/g, ''))}
                   placeholder="Quantity (e.g. 5)"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
                 />
               </div>
 
@@ -518,18 +522,18 @@ export function Users() {
               />
             </div>
 
-            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setItemTargetUser(null)}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveGrantItem}
                 disabled={grantItemMutation.isPending || itemReason.trim().length < 5}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 {grantItemMutation.isPending ? 'Granting...' : 'Grant Item'}
               </Button>

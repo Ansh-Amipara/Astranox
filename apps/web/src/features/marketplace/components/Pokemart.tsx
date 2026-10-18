@@ -220,7 +220,7 @@ export function Pokemart() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+      <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] flex flex-col justify-start">
         <div className="w-full mx-auto space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-border pb-4">
             <Skeleton width={180} height={36} />
@@ -250,7 +250,7 @@ export function Pokemart() {
 
   if (isError) {
     return (
-      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100vh-64px)] flex items-center justify-center">
+      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100dvh-4rem)] flex items-center justify-center">
         <ErrorState
           title="Failed to Load Pokémart"
           message="Could not load the shop items from the server."
@@ -343,7 +343,7 @@ export function Pokemart() {
   }
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         {/* Header and Controls section */}
         <div className="mb-8 border-b border-border pb-4">
@@ -476,14 +476,181 @@ export function Pokemart() {
           </div>
         </div>
 
-        {/* Table of items */}
-        <div className="bg-surface rounded-2xl border border-border shadow-xs overflow-hidden">
+        {/* Mobile Item Cards (< md) */}
+        <div className="block md:hidden space-y-3">
+          {activeCategory !== 'moves' &&
+            filteredItems.map((item) => {
+              const ownedQuantity = Number(
+                inventoryQuantityByItemKey.get(item.key) ??
+                  inventoryQuantityByItemKey.get(item.id) ??
+                  0
+              );
+              const qty = getItemQuantity(item);
+
+              return (
+                <div
+                  key={item.key || item.id}
+                  className="bg-surface rounded-2xl border border-border p-4 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-12 h-12 bg-surface-raised rounded-xl flex items-center justify-center border border-border shrink-0">
+                        {item.spriteUrl ? (
+                          <img
+                            src={item.spriteUrl}
+                            alt={item.name}
+                            className="w-8 h-8 object-contain"
+                          />
+                        ) : (
+                          <Store className="w-5 h-5 text-muted" />
+                        )}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-black text-foreground capitalize text-sm truncate">
+                            {item.name.replace('-', ' ')}
+                          </span>
+                          {item.isOnSale && (
+                            <Badge
+                              variant="ink"
+                              className="text-[9px] font-black uppercase py-0 px-1 bg-surface-raised border-border"
+                            >
+                              SALE
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] text-muted mt-0.5">
+                          <span className="bg-surface-raised px-1.5 py-0.5 rounded border border-border">
+                            Owned: {ownedQuantity.toLocaleString()}
+                          </span>
+                          {item.dailyLimitPerUser != null && (
+                            <span className="text-subtle font-mono text-[10px]">
+                              {item.remainingDailyLimit ?? item.dailyLimitPerUser} left
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end shrink-0">
+                      <div className="flex items-center gap-1 text-sm font-black text-foreground">
+                        {storeCurrency.symbol}
+                        <span>{item.effectivePrice.toLocaleString()}</span>
+                      </div>
+                      {item.isOnSale && (
+                        <span className="text-[10px] text-muted line-through font-mono">
+                          {item.price.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                    <span className="text-xs font-bold text-muted">Select Quantity</span>
+                    <div className="flex items-center bg-surface-raised rounded-xl border border-border">
+                      <button
+                        onClick={() => handleQuantityChange(item.key, qty - multiplier)}
+                        className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-surface active:bg-surface rounded-l-xl transition-colors font-black text-lg touch-manipulation select-none"
+                        aria-label="Decrease quantity"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={qty || ''}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          handleQuantityChange(item.key, val ? parseInt(val) : 0);
+                        }}
+                        className="w-12 h-11 text-center bg-transparent font-black text-foreground outline-none text-base select-all"
+                      />
+                      <button
+                        onClick={() => handleQuantityChange(item.key, qty + multiplier)}
+                        className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-surface active:bg-surface rounded-r-xl transition-colors font-black text-lg touch-manipulation select-none"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+          {activeCategory === 'moves' &&
+            sortedMoves.map((m) => {
+              const isOwned = save?.unlockedMoves?.includes(m.moveId);
+              const canAfford = storeCurrency.amount >= m.price;
+
+              return (
+                <div
+                  key={m.id}
+                  className="bg-surface rounded-2xl border border-border p-4 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="font-black text-foreground capitalize text-base">
+                        {m.move.name.replace('-', ' ')}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={getTypeSpriteUrl(m.move.type.name, true)}
+                          alt={m.move.type.name}
+                          className="h-4 w-auto object-contain"
+                        />
+                        <span className="text-xs text-muted font-bold capitalize">
+                          {m.move.damageClass}
+                        </span>
+                        <span className="text-xs font-mono font-bold text-muted">
+                          PWR: {m.move.power > 0 ? m.move.power : '—'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm font-black text-foreground shrink-0">
+                      {storeCurrency.symbol}
+                      <span>{m.price.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-border/60">
+                    {isOwned ? (
+                      <Badge variant="ink" className="w-full text-xs font-bold py-2 flex justify-center">
+                        Owned
+                      </Badge>
+                    ) : (
+                      <Button
+                        onClick={() => handleBuyMove(m)}
+                        disabled={!canAfford || buyMoveMutation.isPending}
+                        className="w-full min-h-[44px] text-xs font-black uppercase tracking-wider touch-manipulation"
+                      >
+                        {buyMoveMutation.isPending ? 'Buying...' : !canAfford ? 'Too Expensive' : 'Buy Move'}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+          {((activeCategory !== 'moves' && filteredItems.length === 0) ||
+            (activeCategory === 'moves' && sortedMoves.length === 0)) && (
+            <div className="p-8 bg-surface rounded-2xl border border-border">
+              <EmptyState
+                title="No Items Available"
+                description="There are currently no items or moves listed in this category."
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table of items */}
+        <div className="hidden md:block bg-surface rounded-2xl border border-border shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table
               className={`w-full text-left border-collapse ${
                 activeCategory === 'moves'
-                  ? 'min-w-[320px] sm:min-w-[600px] md:min-w-[800px]'
-                  : 'min-w-[320px]'
+                  ? 'min-w-[600px] md:min-w-[800px]'
+                  : 'w-full'
               }`}
             >
               <thead>
@@ -727,8 +894,9 @@ export function Pokemart() {
           .filter((x) => (confirmModal === 'buy' ? x.qty > 0 : x.sellQty > 0));
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-            <div className="bg-surface border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+            <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+              <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border" aria-hidden="true" />
               <h2 className="text-xl font-black text-foreground mb-1 text-center">
                 Confirm {confirmModal === 'buy' ? 'Purchase' : 'Sale'}
               </h2>
@@ -803,8 +971,9 @@ export function Pokemart() {
 
       {/* 409 PRICE_CHANGED Alert Dialog */}
       {priceChangedAlert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col space-y-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col space-y-4 pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border" aria-hidden="true" />
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
               <div>

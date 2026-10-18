@@ -16,7 +16,7 @@ export function EventHistory() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex justify-center items-center p-8 bg-background min-h-[calc(100vh-64px)]">
+      <div className="flex-1 flex justify-center items-center p-8 bg-background min-h-[calc(100dvh-64px)]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-border"></div>
       </div>
     );
@@ -30,7 +30,7 @@ export function EventHistory() {
 
     if (days >= 30) {
       const months = Math.floor(days / 30);
-      const remainingDays = days % 30;
+      const remainingDays = diff % 30;
       return `${months} month${months !== 1 ? 's' : ''}, ${remainingDays} day${remainingDays !== 1 ? 's' : ''} ago`;
     }
     return `${days} day${days !== 1 ? 's' : ''}, ${hours} hour${hours !== 1 ? 's' : ''} ago`;
@@ -39,25 +39,25 @@ export function EventHistory() {
   const filteredData = historyData || [];
 
   return (
-    <div className="flex-1 bg-surface min-h-[calc(100vh-64px)] w-full flex flex-col p-6 md:p-12">
-      <div className="w-full max-w-[1600px] mx-auto space-y-8">
+    <div className="flex-1 bg-surface min-h-[calc(100dvh-64px)] w-full flex flex-col p-4 sm:p-6 md:p-12">
+      <div className="w-full max-w-[1600px] mx-auto space-y-6 sm:space-y-8">
 
         {/* Header */}
-        <div className="text-left border-b border-border pb-6">
-          <Link to="/events" className="inline-flex items-center gap-2 text-primary-foreground hover:text-subtle font-bold mb-4 transition-colors">
+        <div className="text-left border-b border-border pb-4 sm:pb-6">
+          <Link to="/events" className="inline-flex items-center gap-2 text-primary-foreground hover:text-subtle font-bold mb-3 sm:mb-4 transition-colors min-h-[44px]">
             <FiArrowLeft className="w-5 h-5" /> Back to Events
           </Link>
-          <h1 className="text-4xl md:text-5xl font-black text-foreground mb-2">Event History</h1>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground mb-2">Event History</h1>
         </div>
 
         {/* History List */}
         {!filteredData || filteredData.length === 0 ? (
-          <div className="text-center p-12 bg-surface-raised/50 rounded-2xl border border-border">
+          <div className="text-center p-8 sm:p-12 bg-surface-raised/50 rounded-2xl border border-border">
             <FiArchive className="w-12 h-12 text-muted mx-auto mb-4" />
-            <p className="text-muted font-bold text-xl">No past events found matching your criteria.</p>
+            <p className="text-muted font-bold text-lg sm:text-xl">No past events found matching your criteria.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
             {filteredData.map((item: any) => {
               const { event } = item;
               const config = event.taskConfig || {};
@@ -71,26 +71,26 @@ export function EventHistory() {
                 <div key={event.id} className="bg-surface-raised/50 border border-border rounded-2xl p-0 flex flex-col md:flex-row relative overflow-hidden transition-all hover:shadow-lg">
 
                   {/* Left: Task Details */}
-                  <div className="flex-1 p-8 text-left flex flex-col">
-                    <h2 className="text-2xl font-bold text-muted mb-6 flex items-center gap-3">
-                      <FiArchive className="text-foreground w-6 h-6" /> {event.name || 'Task Objective'}
+                  <div className="flex-1 p-5 sm:p-8 text-left flex flex-col">
+                    <h2 className="text-xl sm:text-2xl font-bold text-muted mb-4 sm:mb-6 flex items-center gap-3">
+                      <FiArchive className="text-foreground w-5 h-5 sm:w-6 sm:h-6" /> {event.name || 'Task Objective'}
                     </h2>
 
-                    <ul className="list-disc pl-6 text-muted space-y-2 font-medium text-lg mb-8">
+                    <ul className="list-disc pl-5 sm:pl-6 text-muted space-y-2 font-medium text-base sm:text-lg mb-6 sm:mb-8">
                       <li>{event.description}</li>
                       {config.pokemonType && (
                         <li>Must be a <span className="font-bold">{config.pokemonType} Type</span> Pokemon</li>
                       )}
                     </ul>
 
-                    <div className="mt-auto text-sm font-bold text-muted bg-surface-raised/50 inline-block px-4 py-3 rounded-lg self-start">
+                    <div className="mt-auto text-xs sm:text-sm font-bold text-muted bg-surface-raised/50 inline-block px-3 sm:px-4 py-2 sm:py-3 rounded-lg self-start">
                       Ended {getTimeAgo(event.endDate)}
                     </div>
                   </div>
 
                   {/* Right: Pokemon Reward */}
-                  <div className="md:w-[40%] bg-surface-raised border-l border-border p-8 flex flex-col items-center justify-center relative overflow-hidden">
-                    <div className="text-sm font-black uppercase tracking-widest text-foreground mb-6 opacity-80">Event Reward</div>
+                  <div className="md:w-[40%] bg-surface-raised border-t md:border-t-0 md:border-l border-border p-5 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="text-xs sm:text-sm font-black uppercase tracking-widest text-foreground mb-4 sm:mb-6 opacity-80">Event Reward</div>
 
                     {rewardSpecies ? (
                       <div className="flex flex-col items-center w-full">

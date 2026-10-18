@@ -41,25 +41,25 @@ export function RankPage() {
   };
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
-      <div className="mb-8 border-b border-border pb-4">
-        <h1 className="text-3xl font-black text-foreground tracking-tight">Trainer Rank</h1>
+      <div className="mb-4 sm:mb-8 border-b border-border pb-4">
+        <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Trainer Rank</h1>
       </div>
 
 
-      <div className="bg-surface rounded-2xl shadow-sm border border-border p-8 flex flex-col items-center">
-        <div className="w-full flex flex-col justify-center items-center mb-8 border-b border-border pb-8 gap-4">
+      <div className="bg-surface rounded-2xl shadow-sm border border-border p-4 sm:p-8 flex flex-col items-center">
+        <div className="w-full flex flex-col justify-center items-center mb-6 sm:mb-8 border-b border-border pb-6 sm:pb-8 gap-3 sm:gap-4">
           <div className="flex flex-col items-center w-full">
-            <span className="text-sm font-bold text-muted uppercase tracking-widest mb-2">Current Rank</span>
-            <span className="text-4xl font-black text-foreground text-center">{formatRank(currentRank)}</span>
+            <span className="text-xs sm:text-sm font-bold text-muted uppercase tracking-widest mb-1 sm:mb-2">Current Rank</span>
+            <span className="text-2xl sm:text-4xl font-black text-foreground text-center">{formatRank(currentRank)}</span>
           </div>
-          <div className="w-12 h-12 flex items-center justify-center bg-surface-raised rounded-full my-2">
-            <ArrowDown className="w-6 h-6 text-muted" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-surface-raised rounded-full my-1 sm:my-2">
+            <ArrowDown className="w-5 h-5 sm:w-6 sm:h-6 text-muted" />
           </div>
           <div className="flex flex-col items-center w-full">
-            <span className="text-sm font-bold text-foreground uppercase tracking-widest mb-2">Next Rank</span>
-            <span className="text-4xl font-black text-foreground text-center">{nextRank ? formatRank(nextRank) : 'MAX RANK'}</span>
+            <span className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-widest mb-1 sm:mb-2">Next Rank</span>
+            <span className="text-2xl sm:text-4xl font-black text-foreground text-center">{nextRank ? formatRank(nextRank) : 'MAX RANK'}</span>
           </div>
         </div>
 

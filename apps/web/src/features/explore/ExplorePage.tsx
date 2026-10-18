@@ -102,7 +102,7 @@ export const ExplorePage: React.FC = () => {
   // Screen States
   if (isTrainerLoading || isLoadingMap) {
     return (
-      <div className="flex-1 min-h-[calc(100vh-64px)] flex flex-col items-center justify-center p-4 bg-background">
+      <div className="flex-1 min-h-[calc(100dvh-4rem)] flex flex-col items-center justify-center p-4 bg-background">
         <div className="w-full max-w-xl flex flex-col items-center gap-4">
           <Skeleton className="w-full h-80 rounded-2xl" />
           <div className="flex items-center gap-4">
@@ -115,7 +115,7 @@ export const ExplorePage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="flex-1 min-h-[calc(100vh-64px)] flex items-center justify-center p-4 bg-background">
+      <div className="flex-1 min-h-[calc(100dvh-4rem)] flex items-center justify-center p-4 bg-background">
         <ErrorState
           title="Failed to Load Exploration"
           message="Could not connect to the exploration server or load your trainer save."
@@ -126,7 +126,7 @@ export const ExplorePage: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-start p-4 bg-background select-none overflow-x-hidden">
+    <div className="flex-1 relative min-h-[calc(100dvh-4rem)] flex flex-col items-center justify-start p-4 bg-background select-none overflow-x-hidden">
       {!isConnected && <OfflineBanner />}
 
       {/* Screen reader instructions */}

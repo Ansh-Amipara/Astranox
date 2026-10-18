@@ -118,7 +118,7 @@ export class ActiveState implements IBattleState {
       const hasHealthy = playerPartyData.some(p => p.currentHp > 0);
       newStatus = hasHealthy ? BattleStatus.WAITING_SWITCH : BattleStatus.LOST;
     } else if (result.p2State.currentHp <= 0) {
-      const faintResult = await reward.processFaintRewards(result, wildPokemon, tx, session.battleType, session.trainerId);
+      const faintResult = await reward.processFaintRewards(result, wildPokemon, tx, session.battleType, session.trainerId, session.balanceVersion);
       if (faintResult.newStatus) {
          newStatus = faintResult.newStatus;
       }

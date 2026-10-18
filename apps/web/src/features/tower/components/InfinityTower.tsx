@@ -16,7 +16,7 @@ export const InfinityTowerPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-background flex items-center justify-center min-h-[calc(100vh-64px)]">
+      <div className="flex-1 bg-background flex items-center justify-center min-h-[calc(100dvh-64px)]">
         <Loader2 className="w-12 h-12 text-foreground animate-spin" />
       </div>
     );
@@ -24,7 +24,7 @@ export const InfinityTowerPage: React.FC = () => {
 
   if (error || !data) {
     return (
-      <div className="flex-1 bg-background p-6 flex items-center justify-center min-h-[calc(100vh-64px)]">
+      <div className="flex-1 bg-background p-4 sm:p-6 flex items-center justify-center min-h-[calc(100dvh-64px)]">
         <div className="p-4 bg-surface-raised text-foreground text-muted font-bold rounded-xl border border-border/50 flex items-center gap-2">
           <AlertCircle className="w-5 h-5" />
           Error loading tower state.
@@ -73,23 +73,23 @@ export const InfinityTowerPage: React.FC = () => {
   const isMiniBossFloor = !isConquered && !isBossFloor && !isMegaBossFloor && state.currentFloor % 25 === 0;
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
 
         {/* Header Section */}
         <div className="mb-4 border-b border-border pb-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6">
             <div className="flex flex-col gap-2 w-full md:w-auto">
-              <h1 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
                 Infinity Tower
               </h1>
             </div>
 
             <div className="flex flex-col items-start md:items-end gap-3 w-full md:w-auto">
-              <div className="bg-surface border border-border px-4 py-2 rounded-xl flex flex-col md:flex-row items-center gap-4 shadow-sm shrink-0">
-                <div className="flex items-center gap-4">
+              <div className="bg-surface border border-border px-3 sm:px-4 py-2 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 shadow-sm w-full sm:w-auto">
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                   <span className="text-xs font-bold text-muted uppercase tracking-wider">Your CP: <span className="text-foreground">{data?.playerCp?.toLocaleString() || 0}</span></span>
-                  <div className="w-px h-4 bg-surface-raised"></div>
+                  <div className="hidden sm:block w-px h-4 bg-surface-raised"></div>
                   <span className="text-xs font-bold text-muted uppercase tracking-wider">Highest Floor: {Math.min(1000, state.highestFloor)} / 1000</span>
                 </div>
               </div>
@@ -101,7 +101,7 @@ export const InfinityTowerPage: React.FC = () => {
         <div className="flex flex-col py-2 px-0 md:px-4 w-full flex-1">
 
           <div className="text-center mb-6">
-            <h2 className={`text-4xl font-black mb-2 tracking-tighter ${isMegaBossFloor ? 'text-foreground' : isBossFloor ? 'text-foreground' : isMiniBossFloor ? 'text-foreground' : 'text-foreground'}`}>
+            <h2 className={`text-2xl sm:text-4xl font-black mb-2 tracking-tighter ${isMegaBossFloor ? 'text-foreground' : isBossFloor ? 'text-foreground' : isMiniBossFloor ? 'text-foreground' : 'text-foreground'}`}>
               {isConquered ? 'Floor 1000 / 1000' : `Floor ${state.currentFloor} / 1000`}
             </h2>
             <div className="flex justify-center">

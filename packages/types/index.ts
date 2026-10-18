@@ -9,6 +9,8 @@ export * from './src/tower';
 export * from './src/explore';
 export * from './src/events';
 export * from './src/admin';
+export * from './src/arena';
+export * from './src/dungeon-content';
 
 // Re-export existing domain DTOs
 export * from './src/types/pokemon';

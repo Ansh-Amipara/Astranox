@@ -1,6 +1,18 @@
+import { z } from 'zod';
+
 /**
  * Progression domain constants: experience, levels, ranks, and potential caps.
  */
+
+export const progressionBalanceSchema = z.object({
+  XP_PER_LEVEL: z.number().min(1).max(10000).describe('Experience points required per level up'),
+  EXP_YIELD_DIVISOR: z.number().min(1).max(50).describe('Wild exp yield level divisor'),
+  ABSOLUTE_MAX_LEVEL: z.number().min(100).max(10000).describe('Maximum level cap for EX tier potential'),
+  DEFAULT_INITIAL_LEVEL: z.number().min(1).max(100).describe('Default initial level for generated starter and wild Pokemon'),
+  POTENTIAL_MAX_LEVELS: z.record(z.string(), z.number().min(1).max(10000)).describe('Maximum level limit per Pokémon potential tier'),
+});
+
+export type ProgressionBalanceConfig = z.infer<typeof progressionBalanceSchema>;
 
 export const PROGRESSION_CONSTANTS = {
   /** Experience points required per level up */
@@ -92,34 +104,39 @@ export type PotentialTier = keyof typeof POTENTIAL_MAX_LEVELS;
 /**
  * Calculates the minimum XP required to reach a specific level.
  * Level 1 = 0 XP, Level 2 = 101 XP, Level 3 = 201 XP...
- * Formula: (L - 1) * 100 + 1 (for L > 1), 0 (for L <= 1).
+ * Formula: (L - 1) * XP_PER_LEVEL + 1 (for L > 1), 0 (for L <= 1).
  */
-export function getXpForLevel(level: number): number {
+export function getXpForLevel(level: number, config?: ProgressionBalanceConfig): number {
   if (level <= 1) return 0;
-  return (level - 1) * PROGRESSION_CONSTANTS.XP_PER_LEVEL + 1;
+  const xpPerLevel = config?.XP_PER_LEVEL ?? PROGRESSION_CONSTANTS.XP_PER_LEVEL;
+  return (level - 1) * xpPerLevel + 1;
 }
 
 /**
  * Calculates the current level based on total XP.
  * 0-100 XP => Level 1, 101-200 XP => Level 2, 201-300 XP => Level 3...
  */
-export function getLevelFromXp(xp: number): number {
+export function getLevelFromXp(xp: number, config?: ProgressionBalanceConfig): number {
   if (xp <= 0) return 1;
-  return Math.floor((xp - 1) / PROGRESSION_CONSTANTS.XP_PER_LEVEL) + 1;
+  const xpPerLevel = config?.XP_PER_LEVEL ?? PROGRESSION_CONSTANTS.XP_PER_LEVEL;
+  return Math.floor((xp - 1) / xpPerLevel) + 1;
 }
 
 /**
  * Calculates the XP yield from defeating an opponent.
- * Formula: floor(baseExp * level / 5)
+ * Formula: floor(baseExp * level / EXP_YIELD_DIVISOR)
  */
-export function getExpYield(baseExp: number, level: number): number {
-  return Math.floor((baseExp * level) / PROGRESSION_CONSTANTS.EXP_YIELD_DIVISOR);
+export function getExpYield(baseExp: number, level: number, config?: ProgressionBalanceConfig): number {
+  const divisor = config?.EXP_YIELD_DIVISOR ?? PROGRESSION_CONSTANTS.EXP_YIELD_DIVISOR;
+  return Math.floor((baseExp * level) / divisor);
 }
 
 /**
  * Resolves the maximum level cap for a given potential tier.
  */
-export function getMaxLevelForPotential(potential: string): number {
+export function getMaxLevelForPotential(potential: string, config?: ProgressionBalanceConfig): number {
   const tier = potential as PotentialTier;
-  return POTENTIAL_MAX_LEVELS[tier] ?? PROGRESSION_CONSTANTS.ABSOLUTE_MAX_LEVEL;
+  const potentialMap = config?.POTENTIAL_MAX_LEVELS ?? POTENTIAL_MAX_LEVELS;
+  const absoluteMax = config?.ABSOLUTE_MAX_LEVEL ?? PROGRESSION_CONSTANTS.ABSOLUTE_MAX_LEVEL;
+  return (potentialMap as Record<string, number>)[tier] ?? absoluteMax;
 }

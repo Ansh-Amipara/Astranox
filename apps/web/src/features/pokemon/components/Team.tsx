@@ -164,7 +164,7 @@ export function TeamPage() {
   });
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center text-foreground transition-colors duration-200">Loading Team Data...</div>;
+    return <div className="min-h-[100dvh] bg-background flex items-center justify-center text-foreground transition-colors duration-200">Loading Team Data...</div>;
   }
 
   const party = save?.party || [];
@@ -188,7 +188,7 @@ export function TeamPage() {
   };
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
           <div>
@@ -313,8 +313,9 @@ export function TeamPage() {
 
       {/* --- 1. Options Menu Modal --- */}
       {activeMenuPkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
-          <div className="bg-surface border border-border rounded-2xl p-4 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => setActiveMenuPkm(null)}>
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 w-full max-w-md flex flex-col shadow-2xl pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
             <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
               <img
                 src={getSpriteUrl(activeMenuPkm.speciesId)}
@@ -458,16 +459,17 @@ export function TeamPage() {
 
       {/* --- 2. Details Modal --- */}
       {detailsPkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/50 backdrop-blur-sm" onClick={() => setDetailsPkm(null)}>
-          <div className="bg-surface border border-border rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => setDetailsPkm(null)}>
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 w-full max-w-md max-h-[90dvh] overflow-y-auto flex flex-col shadow-2xl pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <img
                   src={getSpriteUrl(detailsPkm.speciesId)}
-                  className="w-20 h-20 bg-surface-raised rounded-xl object-contain pixelated border border-border"
+                  className="w-16 h-16 sm:w-20 sm:h-20 bg-surface-raised rounded-xl object-contain pixelated border border-border shrink-0"
                 />
                 <div>
-                  <h2 className="text-3xl font-black text-foreground capitalize">
+                  <h2 className="text-2xl sm:text-3xl font-black text-foreground capitalize">
                     {detailsPkm.nickname || detailsPkm.species?.name}
                   </h2>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -487,7 +489,7 @@ export function TeamPage() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setDetailsPkm(null)} className="text-muted hover:text-subtle text-xl">✕</button>
+              <button onClick={() => setDetailsPkm(null)} className="text-muted hover:text-subtle text-xl min-w-[44px] min-h-[44px] flex items-center justify-center">✕</button>
             </div>
 
             <div className="w-full">
@@ -534,50 +536,51 @@ export function TeamPage() {
       {/* --- 3. Move Management Modal (Unchanged structurally, just uses new state) --- */}
       {/* --- 4. Evolution Modal --- */}
       {evolutionPkm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/50 backdrop-blur-sm" onClick={() => !evolveMutation.isPending && setEvolutionPkm(null)}>
-          <div className="bg-surface border border-border rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
-            <div className="absolute inset-0 bg-linear-to-br from-surface to-surface-raised pointer-events-none" />
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => !evolveMutation.isPending && setEvolutionPkm(null)}>
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-8 w-full max-w-md max-h-[90dvh] overflow-y-auto flex flex-col shadow-2xl relative text-center pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="absolute inset-0 bg-linear-to-br from-surface to-surface-raised pointer-events-none rounded-t-3xl sm:rounded-2xl" />
 
-            <h2 className="text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
               Evolution
             </h2>
-            <div className="flex items-center justify-center gap-8 mb-8">
+            <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6 sm:mb-8 relative z-10">
               <div className="flex flex-col items-center">
-                <div className="w-24 h-24 bg-surface-raised/50 rounded-full flex items-center justify-center border border-border shadow-inner">
-                  <img src={getSpriteUrl(evolutionPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-surface-raised/50 rounded-full flex items-center justify-center border border-border shadow-inner">
+                  <img src={getSpriteUrl(evolutionPkm.speciesId)} className="w-16 h-16 sm:w-20 sm:h-20 pixelated object-contain opacity-80" />
                 </div>
-                <span className="mt-3 font-bold text-muted capitalize text-sm">{evolutionPkm.nickname || evolutionPkm.species.name}</span>
+                <span className="mt-2 sm:mt-3 font-bold text-muted capitalize text-xs sm:text-sm">{evolutionPkm.nickname || evolutionPkm.species.name}</span>
               </div>
 
               <div className="flex flex-col items-center justify-center text-foreground animate-pulse">
-                <ArrowRight className="w-10 h-10 mb-2" strokeWidth={2.5} />
+                <ArrowRight className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2" strokeWidth={2.5} />
                 <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Evolves To</span>
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-28 h-28 bg-surface-raised/80 rounded-full flex items-center justify-center border-2 border-border shadow-lg relative">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 bg-surface-raised/80 rounded-full flex items-center justify-center border-2 border-border shadow-lg relative">
                   {evolutionPkm.megas?.length && evolutionPkm.megas.length > 1 && (
                     <div className="absolute -top-3 -right-3 flex gap-1">
                       {evolutionPkm.megas.map((mega: { id: number, name: string, baseSpeciesId?: number, baseSpeciesName?: string, isGmax?: boolean, isStandard?: boolean }) => (
                         <button
                           key={mega.id}
                           onClick={() => setSelectedMega(mega)}
-                          className={`w-6 h-6 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-border bg-surface-raised text-foreground' : 'border-border bg-primary text-subtle'} text-[10px] font-bold flex items-center justify-center shadow-md`}
+                          className={`w-7 h-7 sm:w-6 sm:h-6 rounded-full border-2 ${selectedMega?.id === mega.id ? 'border-border bg-surface-raised text-foreground' : 'border-border bg-primary text-subtle'} text-[10px] font-bold flex items-center justify-center shadow-md`}
                         >
                           {mega.isStandard ? 'E' : (mega.isGmax ? 'G' : (mega.name.endsWith(' x') ? 'X' : (mega.name.endsWith(' y') ? 'Y' : 'M')))}
                         </button>
                       ))}
                     </div>
                   )}
-                  <img src={getSpriteUrl(selectedMega?.id || evolutionPkm.species.evolvesTo?.[0]?.id || 0)} className="w-24 h-24 pixelated object-contain" />
+                  <img src={getSpriteUrl(selectedMega?.id || evolutionPkm.species.evolvesTo?.[0]?.id || 0)} className="w-20 h-20 sm:w-24 sm:h-24 pixelated object-contain" />
                 </div>
-                <span className="mt-3 font-black text-foreground capitalize text-lg drop-shadow-sm">
+                <span className="mt-2 sm:mt-3 font-black text-foreground capitalize text-base sm:text-lg drop-shadow-sm">
                   {selectedMega ? selectedMega.name : (evolutionPkm.species.evolvesTo?.[0]?.name || '???')}
                 </span>
               </div>
             </div>
 
-            <div className="bg-surface-raised/50 rounded-xl p-4 mb-8 border border-border relative z-10">
+            <div className="bg-surface-raised/50 rounded-xl p-4 mb-6 sm:mb-8 border border-border relative z-10">
               {(() => {
                 let canPerformEvolution = false;
                 let isUnlocked = false;
@@ -597,17 +600,17 @@ export function TeamPage() {
                 return (
                   <>
                     <div className="flex flex-col items-center">
-                      <span className="text-xl font-black text-foreground capitalize">{isBattleRequirement ? 'Battle Unlock Requirement' : `Level ${evolutionPkm.species.evolutionLevel}`}</span>
+                      <span className="text-lg sm:text-xl font-black text-foreground capitalize">{isBattleRequirement ? 'Battle Unlock Requirement' : `Level ${evolutionPkm.species.evolutionLevel}`}</span>
                       <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-surface border border-border ${canPerformEvolution ? 'text-foreground' : 'text-foreground'}`}>
                         {isBattleRequirement ? (isUnlocked ? 'Unlocked' : 'Challenge to Unlock') : `(Current Level: ${evolutionPkm.level})`}
                       </span>
                     </div>
 
-                    <div className="flex justify-center gap-4 relative z-10 mt-6">
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 relative z-10 mt-6">
                       <button
                         onClick={() => { setEvolutionPkm(null); setSelectedMega(null); }}
                         disabled={evolveMutation.isPending}
-                        className="px-6 py-3 font-bold text-muted hover:text-subtle bg-surface-raised hover:bg-surface-raised border border-border rounded-xl transition-all disabled:opacity-50"
+                        className="px-6 py-3 font-bold text-muted hover:text-subtle bg-surface-raised hover:bg-surface-raised border border-border rounded-xl transition-all disabled:opacity-50 min-h-[44px]"
                       >
                         Cancel
                       </button>
@@ -618,7 +621,7 @@ export function TeamPage() {
                             engageMutation.mutate({ speciesId: targetId || evolutionPkm.speciesId, level: evolutionPkm.level, battleType: 'EVOLVE' });
                           }}
                           disabled={engageMutation.isPending}
-                          className="px-8 py-3 font-black tracking-widest text-foreground rounded-xl shadow-glow transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none bg-linear-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised hover:shadow-glow"
+                          className="px-8 py-3 font-black tracking-widest text-foreground rounded-xl shadow-glow transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none bg-linear-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised hover:shadow-glow min-h-[44px]"
                         >
                           {engageMutation.isPending ? 'ENGAGING...' : 'FIGHT'}
                         </button>
@@ -632,7 +635,7 @@ export function TeamPage() {
                             }
                           }}
                           disabled={!canPerformEvolution || evolveMutation.isPending}
-                          className={`px-8 py-3 font-black tracking-widest text-foreground rounded-xl shadow-glow transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none ${canPerformEvolution ? 'bg-linear-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised hover:shadow-glow' : 'bg-surface-raised'}`}
+                          className={`px-8 py-3 font-black tracking-widest text-foreground rounded-xl shadow-glow transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none min-h-[44px] ${canPerformEvolution ? 'bg-linear-to-r from-surface to-surface-raised hover:from-surface hover:to-surface-raised hover:shadow-glow' : 'bg-surface-raised'}`}
                         >
                           {evolveMutation.isPending ? 'EVOLVING...' : canPerformEvolution ? 'EVOLVE!' : 'CANNOT EVOLVE'}
                         </button>
@@ -694,50 +697,51 @@ export function TeamPage() {
         const theme = themeMap[mapping?.next] || themeMap['GOLD'];
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/50 backdrop-blur-sm" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>
-            <div className={`bg-surface border border-border rounded-2xl p-8 w-full max-w-md flex flex-col shadow-2xl relative overflow-hidden text-center`} onClick={e => e.stopPropagation()}>
-              <div className={`absolute inset-0 bg-linear-to-br ${theme.bgGradient} pointer-events-none`} />
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>
+            <div className={`bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-8 w-full max-w-md max-h-[90dvh] overflow-y-auto flex flex-col shadow-2xl relative text-center pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200`} onClick={e => e.stopPropagation()}>
+              <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+              <div className={`absolute inset-0 bg-linear-to-br ${theme.bgGradient} pointer-events-none rounded-t-3xl sm:rounded-2xl`} />
 
-              <h2 className="text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
                 Boost Potential
               </h2>
 
-              <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
+              <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6 sm:mb-8 relative z-10">
                 <div className="flex flex-col items-center">
-                  <div className="w-24 h-24 bg-surface-raised rounded-full flex items-center justify-center border border-border shadow-inner">
-                    <img src={getSpriteUrl(boostPkm.speciesId)} className="w-20 h-20 pixelated object-contain opacity-80" />
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-surface-raised rounded-full flex items-center justify-center border border-border shadow-inner">
+                    <img src={getSpriteUrl(boostPkm.speciesId)} className="w-16 h-16 sm:w-20 sm:h-20 pixelated object-contain opacity-80" />
                   </div>
-                  <span className="mt-3 font-bold text-muted capitalize text-sm">{(boostPkm.potential || '').replace('_', ' ')}</span>
+                  <span className="mt-2 sm:mt-3 font-bold text-muted capitalize text-xs sm:text-sm">{(boostPkm.potential || '').replace('_', ' ')}</span>
                 </div>
 
                 <div className={`flex flex-col items-center justify-center ${theme.arrow} animate-pulse`}>
-                  <ArrowRight className="w-10 h-10 mb-2" strokeWidth={2.5} />
+                  <ArrowRight className="w-8 h-8 sm:w-10 sm:h-10 mb-1 sm:mb-2" strokeWidth={2.5} />
                   <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Upgrades To</span>
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <div className={`w-28 h-28 bg-surface/80 rounded-full flex items-center justify-center border-2 ${theme.border} shadow-lg`}>
-                    <img src={getSpriteUrl(boostPkm.speciesId)} className="w-24 h-24 pixelated object-contain drop-shadow-glow" />
+                  <div className={`w-22 h-22 sm:w-28 sm:h-28 bg-surface/80 rounded-full flex items-center justify-center border-2 ${theme.border} shadow-lg`}>
+                    <img src={getSpriteUrl(boostPkm.speciesId)} className="w-18 h-18 sm:w-24 sm:h-24 pixelated object-contain drop-shadow-glow" />
                   </div>
-                  <span className={`mt-3 font-bold capitalize text-lg tracking-wide text-transparent bg-clip-text bg-linear-to-r ${theme.textGradient}`}>{mapping?.next.replace('_', ' ')}</span>
+                  <span className={`mt-2 sm:mt-3 font-bold capitalize text-base sm:text-lg tracking-wide text-transparent bg-clip-text bg-linear-to-r ${theme.textGradient}`}>{mapping?.next.replace('_', ' ')}</span>
                 </div>
               </div>
 
-              <div className="bg-surface-raised/50 rounded-2xl p-5 mb-8 relative z-10 border border-border">
-                <h4 className="text-xs uppercase font-bold text-muted tracking-wider mb-3">Required Item</h4>
+              <div className="bg-surface-raised/50 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 relative z-10 border border-border">
+                <h4 className="text-xs uppercase font-bold text-muted tracking-wider mb-2 sm:mb-3">Required Item</h4>
                 <div className="flex flex-col items-center">
-                  <span className="text-xl font-black text-foreground">{mapping?.itemName}</span>
+                  <span className="text-lg sm:text-xl font-black text-foreground">{mapping?.itemName}</span>
                   <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-surface border border-border ${hasCrystal ? 'text-foreground' : 'text-foreground'}`}>
                     In Bag: {ownedCrystal?.quantity || 0}
                   </span>
                 </div>
               </div>
 
-              <div className="flex justify-center gap-4 relative z-10">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 relative z-10">
                 <button
                   onClick={() => setBoostPkm(null)}
                   disabled={boostMutation.isPending}
-                  className="px-6 py-3 font-bold text-muted hover:bg-surface-raised rounded-xl transition-colors disabled:opacity-50"
+                  className="px-6 py-3 font-bold text-muted hover:bg-surface-raised rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   Cancel
                 </button>
@@ -746,7 +750,7 @@ export function TeamPage() {
                   <button
                     onClick={() => boostMutation.mutate({ pokemonId: boostPkm.id, itemId: mapping.item })}
                     disabled={boostMutation.isPending}
-                    className={`px-8 py-3 font-black tracking-widest text-foreground ${theme.buttonBg} ${theme.buttonHover} rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed`}
+                    className={`px-8 py-3 font-black tracking-widest text-foreground ${theme.buttonBg} ${theme.buttonHover} rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed min-h-[44px]`}
                   >
                     {boostMutation.isPending ? 'BOOSTING...' : 'BOOST POTENTIAL!'}
                   </button>
@@ -783,36 +787,37 @@ export function TeamPage() {
         const currentIv = Number(boostIvPkm[statKey]) || 0;
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
-            <div className="bg-surface border border-border rounded-2xl p-8 w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden text-center" onClick={e => e.stopPropagation()}>
-              <div className="absolute inset-0 bg-linear-to-br from-surface to-surface-raised pointer-events-none" />
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => !boostIvMutation.isPending && setBoostIvPkm(null)}>
+            <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-8 w-full max-w-lg max-h-[90dvh] overflow-y-auto flex flex-col shadow-2xl relative text-center pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+              <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+              <div className="absolute inset-0 bg-linear-to-br from-surface to-surface-raised pointer-events-none rounded-t-3xl sm:rounded-2xl" />
 
-              <h2 className="text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-6 relative z-10 tracking-widest uppercase">
                 Enhance IVs
               </h2>
 
-              <div className="relative z-10 mb-6 flex justify-center gap-4 bg-surface-raised p-1.5 rounded-xl border border-border shadow-inner">
+              <div className="relative z-10 mb-4 sm:mb-6 flex justify-center gap-2 sm:gap-4 bg-surface-raised p-1.5 rounded-xl border border-border shadow-inner">
                 <button
                   onClick={() => setSelectedIvItem('bottle-cap')}
-                  className={`flex-1 py-2 rounded-lg font-bold transition-all ${!isGold ? 'bg-surface text-foreground shadow-sm border border-border' : 'text-subtle hover:text-muted border border-transparent'}`}
+                  className={`flex-1 py-2 rounded-lg font-bold transition-all min-h-[44px] flex items-center justify-center ${!isGold ? 'bg-surface text-foreground shadow-sm border border-border' : 'text-subtle hover:text-muted border border-transparent'}`}
                 >
                   Bottle Cap
                 </button>
                 <button
                   onClick={() => setSelectedIvItem('gold-bottle-cap')}
-                  className={`flex-1 py-2 rounded-lg font-bold transition-all ${isGold ? 'bg-surface text-foreground shadow-sm border border-border' : 'text-subtle hover:text-muted border border-transparent'}`}
+                  className={`flex-1 py-2 rounded-lg font-bold transition-all min-h-[44px] flex items-center justify-center ${isGold ? 'bg-surface text-foreground shadow-sm border border-border' : 'text-subtle hover:text-muted border border-transparent'}`}
                 >
                   Gold Bottle Cap
                 </button>
               </div>
 
               {!isGold && (
-                <div className="relative z-10 mb-6 flex justify-center flex-wrap gap-2">
+                <div className="relative z-10 mb-4 sm:mb-6 grid grid-cols-3 sm:flex sm:justify-center flex-wrap gap-2">
                   {statOptions.map(opt => (
                     <button
                       key={opt.key}
                       onClick={() => setSelectedIvStat(opt.key)}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors ${selectedIvStat === opt.key ? 'bg-surface-raised text-foreground border-border shadow-md' : 'bg-surface text-muted border-border hover:bg-surface-raised '}`}
+                      className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold border transition-colors min-h-[44px] flex items-center justify-center ${selectedIvStat === opt.key ? 'bg-surface-raised text-foreground border-border shadow-md' : 'bg-surface text-muted border-border hover:bg-surface-raised '}`}
                     >
                       {opt.label}: {Number(boostIvPkm[opt.key as keyof OwnedPokemonDto])} / 31
                     </button>
@@ -820,40 +825,40 @@ export function TeamPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-center gap-8 mb-8 relative z-10">
+              <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6 sm:mb-8 relative z-10">
                 <div className="flex flex-col items-center">
-                  <span className="font-bold text-muted text-sm">
+                  <span className="font-bold text-muted text-xs sm:text-sm">
                     {isGold ? 'All IVs' : 'Current IV'}
                   </span>
-                  <span className="font-black text-foreground text-3xl">{isGold ? 'VARIES' : currentIv}</span>
+                  <span className="font-black text-foreground text-2xl sm:text-3xl">{isGold ? 'VARIES' : currentIv}</span>
                 </div>
 
                 {!isMaxed && (
                   <div className="flex flex-col items-center justify-center text-foreground animate-pulse">
-                    <ArrowRight className="w-8 h-8" strokeWidth={2.5} />
+                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={2.5} />
                   </div>
                 )}
 
                 {!isMaxed && (
                   <div className="flex flex-col items-center">
-                    <span className="font-bold text-foreground text-sm">
+                    <span className="font-bold text-foreground text-xs sm:text-sm">
                       {isGold ? 'All IVs' : 'Next IV'}
                     </span>
-                    <span className="font-black text-foreground text-3xl">31</span>
+                    <span className="font-black text-foreground text-2xl sm:text-3xl">31</span>
                   </div>
                 )}
                 {isMaxed && (
-                  <div className="flex flex-col items-center justify-center ml-8">
-                    <span className="text-3xl font-black text-foreground uppercase tracking-widest drop-shadow-md">MAXED!</span>
+                  <div className="flex flex-col items-center justify-center ml-4 sm:ml-8">
+                    <span className="text-2xl sm:text-3xl font-black text-foreground uppercase tracking-widest drop-shadow-md">MAXED!</span>
                   </div>
                 )}
               </div>
 
               {!isMaxed && (
-                <div className="bg-surface-raised/50 rounded-2xl p-5 mb-8 relative z-10 border border-border">
-                  <h4 className="text-xs uppercase font-bold text-muted tracking-wider mb-3">Required Item</h4>
+                <div className="bg-surface-raised/50 rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 relative z-10 border border-border">
+                  <h4 className="text-xs uppercase font-bold text-muted tracking-wider mb-2 sm:mb-3">Required Item</h4>
                   <div className="flex flex-col items-center">
-                    <span className="text-xl font-black text-foreground">{requiredItemName}</span>
+                    <span className="text-lg sm:text-xl font-black text-foreground">{requiredItemName}</span>
                     <span className={`text-sm mt-2 px-3 py-1 rounded-full font-bold bg-surface border border-border ${hasCrystal ? 'text-foreground' : 'text-foreground'}`}>
                       In Bag: {ownedCrystal?.quantity || 0}
                     </span>
@@ -861,11 +866,11 @@ export function TeamPage() {
                 </div>
               )}
 
-              <div className="flex justify-center gap-4 relative z-10">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 relative z-10">
                 <button
                   onClick={() => setBoostIvPkm(null)}
                   disabled={boostIvMutation.isPending}
-                  className="px-6 py-3 font-bold text-muted hover:bg-surface-raised rounded-xl transition-colors disabled:opacity-50"
+                  className="px-6 py-3 font-bold text-muted hover:bg-surface-raised rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   Cancel
                 </button>
@@ -874,7 +879,7 @@ export function TeamPage() {
                   <button
                     onClick={() => boostIvMutation.mutate({ pokemonId: boostIvPkm.id, itemId: requiredItemId, stat: selectedIvStat })}
                     disabled={boostIvMutation.isPending}
-                    className="px-8 py-3 font-black tracking-widest text-foreground bg-surface-raised hover:bg-surface-raised rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                    className="px-8 py-3 font-black tracking-widest text-foreground bg-surface-raised hover:bg-surface-raised rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed min-h-[44px]"
                   >
                     {boostIvMutation.isPending ? 'ENHANCING...' : 'ENHANCE IV!'}
                   </button>
@@ -909,15 +914,16 @@ export function TeamPage() {
         };
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
-            <div className="bg-surface border border-border rounded-2xl p-6 w-full max-w-md flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => setGiveXpPkm(null)}>
+            <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 w-full max-w-md max-h-[90dvh] overflow-y-auto flex flex-col shadow-2xl pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200" onClick={e => e.stopPropagation()}>
+              <div className="sm:hidden mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
               <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
                 <img
                   src={getSpriteUrl(giveXpPkm.speciesId)}
-                  className="w-14 h-14 bg-surface-raised rounded-xl object-contain pixelated border border-border"
+                  className="w-14 h-14 bg-surface-raised rounded-xl object-contain pixelated border border-border shrink-0"
                 />
                 <div>
-                  <h3 className="font-extrabold text-lg capitalize text-foreground">{giveXpPkm.nickname || giveXpPkm.species?.name}</h3>
+                  <h3 className="font-extrabold text-base sm:text-lg capitalize text-foreground">{giveXpPkm.nickname || giveXpPkm.species?.name}</h3>
                   <p className="text-xs font-bold text-subtle">
                     Lv. {giveXpPkm.level} {addedAmount > 0 && <span className="text-foreground font-extrabold">→ Lv. {previewLvl}</span>} • {newTotalXp.toLocaleString()} XP (Cap: Lv. {maxLvl})
                   </p>
@@ -937,6 +943,7 @@ export function TeamPage() {
               </label>
               <input
                 type="text"
+                inputMode="numeric"
                 value={xpAmountInput}
                 onChange={(e) => {
                   const val = parseInt(e.target.value.replace(/\D/g, '') || '0', 10);
@@ -944,7 +951,7 @@ export function TeamPage() {
                   setXpAmountInput(capped > 0 ? capped.toString() : '');
                 }}
                 placeholder="Enter XP amount"
-                className="w-full px-4 py-3 bg-surface-raised border border-border rounded-xl font-bold text-lg mb-3 text-foreground focus:outline-none focus:ring-2 focus:ring-border"
+                className="w-full px-4 py-3 bg-surface-raised border border-border rounded-xl font-bold text-base sm:text-lg mb-3 text-foreground focus:outline-none focus:ring-2 focus:ring-border min-h-[44px]"
               />
 
               {/* Quick Amount Buttons */}
@@ -953,14 +960,14 @@ export function TeamPage() {
                   <button
                     key={amt}
                     onClick={() => handleAddXp(amt)}
-                    className="py-1.5 px-2 bg-surface-raised hover:bg-surface-raised border border-border rounded-lg text-xs font-bold text-muted transition-colors"
+                    className="py-2.5 px-2 bg-surface-raised hover:bg-surface-raised border border-border rounded-lg text-xs font-bold text-muted transition-colors min-h-[44px] flex items-center justify-center"
                   >
                     +{amt >= 1000 ? `${amt / 1000}k` : amt}
                   </button>
                 ))}
                 <button
                   onClick={handleMaxXp}
-                  className="py-1.5 px-2 bg-surface-raised hover:bg-surface-raised border border-border/60 rounded-lg text-xs font-black text-foreground transition-colors uppercase tracking-wider"
+                  className="py-2.5 px-2 bg-surface-raised hover:bg-surface-raised border border-border/60 rounded-lg text-xs font-black text-foreground transition-colors uppercase tracking-wider min-h-[44px] flex items-center justify-center"
                 >
                   Max
                 </button>
@@ -975,7 +982,7 @@ export function TeamPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setGiveXpPkm(null)}
-                  className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors"
+                  className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors min-h-[44px]"
                 >
                   Cancel
                 </button>
@@ -987,7 +994,7 @@ export function TeamPage() {
                     }
                   }}
                   disabled={!xpAmountInput || parseInt(xpAmountInput, 10) <= 0 || distributeXpMutation.isPending}
-                  className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors shadow-lg shadow-glow disabled:opacity-50"
+                  className="flex-1 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors shadow-lg shadow-glow disabled:opacity-50 min-h-[44px]"
                 >
                   {distributeXpMutation.isPending ? 'Giving XP...' : 'Give XP'}
                 </button>

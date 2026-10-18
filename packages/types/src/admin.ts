@@ -204,3 +204,84 @@ export interface AdminUserDetailDto {
   recentAuditLogs: AuditLogDto[];
 }
 
+export const balanceSectionParamSchema = z.object({
+  section: z.enum([
+    'battle',
+    'catch',
+    'exploration',
+    'progression',
+    'economy',
+    'limits',
+    'arena',
+    'rank',
+    'tower',
+    'rift',
+  ]),
+});
+
+export const balanceDraftInputSchema = z.object({
+  values: z.record(z.any()),
+});
+
+export const balancePublishInputSchema = z.object({
+  reason: z.string().trim().min(5, 'Reason must be at least 5 characters'),
+  confirmExtreme: z.boolean().optional(),
+});
+
+export const balanceRollbackInputSchema = z.object({
+  targetVersion: z.number().int().positive('Target version must be a positive integer'),
+  reason: z.string().trim().min(5, 'Reason must be at least 5 characters'),
+});
+
+export const balanceResetInputSchema = z.object({
+  reason: z.string().trim().min(5, 'Reason must be at least 5 characters'),
+});
+
+export type BalanceDraftInput = z.infer<typeof balanceDraftInputSchema>;
+export type BalancePublishInput = z.infer<typeof balancePublishInputSchema>;
+export type BalanceRollbackInput = z.infer<typeof balanceRollbackInputSchema>;
+export type BalanceResetInput = z.infer<typeof balanceResetInputSchema>;
+
+export interface BalanceSectionDiffItem {
+  field: string;
+  defaultValue: any;
+  currentActiveValue: any;
+  draftValue: any;
+  percentChange?: number;
+  isExtreme?: boolean;
+  description?: string;
+}
+
+export interface BalancePreviewResultDto {
+  section: string;
+  hasChanges: boolean;
+  hasExtremeChanges: boolean;
+  warnings: string[];
+  diffs: BalanceSectionDiffItem[];
+}
+
+export interface BalanceSectionOverviewDto {
+  section: string;
+  version: number;
+  status: 'draft' | 'active' | 'archived';
+  defaults: Record<string, any>;
+  activeOverrides: Record<string, any>;
+  effectiveValues: Record<string, any>;
+  draftValues: Record<string, any> | null;
+  publishedAt?: string | null;
+  publishedBy?: string | null;
+}
+
+export interface BalanceConfigHistoryItemDto {
+  id: string;
+  section: string;
+  version: number;
+  status: string;
+  values: Record<string, any>;
+  reason?: string | null;
+  createdBy?: string | null;
+  publishedBy?: string | null;
+  publishedAt?: string | null;
+  createdAt: string;
+}
+

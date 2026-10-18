@@ -1,7 +1,10 @@
 import { useState, useMemo } from 'react';
 import {
   useAdminShopItems,
+  useCreateShopItem,
   useUpdateShopItem,
+  useArchiveShopItem,
+  useUnarchiveShopItem,
   useBulkPriceUpdate,
   useShopPriceHistory,
   useResetShopItem,
@@ -14,9 +17,10 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import {
   ShopItemDto,
   BulkPricePreviewItem,
+  CreateShopItemInput,
   UpdateShopItemInput,
 } from '@astranox/types';
-import { SHOP_CATEGORIES } from '@astranox/constants';
+import { SHOP_CATEGORIES, ShopCategory } from '@astranox/constants';
 import {
   Store,
   Search,
@@ -28,20 +32,41 @@ import {
   AlertTriangle,
   X,
   Percent,
+  Plus,
+  Archive,
+  ArchiveRestore,
+  Zap,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { notify } from '@/lib/toast';
 
+const EFFECT_PRESETS: { type: string; label: string; sampleConfig: Record<string, unknown> }[] = [
+  { type: 'NONE', label: 'None (Standard Item)', sampleConfig: {} },
+  { type: 'POKEBALL', label: 'Poké Ball (Catch Rate)', sampleConfig: { catchMultiplier: 2.0 } },
+  { type: 'HEAL_HP', label: 'Heal HP (Amount or %)', sampleConfig: { healAmount: 60, healPercent: 0 } },
+  { type: 'HEAL_STATUS', label: 'Cure Status Condition', sampleConfig: { status: 'ALL' } },
+  { type: 'REVIVE', label: 'Revive Fainted Pokémon', sampleConfig: { reviveHpPercent: 50 } },
+  { type: 'GIVE_XP', label: 'Give Experience Points', sampleConfig: { xpAmount: 1000 } },
+  { type: 'LEVEL_UP', label: 'Level Up Pokémon', sampleConfig: { levels: 1 } },
+  { type: 'IV_MAX', label: 'Maximize Individual Values', sampleConfig: { stat: 'all' } },
+  { type: 'POTENTIAL_UP', label: 'Increase Potential Tier', sampleConfig: { guaranteeTier: 'S' } },
+  { type: 'EVOLUTION', label: 'Trigger Evolution', sampleConfig: { targetSpeciesIds: [] } },
+  { type: 'CUSTOM', label: 'Custom Scripted Effect', sampleConfig: {} },
+];
+
 export function Shop() {
   // Filters
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [enabledFilter, setEnabledFilter] = useState<'all' | 'true' | 'false'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'disabled' | 'archived'>('all');
 
   // Queries & Mutations
-  const { data: items = [], isLoading, isError, refetch } = useAdminShopItems();
+  const { data: items = [], isLoading, isError, refetch } = useAdminShopItems({ isArchived: 'all' });
+  const createMutation = useCreateShopItem();
   const updateMutation = useUpdateShopItem();
+  const archiveMutation = useArchiveShopItem();
+  const unarchiveMutation = useUnarchiveShopItem();
   const bulkMutation = useBulkPriceUpdate();
   const resetMutation = useResetShopItem();
 
@@ -49,18 +74,50 @@ export function Shop() {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   // Modals & Drawers state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ShopItemDto | null>(null);
+  const [archiveTargetItem, setArchiveTargetItem] = useState<ShopItemDto | null>(null);
+  const [restoreTargetItem, setRestoreTargetItem] = useState<ShopItemDto | null>(null);
   const [historyItemKey, setHistoryItemKey] = useState<string | null>(null);
   const [resetTargetItem, setResetTargetItem] = useState<ShopItemDto | null>(null);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
+  // Create Form State
+  const [createKey, setCreateKey] = useState('');
+  const [createName, setCreateName] = useState('');
+  const [createCategory, setCreateCategory] = useState<ShopCategory>('balls');
+  const [createDescription, setCreateDescription] = useState('');
+  const [createCurrency, setCreateCurrency] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
+  const [createPrice, setCreatePrice] = useState<number>(1000);
+  const [createSalePrice, setCreateSalePrice] = useState<number | null>(null);
+  const [createSaleStartsAt, setCreateSaleStartsAt] = useState<string | null>(null);
+  const [createSaleEndsAt, setCreateSaleEndsAt] = useState<string | null>(null);
+  const [createSpriteUrl, setCreateSpriteUrl] = useState('');
+  const [createEffectType, setCreateEffectType] = useState('NONE');
+  const [createEffectConfigStr, setCreateEffectConfigStr] = useState('{}');
+  const [createMinLevel, setCreateMinLevel] = useState('');
+  const [createDailyLimit, setCreateDailyLimit] = useState('');
+  const [createStock, setCreateStock] = useState('');
+  const [createSortOrder, setCreateSortOrder] = useState('0');
+  const [createEnabled, setCreateEnabled] = useState(true);
+  const [createReason, setCreateReason] = useState('');
+
   // Edit item form state
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState<string>('balls');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCurrency, setEditCurrency] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
+  const [editSpriteUrl, setEditSpriteUrl] = useState('');
+  const [editEffectType, setEditEffectType] = useState('NONE');
+  const [editEffectConfigStr, setEditEffectConfigStr] = useState('{}');
   const [editPrice, setEditPrice] = useState<number>(0);
   const [editSalePrice, setEditSalePrice] = useState<number | null>(null);
   const [editSaleStartsAt, setEditSaleStartsAt] = useState<string | null>(null);
   const [editSaleEndsAt, setEditSaleEndsAt] = useState<string | null>(null);
+  const [editMinLevel, setEditMinLevel] = useState<string>('');
   const [editDailyLimit, setEditDailyLimit] = useState<string>('');
   const [editStock, setEditStock] = useState<string>('');
+  const [editSortOrder, setEditSortOrder] = useState<string>('0');
   const [editEnabled, setEditEnabled] = useState<boolean>(true);
   const [editReason, setEditReason] = useState<string>('');
   const [editConfirmExtreme, setEditConfirmExtreme] = useState<boolean>(false);
@@ -85,29 +142,117 @@ export function Shop() {
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
       }
-      if (enabledFilter === 'true' && !item.enabled) return false;
-      if (enabledFilter === 'false' && item.enabled) return false;
+      if (statusFilter === 'active' && (item.isArchived || !item.enabled)) return false;
+      if (statusFilter === 'disabled' && (item.isArchived || item.enabled)) return false;
+      if (statusFilter === 'archived' && !item.isArchived) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         return (
           item.name.toLowerCase().includes(q) ||
           item.key.toLowerCase().includes(q) ||
-          item.category.toLowerCase().includes(q)
+          item.category.toLowerCase().includes(q) ||
+          (item.effectType && item.effectType.toLowerCase().includes(q))
         );
       }
       return true;
     });
-  }, [items, selectedCategory, enabledFilter, searchQuery]);
+  }, [items, selectedCategory, statusFilter, searchQuery]);
+
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    setCreateKey('');
+    setCreateName('');
+    setCreateCategory('balls');
+    setCreateDescription('');
+    setCreateCurrency('astralCoins');
+    setCreatePrice(1000);
+    setCreateSalePrice(null);
+    setCreateSaleStartsAt(null);
+    setCreateSaleEndsAt(null);
+    setCreateSpriteUrl('');
+    setCreateEffectType('NONE');
+    setCreateEffectConfigStr('{}');
+    setCreateMinLevel('');
+    setCreateDailyLimit('');
+    setCreateStock('');
+    setCreateSortOrder('0');
+    setCreateEnabled(true);
+    setCreateReason('');
+    setIsCreateModalOpen(true);
+  };
+
+  // Submit Create Item
+  const handleSaveCreate = async () => {
+    if (!createKey.trim()) {
+      notify.error('Item key is required');
+      return;
+    }
+    if (!createName.trim()) {
+      notify.error('Item name is required');
+      return;
+    }
+    if (createReason.trim().length < 5) {
+      notify.error('Audit reason must be at least 5 characters');
+      return;
+    }
+
+    let parsedConfig: Record<string, unknown> | null = null;
+    if (createEffectType !== 'NONE' && createEffectConfigStr.trim()) {
+      try {
+        parsedConfig = JSON.parse(createEffectConfigStr);
+      } catch {
+        notify.error('Invalid JSON for effect configuration');
+        return;
+      }
+    }
+
+    const payload: CreateShopItemInput = {
+      key: createKey.trim().toLowerCase(),
+      name: createName.trim(),
+      category: createCategory,
+      description: createDescription.trim(),
+      currency: createCurrency,
+      price: createPrice,
+      salePrice: createSalePrice,
+      saleStartsAt: createSaleStartsAt,
+      saleEndsAt: createSaleEndsAt,
+      enabled: createEnabled,
+      minLevel: createMinLevel ? parseInt(createMinLevel, 10) : null,
+      dailyLimitPerUser: createDailyLimit ? parseInt(createDailyLimit, 10) : null,
+      totalStock: createStock ? parseInt(createStock, 10) : null,
+      sortOrder: parseInt(createSortOrder, 10) || 0,
+      spriteUrl: createSpriteUrl.trim() || null,
+      effectType: createEffectType === 'NONE' ? null : createEffectType,
+      effectConfig: parsedConfig,
+      reason: createReason.trim(),
+    };
+
+    try {
+      await createMutation.mutateAsync(payload);
+      setIsCreateModalOpen(false);
+    } catch {
+      // Handled by mutation onError
+    }
+  };
 
   // Open Edit Modal
   const handleOpenEdit = (item: ShopItemDto) => {
     setEditingItem(item);
+    setEditName(item.name);
+    setEditCategory(item.category);
+    setEditDescription(item.description);
+    setEditCurrency(item.currency);
+    setEditSpriteUrl(item.spriteUrl || '');
+    setEditEffectType(item.effectType || 'NONE');
+    setEditEffectConfigStr(item.effectConfig ? JSON.stringify(item.effectConfig, null, 2) : '{}');
     setEditPrice(item.price);
     setEditSalePrice(item.salePrice);
     setEditSaleStartsAt(item.saleStartsAt);
     setEditSaleEndsAt(item.saleEndsAt);
+    setEditMinLevel(item.minLevel != null ? String(item.minLevel) : '');
     setEditDailyLimit(item.dailyLimitPerUser != null ? String(item.dailyLimitPerUser) : '');
     setEditStock(item.totalStock != null ? String(item.totalStock) : '');
+    setEditSortOrder(String(item.sortOrder));
     setEditEnabled(item.enabled);
     setEditReason('');
     setEditConfirmExtreme(false);
@@ -121,14 +266,33 @@ export function Shop() {
       return;
     }
 
+    let parsedConfig: Record<string, unknown> | null = null;
+    if (editEffectType !== 'NONE' && editEffectConfigStr.trim()) {
+      try {
+        parsedConfig = JSON.parse(editEffectConfigStr);
+      } catch {
+        notify.error('Invalid JSON for effect configuration');
+        return;
+      }
+    }
+
     const payload: UpdateShopItemInput = {
+      name: editName.trim(),
+      category: editCategory,
+      description: editDescription.trim(),
+      currency: editCurrency,
+      spriteUrl: editSpriteUrl.trim() || null,
+      effectType: editEffectType === 'NONE' ? null : editEffectType,
+      effectConfig: parsedConfig,
       price: editPrice,
       salePrice: editSalePrice,
       saleStartsAt: editSaleStartsAt,
       saleEndsAt: editSaleEndsAt,
       enabled: editEnabled,
+      minLevel: editMinLevel ? parseInt(editMinLevel, 10) : null,
       dailyLimitPerUser: editDailyLimit ? parseInt(editDailyLimit, 10) : null,
       totalStock: editStock ? parseInt(editStock, 10) : null,
+      sortOrder: parseInt(editSortOrder, 10) || 0,
       reason: editReason.trim(),
       confirmExtreme: editConfirmExtreme,
     };
@@ -263,7 +427,14 @@ export function Shop() {
             )}
           </div>
           <div>
-            <span className="text-xs font-black text-foreground block">{item.name}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-foreground block">{item.name}</span>
+              {item.isArchived && (
+                <Badge variant="warning" className="text-[8px] py-0 px-1 font-bold">
+                  Archived
+                </Badge>
+              )}
+            </div>
             <span className="text-[10px] text-muted font-mono">{item.key}</span>
           </div>
         </div>
@@ -274,7 +445,7 @@ export function Shop() {
       accessorKey: 'category',
       sortable: true,
       cell: (item) => (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           <span className="text-xs font-bold text-foreground capitalize">{item.category}</span>
           <span className="text-[10px] text-muted">
             {item.currency === 'astralCoins' ? 'Astral Coins' : 'Infinity Coins'}
@@ -307,12 +478,28 @@ export function Shop() {
       ),
     },
     {
+      header: 'Effect',
+      accessorKey: 'effectType',
+      cell: (item: ShopItemDto) => (
+        item.effectType ? (
+          <div className="flex items-center gap-1">
+            <Badge variant="ink" className="text-[9px] font-mono py-0.5 px-1.5 bg-surface-raised border-border">
+              <Zap className="w-2.5 h-2.5 mr-1" />
+              {item.effectType}
+            </Badge>
+          </div>
+        ) : (
+          <span className="text-[10px] text-subtle font-mono">None</span>
+        )
+      ),
+    },
+    {
       header: 'Limits & Stock',
       accessorKey: 'dailyLimitPerUser',
       cell: (item: ShopItemDto) => (
         <div className="text-xs">
           <span className="text-muted block text-[10px]">
-            Daily Limit:{' '}
+            Daily:{' '}
             <strong className="text-foreground">
               {item.dailyLimitPerUser != null ? item.dailyLimitPerUser : 'Unlimited'}
             </strong>
@@ -329,14 +516,23 @@ export function Shop() {
     {
       header: 'Status',
       accessorKey: 'enabled',
-      cell: (item: ShopItemDto) => (
-        <Badge
-          variant={item.enabled ? 'success' : 'default'}
-          className="text-[10px] font-bold py-0.5"
-        >
-          {item.enabled ? 'Active' : 'Disabled'}
-        </Badge>
-      ),
+      cell: (item: ShopItemDto) => {
+        if (item.isArchived) {
+          return (
+            <Badge variant="warning" className="text-[10px] font-bold py-0.5">
+              Archived
+            </Badge>
+          );
+        }
+        return (
+          <Badge
+            variant={item.enabled ? 'success' : 'default'}
+            className="text-[10px] font-bold py-0.5"
+          >
+            {item.enabled ? 'Active' : 'Disabled'}
+          </Badge>
+        );
+      },
     },
     {
       header: 'Actions',
@@ -346,11 +542,28 @@ export function Shop() {
         <div className="flex items-center justify-end gap-1.5">
           <button
             onClick={() => handleOpenEdit(item)}
-            title="Edit Item Pricing & Limits"
+            title="Edit Item Details & Pricing"
             className="p-1.5 rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
+          {item.isArchived ? (
+            <button
+              onClick={() => setRestoreTargetItem(item)}
+              title="Restore Item"
+              className="p-1.5 rounded-lg bg-surface-raised border border-border text-foreground hover:bg-surface transition-colors"
+            >
+              <ArchiveRestore className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              onClick={() => setArchiveTargetItem(item)}
+              title="Archive Item"
+              className="p-1.5 rounded-lg bg-surface-raised border border-border text-muted hover:text-danger transition-colors"
+            >
+              <Archive className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             onClick={() => setHistoryItemKey(item.key)}
             title="View Price History"
@@ -373,38 +586,56 @@ export function Shop() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="p-6 bg-surface border border-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 bg-surface border border-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-black text-foreground tracking-tight">Pokémart Management</h1>
+            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Pokémart Management</h1>
             <Badge variant="ink" className="text-[10px] font-black uppercase">
-              Live Economy
+              Zero-Deploy Catalog
             </Badge>
           </div>
           <p className="text-xs text-muted">
-            Configure live catalog prices, schedule promotional sales, enforce daily player limits, and inspect audit histories.
+            Create items, configure functional effects, schedule promotional sales, enforce player limits, or archive catalog entries.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
+            onClick={handleOpenCreate}
+            className="flex items-center justify-center gap-1.5 text-xs min-h-[44px] w-full sm:w-auto touch-manipulation"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Item</span>
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => setIsBulkModalOpen(true)}
             disabled={selectedKeys.length === 0}
-            className="flex items-center gap-1.5 text-xs"
+            className="flex items-center justify-center gap-1.5 text-xs min-h-[44px] w-full sm:w-auto touch-manipulation"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Bulk Price Update ({selectedKeys.length})</span>
+            <span>Bulk Update ({selectedKeys.length})</span>
           </Button>
         </div>
       </div>
 
       {/* Category Pills & Filters */}
-      <div className="p-4 bg-surface border border-border rounded-2xl space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="p-3 sm:p-4 bg-surface border border-border rounded-2xl space-y-3 sm:space-y-4">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-3 py-2 min-h-[38px] rounded-xl text-xs font-bold transition-colors touch-manipulation ${
+              selectedCategory === 'all'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-surface-raised border border-border text-muted hover:text-foreground'
+            }`}
+          >
+            All Categories
+          </button>
           {SHOP_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+              className={`px-3 py-2 min-h-[38px] rounded-xl text-xs font-bold transition-colors touch-manipulation ${
                 selectedCategory === cat.id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-surface-raised border border-border text-muted hover:text-foreground'
@@ -422,21 +653,22 @@ export function Shop() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search items by name or key..."
-              className="w-full pl-9 pr-4 py-2 bg-background border border-border rounded-xl text-xs text-foreground placeholder:text-muted focus:outline-hidden focus:border-foreground"
+              placeholder="Search items by name, key, category, or effect..."
+              className="w-full pl-9 pr-4 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground placeholder:text-muted focus:outline-hidden focus:border-foreground touch-manipulation"
             />
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter className="w-4 h-4 text-muted shrink-0" />
             <select
-              value={enabledFilter}
-              onChange={(e) => setEnabledFilter(e.target.value as any)}
-              className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="flex-1 sm:flex-initial px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
             >
-              <option value="all">All Statuses</option>
-              <option value="true">Active Only</option>
-              <option value="false">Disabled Only</option>
+              <option value="all">All Items</option>
+              <option value="active">Active Only</option>
+              <option value="disabled">Disabled Only</option>
+              <option value="archived">Archived Only</option>
             </select>
           </div>
         </div>
@@ -452,56 +684,440 @@ export function Shop() {
         emptyMessage="No Pokémart items found matching your filters."
       />
 
+      {/* Create Item Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-foreground">Create Pokémart Item</h3>
+                <p className="text-xs text-muted">Add a new item to the live catalog with no deploy needed.</p>
+              </div>
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
+              {/* Item Identity */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Item Key (Slug) <span className="text-muted font-normal">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={createKey}
+                    onChange={(e) => setCreateKey(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                    placeholder="e.g. ultra-ball"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground font-mono focus:outline-hidden"
+                  />
+                  <span className="text-[10px] text-muted">Lowercase letters, numbers, hyphens only.</span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Display Name <span className="text-muted font-normal">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={createName}
+                    onChange={(e) => setCreateName(e.target.value)}
+                    placeholder="e.g. Ultra Ball"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Category & Currency */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Category</label>
+                  <select
+                    value={createCategory}
+                    onChange={(e) => setCreateCategory(e.target.value as ShopCategory)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  >
+                    {SHOP_CATEGORIES.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Currency</label>
+                  <select
+                    value={createCurrency}
+                    onChange={(e) => setCreateCurrency(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  >
+                    <option value="astralCoins">Astral Coins</option>
+                    <option value="infinityCoins">Infinity Coins</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Description</label>
+                <textarea
+                  value={createDescription}
+                  onChange={(e) => setCreateDescription(e.target.value)}
+                  rows={2}
+                  placeholder="Describes how the item functions in the Astranox world..."
+                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden resize-none"
+                />
+              </div>
+
+              {/* Sprite URL & Preview */}
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Sprite Image URL (Optional)</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={createSpriteUrl}
+                    onChange={(e) => setCreateSpriteUrl(e.target.value)}
+                    placeholder="https://.../sprite.webp"
+                    className="flex-1 px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                  <div className="w-10 h-10 rounded-xl bg-surface-raised border border-border flex items-center justify-center shrink-0 overflow-hidden">
+                    {createSpriteUrl ? (
+                      <img src={createSpriteUrl} alt="Preview" className="w-7 h-7 object-contain" />
+                    ) : (
+                      <Store className="w-5 h-5 text-muted" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Functional Effect */}
+              <div className="pt-2 border-t border-border/60 space-y-3">
+                <span className="block text-xs font-black text-foreground uppercase tracking-wider">
+                  Functional Item Effect
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-foreground mb-1">Effect Type</label>
+                    <select
+                      value={createEffectType}
+                      onChange={(e) => {
+                        const newType = e.target.value;
+                        setCreateEffectType(newType);
+                        const preset = EFFECT_PRESETS.find((p) => p.type === newType);
+                        if (preset) {
+                          setCreateEffectConfigStr(JSON.stringify(preset.sampleConfig, null, 2));
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                    >
+                      {EFFECT_PRESETS.map((p) => (
+                        <option key={p.type} value={p.type}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-foreground mb-1">
+                      Effect Config (JSON)
+                    </label>
+                    <textarea
+                      value={createEffectConfigStr}
+                      onChange={(e) => setCreateEffectConfigStr(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Base Price & Sale */}
+              <div className="pt-2 border-t border-border/60 space-y-3">
+                <span className="block text-xs font-black text-foreground uppercase tracking-wider">
+                  Pricing & Promotions
+                </span>
+                <PriceInput
+                  label="Base Price (Coins)"
+                  value={createPrice}
+                  onChange={setCreatePrice}
+                  currency={createCurrency}
+                  helperText="Standard catalog price."
+                />
+
+                <PriceInput
+                  label="Sale Price (Optional)"
+                  value={createSalePrice ?? 0}
+                  onChange={(val) => setCreateSalePrice(val > 0 ? val : null)}
+                  referencePrice={createPrice}
+                  currency={createCurrency}
+                  helperText="Promotional price during sale window."
+                />
+
+                <DateRangeField
+                  label="Sale Schedule Window (Optional)"
+                  startDate={createSaleStartsAt}
+                  endDate={createSaleEndsAt}
+                  onChange={(start, end) => {
+                    setCreateSaleStartsAt(start);
+                    setCreateSaleEndsAt(end);
+                  }}
+                  helperText="Sale applies only while within this window."
+                />
+              </div>
+
+              {/* Limits and Sort */}
+              <div className="pt-2 border-t border-border/60 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Min Level</label>
+                  <input
+                    type="text"
+                    value={createMinLevel}
+                    onChange={(e) => setCreateMinLevel(e.target.value.replace(/\D/g, ''))}
+                    placeholder="1"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Daily Limit</label>
+                  <input
+                    type="text"
+                    value={createDailyLimit}
+                    onChange={(e) => setCreateDailyLimit(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Empty=None"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Total Stock</label>
+                  <input
+                    type="text"
+                    value={createStock}
+                    onChange={(e) => setCreateStock(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Empty=Inf"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Sort Order</label>
+                  <input
+                    type="text"
+                    value={createSortOrder}
+                    onChange={(e) => setCreateSortOrder(e.target.value.replace(/\D/g, ''))}
+                    placeholder="0"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Enabled */}
+              <div className="flex items-center justify-between p-3 bg-surface-raised border border-border rounded-xl">
+                <div>
+                  <span className="text-xs font-bold text-foreground block">Enabled in Pokémart</span>
+                  <span className="text-[10px] text-muted">Make available immediately for players</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={createEnabled}
+                  onChange={(e) => setCreateEnabled(e.target.checked)}
+                  className="w-4 h-4 rounded border-border bg-surface text-foreground focus:ring-0 cursor-pointer"
+                />
+              </div>
+
+              {/* Audit Reason */}
+              <ReasonField
+                value={createReason}
+                onChange={setCreateReason}
+                label="Audit Reason (Mandatory)"
+                helperText="Required log entry explaining the creation of this catalog item."
+              />
+            </div>
+
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+              <Button
+                variant="outline"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveCreate}
+                disabled={
+                  createMutation.isPending ||
+                  !createKey.trim() ||
+                  !createName.trim() ||
+                  createReason.trim().length < 5
+                }
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
+              >
+                {createMutation.isPending ? 'Creating...' : 'Create Item'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit Item Modal */}
       {editingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-foreground">Edit Item: {editingItem.name}</h3>
                 <span className="text-[10px] text-muted font-mono">{editingItem.key}</span>
               </div>
               <button
                 onClick={() => setEditingItem(null)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto">
-              {/* Base Price */}
-              <PriceInput
-                label="Base Price (Coins)"
-                value={editPrice}
-                onChange={setEditPrice}
-                referencePrice={editingItem.price}
-                helperText="Standard non-sale catalog price."
-              />
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
+              {/* Basic Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Display Name</label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Category</label>
+                  <select
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  >
+                    {SHOP_CATEGORIES.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-              {/* Extreme Change Alert */}
-              {isEditExtreme && (
-                <div className="p-3 bg-surface-raised border border-warning/60 rounded-xl flex items-start gap-3">
-                  <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
-                  <div className="text-xs">
-                    <strong className="text-foreground block">Significant Price Shift</strong>
-                    <span className="text-muted">
-                      This change alters the item cost by more than 50%. Please confirm below.
-                    </span>
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Description</label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden resize-none"
+                />
+              </div>
+
+              {/* Sprite URL & Preview */}
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Sprite Image URL</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={editSpriteUrl}
+                    onChange={(e) => setEditSpriteUrl(e.target.value)}
+                    placeholder="https://.../sprite.webp"
+                    className="flex-1 px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                  <div className="w-10 h-10 rounded-xl bg-surface-raised border border-border flex items-center justify-center shrink-0 overflow-hidden">
+                    {editSpriteUrl ? (
+                      <img src={editSpriteUrl} alt="Preview" className="w-7 h-7 object-contain" />
+                    ) : (
+                      <Store className="w-5 h-5 text-muted" />
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* Sale Configuration */}
+              {/* Functional Effect */}
               <div className="pt-2 border-t border-border/60 space-y-3">
                 <span className="block text-xs font-black text-foreground uppercase tracking-wider">
-                  Promotional Sale Window
+                  Functional Item Effect
                 </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-foreground mb-1">Effect Type</label>
+                    <select
+                      value={editEffectType}
+                      onChange={(e) => {
+                        const newType = e.target.value;
+                        setEditEffectType(newType);
+                        const preset = EFFECT_PRESETS.find((p) => p.type === newType);
+                        if (preset && (!editEffectConfigStr || editEffectConfigStr === '{}')) {
+                          setEditEffectConfigStr(JSON.stringify(preset.sampleConfig, null, 2));
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                    >
+                      {EFFECT_PRESETS.map((p) => (
+                        <option key={p.type} value={p.type}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-foreground mb-1">
+                      Effect Config (JSON)
+                    </label>
+                    <textarea
+                      value={editEffectConfigStr}
+                      onChange={(e) => setEditEffectConfigStr(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Base Price */}
+              <div className="pt-2 border-t border-border/60 space-y-3">
+                <span className="block text-xs font-black text-foreground uppercase tracking-wider">
+                  Pricing & Sale
+                </span>
+                <PriceInput
+                  label="Base Price (Coins)"
+                  value={editPrice}
+                  onChange={setEditPrice}
+                  referencePrice={editingItem.price}
+                  currency={editCurrency}
+                  helperText="Standard non-sale catalog price."
+                />
+
+                {/* Extreme Change Alert */}
+                {isEditExtreme && (
+                  <div className="p-3 bg-surface-raised border border-warning/60 rounded-xl flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+                    <div className="text-xs">
+                      <strong className="text-foreground block">Significant Price Shift</strong>
+                      <span className="text-muted">
+                        This change alters the item cost by more than 50%. Please confirm below.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sale Configuration */}
                 <PriceInput
                   label="Sale Price (Optional)"
                   value={editSalePrice ?? 0}
                   onChange={(val) => setEditSalePrice(val > 0 ? val : null)}
                   referencePrice={editPrice}
+                  currency={editCurrency}
                   helperText="Leave 0 or empty for no active discount."
                 />
 
@@ -517,29 +1133,45 @@ export function Shop() {
                 />
               </div>
 
-              {/* Limits and Stock */}
-              <div className="pt-2 border-t border-border/60 grid grid-cols-2 gap-3">
+              {/* Limits, Sort & Stock */}
+              <div className="pt-2 border-t border-border/60 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Daily Limit / User
-                  </label>
+                  <label className="block text-xs font-bold text-foreground mb-1">Min Level</label>
                   <input
                     type="text"
-                    value={editDailyLimit}
-                    onChange={(e) => setEditDailyLimit(e.target.value.replace(/\D/g, ''))}
-                    placeholder="Empty = Unlimited"
+                    value={editMinLevel}
+                    onChange={(e) => setEditMinLevel(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Empty=None"
                     className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Total Global Stock
-                  </label>
+                  <label className="block text-xs font-bold text-foreground mb-1">Daily Limit</label>
+                  <input
+                    type="text"
+                    value={editDailyLimit}
+                    onChange={(e) => setEditDailyLimit(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Empty=Unlimited"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Total Stock</label>
                   <input
                     type="text"
                     value={editStock}
                     onChange={(e) => setEditStock(e.target.value.replace(/\D/g, ''))}
-                    placeholder="Empty = Infinite"
+                    placeholder="Empty=Infinite"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Sort Order</label>
+                  <input
+                    type="text"
+                    value={editSortOrder}
+                    onChange={(e) => setEditSortOrder(e.target.value.replace(/\D/g, ''))}
+                    placeholder="0"
                     className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
                   />
                 </div>
@@ -581,11 +1213,11 @@ export function Shop() {
               )}
             </div>
 
-            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setEditingItem(null)}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 Cancel
               </Button>
@@ -596,7 +1228,7 @@ export function Shop() {
                   editReason.trim().length < 5 ||
                   (isEditExtreme && !editConfirmExtreme)
                 }
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
@@ -607,9 +1239,10 @@ export function Shop() {
 
       {/* Bulk Price Update Modal */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border border-border rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-foreground">
                   Bulk Price Update ({selectedKeys.length} items)
@@ -618,18 +1251,19 @@ export function Shop() {
               </div>
               <button
                 onClick={() => setIsBulkModalOpen(false)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto">
-              <div className="grid grid-cols-3 gap-2">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setBulkMode('percent_inc')}
-                  className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                  className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                     bulkMode === 'percent_inc'
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -640,7 +1274,7 @@ export function Shop() {
                 <button
                   type="button"
                   onClick={() => setBulkMode('percent_dec')}
-                  className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                  className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                     bulkMode === 'percent_dec'
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -651,7 +1285,7 @@ export function Shop() {
                 <button
                   type="button"
                   onClick={() => setBulkMode('set')}
-                  className={`p-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                  className={`p-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-colors touch-manipulation flex items-center justify-center ${
                     bulkMode === 'set'
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-surface-raised border-border text-muted hover:text-foreground'
@@ -762,11 +1396,11 @@ export function Shop() {
               )}
             </div>
 
-            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setIsBulkModalOpen(false)}
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 Cancel
               </Button>
@@ -777,7 +1411,7 @@ export function Shop() {
                   !bulkPreviewItems ||
                   (hasExtremeBulkChange && !bulkConfirmExtreme)
                 }
-                className="text-xs"
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation"
               >
                 {bulkMutation.isPending ? 'Applying...' : 'Apply Bulk Update'}
               </Button>
@@ -789,21 +1423,22 @@ export function Shop() {
       {/* Price History Drawer */}
       {historyItemKey && (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-background/80 backdrop-blur-xs">
-          <div className="bg-surface border-l border-border h-full w-full max-w-md shadow-2xl flex flex-col">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+          <div className="bg-surface border-l border-border h-full w-full max-w-md shadow-2xl flex flex-col pt-safe pb-safe">
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-foreground">Price Audit History</h3>
                 <span className="text-[10px] text-muted font-mono">{historyItemKey}</span>
               </div>
               <button
                 onClick={() => setHistoryItemKey(null)}
-                className="p-1 rounded-lg text-muted hover:text-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation"
+                aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 flex-1 overflow-y-auto space-y-3">
+            <div className="p-4 sm:p-5 flex-1 overflow-y-auto space-y-3">
               {isHistoryLoading ? (
                 <div className="py-12 text-center text-xs text-muted">Loading history...</div>
               ) : priceHistory.length === 0 ? (
@@ -845,11 +1480,11 @@ export function Shop() {
               )}
             </div>
 
-            <div className="p-4 border-t border-border bg-surface">
+            <div className="p-3 sm:p-4 border-t border-border bg-surface">
               <Button
                 variant="outline"
                 onClick={() => setHistoryItemKey(null)}
-                className="w-full text-xs"
+                className="w-full text-xs min-h-[44px] touch-manipulation"
               >
                 Close History
               </Button>
@@ -857,6 +1492,37 @@ export function Shop() {
           </div>
         </div>
       )}
+
+      {/* Confirm Archive Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(archiveTargetItem)}
+        onClose={() => setArchiveTargetItem(null)}
+        onConfirm={async (reason) => {
+          if (!archiveTargetItem) return;
+          await archiveMutation.mutateAsync({ key: archiveTargetItem.key, data: { reason } });
+          setArchiveTargetItem(null);
+        }}
+        title={`Archive "${archiveTargetItem?.name}"?`}
+        description="This item will be removed from the public Pokémart catalog and hidden from players. Existing player inventories remain unaffected."
+        confirmLabel="Archive Item"
+        isDestructive={true}
+        isLoading={archiveMutation.isPending}
+      />
+
+      {/* Confirm Restore Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(restoreTargetItem)}
+        onClose={() => setRestoreTargetItem(null)}
+        onConfirm={async (reason) => {
+          if (!restoreTargetItem) return;
+          await unarchiveMutation.mutateAsync({ key: restoreTargetItem.key, data: { reason } });
+          setRestoreTargetItem(null);
+        }}
+        title={`Restore "${restoreTargetItem?.name}"?`}
+        description="This item will be restored and made available in the Pokémart catalog again."
+        confirmLabel="Restore Item"
+        isLoading={unarchiveMutation.isPending}
+      />
 
       {/* Confirm Reset Dialog */}
       <ConfirmDialog

@@ -8,6 +8,9 @@ import { AdminDashboardController } from './admin-dashboard.controller';
 import { AdminAuditController } from './admin-audit.controller';
 import { AdminFlagsController } from './admin-flags.controller';
 import { AdminAnnouncementsController } from './admin-announcements.controller';
+import { AdminBalanceController } from '../balance/admin-balance.controller';
+import { AdminArenaController } from './admin-arena.controller';
+import { AdminDungeonController } from './admin-dungeon.controller';
 
 import { requireAuth, requireAdmin, requireStaff } from '../../core/middleware/require-auth';
 import { requireIdempotency } from '../../core/middleware/idempotency';
@@ -15,15 +18,30 @@ import { validate } from '../../core/middleware/validate';
 import {
   createEventSchema,
   updateEventSchema,
+  archiveEventSchema,
+  createShopItemSchema,
   updateShopItemSchema,
+  archiveShopItemSchema,
   bulkPriceUpdateSchema,
   resetShopItemSchema,
+  createArenaTrainerSchema,
+  updateArenaTrainerSchema,
+  archiveArenaTrainerSchema,
+  updateRankDefinitionSchema,
+  createDungeonFloorRuleSchema,
+  updateDungeonFloorRuleSchema,
+  archiveDungeonFloorRuleSchema,
   banUserSchema,
   unbanUserSchema,
   adminGrantCurrencySchema,
   adminGrantItemSchema,
   updateFeatureFlagSchema,
   createAnnouncementSchema,
+  balanceSectionParamSchema,
+  balanceDraftInputSchema,
+  balancePublishInputSchema,
+  balanceRollbackInputSchema,
+  balanceResetInputSchema,
 } from '@astranox/types';
 import { addMoneySchema, addPokemonSchema, editPokemonSchema } from './admin.schema';
 
@@ -37,6 +55,9 @@ const dashboardController = container.resolve(AdminDashboardController);
 const auditController = container.resolve(AdminAuditController);
 const flagsController = container.resolve(AdminFlagsController);
 const announcementsController = container.resolve(AdminAnnouncementsController);
+const balanceController = container.resolve(AdminBalanceController);
+const arenaController = container.resolve(AdminArenaController);
+const dungeonController = container.resolve(AdminDungeonController);
 
 // All admin routes require authenticated session
 router.use(requireAuth);
@@ -68,7 +89,26 @@ router.get('/economy', requireAdmin, dashboardController.getEconomy);
 
 // Pokémart Shop Management
 router.get('/shop/items', requireAdmin, shopController.getItems);
+router.post(
+  '/shop/items',
+  requireAdmin,
+  requireIdempotency(),
+  validate(createShopItemSchema),
+  shopController.createItem
+);
 router.patch('/shop/items/:key', requireAdmin, validate(updateShopItemSchema), shopController.updateItem);
+router.delete(
+  '/shop/items/:key',
+  requireAdmin,
+  validate(archiveShopItemSchema),
+  shopController.archiveItem
+);
+router.post(
+  '/shop/items/:key/restore',
+  requireAdmin,
+  validate(archiveShopItemSchema),
+  shopController.unarchiveItem
+);
 router.post('/shop/items/bulk-price', requireAdmin, validate(bulkPriceUpdateSchema), shopController.bulkPrice);
 router.get('/shop/items/:key/history', requireAdmin, shopController.getHistory);
 router.post('/shop/items/:key/reset', requireAdmin, validate(resetShopItemSchema), shopController.resetItem);
@@ -95,14 +135,146 @@ router.post(
 router.get('/flags', requireAdmin, flagsController.getFlags);
 router.patch('/flags/:key', requireAdmin, validate(updateFeatureFlagSchema), flagsController.updateFlag);
 
+// Balance Overrides & Management
+router.get('/balance', requireAdmin, balanceController.getAllSections);
+router.get(
+  '/balance/:section',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema }),
+  balanceController.getSection
+);
+router.put(
+  '/balance/:section/draft',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema, body: balanceDraftInputSchema }),
+  balanceController.saveDraft
+);
+router.post(
+  '/balance/:section/preview',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema }),
+  balanceController.previewDraft
+);
+router.post(
+  '/balance/:section/publish',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema, body: balancePublishInputSchema }),
+  balanceController.publishDraft
+);
+router.post(
+  '/balance/:section/rollback',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema, body: balanceRollbackInputSchema }),
+  balanceController.rollback
+);
+router.post(
+  '/balance/:section/reset',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema, body: balanceResetInputSchema }),
+  balanceController.resetToDefaults
+);
+router.get(
+  '/balance/:section/history',
+  requireAdmin,
+  validate({ params: balanceSectionParamSchema }),
+  balanceController.getHistory
+);
+
 // Cache Management
 router.post('/cache/clear', requireAdmin, controller.clearCache);
 
+// Arena Trainers Management
+router.get('/arena/trainers', requireAdmin, arenaController.getTrainers);
+router.post(
+  '/arena/trainers',
+  requireAdmin,
+  requireIdempotency(),
+  validate(createArenaTrainerSchema),
+  arenaController.createTrainer
+);
+router.patch(
+  '/arena/trainers/:key',
+  requireAdmin,
+  validate(updateArenaTrainerSchema),
+  arenaController.updateTrainer
+);
+router.delete(
+  '/arena/trainers/:key',
+  requireAdmin,
+  validate(archiveArenaTrainerSchema),
+  arenaController.archiveTrainer
+);
+router.post(
+  '/arena/trainers/:key/restore',
+  requireAdmin,
+  validate(archiveArenaTrainerSchema),
+  arenaController.unarchiveTrainer
+);
+
+// Rank Definitions & Examiners Management
+router.get('/arena/ranks', requireAdmin, arenaController.getRanks);
+router.patch(
+  '/arena/ranks/:rank',
+  requireAdmin,
+  validate(updateRankDefinitionSchema),
+  arenaController.updateRank
+);
+
+// Dungeon Floors Management (Infinity Tower & Void Rifts)
+router.get('/dungeons/floors', requireAdmin, dungeonController.getFloors);
+router.post(
+  '/dungeons/floors',
+  requireAdmin,
+  requireIdempotency(),
+  validate(createDungeonFloorRuleSchema),
+  dungeonController.createFloor
+);
+router.patch(
+  '/dungeons/floors/:id',
+  requireAdmin,
+  validate(updateDungeonFloorRuleSchema),
+  dungeonController.updateFloor
+);
+router.delete(
+  '/dungeons/floors/:id',
+  requireAdmin,
+  validate(archiveDungeonFloorRuleSchema),
+  dungeonController.archiveFloor
+);
+router.post(
+  '/dungeons/floors/:id/restore',
+  requireAdmin,
+  validate(archiveDungeonFloorRuleSchema),
+  dungeonController.unarchiveFloor
+);
+
 // Events Management
 router.get('/events', requireAdmin, eventsController.getAllEvents);
-router.post('/events', requireAdmin, validate(createEventSchema), eventsController.createEvent);
-router.put('/events/:id', requireAdmin, validate(updateEventSchema), eventsController.updateEvent);
-router.delete('/events/:id', requireAdmin, eventsController.deleteEvent);
+router.post(
+  '/events',
+  requireAdmin,
+  requireIdempotency(),
+  validate(createEventSchema),
+  eventsController.createEvent
+);
+router.patch(
+  '/events/:id',
+  requireAdmin,
+  validate(updateEventSchema),
+  eventsController.updateEvent
+);
+router.delete(
+  '/events/:id',
+  requireAdmin,
+  validate(archiveEventSchema),
+  eventsController.archiveEvent
+);
+router.post(
+  '/events/:id/restore',
+  requireAdmin,
+  validate(archiveEventSchema),
+  eventsController.unarchiveEvent
+);
 
 // Legacy Species & Pokémon Grant Endpoints
 router.get('/species', requireAdmin, controller.getAllSpecies);

@@ -1,8 +1,9 @@
 import { injectable } from 'tsyringe';
 import { randomUUID } from 'crypto';
 import { BattleEngineState, BattlePokemon, MoveData, PokemonType } from '@astranox/battle-engine';
-import { calculateHpFormula, calculateStatFormula, EXPLORATION_CONSTANTS } from '@astranox/constants';
+import { calculateHpFormula, calculateStatFormula } from '@astranox/constants';
 import { CacheService } from '../../../core/services/cache.service';
+import { BalanceService } from '../../balance/balance.service';
 import { prisma } from '../../../core/db/prisma';
 import { NotFoundError } from '../../../core/errors/AppError';
 
@@ -29,7 +30,10 @@ export interface PublicBattleStateDto {
 
 @injectable()
 export class EncounterService {
-  constructor(private cache: CacheService) {}
+  constructor(
+    private cache: CacheService,
+    private balanceService: BalanceService
+  ) {}
 
   private getBattleKey(battleId: string): string {
     return `battle:${battleId}`;
@@ -208,7 +212,14 @@ export class EncounterService {
     const playerActive = playerParty.find((p) => p.currentHp > 0) || playerParty[0];
 
     // Seeded PRNG seed
-    const seed = (Date.now() ^ Math.floor(Math.random() * 1000000)) >>> 0;
+    const seed = Math.floor(Math.random() * 2147483647);
+    const explorationConfig = await this.balanceService.get('exploration');
+    const activeBalanceRecord = await prisma.balanceConfig.findFirst({
+      where: { section: 'battle', status: 'active' },
+      orderBy: { version: 'desc' },
+      select: { version: true },
+    });
+    const balanceVersion = activeBalanceRecord?.version || 1;
 
     const engineState: BattleEngineState = {
       battleId,
@@ -218,11 +229,20 @@ export class EncounterService {
       wildPokemon,
       outcome: null,
       seed,
+      balanceVersion,
     };
 
-    // Store in Redis with TTL
-    await this.cache.set(this.getBattleKey(battleId), engineState, EXPLORATION_CONSTANTS.ABANDONED_BATTLE_TTL_SECONDS);
-    await this.cache.set(this.getActiveBattleKey(userId), battleId, EXPLORATION_CONSTANTS.ABANDONED_BATTLE_TTL_SECONDS);
+    // Store in Redis with TTL from balance
+    await this.cache.set(
+      this.getBattleKey(battleId),
+      engineState,
+      explorationConfig.ABANDONED_BATTLE_TTL_SECONDS
+    );
+    await this.cache.set(
+      this.getActiveBattleKey(userId),
+      battleId,
+      explorationConfig.ABANDONED_BATTLE_TTL_SECONDS
+    );
 
     const publicState = this.toPublicBattleState(engineState);
 

@@ -55,8 +55,8 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-start sm:pt-24 justify-center sm:p-4">
-      <div className="max-w-md w-full min-h-screen sm:min-h-0 bg-surface border-0 sm:border border-border p-8 rounded-none sm:rounded-2xl shadow-2xl">
+    <div className="min-h-[100dvh] bg-background flex items-start sm:pt-24 justify-center sm:p-4">
+      <div className="max-w-md w-full min-h-[100dvh] sm:min-h-0 bg-surface border-0 sm:border border-border p-5 sm:p-8 pt-safe pb-safe rounded-none sm:rounded-2xl shadow-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black text-foreground mb-2 tracking-tight">Admin Portal</h1>
           <p className="text-xs uppercase font-bold tracking-widest text-muted">Restricted Terminal Access</p>

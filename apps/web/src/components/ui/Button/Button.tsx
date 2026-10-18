@@ -4,7 +4,7 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+  'inline-flex items-center justify-center font-bold transition-all duration-300 rounded-xl active:scale-95 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background touch-manipulation select-none',
   {
     variants: {
       variant: {
@@ -20,14 +20,20 @@ export const buttonVariants = cva(
           'bg-transparent border border-border text-foreground hover:bg-surface-raised hover:text-foreground hover:border-border',
       },
       size: {
-        sm: 'px-3 py-1.5 text-xs',
-        md: 'px-5 py-2.5 text-sm',
-        lg: 'px-8 py-3 text-base tracking-wide',
+        sm: 'min-h-[44px] min-w-[44px] px-3.5 py-2 text-xs sm:text-sm',
+        md: 'min-h-[44px] px-5 py-2.5 text-sm sm:text-base',
+        lg: 'min-h-[48px] px-8 py-3 text-base sm:text-lg tracking-wide',
+        icon: 'min-h-[44px] min-w-[44px] p-2.5',
+      },
+      fullWidth: {
+        true: 'w-full',
+        false: '',
       },
     },
     defaultVariants: {
       variant: 'primary',
       size: 'md',
+      fullWidth: false,
     },
   }
 );
@@ -44,6 +50,7 @@ export function Button({
   className,
   variant,
   size,
+  fullWidth,
   icon: Icon,
   isLoading,
   children,
@@ -65,7 +72,7 @@ export function Button({
       disabled={disabled || isLoading}
       aria-disabled={disabled || isLoading}
       aria-busy={isLoading}
-      className={cn(buttonVariants({ variant, size }), className)}
+      className={cn(buttonVariants({ variant, size, fullWidth }), className)}
       {...props}
     >
       {isLoading ? (

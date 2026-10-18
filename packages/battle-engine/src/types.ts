@@ -92,4 +92,5 @@ export interface BattleEngineState {
   wildPokemon: BattlePokemon;
   outcome: BattleOutcome;
   seed: number;
+  balanceVersion?: number;
 }

@@ -54,39 +54,39 @@ export function CreateListingPage() {
   };
 
   return (
-    <div className="flex-1 bg-background p-4 md:p-6 min-h-[calc(100vh-64px)]">
+    <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)]">
       <div className="max-w-4xl mx-auto">
         <button
           onClick={() => navigate('/marketplace')}
-          className="flex items-center gap-2 text-subtle hover:text-subtle transition-colors mb-6 font-bold"
+          className="flex items-center gap-2 text-subtle hover:text-subtle transition-colors mb-4 sm:mb-6 font-bold min-h-[44px]"
         >
           <ArrowLeft className="w-5 h-5" /> Back to Marketplace
         </button>
 
-        <h1 className="text-3xl font-black text-foreground mb-2">Create Trade Listing</h1>
-        <p className="text-muted mb-8">Offer one of your Pokémon for exchange. It will be moved to Escrow for up to 7 days.</p>
+        <h1 className="text-2xl sm:text-3xl font-black text-foreground mb-2">Create Trade Listing</h1>
+        <p className="text-sm sm:text-base text-muted mb-6 sm:mb-8">Offer one of your Pokémon for exchange. It will be moved to Escrow for up to 7 days.</p>
 
-        <div className="bg-surface rounded-3xl p-6 shadow-sm border border-border mb-8">
-          <h2 className="text-xl font-bold text-foreground mb-4">1. Select Pokémon</h2>
+        <div className="bg-surface rounded-3xl p-4 sm:p-6 shadow-sm border border-border mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">1. Select Pokémon</h2>
           
           {isLoading ? (
              <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-foreground animate-spin" /></div>
           ) : tradablePokemon.length === 0 ? (
              <div className="text-center py-12 text-subtle bg-surface-raised rounded-xl border border-border">You have no tradable Pokémon in your PC.</div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-h-[40vh] overflow-y-auto p-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 max-h-[40dvh] overflow-y-auto p-1 sm:p-2">
               {tradablePokemon.map((p: OwnedPokemonDto) => {
                 const isSelected = selectedId === p.id;
                 return (
                   <div 
                     key={p.id}
                     onClick={() => setSelectedId(p.id)}
-                    className={`relative p-4 rounded-2xl cursor-pointer border-2 transition-all flex flex-col items-center gap-2 ${ isSelected ? 'border-border bg-surface-raised shadow-sm scale-105' : 'border-border hover:border-border bg-surface' }`}
+                    className={`relative p-3 sm:p-4 rounded-2xl cursor-pointer border-2 transition-all flex flex-col items-center gap-2 ${ isSelected ? 'border-border bg-surface-raised shadow-sm scale-105' : 'border-border hover:border-border bg-surface' }`}
                   >
-                    <img src={getSpriteUrl(p.species.id)} alt={p.species.name} className="w-16 h-16 pixelated" />
+                    <img src={getSpriteUrl(p.species.id)} alt={p.species.name} className="w-14 h-14 sm:w-16 sm:h-16 pixelated" />
                     <div className="text-center">
-                      <p className="font-bold text-foreground text-sm capitalize">{p.species.name}</p>
-                      <p className="text-xs text-subtle">Lv. {p.level}</p>
+                      <p className="font-bold text-foreground text-xs sm:text-sm capitalize">{p.species.name}</p>
+                      <p className="text-[10px] sm:text-xs text-subtle">Lv. {p.level}</p>
                     </div>
                     {isSelected && (
                       <div className="absolute top-2 right-2 bg-surface-raised text-foreground rounded-full p-1">
@@ -100,13 +100,13 @@ export function CreateListingPage() {
           )}
         </div>
 
-        <div className="bg-surface rounded-3xl p-6 shadow-sm border border-border mb-8">
-          <h2 className="text-xl font-bold text-foreground mb-4">2. Optional Description</h2>
+        <div className="bg-surface rounded-3xl p-4 sm:p-6 shadow-sm border border-border mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">2. Optional Description</h2>
           <textarea 
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="What are you looking for? e.g., 'LF: Any Legendary or High Tier Dragon'"
-            className="w-full p-4 bg-surface-raised border border-border rounded-xl focus:ring-2 focus:ring-border focus:border-transparent outline-none text-foreground resize-none h-32"
+            className="w-full p-4 bg-surface-raised border border-border rounded-xl focus:ring-2 focus:ring-border focus:border-transparent outline-none text-foreground text-base sm:text-sm resize-none h-32"
           />
         </div>
 
@@ -116,11 +116,11 @@ export function CreateListingPage() {
           </div>
         )}
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pb-safe">
           <button
             onClick={handleSubmit}
             disabled={!selectedId || createListingMutation.isPending}
-            className="px-8 py-4 bg-surface-raised hover:bg-surface-raised text-foreground font-black rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-glow text-lg"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-black rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-glow text-base sm:text-lg"
           >
             {createListingMutation.isPending && <Loader2 className="w-5 h-5 animate-spin" />}
             List Pokémon on Exchange

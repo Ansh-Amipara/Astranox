@@ -327,3 +327,29 @@ pnpm build
 - **Comprehensive Screen States:** Every data-fetching screen must explicitly render loading, empty, error, and offline states.
 - **Feature Flags:** All risky or newly introduced features must be guarded behind `FeatureFlagService` and `requireFeatureFlag` middleware.
 
+---
+
+## 20. Mobile-First Responsive & Touch Architecture
+
+- **Viewport & Zoom Safeguards:**
+  - Viewport meta in `apps/web/index.html` must remain `width=device-width, initial-scale=1, viewport-fit=cover`. Never disable user zooming (`maximum-scale=1` and `user-scalable=no` are forbidden).
+  - Safe-area utilities (`pt-safe`, `pb-safe`) must be applied to sticky navigation headers, bottom nav bars, and full-screen drawer/modal overlays.
+- **Dynamic Viewport Heights:**
+  - Never use raw `100vh` (which causes jumpiness on mobile Safari/Chrome when the address bar hides). Always use dynamic viewport units (`100dvh` or `100svh`). Enforced by `pnpm run check:responsive`.
+- **Zero Horizontal Overflow:**
+  - Never use unconstrained `w-screen` (which adds scrollbar width and causes horizontal overflow). Use `w-full` or container `max-w-*`.
+  - The root document enforces `overflow-x: clip`. Every page and modal must satisfy `document.documentElement.scrollWidth <= document.documentElement.clientWidth` across all viewports (`320px` to `1440px+`).
+- **Touch Target & Ergonomics Standard:**
+  - Every interactive element (buttons, tabs, inputs, icon triggers, close buttons, modal actions) must provide an active tap target of $\ge$ 44x44px (`min-h-[44px] min-w-[44px]`) on mobile devices.
+  - Buttons and interactive items must include `touch-manipulation select-none` to eliminate the 300ms mobile tap delay and prevent accidental text selection during multi-tap gestures.
+- **iOS Auto-Zoom Prevention:**
+  - All text and search inputs must render font size $\ge$ 16px on mobile screens (`text-base sm:text-sm` or `text-base sm:text-xs`) to prevent iOS WebKit from forcing page zooming on input focus.
+  - Number inputs must use `<input type="text">` with digit stripping in `onChange` (never `<input type="number">`).
+- **Responsive Dialogs & Action Sheets:**
+  - Dialogs and action modals must render as bottom sheets on viewports below `md` (`fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4`, with card `rounded-t-3xl sm:rounded-2xl max-h-[85dvh] sm:max-h-[90dvh] pb-safe` and a mobile drag handle indicator `<div className="sm:hidden mx-auto ..."`).
+- **Mobile Navigation Bar (BottomNav):**
+  - Mobile bottom navigation (`Explore`, `Pokédex`, `Bag`, `Shop`, `Team`) is anchored in the thumb zone (`pb-safe`, `lg:hidden`) and automatically suppressed during active battles (`/battle`).
+  - Main game layout applies `pb-16 lg:pb-0` to guarantee zero content clipping behind the mobile navigation bar.
+- **Reduced Motion Support:**
+  - All animated transitions, bottom sheet slides, and layout morphs must respect `prefers-reduced-motion: reduce` via `motion-reduce:*` utility classes or `useReducedMotion()`.
+

@@ -88,27 +88,34 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
         />
       </div>
 
-      {/* Modal Overlays for Bag & Party */}
+      {/* Modal Overlays for Bag & Party (Bottom sheet on mobile, centered modal on desktop) */}
       {(menu === 'bag' || menu === 'party') && (
         <div 
-          className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-background/80 backdrop-blur-sm p-0 md:p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isWaitingSwitch) {
               setMenu('main');
             }
           }}
         >
-          <div className="bg-background text-foreground w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden border border-border flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-border flex justify-between items-center bg-surface">
-              <h2 className="text-xl font-bold text-foreground uppercase tracking-wider">{menu === 'bag' ? 'Bag' : 'Pokémon Party'}</h2>
+          <div className="bg-background text-foreground w-full md:max-w-5xl rounded-t-3xl md:rounded-2xl shadow-2xl overflow-hidden border border-border flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom duration-200">
+            <div className="md:hidden mx-auto my-2.5 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="px-4 py-3 sm:p-4 border-b border-border flex justify-between items-center bg-surface shrink-0">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground uppercase tracking-wider">{menu === 'bag' ? 'Bag' : 'Pokémon Party'}</h2>
               {!isWaitingSwitch && (
-                <button onClick={() => setMenu('main')} className="text-muted hover:text-foreground transition-colors px-2 text-3xl leading-none">&times;</button>
+                <button
+                  onClick={() => setMenu('main')}
+                  aria-label="Close"
+                  className="w-11 h-11 flex items-center justify-center text-muted hover:text-foreground active:bg-surface rounded-xl transition-colors text-2xl leading-none touch-manipulation -mr-2"
+                >
+                  &times;
+                </button>
               )}
             </div>
-            <div className="p-6 overflow-y-auto">
+            <div className="p-4 sm:p-6 overflow-y-auto">
               {menu === 'bag' && (
                 trainerSave?.inventory?.filter((inv) => inv.itemId.endsWith('ball') && inv.quantity > 0).length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     {trainerSave.inventory
                       .filter((inv) => inv.itemId.endsWith('ball') && inv.quantity > 0)
                       .map((inv) => (
@@ -116,7 +123,7 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
                           key={inv.itemId}
                           onClick={() => { onUseItem(inv.itemId); setMenu('main'); }}
                           disabled={isPending}
-                          className="bg-surface hover:bg-surface-raised text-foreground flex items-center gap-3 p-3 rounded-xl border border-border shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                          className="bg-surface hover:bg-surface-raised active:bg-surface-raised text-foreground flex items-center gap-3 p-3 min-h-[48px] rounded-xl border border-border shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50 touch-manipulation"
                         >
                           {inv.item?.spriteUrl && <img src={inv.item.spriteUrl} alt={inv.item.name} className="w-10 h-10 object-contain drop-shadow" />}
                           <div className="flex flex-col items-start">
@@ -127,14 +134,14 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
                       ))}
                   </div>
                 ) : (
-                  <div className="p-8 flex items-center justify-center text-xl text-muted font-bold">
+                  <div className="p-8 flex items-center justify-center text-lg sm:text-xl text-muted font-bold">
                     You have no Pokéballs.
                   </div>
                 )
               )}
 
               {menu === 'party' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   {playerPartyData.map((p: OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string }) => {
                     const isActive = p.id === player.id;
                     const isFainted = p.currentHp <= 0;
@@ -154,34 +161,34 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
                           setMenu('main');
                         }}
                         disabled={isPending || isActive || isFainted}
-                        className={`flex flex-col items-start p-4 rounded-xl border shadow-sm transition-all text-left ${isActive ? 'bg-surface-raised border-border text-foreground' : isFainted ? 'bg-surface border-border opacity-40 text-subtle' : 'bg-surface hover:bg-surface-raised border-border hover:border-border text-foreground hover:-translate-y-0.5'}`}
+                        className={`flex flex-col items-start p-3 sm:p-4 rounded-xl border shadow-sm transition-all text-left touch-manipulation min-h-[56px] ${isActive ? 'bg-surface-raised border-border text-foreground' : isFainted ? 'bg-surface border-border opacity-40 text-subtle' : 'bg-surface hover:bg-surface-raised active:bg-surface-raised border-border hover:border-border text-foreground hover:-translate-y-0.5'}`}
                       >
-                        <div className="flex flex-row gap-3 w-full items-center mb-3">
+                        <div className="flex flex-row gap-3 w-full items-center mb-2.5 sm:mb-3">
                           <img 
                             src={getSpriteUrl(p.species?.id || p.speciesId)} 
                             alt={p.name || p.speciesName} 
-                            className="w-16 h-16 object-contain drop-shadow"
+                            className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow"
                             style={{ imageRendering: 'pixelated' }}
                           />
                           <div className="flex flex-col flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="font-bold text-foreground capitalize text-lg truncate">{p.name || p.speciesName}</span>
-                              <span className="text-sm font-black text-muted shrink-0">Lv {p.level}</span>
+                              <span className="font-bold text-foreground capitalize text-base sm:text-lg truncate">{p.name || p.speciesName}</span>
+                              <span className="text-xs sm:text-sm font-black text-muted shrink-0">Lv {p.level}</span>
                             </div>
-                            <div className="flex gap-1 mt-1">
+                            <div className="flex gap-1 mt-0.5 sm:mt-1">
                               {p.types?.map((type: string) => (
-                                <img key={type} src={getTypeSpriteUrl(type, true)} alt={type} className="h-5 object-contain drop-shadow-sm" />
+                                <img key={type} src={getTypeSpriteUrl(type, true)} alt={type} className="h-4 sm:h-5 object-contain drop-shadow-sm" />
                               ))}
                             </div>
                           </div>
                         </div>
-                        <div className="w-full bg-background rounded-full h-3 overflow-hidden relative border border-border">
+                        <div className="w-full bg-background rounded-full h-2.5 sm:h-3 overflow-hidden relative border border-border">
                           <div 
                             className={`h-full transition-all duration-300 ${p.currentHp / p.maxHp > 0.5 ? 'bg-health-high' : p.currentHp / p.maxHp > 0.2 ? 'bg-health-mid' : 'bg-health-low'}`} 
                             style={{ width: `${Math.max(0, (p.currentHp / p.maxHp) * 100)}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-bold mt-2 text-muted">{p.currentHp} / {p.maxHp} HP</span>
+                        <span className="text-xs sm:text-sm font-bold mt-1.5 sm:mt-2 text-muted">{p.currentHp} / {p.maxHp} HP</span>
                       </button>
                     );
                   })}

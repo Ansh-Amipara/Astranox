@@ -5,6 +5,7 @@ export interface CalculateCaptureParams {
   wild: BattlePokemon;
   ball: string;
   rng: () => number;
+  balanceConfig?: typeof CATCH_CONSTANTS;
 }
 
 export interface CaptureResult {
@@ -19,13 +20,14 @@ export interface CaptureResult {
  */
 export function calculateCapture(params: CalculateCaptureParams): CaptureResult {
   const { wild, ball, rng } = params;
+  const cfg = params.balanceConfig || CATCH_CONSTANTS;
   const ballBonus = getBallBonusMultiplier(ball);
 
   // Master Ball guarantees capture
-  if (ballBonus >= CATCH_CONSTANTS.MASTER_BALL_THRESHOLD) {
+  if (ballBonus >= cfg.MASTER_BALL_THRESHOLD) {
     return {
       success: true,
-      shakes: CATCH_CONSTANTS.MAX_DISPLAY_SHAKES,
+      shakes: cfg.MAX_DISPLAY_SHAKES,
       shakeChecks: [true, true, true, true],
     };
   }
@@ -39,10 +41,10 @@ export function calculateCapture(params: CalculateCaptureParams): CaptureResult 
   const hpFactor = Math.floor(((3 * maxHp - 2 * currentHp) * catchRate * ballBonus) / (3 * maxHp));
   const a = Math.floor(hpFactor * statusBonus);
 
-  if (a >= CATCH_CONSTANTS.MAX_CATCH_RATE) {
+  if (a >= cfg.MAX_CATCH_RATE) {
     return {
       success: true,
-      shakes: CATCH_CONSTANTS.MAX_DISPLAY_SHAKES,
+      shakes: cfg.MAX_DISPLAY_SHAKES,
       shakeChecks: [true, true, true, true],
     };
   }
@@ -51,15 +53,15 @@ export function calculateCapture(params: CalculateCaptureParams): CaptureResult 
   let b = 0;
   if (a > 0) {
     b = Math.floor(
-      CATCH_CONSTANTS.THRESHOLD_DIVIDEND /
-        Math.sqrt(Math.sqrt(CATCH_CONSTANTS.THRESHOLD_NUMERATOR / a))
+      cfg.THRESHOLD_DIVIDEND /
+        Math.sqrt(Math.sqrt(cfg.THRESHOLD_NUMERATOR / a))
     );
   }
 
   const shakeChecks: boolean[] = [];
   let successfulShakes = 0;
 
-  for (let i = 0; i < CATCH_CONSTANTS.REQUIRED_SHAKES; i++) {
+  for (let i = 0; i < cfg.REQUIRED_SHAKES; i++) {
     const rand = Math.floor(rng() * 65536);
     if (rand < b) {
       shakeChecks.push(true);
@@ -71,14 +73,14 @@ export function calculateCapture(params: CalculateCaptureParams): CaptureResult 
   }
 
   // Fill remaining checks as false if broken out early
-  while (shakeChecks.length < CATCH_CONSTANTS.REQUIRED_SHAKES) {
+  while (shakeChecks.length < cfg.REQUIRED_SHAKES) {
     shakeChecks.push(false);
   }
 
-  const success = successfulShakes === CATCH_CONSTANTS.REQUIRED_SHAKES;
+  const success = successfulShakes === cfg.REQUIRED_SHAKES;
   const displayShakes = success
-    ? CATCH_CONSTANTS.MAX_DISPLAY_SHAKES
-    : Math.min(successfulShakes, CATCH_CONSTANTS.MAX_DISPLAY_SHAKES);
+    ? cfg.MAX_DISPLAY_SHAKES
+    : Math.min(successfulShakes, cfg.MAX_DISPLAY_SHAKES);
 
   return {
     success,

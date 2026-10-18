@@ -150,7 +150,8 @@ function selectWildMove(wild: BattlePokemon, rng: Mulberry32): MoveData {
 
 export function resolveTurn(
   currentState: BattleEngineState,
-  action: PlayerAction
+  action: PlayerAction,
+  balanceConfig?: { battle?: any; catch?: any }
 ): ResolveTurnResult {
   const events: TurnEvent[] = [];
   const state = cloneState(currentState);
@@ -189,6 +190,7 @@ export function resolveTurn(
       wild: state.wildPokemon,
       ball: action.ballType,
       rng: () => rng.next(),
+      balanceConfig: balanceConfig?.catch,
     });
 
     events.push({
@@ -357,7 +359,13 @@ export function resolveTurn(
     const canAttack = checkCanAttack(attacker, rng, events);
     if (!canAttack) return;
 
-    const dmgResult = calculateDamage(attacker, defender, move, () => rng.next());
+    const dmgResult = calculateDamage(
+      attacker,
+      defender,
+      move,
+      () => rng.next(),
+      balanceConfig?.battle
+    );
 
     if (!dmgResult.hit) {
       events.push({ type: 'miss', attackerId: attacker.id });

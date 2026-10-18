@@ -82,14 +82,14 @@ export function TradeOfferModal({ listingId, onClose }: TradeOfferModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-border flex justify-between items-center bg-surface-raised">
-          <p className="text-muted font-bold">
+        <div className="p-4 sm:p-6 pb-safe border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3 bg-surface-raised">
+          <p className="text-muted font-bold text-sm sm:text-base">
             {selectedIds.length} Pokémon selected
           </p>
           <button
             onClick={handleSubmit}
             disabled={selectedIds.length === 0 || createOfferMutation.isPending}
-            className="px-8 py-3 bg-surface-raised hover:bg-surface-raised text-foreground font-black rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-glow"
+            className="w-full sm:w-auto px-8 py-3 min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-black rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-glow"
           >
             {createOfferMutation.isPending && <Loader2 className="w-5 h-5 animate-spin" />}
             Submit Offer

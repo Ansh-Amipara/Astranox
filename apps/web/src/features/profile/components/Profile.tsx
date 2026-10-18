@@ -59,7 +59,7 @@ export function Profile() {
 
   if (isError) {
     return (
-      <div className="w-full min-h-[calc(100vh-4rem)] p-6 flex items-center justify-center bg-surface-raised">
+      <div className="w-full min-h-[calc(100dvh-4rem)] p-4 sm:p-6 flex items-center justify-center bg-surface-raised">
         <ErrorState
           title="Failed to Load Profile"
           message="Could not retrieve your trainer save data from the server."
@@ -70,20 +70,20 @@ export function Profile() {
   }
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-4rem)] p-4 md:p-8 flex flex-col bg-surface-raised">
+    <div className="w-full h-full min-h-[calc(100dvh-4rem)] p-4 md:p-8 flex flex-col bg-surface-raised">
       <div className="bg-primary rounded-xl shadow-md overflow-hidden border border-border flex-grow flex flex-col">
         <div className="p-4 md:p-8 flex-grow">
-          <h1 className="text-3xl font-bold text-foreground mb-6">Player Profile</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Player Profile</h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
-            <div className="bg-surface-raised p-6 rounded-lg border border-border h-full">
-              <h2 className="text-xl font-semibold text-subtle mb-4 border-b pb-2">Character</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 h-full">
+            <div className="bg-surface-raised p-4 sm:p-6 rounded-lg border border-border h-full">
+              <h2 className="text-lg sm:text-xl font-semibold text-subtle mb-4 border-b pb-2">Character</h2>
               <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <span className="text-subtle font-medium">Username :</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <span className="text-subtle font-medium text-sm sm:text-base">Username:</span>
                   {isEditing ? (
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex flex-col gap-2 w-full">
+                      <div className="flex items-center gap-2">
                         <input
                           type="text"
                           value={newUsername}
@@ -91,13 +91,13 @@ export function Profile() {
                             setNewUsername(e.target.value);
                             setUsernameError(null);
                           }}
-                          className="px-2 py-1 border border-border rounded-md text-sm outline-none focus:border-border focus:ring-1 focus:ring-border bg-surface text-foreground"
+                          className="px-3 py-2 border border-border rounded-md text-base sm:text-sm outline-none focus:border-border focus:ring-1 focus:ring-border bg-surface text-foreground min-h-[44px] flex-1"
                           autoFocus
                         />
                         <button
                           onClick={() => updateProfileMutation.mutate(newUsername)}
                           disabled={updateProfileMutation.isPending || !newUsername || newUsername === user.username}
-                          className="text-xs bg-surface-raised text-foreground px-2 py-1.5 rounded hover:bg-surface-raised disabled:opacity-50 font-medium transition-colors border border-border"
+                          className="min-h-[44px] px-3 py-2 text-sm bg-surface-raised text-foreground rounded-md hover:bg-surface-raised disabled:opacity-50 font-medium transition-colors border border-border flex items-center justify-center"
                         >
                           {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                         </button>
@@ -108,7 +108,7 @@ export function Profile() {
                             setUsernameError(null);
                           }}
                           disabled={updateProfileMutation.isPending}
-                          className="text-xs bg-surface-raised text-subtle px-2 py-1.5 rounded hover:bg-surface-raised font-medium transition-colors border border-border"
+                          className="min-h-[44px] px-3 py-2 text-sm bg-surface-raised text-subtle rounded-md hover:bg-surface-raised font-medium transition-colors border border-border flex items-center justify-center"
                         >
                           Cancel
                         </button>
@@ -121,13 +121,13 @@ export function Profile() {
                     </div>
                   ) : (
                     <div className="flex items-center space-x-3">
-                      <span className="text-foreground font-bold">{user.username}</span>
+                      <span className="text-foreground font-bold text-base sm:text-lg">{user.username}</span>
                       <button
                         onClick={() => {
                           setNewUsername(user.username);
                           setIsEditing(true);
                         }}
-                        className="text-xs text-subtle hover:text-foreground transition-colors font-medium border border-border hover:border-border bg-primary px-2 py-1 rounded"
+                        className="text-xs text-subtle hover:text-foreground transition-colors font-medium border border-border hover:border-border bg-primary px-3 py-1.5 min-h-[36px] rounded flex items-center justify-center"
                       >
                         Edit
                       </button>

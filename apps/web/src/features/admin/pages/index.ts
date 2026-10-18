@@ -7,3 +7,6 @@ export * from './Events';
 export * from './Flags';
 export * from './Announcements';
 export * from './AuditLog';
+export * from './Balance';
+export * from './Arena';
+export * from './Dungeons';

@@ -44,7 +44,7 @@ export class ShopService {
     }
 
     const items = await prisma.shopItem.findMany({
-      where: { enabled: true },
+      where: { enabled: true, isArchived: { not: true } },
       orderBy: [{ sortOrder: 'asc' }, { price: 'asc' }],
     });
 
@@ -79,6 +79,7 @@ export class ShopService {
         effectivePrice,
         isOnSale,
         enabled: item.enabled,
+        isArchived: item.isArchived ?? false,
         minLevel: item.minLevel,
         dailyLimitPerUser: item.dailyLimitPerUser,
         userDailyPurchased: userPurchased,
@@ -86,7 +87,9 @@ export class ShopService {
         totalStock: item.totalStock,
         stockRemaining: item.stockRemaining,
         sortOrder: item.sortOrder,
-        spriteUrl: defaultMeta?.spriteUrl || null,
+        spriteUrl: item.spriteUrl || defaultMeta?.spriteUrl || null,
+        effectType: item.effectType || null,
+        effectConfig: (item.effectConfig as Record<string, any>) || null,
         dataVersion: item.dataVersion,
         updatedBy: item.updatedBy,
         updatedAt: item.updatedAt.toISOString(),

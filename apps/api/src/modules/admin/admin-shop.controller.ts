@@ -12,8 +12,53 @@ export class AdminShopController {
         category: req.query.category as string,
         search: req.query.search as string,
         enabled: req.query.enabled as string,
+        isArchived: req.query.isArchived as string,
       });
       res.json({ success: true, data: items });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createItem = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requestId = (req.headers['x-request-id'] as string) || undefined;
+      const created = await this.shopService.createShopItem(
+        req.user!.id,
+        req.body,
+        requestId
+      );
+      res.status(201).json({ success: true, data: created });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  archiveItem = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requestId = (req.headers['x-request-id'] as string) || undefined;
+      const archived = await this.shopService.archiveShopItem(
+        req.user!.id,
+        req.params.key,
+        req.body.reason,
+        requestId
+      );
+      res.json({ success: true, data: archived });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  unarchiveItem = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const requestId = (req.headers['x-request-id'] as string) || undefined;
+      const restored = await this.shopService.unarchiveShopItem(
+        req.user!.id,
+        req.params.key,
+        req.body.reason,
+        requestId
+      );
+      res.json({ success: true, data: restored });
     } catch (error) {
       next(error);
     }

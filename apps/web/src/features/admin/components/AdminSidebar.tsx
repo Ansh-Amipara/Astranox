@@ -10,6 +10,9 @@ import {
   Flag,
   Bell,
   ScrollText,
+  SlidersHorizontal,
+  Swords,
+  Castle,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -21,10 +24,13 @@ interface SidebarItem {
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, adminOnly: true },
+  { name: 'Game Balance', href: '/admin/balance', icon: SlidersHorizontal, adminOnly: true },
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Pokémart Shop', href: '/admin/shop', icon: Store, adminOnly: true },
-  { name: 'Economy', href: '/admin/economy', icon: LineChart, adminOnly: true },
+  { name: 'Arena & Ranks', href: '/admin/arena', icon: Swords, adminOnly: true },
+  { name: 'Tower & Rifts', href: '/admin/dungeons', icon: Castle, adminOnly: true },
   { name: 'Events', href: '/admin/events', icon: CalendarDays, adminOnly: true },
+  { name: 'Economy', href: '/admin/economy', icon: LineChart, adminOnly: true },
   { name: 'Feature Flags', href: '/admin/flags', icon: Flag, adminOnly: true },
   { name: 'Announcements', href: '/admin/announcements', icon: Bell },
   { name: 'Audit Log', href: '/admin/audit', icon: ScrollText },
@@ -54,7 +60,7 @@ export function AdminSidebar({ onNavigate, className = '' }: AdminSidebarProps) 
             to={item.href}
             onClick={onNavigate}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+              `flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-all touch-manipulation ${
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted hover:bg-surface-raised hover:text-foreground'

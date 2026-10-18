@@ -18,23 +18,23 @@ export function AdminLayout() {
     .replace(/^./, (str) => str.toUpperCase());
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+    <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-sans">
       {/* Top Admin Navbar */}
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border shadow-xs pt-safe">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden p-2 rounded-xl text-muted hover:text-foreground hover:bg-surface-raised transition-colors"
+                className="lg:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground hover:bg-surface-raised transition-colors touch-manipulation"
                 aria-label="Open sidebar menu"
               >
                 <Menu className="w-5 h-5" />
               </button>
 
-              <Link to="/admin/dashboard" className="flex items-center gap-2.5 group">
+              <Link to="/admin/dashboard" className="flex items-center gap-2 sm:gap-2.5 group">
                 <img src="/logo.webp" alt="Astranox" className="w-7 h-7 object-contain" />
-                <span className="text-base font-black text-foreground tracking-widest uppercase">
+                <span className="text-sm sm:text-base font-black text-foreground tracking-widest uppercase">
                   Astranox
                 </span>
                 <Badge variant="ink" className="text-[10px] font-black uppercase tracking-wider py-0 px-1.5">
@@ -43,7 +43,7 @@ export function AdminLayout() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden sm:flex items-center gap-2 pr-3 border-r border-border">
                 <Shield className="w-3.5 h-3.5 text-muted" />
                 <span className="text-xs font-bold text-muted capitalize">{user?.username}</span>
@@ -55,7 +55,7 @@ export function AdminLayout() {
               <Link
                 to="/"
                 title="Back to Overworld Game"
-                className="p-2 rounded-xl bg-surface-raised hover:bg-surface border border-border text-foreground transition-colors flex items-center justify-center"
+                className="p-2 min-h-[44px] min-w-[44px] rounded-xl bg-surface-raised hover:bg-surface border border-border text-foreground transition-colors flex items-center justify-center touch-manipulation"
               >
                 <Gamepad2 className="w-4 h-4" />
               </Link>
@@ -63,7 +63,7 @@ export function AdminLayout() {
               <button
                 onClick={logout}
                 title="Sign out of Admin Portal"
-                className="p-2 rounded-xl bg-surface-raised hover:bg-surface border border-border text-muted hover:text-foreground transition-colors flex items-center justify-center"
+                className="p-2 min-h-[44px] min-w-[44px] rounded-xl bg-surface-raised hover:bg-surface border border-border text-muted hover:text-foreground transition-colors flex items-center justify-center touch-manipulation"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -73,7 +73,7 @@ export function AdminLayout() {
       </header>
 
       {/* Main Workspace Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex gap-6 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full flex-1 flex flex-col lg:flex-row gap-4 sm:gap-6 py-4 sm:py-6">
         {/* Desktop Sticky Sidebar */}
         <aside className="hidden lg:block w-56 shrink-0">
           <div className="sticky top-24 bg-surface border border-border rounded-2xl p-3 shadow-xs">
@@ -88,7 +88,7 @@ export function AdminLayout() {
         <main className="flex-1 flex flex-col min-w-0">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 text-xs text-muted font-bold">
-            <Link to="/admin/dashboard" className="hover:text-foreground transition-colors">
+            <Link to="/admin/dashboard" className="hover:text-foreground transition-colors min-h-[32px] inline-flex items-center">
               Admin
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-subtle" />
@@ -109,11 +109,11 @@ export function AdminLayout() {
 
       {/* Mobile Drawer Menu */}
       <div
-        className={`fixed top-0 left-0 bottom-0 z-50 w-72 bg-surface border-r border-border shadow-2xl p-5 flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed top-0 left-0 bottom-0 z-50 w-72 bg-surface border-r border-border shadow-2xl p-4 sm:p-5 pt-safe pb-safe flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:hidden ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div>
+        <div className="flex-1 overflow-y-auto">
           <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
             <div className="flex items-center gap-2">
               <img src="/logo.webp" alt="Astranox" className="w-6 h-6 object-contain" />
@@ -123,7 +123,8 @@ export function AdminLayout() {
             </div>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-1 rounded-lg text-muted hover:text-foreground"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground hover:bg-surface-raised touch-manipulation"
+              aria-label="Close menu"
             >
               <X className="w-5 h-5" />
             </button>
@@ -132,14 +133,15 @@ export function AdminLayout() {
           <AdminSidebar onNavigate={() => setIsMobileMenuOpen(false)} />
         </div>
 
-        <div className="pt-4 border-t border-border flex items-center justify-between">
+        <div className="pt-4 border-t border-border flex items-center justify-between mt-auto shrink-0">
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground">{user?.username}</span>
             <span className="text-[10px] font-black text-muted uppercase">{user?.role}</span>
           </div>
           <button
             onClick={logout}
-            className="p-2 rounded-xl bg-surface-raised text-muted hover:text-foreground border border-border"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-surface-raised text-muted hover:text-foreground border border-border touch-manipulation"
+            aria-label="Sign out"
           >
             <LogOut className="w-4 h-4" />
           </button>

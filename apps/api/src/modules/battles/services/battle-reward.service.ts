@@ -1,26 +1,42 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { Prisma, BattleStatus } from '@prisma/client';
-import { getExpYield, getLevelFromXp, getXpForLevel, getMaxLevelForPotential } from '@astranox/constants';
+import { getExpYield, getLevelFromXp, getXpForLevel, getMaxLevelForPotential, ProgressionBalanceConfig } from '@astranox/constants';
+import { BalanceService } from '../../balance/balance.service';
 
 @injectable()
 export class BattleRewardService {
+  constructor(
+    @inject(BalanceService)
+    private balanceService?: BalanceService
+  ) {}
+
   async processFaintRewards(
     result: any, 
     wildPokemon: any, 
     tx: Prisma.TransactionClient,
     battleType?: string,
-    trainerId?: string
+    trainerId?: string,
+    balanceVersion?: number | null
   ): Promise<{ newStatus?: BattleStatus }> {
     let newStatus: BattleStatus | undefined = undefined;
 
-    let xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level);
+    let progressionConfig: ProgressionBalanceConfig | undefined;
+    if (this.balanceService) {
+      try {
+        progressionConfig = await this.balanceService.get<ProgressionBalanceConfig>('progression', balanceVersion);
+      } catch {
+        // Fallback to default canonical constants
+      }
+    }
+
+    let xpYield = getExpYield(wildPokemon.baseExp, wildPokemon.level, progressionConfig);
     
     if (battleType === 'NPC' || wildPokemon.isRankExam) {
       xpYield = wildPokemon.examinerXp || xpYield || 500;
     }
 
-    const maxLevel = getMaxLevelForPotential(result.p1State.potential);
-    const maxXpForPotential = getXpForLevel(maxLevel + 1) - 1;
+    const maxLevel = getMaxLevelForPotential(result.p1State.potential, progressionConfig);
+    const maxXpForPotential = getXpForLevel(maxLevel + 1, progressionConfig) - 1;
 
     let actualYield = xpYield;
 
@@ -49,7 +65,7 @@ export class BattleRewardService {
     }
 
     const oldLevel = result.p1State.level;
-    const newLevel = getLevelFromXp(result.p1State.currentXp);
+    const newLevel = getLevelFromXp(result.p1State.currentXp, progressionConfig);
 
     if (newLevel > oldLevel) {
       result.p1State.level = newLevel;

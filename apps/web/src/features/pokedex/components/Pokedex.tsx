@@ -82,7 +82,7 @@ export const PokedexPage: React.FC = () => {
 
   if (isLoading && allSpecies.length === 0) {
     return (
-      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] flex flex-col justify-start">
         <div className="w-full mx-auto space-y-4 md:space-y-6">
           <div className="flex flex-row items-center justify-between gap-4">
             <Skeleton width={240} height={36} />
@@ -119,7 +119,7 @@ export const PokedexPage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100vh-64px)] flex items-center justify-center">
+      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100dvh-4rem)] flex items-center justify-center">
         <ErrorState
           title="Failed to Load Pokédex"
           message="Could not retrieve species data from the Astranox server. Please check your connection and try again."
@@ -130,7 +130,7 @@ export const PokedexPage: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] transition-colors duration-200 flex flex-col justify-start">
+    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
         {/* Row 1: Pokedex and Total */}
         <div className="flex flex-row items-center justify-between gap-4">

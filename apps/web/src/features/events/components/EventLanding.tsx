@@ -13,11 +13,11 @@ export function EventLanding() {
   });
 
   return (
-    <div className="flex-1 p-4 md:p-8 bg-background min-h-[calc(100vh-64px)] flex flex-col items-center pt-8 md:pt-12">
-      <div className="text-center bg-surface p-8 rounded-3xl shadow-xl border border-border max-w-lg w-full space-y-8">
+    <div className="flex-1 p-4 md:p-8 bg-background min-h-[calc(100dvh-64px)] flex flex-col items-center pt-6 sm:pt-8 md:pt-12">
+      <div className="text-center bg-surface p-5 sm:p-8 rounded-3xl shadow-xl border border-border max-w-lg w-full space-y-6 sm:space-y-8">
         <div>
-          <h1 className="text-4xl font-black text-foreground mb-2">Events</h1>
-          <p className="text-muted">Participate in challenges to earn exclusive rewards.</p>
+          <h1 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Events</h1>
+          <p className="text-sm sm:text-base text-muted">Participate in challenges to earn exclusive rewards.</p>
         </div>
 
         {!isLoading && eventData?.event ? (

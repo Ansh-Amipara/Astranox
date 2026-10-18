@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
 export const inputVariants = cva(
-  'w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-subtle transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50',
+  'w-full min-h-[44px] rounded-xl border bg-surface px-3.5 py-2.5 text-base sm:text-sm text-foreground placeholder:text-subtle transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation',
   {
     variants: {
       hasError: {
@@ -46,6 +46,7 @@ export function Input({
     <input
       ref={ref}
       type={type}
+      inputMode={numericOnly ? (props.inputMode || 'numeric') : props.inputMode}
       onChange={handleChange}
       className={cn(inputVariants({ hasError }), className)}
       {...props}
