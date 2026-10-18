@@ -6,5 +6,4 @@ export * from './ConfirmDialog';
 export * from './ReasonField';
 export * from './PriceInput';
 export * from './DateRangeField';
-export * from './FilterBar';
 export * from './RequireRole';

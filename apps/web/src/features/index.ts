@@ -12,4 +12,3 @@ export * from './rift';
 export * from './profile';
 export * from './social';
 export * from './home';
-export * from './overworld';
