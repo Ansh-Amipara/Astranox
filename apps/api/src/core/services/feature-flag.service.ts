@@ -117,11 +117,11 @@ export class FeatureFlagService {
 
     return {
       key: updated.key,
-      name: updated.name,
-      description: updated.description,
+      name: updated.name || key,
+      description: updated.description || '',
       enabled: updated.enabled,
       updatedBy: updated.updatedBy,
-      updatedAt: updated.updatedAt.toISOString(),
+      updatedAt: updated.updatedAt ? updated.updatedAt.toISOString() : null,
     };
   }
 

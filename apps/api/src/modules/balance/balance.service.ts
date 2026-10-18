@@ -28,18 +28,19 @@ export class BalanceService {
 
   private initPubSub() {
     if (this.isSubscribed) return;
+    this.isSubscribed = true;
     if (!this.cache || typeof this.cache.getClient !== 'function') return;
     const redisClient = this.cache.getClient();
     if (!redisClient || typeof redisClient.duplicate !== 'function') return;
+    if (redisClient.status !== 'ready') return;
 
     try {
       // Duplicate client for subscribing to avoid blocking normal commands
       const subClient = redisClient.duplicate();
       subClient.subscribe('balance:invalidated', (err) => {
         if (err) {
-          logger.error('Failed to subscribe to balance:invalidated channel: ' + err.message);
+          logger.warn('Failed to subscribe to balance:invalidated channel: ' + err.message);
         } else {
-          this.isSubscribed = true;
           logger.info('Subscribed to balance:invalidated Pub/Sub channel');
         }
       });
