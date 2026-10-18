@@ -3,12 +3,14 @@ import { Router } from 'express';
 import { engageCustomSchema, submitTurnSchema, arenaEncounterSchema } from '@astranox/types';
 import { BattlesController } from './battles.controller';
 import { requireAuth } from '../../core/middleware/require-auth';
+import { requireFlag } from '../../core/middleware/require-feature-flag';
 import { battleActionLimiter } from '../../core/middleware/rate-limiter';
 import { validate } from '../../core/middleware/validate';
 
 export const battlesRoutes = Router();
 const controller = container.resolve(BattlesController);
 
+battlesRoutes.use(requireFlag('battles'));
 battlesRoutes.use(requireAuth);
 
 battlesRoutes.post('/engage-custom', battleActionLimiter, validate(engageCustomSchema), controller.engageCustom);

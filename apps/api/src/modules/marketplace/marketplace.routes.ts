@@ -2,13 +2,15 @@ import { container } from 'tsyringe';
 import { Router } from 'express';
 import { createListingSchema, createOfferSchema } from '@astranox/types';
 import { MarketplaceController } from './marketplace.controller';
- import { requireAuth } from '../../core/middleware/require-auth';
+import { requireAuth } from '../../core/middleware/require-auth';
+import { requireFlag } from '../../core/middleware/require-feature-flag';
 import { gameplayLimiter } from '../../core/middleware/rate-limiter';
 import { validate } from '../../core/middleware/validate';
 
 export const marketplaceRoutes = Router();
 const controller = container.resolve(MarketplaceController);
 
+marketplaceRoutes.use(requireFlag('trading'));
 marketplaceRoutes.use(requireAuth);
 
 marketplaceRoutes.get('/search', controller.searchListings);

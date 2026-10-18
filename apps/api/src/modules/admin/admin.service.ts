@@ -115,4 +115,14 @@ export class AdminService {
     await this.cache.clearPattern('learnset:*');
     return { success: true };
   }
+
+  async getBattleById(id: string) {
+    const battle = await prisma.battleSession.findUnique({
+      where: { id },
+    });
+    if (!battle) {
+      throw new NotFoundError('Battle session not found');
+    }
+    return battle;
+  }
 }

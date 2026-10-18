@@ -3,6 +3,8 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../db/prisma';
 import { logger } from '../../config/logger';
 
+import { getRequestId, getRequestContext } from '../context/request-context';
+
 export type AuditActorType = 'user' | 'system' | 'admin';
 
 export interface CreateAuditEntryInput {
@@ -39,14 +41,14 @@ export class AuditService {
       before: (entry.before as Prisma.InputJsonValue) ?? undefined,
       after: (entry.after as Prisma.InputJsonValue) ?? undefined,
       meta: (entry.meta as Prisma.InputJsonValue) ?? undefined,
-      requestId: entry.requestId ?? null,
-      ip: entry.ip ?? null,
+      requestId: entry.requestId ?? getRequestId() ?? null,
+      ip: entry.ip ?? getRequestContext()?.ip ?? null,
 
       // Backward compatibility fields for legacy admin queries
       adminId: entry.actorId ?? undefined,
       beforeValues: (entry.before as Prisma.InputJsonValue) ?? undefined,
       afterValues: (entry.after as Prisma.InputJsonValue) ?? undefined,
-      ipAddress: entry.ip ?? null,
+      ipAddress: entry.ip ?? getRequestContext()?.ip ?? null,
     };
 
     try {

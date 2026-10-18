@@ -78,4 +78,14 @@ export class AdminController {
       next(err);
     }
   };
+
+  getBattleById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const battle = await this.service.getBattleById(id);
+      res.json({ success: true, data: battle });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

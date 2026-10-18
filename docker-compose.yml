@@ -58,5 +58,23 @@ services:
     depends_on:
       - server
 
+  mongo-backup:
+    profiles: ["backup"]
+    image: mongo:7.0
+    container_name: astranox-mongo-backup
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Creating local MongoDB backup archive..."
+        mkdir -p /backups
+        TIMESTAMP=$$(date +%Y%m%d_%H%M%S)
+        mongodump --uri="$$DATABASE_URL" --archive="/backups/astranox_local_$${TIMESTAMP}.gz" --gzip
+        echo "Local backup completed: /backups/astranox_local_$${TIMESTAMP}.gz"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-mongodb://localhost:27017/astranox?replicaSet=rs0}
+    volumes:
+      - ./backups:/backups
+
 volumes:
   postgres_data:
+  redis_data:

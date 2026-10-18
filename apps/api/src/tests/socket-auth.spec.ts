@@ -147,9 +147,10 @@ describe('Socket.io Authentication, Policy & Ownership', () => {
     // Owner does not match
     const isUnauthorized = verifySocketOwnership(mockSocket, 'different-user');
     expect(isUnauthorized).toBe(false);
-    expect(emittedError).toEqual({
+    expect(emittedError).toMatchObject({
       code: 'FORBIDDEN',
       message: 'You are not authorized to perform actions on this resource.',
     });
+    expect(emittedError.requestId).toBeDefined();
   });
 });

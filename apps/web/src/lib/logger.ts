@@ -51,6 +51,14 @@ export const logErrorAndToast = (error: AxiosError | any) => {
       return;
     }
 
-    notify.error(parsed.message, { id: `api-err-${url}-${status}` });
+    const serverRequestId =
+      error.response?.data?.error?.requestId ||
+      (error.response?.headers?.['x-request-id'] as string) ||
+      undefined;
+
+    notify.error(parsed.message, {
+      id: `api-err-${url}-${status}`,
+      description: serverRequestId ? `Request ID: ${serverRequestId}` : undefined,
+    });
   }
 };

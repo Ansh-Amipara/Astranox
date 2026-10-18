@@ -66,3 +66,9 @@ export class PriceChangedError extends AppError {
   }
 }
 
+export class FeatureDisabledError extends AppError {
+  constructor(message = 'This feature is currently disabled.') {
+    super(message, 503, 'FEATURE_DISABLED');
+  }
+}
+

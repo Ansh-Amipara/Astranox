@@ -27,10 +27,12 @@ import { riftRoutes } from './modules/rift/rift.routes';
 import exploreRoutes from './modules/explore/explore.routes';
 import { errorHandler } from './core/middleware/error-handler';
 import { ForbiddenError } from './core/errors/AppError';
+import { requestIdMiddleware } from './core/middleware/request-id';
 import { httpLogger } from './core/middleware/http-logger';
 import { verifyCsrf } from './core/middleware/csrf';
 import { marketplaceRoutes } from './modules/marketplace/marketplace.routes';
 import eventsRoutes from './modules/events/events.routes';
+import { flagsRoutes } from './modules/flags/flags.routes';
 
 const app = express();
 
@@ -91,6 +93,7 @@ app.use(
   })
 );
 
+app.use(requestIdMiddleware);
 app.use(httpLogger);
 app.use(express.json());
 app.use(cookieParser());
@@ -115,6 +118,7 @@ app.use('/rift', riftRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/explore', exploreRoutes);
 app.use('/events', eventsRoutes);
+app.use('/flags', flagsRoutes);
 
 // 404 Fallback for unhandled routes
 app.use('*', (req, res) => {

@@ -15,6 +15,10 @@ export const logger = pino({
     'res.headers["set-cookie"]',
     'password',
     'passwordHash',
-    'refreshToken'
+    'refreshToken',
+    'accessToken',
+    'token',
+    'tokenHash',
+    'secret'
   ]
 });

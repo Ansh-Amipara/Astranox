@@ -55,6 +55,7 @@ router.post(
   validate(createAnnouncementSchema),
   announcementsController.createAnnouncement
 );
+router.get('/battles/:id', requireStaff, controller.getBattleById);
 router.delete('/announcements/:id', requireStaff, announcementsController.deleteAnnouncement);
 
 // ==========================================

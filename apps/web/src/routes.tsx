@@ -87,18 +87,22 @@ function AdminSuspense({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { MaintenanceGuard } from '@/components/layout/MaintenanceScreen';
+
 function GameLayout() {
   return (
-    <AuthGuard>
-      <RequireStarterGuard>
-        <Header />
-        <main className="flex-1 flex flex-col relative w-full overflow-x-hidden">
-          <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
-            <Outlet />
-          </ErrorBoundary>
-        </main>
-      </RequireStarterGuard>
-    </AuthGuard>
+    <MaintenanceGuard>
+      <AuthGuard>
+        <RequireStarterGuard>
+          <Header />
+          <main className="flex-1 flex flex-col relative w-full overflow-x-hidden">
+            <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
+              <Outlet />
+            </ErrorBoundary>
+          </main>
+        </RequireStarterGuard>
+      </AuthGuard>
+    </MaintenanceGuard>
   );
 }
 

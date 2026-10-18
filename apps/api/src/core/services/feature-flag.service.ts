@@ -11,27 +11,63 @@ export class FeatureFlagService {
 
   constructor(private cache: CacheService) {}
 
-  async isEnabled(flagKey: string): Promise<boolean> {
+  /**
+   * Evaluates if a feature flag is enabled.
+   * Supports target user whitelist (allowUserIds) and deterministic percentage rollouts.
+   */
+  async isEnabled(flagKey: string, userId?: string): Promise<boolean> {
     const cacheKey = `${this.CACHE_PREFIX}${flagKey}`;
-    const cached = await this.cache.get<boolean>(cacheKey);
-    if (cached !== null && cached !== undefined) {
-      return cached;
+    let flag = await this.cache.get<any>(cacheKey);
+
+    if (!flag) {
+      const dbFlag = await prisma.featureFlag.findUnique({
+        where: { key: flagKey },
+      });
+
+      if (dbFlag) {
+        flag = {
+          enabled: dbFlag.enabled,
+          rolloutPercent: dbFlag.rolloutPercent,
+          allowUserIds: dbFlag.allowUserIds || [],
+        };
+      } else {
+        const defaultDef = FEATURE_FLAGS.find((f) => f.key === flagKey);
+        flag = {
+          enabled: defaultDef ? defaultDef.defaultValue : true,
+          rolloutPercent: null,
+          allowUserIds: [],
+        };
+      }
+
+      await this.cache.set(cacheKey, flag, this.CACHE_TTL_SECONDS);
     }
 
-    const flag = await prisma.featureFlag.findUnique({
-      where: { key: flagKey },
-    });
-
-    if (flag) {
-      await this.cache.set(cacheKey, flag.enabled, this.CACHE_TTL_SECONDS);
-      return flag.enabled;
+    if (!flag.enabled) {
+      return false;
     }
 
-    // Fallback to default in constants
-    const defaultDef = FEATURE_FLAGS.find((f) => f.key === flagKey);
-    const fallback = defaultDef ? defaultDef.defaultValue : true;
-    await this.cache.set(cacheKey, fallback, this.CACHE_TTL_SECONDS);
-    return fallback;
+    // Explicit user whitelist bypasses percentage rollout
+    if (userId && Array.isArray(flag.allowUserIds) && flag.allowUserIds.includes(userId)) {
+      return true;
+    }
+
+    // Rollout percentage check
+    if (typeof flag.rolloutPercent === 'number' && flag.rolloutPercent >= 0 && flag.rolloutPercent < 100) {
+      if (!userId) {
+        return false;
+      }
+      // Deterministic hash based on userId and flagKey
+      let hash = 0;
+      const str = `${flagKey}:${userId}`;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      const score = Math.abs(hash) % 100;
+      return score < flag.rolloutPercent;
+    }
+
+    return true;
   }
 
   async getAllFlags(): Promise<FeatureFlagDto[]> {
@@ -51,12 +87,20 @@ export class FeatureFlagService {
     });
   }
 
-  async setFlag(key: string, enabled: boolean, updatedBy?: string): Promise<FeatureFlagDto> {
+  async setFlag(
+    key: string,
+    enabled: boolean,
+    updatedBy?: string,
+    rolloutPercent?: number | null,
+    allowUserIds?: string[]
+  ): Promise<FeatureFlagDto> {
     const updated = await prisma.featureFlag.upsert({
       where: { key },
       update: {
         enabled,
         updatedBy,
+        ...(rolloutPercent !== undefined ? { rolloutPercent } : {}),
+        ...(allowUserIds !== undefined ? { allowUserIds } : {}),
       },
       create: {
         key,
@@ -64,6 +108,8 @@ export class FeatureFlagService {
         description: FEATURE_FLAGS.find((f) => f.key === key)?.description || '',
         enabled,
         updatedBy,
+        rolloutPercent: rolloutPercent ?? null,
+        allowUserIds: allowUserIds || [],
       },
     });
 
@@ -77,5 +123,23 @@ export class FeatureFlagService {
       updatedBy: updated.updatedBy,
       updatedAt: updated.updatedAt.toISOString(),
     };
+  }
+
+  /**
+   * Seeds missing default feature flags into MongoDB.
+   */
+  async seedInitialFlags(): Promise<void> {
+    for (const def of FEATURE_FLAGS) {
+      await prisma.featureFlag.upsert({
+        where: { key: def.key },
+        update: {},
+        create: {
+          key: def.key,
+          name: def.name,
+          description: def.description,
+          enabled: def.defaultValue,
+        },
+      });
+    }
   }
 }

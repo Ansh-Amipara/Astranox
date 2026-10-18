@@ -1,0 +1,125 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongo-backup-cronjob
+  namespace: astranox
+  labels:
+    app: astranox-mongo-backup
+spec:
+  schedule: "0 2 * * *" # Daily at 02:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: astranox-mongo-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: mongodump-backup
+              image: amazon/aws-cli:2.15.15
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  echo "=== [$(date)] Starting Astranox MongoDB Automated Backup ==="
+
+                  # 1. Install mongo-tools
+                  yum install -y gzip tar > /dev/null 2>&1
+                  curl -s -O https://fastdl.mongodb.org/tools/db/mongodb-database-tools-amazon2-x86_64-100.9.4.tgz
+                  tar -xzf mongodb-database-tools-amazon2-x86_64-100.9.4.tgz
+                  cp mongodb-database-tools-amazon2-x86_64-100.9.4/bin/mongodump /usr/local/bin/
+
+                  TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+                  ARCHIVE_NAME="astranox_backup_${TIMESTAMP}.gz"
+                  ARCHIVE_PATH="/tmp/${ARCHIVE_NAME}"
+
+                  # 2. Dump MongoDB to compressed archive
+                  echo "Creating compressed archive from MongoDB..."
+                  if ! mongodump --uri="$DATABASE_URL" --archive="$ARCHIVE_PATH" --gzip; then
+                    echo "CRITICAL ERROR: mongodump failed!" >&2
+                    exit 1
+                  fi
+
+                  ARCHIVE_SIZE=$(ls -lh "$ARCHIVE_PATH" | awk '{print $5}')
+                  echo "Archive created successfully (${ARCHIVE_SIZE})."
+
+                  # 3. Upload to S3-compatible storage
+                  if [ -n "$BACKUP_S3_BUCKET" ]; then
+                    echo "Uploading ${ARCHIVE_NAME} to S3 bucket ${BACKUP_S3_BUCKET}..."
+                    S3_DEST="s3://${BACKUP_S3_BUCKET}/daily/${ARCHIVE_NAME}"
+                    
+                    EXTRA_ARGS=""
+                    if [ -n "$BACKUP_S3_ENDPOINT" ]; then
+                      EXTRA_ARGS="--endpoint-url $BACKUP_S3_ENDPOINT"
+                    fi
+
+                    aws s3 cp "$ARCHIVE_PATH" "$S3_DEST" $EXTRA_ARGS
+
+                    # Weekly snapshot retention (Every Sunday)
+                    DAY_OF_WEEK=$(date +%u)
+                    if [ "$DAY_OF_WEEK" -eq 7 ]; then
+                      echo "Saving weekly snapshot..."
+                      aws s3 cp "$ARCHIVE_PATH" "s3://${BACKUP_S3_BUCKET}/weekly/astranox_weekly_${TIMESTAMP}.gz" $EXTRA_ARGS
+                    fi
+
+                    # 4. Enforce Retention Policy: Purge daily backups older than 7 days
+                    echo "Applying retention policy (pruning daily backups older than 7 days)..."
+                    SEVEN_DAYS_AGO=$(date -d "7 days ago" +%Y%m%d 2>/dev/null || date -v -7d +%Y%m%d)
+                    aws s3 ls "s3://${BACKUP_S3_BUCKET}/daily/" $EXTRA_ARGS | while read -r line; do
+                      FILE_NAME=$(echo "$line" | awk '{print $4}')
+                      FILE_DATE=$(echo "$FILE_NAME" | grep -o -E '[0-9]{8}' | head -1)
+                      if [ -n "$FILE_DATE" ] && [ "$FILE_DATE" -lt "$SEVEN_DAYS_AGO" ]; then
+                        echo "Pruning expired backup: $FILE_NAME"
+                        aws s3 rm "s3://${BACKUP_S3_BUCKET}/daily/$FILE_NAME" $EXTRA_ARGS
+                      fi
+                    done
+                  else
+                    echo "Notice: BACKUP_S3_BUCKET not set. Backup saved locally to ${ARCHIVE_PATH}."
+                  fi
+
+                  rm -f "$ARCHIVE_PATH"
+                  echo "=== [$(date)] Backup completed successfully ==="
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: astranox-secrets
+                      key: DATABASE_URL
+                - name: BACKUP_S3_BUCKET
+                  valueFrom:
+                    configMapKeyRef:
+                      name: astranox-config
+                      key: BACKUP_S3_BUCKET
+                      optional: true
+                - name: BACKUP_S3_ENDPOINT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: astranox-config
+                      key: BACKUP_S3_ENDPOINT
+                      optional: true
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: astranox-backup-secrets
+                      key: AWS_ACCESS_KEY_ID
+                      optional: true
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: astranox-backup-secrets
+                      key: AWS_SECRET_ACCESS_KEY
+                      optional: true
+                - name: AWS_DEFAULT_REGION
+                  value: "us-east-1"
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "500m"

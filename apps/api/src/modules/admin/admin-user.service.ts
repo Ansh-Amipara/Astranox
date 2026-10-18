@@ -1,6 +1,7 @@
 import { injectable } from 'tsyringe';
 import { prisma } from '../../core/db/prisma';
 import { NotFoundError, BadRequestError } from '../../core/errors/AppError';
+import { disconnectUserSockets } from '../../socket';
 import type { BanUserInput, UnbanUserInput, AdminGrantCurrencyInput, AdminGrantItemInput } from '@astranox/types';
 
 @injectable()
@@ -140,6 +141,10 @@ export class AdminUserService {
           bannedUntil: input.expiresAt ? new Date(input.expiresAt) : null,
         },
       }),
+      prisma.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
       prisma.auditLog.create({
         data: {
           adminId,
@@ -153,6 +158,12 @@ export class AdminUserService {
         },
       }),
     ]);
+
+    try {
+      disconnectUserSockets(userId, 'ACCOUNT_BANNED');
+    } catch {
+      // Ignore if socket disconnect fails
+    }
 
     return {
       id: updated.id,

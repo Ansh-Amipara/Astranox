@@ -1,15 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
 import { container } from 'tsyringe';
 import { FeatureFlagService } from '../services/feature-flag.service';
-import { ForbiddenError } from '../errors/AppError';
+import { FeatureDisabledError } from '../errors/AppError';
 
 export const requireFeatureFlag = (flagKey: string) => {
-  return async (_req: Request, _res: Response, next: NextFunction) => {
+  return async (req: Request, _res: Response, next: NextFunction) => {
     try {
       const service = container.resolve(FeatureFlagService);
-      const isEnabled = await service.isEnabled(flagKey);
+
+      // Global maintenance mode check (unless user is ADMIN)
+      if (flagKey !== 'maintenanceMode') {
+        const isMaintenance = await service.isEnabled('maintenanceMode');
+        if (isMaintenance && req.user?.role !== 'ADMIN') {
+          return next(
+            new FeatureDisabledError(
+              'The game is currently in maintenance mode. Please check back later.'
+            )
+          );
+        }
+      }
+
+      const isEnabled = await service.isEnabled(flagKey, req.user?.id);
       if (!isEnabled) {
-        return next(new ForbiddenError(`The '${flagKey}' feature is currently disabled.`));
+        return next(
+          new FeatureDisabledError(`The '${flagKey}' feature is currently disabled.`)
+        );
       }
       next();
     } catch (err) {
@@ -17,3 +32,5 @@ export const requireFeatureFlag = (flagKey: string) => {
     }
   };
 };
+
+export const requireFlag = requireFeatureFlag;
