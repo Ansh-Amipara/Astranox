@@ -11,6 +11,8 @@ const formatRank = (rank: string) => {
   return rank.replace('_MINUS', '-').replace('_PLUS', '+');
 };
 
+import { Skeleton, ErrorState } from '@/components/ui';
+
 export function Profile() {
   const { user, setAuth } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +44,7 @@ export function Profile() {
     }
   });
 
-  const { data: trainerSave, isLoading } = useQuery({
+  const { data: trainerSave, isLoading, isError, refetch } = useQuery({
     queryKey: ['trainer-me'],
     queryFn: async () => {
       const { data } = await api.get('/trainers/me');
@@ -54,6 +56,18 @@ export function Profile() {
   const playerCp = trainerSave?.party?.reduce((sum: number, p: { cp?: number }) => sum + (p.cp || 0), 0) || 0;
 
   if (!user) return null;
+
+  if (isError) {
+    return (
+      <div className="w-full min-h-[calc(100vh-4rem)] p-6 flex items-center justify-center bg-surface-raised">
+        <ErrorState
+          title="Failed to Load Profile"
+          message="Could not retrieve your trainer save data from the server."
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full min-h-[calc(100vh-4rem)] p-4 md:p-8 flex flex-col bg-surface-raised">
@@ -126,10 +140,14 @@ export function Profile() {
             <div className="bg-surface-raised p-6 rounded-lg border border-border h-full">
               <h2 className="text-xl font-semibold text-subtle mb-4 border-b pb-2">Progression</h2>
               {isLoading ? (
-                <div className="animate-pulse space-y-3">
-                  <div className="h-5 bg-surface-raised rounded w-full"></div>
-                  <div className="h-5 bg-surface-raised rounded w-full"></div>
-                  <div className="h-5 bg-surface-raised rounded w-full"></div>
+                <div className="space-y-4">
+                  <Skeleton height={48} className="rounded-lg" />
+                  <Skeleton height={48} className="rounded-lg" />
+                  <div className="flex gap-4">
+                    <Skeleton height={72} className="flex-1 rounded-lg" />
+                    <Skeleton height={72} className="flex-1 rounded-lg" />
+                  </div>
+                  <Skeleton height={48} className="rounded-lg" />
                 </div>
               ) : trainerSave ? (
                 <div className="space-y-4">

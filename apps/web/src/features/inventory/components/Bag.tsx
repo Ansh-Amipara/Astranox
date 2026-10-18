@@ -1,9 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { OwnedPokemonDto } from '@astranox/types';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
+import { Skeleton, EmptyState, ErrorState, PokemonSprite } from '@/components/ui';
+import { getOptimizedCloudinaryUrl } from '@/lib/sprite';
+import { Dropdown } from '@/shared/ui/Dropdown';
 
 interface InventoryItem {
   itemId: string;
@@ -16,14 +20,13 @@ interface InventoryItem {
   };
 }
 
-import { FiChevronDown } from 'react-icons/fi';
-import { Dropdown } from '@/shared/ui/Dropdown';
-
 export function Bag() {
   const queryClient = useQueryClient();
   const [selectedItemToUse, setSelectedItemToUse] = useState<InventoryItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const { data: save, isLoading } = useQuery({
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const { data: save, isLoading, isError, refetch } = useQuery({
     queryKey: ['trainerSave'],
     queryFn: async () => {
       const { data } = await api.get('/trainers/me');
@@ -48,8 +51,39 @@ export function Bag() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-border"></div>
+      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+        <div className="w-full mx-auto space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 border-b border-border pb-4">
+            <Skeleton width={180} height={36} />
+            <Skeleton width={200} height={40} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+              <div key={idx} className="bg-surface rounded-2xl border border-border p-4 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton variant="rectangular" width={56} height={56} className="rounded-xl" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton width="80%" height={18} />
+                    <Skeleton width="40%" height={14} />
+                  </div>
+                </div>
+                <Skeleton width="100%" height={32} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100vh-64px)] flex items-center justify-center">
+        <ErrorState
+          title="Failed to Load Bag"
+          message="Could not load your trainer inventory from the server. Please check your connection."
+          onRetry={() => refetch()}
+        />
       </div>
     );
   }
@@ -92,11 +126,24 @@ export function Bag() {
       </div>
 
       {filteredInventory.length === 0 ? (
-        <div className="bg-surface-raised/50 border border-border/50 rounded-2xl p-12 text-center">
-          <p className="text-muted text-lg">
-            {inventory.length === 0 ? 'Your bag is empty.' : 'No items found in this category.'}
-          </p>
-        </div>
+        <EmptyState
+          title={inventory.length === 0 ? "Your Bag is Empty" : "No Items in this Category"}
+          description={
+            inventory.length === 0
+              ? "You don't have any items in your bag yet. Win battles or visit the Pokémart to obtain items!"
+              : "Try switching to another item category or view All Items."
+          }
+          action={
+            inventory.length > 0 && selectedCategory !== 'all' ? (
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className="px-4 py-2 text-xs font-semibold rounded-lg bg-surface-raised hover:bg-surface border border-border text-foreground transition-colors"
+              >
+                View All Items
+              </button>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredInventory.map((inv) => (
@@ -174,7 +221,7 @@ export function Bag() {
                   disabled={useItemMutation.isPending}
                   className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-surface-raised hover:border-border transition-colors text-left disabled:opacity-50"
                 >
-                  <img src={`https://res.cloudinary.com/d0baluu2/image/upload/astranox/pokemon/${p.species.id}.png`} alt={p.species.name} className="w-16 h-16 object-contain drop-shadow" />
+                  <PokemonSprite speciesId={p.species.id} alt={p.species.name} size="lg" />
                   <div>
                     <div className="font-bold text-lg capitalize">{p.nickname || p.species.name}</div>
                     <div className="text-sm font-bold text-subtle">Level {p.level} &bull; {p.potential}</div>

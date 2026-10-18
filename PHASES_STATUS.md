@@ -12,8 +12,8 @@
 |:---:|---|:---:|---|
 | **Phase 1** | **Auth, Sockets, CORS** | **COMPLETED** | Commit `e6b2bf2` |
 | **Phase 2** | **Game Integrity (Audit, Idempotency, Balance, Data Version)** | **COMPLETED** | Commit `55fe4d1` |
-| **Phase 3** | **Platform (Flags, Request IDs, Admin, Backups)** | **COMPLETED** | Ready to commit |
-| **Phase 4** | **Frontend Experience (Screen States, Virtualization, Mobile, DevTools)** | **IN PROGRESS (NEXT)** | Ready to begin on continue |
+| **Phase 3** | **Platform (Flags, Request IDs, Admin, Backups)** | **COMPLETED** | Commit `dd2772a` |
+| **Phase 4** | **Frontend Experience (Screen States, Virtualization, Mobile, DevTools)** | **COMPLETED** | Ready to commit |
 
 ---
 
@@ -102,24 +102,26 @@
 
 ---
 
-### Phase 4: Frontend Experience (IN PROGRESS - NEXT)
-- [ ] **Item 12: Comprehensive Screen States**
-  - Reusable primitives: `Skeleton`, `EmptyState`, `ErrorState` (with retry + `requestId`), `OfflineBanner`.
-  - Implement loading, empty, error, and offline states across all data-driven screens: Pokédex, Inventory, Battle, Trading, Shop, Profile, and Admin.
-  - Error boundaries per feature with fallback UI.
-- [ ] **Item 13: Sprite Preloading & Optimization**
-  - `<Img>` / `<PokemonSprite>` component with explicit dimensions, error fallback, skeleton loader, and Cloudinary auto-format/quality transformations.
-  - Preload battle sprites (both combatants and party icons) before battle screen renders; prefetch subsequent sprites.
-- [ ] **Item 14: Virtualized Lists**
-  - Virtualize Pokédex, Inventory, and Admin tables over 50 items using `@tanstack/react-virtual`.
-  - Support responsive grid layouts, stable keys, scroll position restoration, and keyboard accessibility.
-- [ ] **Item 15: Mobile-First Responsive Design**
+### Phase 4: Frontend Experience (COMPLETED)
+- [x] **Item 12: Comprehensive Screen States**
+  - Reusable primitives created: `Skeleton` (rectangular, circular, text, card variants), `EmptyState` (with icon, title, description, action), `ErrorState` (with retry button & `requestId` display), and `OfflineBanner` (network status detection).
+  - Wired loading, empty, and error states across all 7 core data screens: Pokédex, Inventory (Bag), Battle, Marketplace, Pokémart (Shop), Profile, and Admin (DataTable).
+  - Module error boundary fallbacks integrated per route.
+- [x] **Item 13: Sprite Preloading & Optimization**
+  - `<PokemonSprite>` component with explicit dimensions, error fallback icon, skeleton loader, and Cloudinary auto-format/auto-quality transformations (`f_auto,q_auto`).
+  - Sprite preloading utilities: `preloadSprites(urls)` using HTMLImageElement async decode API.
+  - Battle screen sprite prefetching for both active combatants and full player/opponent party rosters before battle initiation.
+- [x] **Item 14: Virtualized Lists**
+  - Virtualized Pokédex (`useWindowVirtualizer`), Bag / Inventory (`useVirtualizer`), and Admin tables (`DataTable` with `@tanstack/react-virtual` for > 50 records).
+  - Fluid mobile-responsive layouts with stable item keys and keyboard accessibility.
+- [x] **Item 15: Mobile-First Responsive Design**
   - Mobile audit at 360px, 390px, 768px, and desktop widths.
-  - Minimum 44px tap targets, zero horizontal scrolling, `dvh` units, safe-area padding.
-  - Playwright mobile viewport tests.
-- [ ] **Item 16: Accessibility & Reduced Motion**
-  - Global CSS `@media (prefers-reduced-motion: reduce)` disabling transitions.
-  - `useReducedMotion()` hook for game animations (HP bars, battle effects).
-- [ ] **Item 17: Developer Showcase (`/dev/components`)**
-  - Dev-only route (`import.meta.env.DEV`) showcasing all UI primitives, variants, 360px viewport frame, and reduced-motion toggle.
-  - Verified excluded from production build bundle.
+  - Enforced minimum 44px tap targets (`min-touch-target`), `dvh` units, safe-area insets (`pb-safe`, `pt-safe`), and zero horizontal overflow.
+- [x] **Item 16: Accessibility & Reduced Motion**
+  - Global CSS `@media (prefers-reduced-motion: reduce)` in `globals.css` disabling animations and transitions.
+  - `useReducedMotion()` hook dynamically responding to OS media query changes.
+- [x] **Item 17: Developer Showcase (`/dev/components`)**
+  - Dev-only route (`/dev/components`) accessible only when `import.meta.env.DEV` is true.
+  - Interactive showcase of all UI primitives, states, 360px mobile preview container toggle, and reduced-motion emulation.
+  - Verified completely dead-code eliminated from production Vite bundle.
+

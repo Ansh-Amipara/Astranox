@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBattleSession } from '@/features/battle/hooks/useBattleSession';
-import { api } from '@/shared/api/api';
 import { BattleScreenPresenter } from './BattleScreenPresenter';
+import { Skeleton, EmptyState, ErrorState, Button } from '@/components/ui';
+import { getSpriteUrl } from '@/lib/axios';
+import { preloadSprites } from '@/lib/sprite';
 
 export function BattleScreen() {
   const navigate = useNavigate();
@@ -33,6 +35,27 @@ export function BattleScreen() {
     }
   }, [isWaitingSwitch, isFinished]);
 
+  // Preload battle sprites once session is established
+  useEffect(() => {
+    if (battleRes) {
+      const spriteUrls: (string | null | undefined)[] = [
+        battleRes.playerPokemonData?.species?.id
+          ? getSpriteUrl(battleRes.playerPokemonData.species.id)
+          : null,
+        battleRes.opponentPokemonData?.species?.id
+          ? getSpriteUrl(battleRes.opponentPokemonData.species.id)
+          : null,
+        ...(battleRes.playerPartyData || []).map((p: any) =>
+          p?.species?.id ? getSpriteUrl(p.species.id) : null
+        ),
+        ...(battleRes.opponentPartyData || []).map((p: any) =>
+          p?.species?.id ? getSpriteUrl(p.species.id) : null
+        ),
+      ];
+      preloadSprites(spriteUrls);
+    }
+  }, [battleRes]);
+
   const battleType = battleRes?.battleType || 'WILD';
 
   const handleMoveSelect = useCallback((action: string) => {
@@ -62,18 +85,74 @@ export function BattleScreen() {
   const returnUrl = searchParams?.get('returnUrl') || '/';
   const arenaTrainerId = searchParams?.get('arenaTrainerId') || null;
 
-  if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center text-foreground transition-colors duration-200">Loading Battle...</div>;
-
-  if (error || !battleRes) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-foreground gap-4 transition-colors duration-200 p-6 text-center">
-        <h2 className="text-2xl font-black">No Active Battle</h2>
-        <p className="text-subtle max-w-sm text-sm">You currently do not have an ongoing battle session. Start a new encounter below!</p>
-        <div className="flex gap-3">
-          <button onClick={() => navigate(returnUrl)} className="px-5 py-3 bg-surface-raised hover:bg-surface-raised text-foreground rounded-xl font-bold transition-colors">
-            Return
-          </button>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-foreground">
+        <div className="w-full max-w-4xl bg-surface border border-border rounded-3xl p-6 md:p-8 space-y-8">
+          {/* Opponent HUD Skeleton */}
+          <div className="flex justify-between items-start">
+            <div className="space-y-2 w-48">
+              <Skeleton width={140} height={20} />
+              <Skeleton width="100%" height={10} className="rounded-full" />
+            </div>
+            <Skeleton variant="circular" width={80} height={80} />
+          </div>
+
+          {/* Arena Center Placeholder */}
+          <div className="h-40 flex items-center justify-center">
+            <div className="text-xs font-bold text-muted animate-pulse">Initializing Battle Session...</div>
+          </div>
+
+          {/* Player HUD Skeleton */}
+          <div className="flex justify-between items-end">
+            <Skeleton variant="circular" width={80} height={80} />
+            <div className="space-y-2 w-48 text-right">
+              <Skeleton width={140} height={20} className="ml-auto" />
+              <Skeleton width="100%" height={10} className="rounded-full" />
+            </div>
+          </div>
+
+          {/* Action Menu Skeleton */}
+          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border">
+            <Skeleton height={48} className="rounded-xl" />
+            <Skeleton height={48} className="rounded-xl" />
+            <Skeleton height={48} className="rounded-xl" />
+            <Skeleton height={48} className="rounded-xl" />
+          </div>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <ErrorState
+          title="Battle Connection Error"
+          message={(error as Error)?.message || 'Failed to communicate with the battle engine.'}
+          onRetry={() => window.location.reload()}
+          retryLabel="Reconnect Battle"
+        />
+      </div>
+    );
+  }
+
+  if (!battleRes) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <EmptyState
+          title="No Active Battle"
+          description="You currently do not have an active encounter or battle session."
+          action={
+            <Button
+              variant="outline"
+              onClick={() => navigate(returnUrl)}
+              className="font-bold"
+            >
+              Return to Overworld
+            </Button>
+          }
+        />
       </div>
     );
   }

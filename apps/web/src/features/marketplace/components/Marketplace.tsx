@@ -1,27 +1,94 @@
 import { useState } from 'react';
 import { useSearchListings, useMyListings, useMyOffers, useCancelOffer } from '../hooks/queries';
 import { TradeListingCard } from './TradeListingCard';
-import { Loader2, Plus, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { TradeListingDto, TradeOfferDto } from '@astranox/types';;
+import { TradeListingDto, TradeOfferDto } from '@astranox/types';
+import { Skeleton, EmptyState, ErrorState, Button } from '@/components/ui';
 
 export function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<'browse' | 'my-listings' | 'my-offers'>('browse');
   const navigate = useNavigate();
 
   // Basic filters for now
-  const [filters, setFilters] = useState({});
+  const [filters] = useState({});
 
-  const { data: searchData, isLoading: isLoadingSearch } = useSearchListings(filters);
-  const { data: myListingsData, isLoading: isLoadingMyListings } = useMyListings();
-  const { data: myOffersData, isLoading: isLoadingMyOffers } = useMyOffers();
+  const {
+    data: searchData,
+    isLoading: isLoadingSearch,
+    isError: isErrorSearch,
+    refetch: refetchSearch,
+  } = useSearchListings(filters);
+
+  const {
+    data: myListingsData,
+    isLoading: isLoadingMyListings,
+    isError: isErrorMyListings,
+    refetch: refetchMyListings,
+  } = useMyListings();
+
+  const {
+    data: myOffersData,
+    isLoading: isLoadingMyOffers,
+    isError: isErrorMyOffers,
+    refetch: refetchMyOffers,
+  } = useMyOffers();
+
   const cancelOfferMutation = useCancelOffer();
 
   const renderContent = () => {
     if (activeTab === 'browse') {
-      if (isLoadingSearch) return <Loader2 className="w-8 h-8 animate-spin text-foreground mx-auto mt-20" />;
+      if (isLoadingSearch) {
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+                <div className="flex justify-between items-start">
+                  <Skeleton width={120} height={20} />
+                  <Skeleton width={50} height={20} />
+                </div>
+                <div className="flex justify-center py-4">
+                  <Skeleton variant="circular" width={80} height={80} />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton width="100%" height={14} />
+                  <Skeleton width="60%" height={14} />
+                </div>
+                <Skeleton height={36} className="rounded-xl" />
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      if (isErrorSearch) {
+        return (
+          <div className="mt-12 flex justify-center">
+            <ErrorState
+              title="Failed to Load Listings"
+              message="Could not retrieve active trade listings from the marketplace."
+              onRetry={() => refetchSearch()}
+            />
+          </div>
+        );
+      }
+
       const listings = searchData || [];
-      if (listings.length === 0) return <div className="text-center text-subtle mt-20">No active listings found.</div>;
+      if (listings.length === 0) {
+        return (
+          <div className="mt-12">
+            <EmptyState
+              title="No Active Listings"
+              description="There are currently no trade listings open on the exchange. Be the first to create one!"
+              action={
+                <Button variant="outline" onClick={() => navigate('/marketplace/create')}>
+                  Create First Listing
+                </Button>
+              }
+            />
+          </div>
+        );
+      }
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
@@ -33,9 +100,50 @@ export function MarketplacePage() {
     }
 
     if (activeTab === 'my-listings') {
-      if (isLoadingMyListings) return <Loader2 className="w-8 h-8 animate-spin text-foreground mx-auto mt-20" />;
+      if (isLoadingMyListings) {
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+                <Skeleton width={100} height={20} />
+                <div className="flex justify-center py-4">
+                  <Skeleton variant="circular" width={80} height={80} />
+                </div>
+                <Skeleton height={36} className="rounded-xl" />
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      if (isErrorMyListings) {
+        return (
+          <div className="mt-12 flex justify-center">
+            <ErrorState
+              title="Failed to Load Your Listings"
+              message="Could not fetch your active trade listings."
+              onRetry={() => refetchMyListings()}
+            />
+          </div>
+        );
+      }
+
       const listings = myListingsData || [];
-      if (listings.length === 0) return <div className="text-center text-subtle mt-20">You have no listings.</div>;
+      if (listings.length === 0) {
+        return (
+          <div className="mt-12">
+            <EmptyState
+              title="You Have No Listings"
+              description="You haven't listed any Pokémon for trade yet."
+              action={
+                <Button variant="outline" onClick={() => navigate('/marketplace/create')}>
+                  List a Pokémon
+                </Button>
+              }
+            />
+          </div>
+        );
+      }
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
@@ -47,9 +155,50 @@ export function MarketplacePage() {
     }
 
     if (activeTab === 'my-offers') {
-      if (isLoadingMyOffers) return <Loader2 className="w-8 h-8 animate-spin text-foreground mx-auto mt-20" />;
+      if (isLoadingMyOffers) {
+        return (
+          <div className="space-y-4 mt-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-surface p-4 rounded-xl border border-border flex justify-between items-center">
+                <div className="space-y-2">
+                  <Skeleton width={160} height={18} />
+                  <Skeleton width={100} height={14} />
+                </div>
+                <Skeleton width={100} height={36} className="rounded-lg" />
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      if (isErrorMyOffers) {
+        return (
+          <div className="mt-12 flex justify-center">
+            <ErrorState
+              title="Failed to Load Offers"
+              message="Could not load your trade offers from the server."
+              onRetry={() => refetchMyOffers()}
+            />
+          </div>
+        );
+      }
+
       const offers = myOffersData || [];
-      if (offers.length === 0) return <div className="text-center text-subtle mt-20">You have no pending offers.</div>;
+      if (offers.length === 0) {
+        return (
+          <div className="mt-12">
+            <EmptyState
+              title="No Offers Placed"
+              description="You have not submitted trade offers on any listings yet."
+              action={
+                <Button variant="outline" onClick={() => setActiveTab('browse')}>
+                  Browse Active Trades
+                </Button>
+              }
+            />
+          </div>
+        );
+      }
 
       return (
         <div className="space-y-4 mt-6">

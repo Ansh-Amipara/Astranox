@@ -73,6 +73,10 @@ const AdminAuditLog = React.lazy(() =>
   import('@/features/admin/pages/AuditLog').then((m) => ({ default: m.AuditLog }))
 );
 
+const ComponentShowcase = import.meta.env.DEV
+  ? React.lazy(() => import('@/pages/dev/ComponentShowcase'))
+  : null;
+
 function AdminSuspense({ children }: { children: React.ReactNode }) {
   return (
     <Suspense
@@ -88,12 +92,14 @@ function AdminSuspense({ children }: { children: React.ReactNode }) {
 }
 
 import { MaintenanceGuard } from '@/components/layout/MaintenanceScreen';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 
 function GameLayout() {
   return (
     <MaintenanceGuard>
       <AuthGuard>
         <RequireStarterGuard>
+          <OfflineBanner />
           <Header />
           <main className="flex-1 flex flex-col relative w-full overflow-x-hidden">
             <ErrorBoundary FallbackComponent={ModuleErrorFallback}>
@@ -246,6 +252,24 @@ export function AppRoutes() {
             <Route path="history" element={<EventHistoryPage />} />
           </Route>
         </Route>
+
+        {/* Development Component Showcase */}
+        {import.meta.env.DEV && ComponentShowcase && (
+          <Route
+            path="/dev/components"
+            element={
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center min-h-[50vh]">
+                    <Spinner size="lg" />
+                  </div>
+                }
+              >
+                <ComponentShowcase />
+              </Suspense>
+            }
+          />
+        )}
 
         {/* Fallback */}
         <Route path="*" element={<NotFoundPage />} />

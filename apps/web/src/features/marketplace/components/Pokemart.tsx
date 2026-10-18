@@ -7,6 +7,7 @@ import { TrainerSaveDto, InventoryItemDto, ShopItemDto } from '@astranox/types';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Skeleton, EmptyState, ErrorState } from '@/components/ui';
 import { notify } from '@/lib/toast';
 
 interface MoveShopItem {
@@ -57,17 +58,18 @@ export function Pokemart() {
     },
   });
 
-  const { data: items = [], isLoading: isItemsLoading } = useQuery<ShopItemDto[]>({
+  const { data: items = [], isLoading: isItemsLoading, isError: isItemsError, refetch: refetchItems } = useQuery<ShopItemDto[]>({
     queryKey: ['shopItems'],
     queryFn: shopApi.getItems,
   });
 
-  const { data: moves, isLoading: isMovesLoading } = useQuery<MoveShopItem[]>({
+  const { data: moves, isLoading: isMovesLoading, isError: isMovesError, refetch: refetchMoves } = useQuery<MoveShopItem[]>({
     queryKey: ['shopMoves'],
     queryFn: shopApi.getMoves,
   });
 
   const isLoading = isItemsLoading || isMovesLoading;
+  const isError = isItemsError || isMovesError;
 
   // Single Item Purchase Mutation with expectedPrice
   const buySingleMutation = useMutation({
@@ -218,8 +220,45 @@ export function Pokemart() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full min-h-[50vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-foreground"></div>
+      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+        <div className="w-full mx-auto space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-border pb-4">
+            <Skeleton width={180} height={36} />
+            <div className="flex gap-2">
+              <Skeleton width={120} height={36} />
+              <Skeleton width={120} height={36} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="bg-surface rounded-2xl border border-border p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton variant="rectangular" width={48} height={48} className="rounded-xl" />
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton width="70%" height={16} />
+                    <Skeleton width="40%" height={12} />
+                  </div>
+                </div>
+                <Skeleton width="100%" height={28} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100vh-64px)] flex items-center justify-center">
+        <ErrorState
+          title="Failed to Load Pokémart"
+          message="Could not load the shop items from the server."
+          onRetry={() => {
+            refetchItems();
+            refetchMoves();
+          }}
+        />
       </div>
     );
   }
@@ -659,6 +698,15 @@ export function Pokemart() {
                   })}
               </tbody>
             </table>
+
+            {((activeCategory !== 'moves' && filteredItems.length === 0) || (activeCategory === 'moves' && sortedMoves.length === 0)) && (
+              <div className="p-8">
+                <EmptyState
+                  title="No Items Available"
+                  description="There are currently no items or moves listed in this category."
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

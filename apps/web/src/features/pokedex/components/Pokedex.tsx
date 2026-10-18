@@ -5,8 +5,8 @@ import { api } from '@/shared/api/api';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { getTypeSpriteUrl } from '@/lib/axios';
 import { PokedexRow } from './PokedexRow';
-import { SpeciesDto } from '@astranox/types';;
 import { Loader2 } from 'lucide-react';
+import { Skeleton, EmptyState, ErrorState } from '@/components/ui';
 
 export const PokedexPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
@@ -14,7 +14,7 @@ export const PokedexPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const limit = 50;
 
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ['pokedex', limit, selectedType, selectedRank, searchQuery],
     queryFn: async ({ pageParam = 1 }) => {
       const typeParam = selectedType ? `&type=${selectedType}` : '';
@@ -82,15 +82,51 @@ export const PokedexPage: React.FC = () => {
 
   if (isLoading && allSpecies.length === 0) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-background flex flex-col items-center justify-center text-foreground transition-colors duration-200">
-        <Loader2 className="w-8 h-8 animate-spin text-foreground mb-4" />
-        <span className="font-bold text-muted">Loading Pokédex...</span>
+      <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100vh-64px)] flex flex-col justify-start">
+        <div className="w-full mx-auto space-y-4 md:space-y-6">
+          <div className="flex flex-row items-center justify-between gap-4">
+            <Skeleton width={240} height={36} />
+            <Skeleton width={110} height={40} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 border-b border-border pb-4">
+            <Skeleton height={42} />
+            <Skeleton height={42} />
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5, 6].map((idx) => (
+              <div
+                key={idx}
+                className="p-4 bg-surface rounded-2xl border border-border flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-3">
+                  <Skeleton variant="circular" width={48} height={48} />
+                  <div className="space-y-2">
+                    <Skeleton width={140} height={18} />
+                    <Skeleton width={60} height={14} />
+                  </div>
+                </div>
+                <div className="hidden sm:flex items-center gap-2">
+                  <Skeleton width={70} height={24} />
+                  <Skeleton width={90} height={24} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (isError) {
-    return <div className="min-h-[calc(100vh-64px)] bg-background flex items-center justify-center text-muted transition-colors duration-200">Failed to load Pokedex.</div>;
+    return (
+      <div className="flex-1 bg-background text-foreground p-6 min-h-[calc(100vh-64px)] flex items-center justify-center">
+        <ErrorState
+          title="Failed to Load Pokédex"
+          message="Could not retrieve species data from the Astranox server. Please check your connection and try again."
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
   }
 
   return (
@@ -140,9 +176,23 @@ export const PokedexPage: React.FC = () => {
         </div>
 
         {allSpecies.length === 0 ? (
-          <div className="text-center p-12 bg-background rounded-3xl border border-border">
-            <p className="text-subtle font-bold">No Pokémon found.</p>
-          </div>
+          <EmptyState
+            title="No Pokémon Found"
+            description="No Pokémon species match your currently selected filters."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedType('');
+                  setSelectedRank('all');
+                  setSearchQuery('');
+                }}
+                className="px-4 py-2 text-xs font-semibold rounded-lg bg-surface-raised hover:bg-surface border border-border text-foreground transition-colors"
+              >
+                Reset Filters
+              </button>
+            }
+          />
         ) : (
           <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
             <div className="w-full lg:overflow-x-auto custom-scrollbar">

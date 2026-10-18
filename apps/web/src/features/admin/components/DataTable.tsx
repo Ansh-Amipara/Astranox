@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ArrowUpDown, ArrowUp, ArrowDown, AlertCircle, Inbox } from 'lucide-react';
-import { Spinner } from '@/components/ui/Spinner';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Skeleton, EmptyState, ErrorState } from '@/components/ui';
 
 export interface Column<T> {
   key?: string;
@@ -60,38 +60,42 @@ export function DataTable<T>({
 
   if (isLoading) {
     return (
-      <div className="bg-surface border border-border rounded-2xl p-12 flex flex-col items-center justify-center gap-3">
-        <Spinner size="lg" />
-        <span className="text-xs font-bold text-muted">Loading records...</span>
+      <div className="bg-surface border border-border rounded-2xl p-6 space-y-3">
+        <div className="flex justify-between items-center pb-3 border-b border-border">
+          <Skeleton width={120} height={20} />
+          <Skeleton width={80} height={20} />
+        </div>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center justify-between py-2 border-b border-border/40">
+            <Skeleton width="30%" height={16} />
+            <Skeleton width="20%" height={16} />
+            <Skeleton width="15%" height={16} />
+            <Skeleton width="10%" height={24} className="rounded-lg" />
+          </div>
+        ))}
       </div>
     );
   }
 
   if (error || isError) {
     return (
-      <div className="bg-surface border border-border rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-2">
-        <AlertCircle className="w-8 h-8 text-danger" />
-        <h4 className="text-sm font-black text-foreground">Failed to load data</h4>
-        <p className="text-xs text-muted max-w-sm">
-          {typeof error === 'string' ? error : 'An error occurred while loading records.'}
-        </p>
-        {onRetry && (
-          <button
-            onClick={() => onRetry()}
-            className="mt-2 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity"
-          >
-            Retry
-          </button>
-        )}
+      <div className="p-4">
+        <ErrorState
+          title="Failed to Load Data"
+          message={typeof error === 'string' ? error : 'An error occurred while loading administrative records.'}
+          onRetry={onRetry}
+        />
       </div>
     );
   }
 
   if (data.length === 0) {
     return (
-      <div className="bg-surface border border-border rounded-2xl p-12 flex flex-col items-center justify-center text-center gap-2">
-        <Inbox className="w-8 h-8 text-muted" />
-        <span className="text-sm font-bold text-muted">{emptyMessage}</span>
+      <div className="p-4">
+        <EmptyState
+          title="No Records Found"
+          description={emptyMessage}
+        />
       </div>
     );
   }
