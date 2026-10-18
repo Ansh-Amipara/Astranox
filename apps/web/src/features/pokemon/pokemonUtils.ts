@@ -1,3 +1,10 @@
+import {
+  getMaxLevelForPotential,
+  getXpForLevel,
+  getLevelFromXp,
+  PROGRESSION_CONSTANTS,
+} from '@astranox/constants';
+
 export function getPotentialBadgeClasses(potential: string): string {
   const baseClasses = "text-[11px] uppercase tracking-wider px-2 py-1 rounded font-bold border transition-colors";
   
@@ -32,38 +39,8 @@ export function formatPotential(potential: string): string {
   return potential.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', ' ');
 }
 
-export function getMaxLevelForPotential(potential: string): number {
-  const map: Record<string, number> = {
-    F: 25,
-    E: 50,
-    D: 75,
-    C: 100,
-    B: 150,
-    A: 200,
-    S_MINUS: 300,
-    S: 350,
-    S_PLUS: 400,
-    SS_MINUS: 500,
-    SS: 600,
-    SS_PLUS: 700,
-    SSS_MINUS: 800,
-    SSS: 900,
-    SSS_PLUS: 1000,
-    EX: 5000,
-  };
-  return map[potential] || 5000;
-}
+export { getMaxLevelForPotential, getXpForLevel, getLevelFromXp };
 
 export const xpRequiredForLevelUp = (_level?: number): number => {
-  return 100;
+  return PROGRESSION_CONSTANTS.XP_PER_LEVEL;
 };
-
-export function getXpForLevel(level: number): number {
-  if (level <= 1) return 0;
-  return (level - 1) * 100 + 1;
-}
-
-export function getLevelFromXp(xp: number): number {
-  if (xp <= 0) return 1;
-  return Math.floor((xp - 1) / 100) + 1;
-}
