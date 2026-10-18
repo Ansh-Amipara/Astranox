@@ -17,7 +17,6 @@
     "@astranox/constants": "workspace:*",
     "@astranox/game-map": "workspace:*",
     "@astranox/types": "workspace:*",
-    "@astranox/utils": "workspace:*",
     "@hookform/resolvers": "^5.9.2",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-select": "^2.3.7",
@@ -51,12 +50,11 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.1",
     "@vitest/coverage-v8": "^2.1.9",
-    "autoprefixer": "^10.5.2",
     "jsdom": "^29.1.1",
     "oxlint": "^1.71.0",
     "postcss": "^8.5.16",
     "tailwindcss": "^4.3.2",
-    "typescript": "~6.0.2",
+    "typescript": "^5.3.3",
     "vite": "^5.4.1",
     "vitest": "^2.1.9"
   }
