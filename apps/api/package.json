@@ -15,8 +15,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@astranox/battle-engine": "workspace:*",
     "@astranox/constants": "workspace:*",
     "@astranox/database": "workspace:*",
+    "@astranox/game-map": "workspace:*",
     "@astranox/types": "workspace:*",
     "@astranox/utils": "workspace:*",
     "@prisma/client": "^5.9.1",

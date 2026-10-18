@@ -60,6 +60,75 @@ Astranox includes a comprehensive test suite covering both the React frontend an
   pnpm test -- --coverage
   ```
 
+## 2D Exploration & Map Authoring Guide
+
+Astranox features a server-authoritative 2D grid exploration engine. Game rules, maps, and collision are pure packages shared between server and client.
+
+### 1. Adding a New Tile Type
+1. **Declare Type**: Add the new identifier to `TileType` in `packages/game-map/src/types.ts`:
+   ```ts
+   export type TileType = 'WALKABLE' | 'WALL' | 'GRASS' | 'WATER' | 'WARP' | 'SAND';
+   ```
+2. **Configure Collision**: Update `canMove()` in `packages/game-map/src/collision.ts`:
+   ```ts
+   export function canMove(map: GameMap, x: number, y: number): boolean {
+     const tile = map.tiles[y]?.[x];
+     return tile === 'WALKABLE' || tile === 'GRASS' || tile === 'WARP' || tile === 'SAND';
+   }
+   ```
+3. **Render Tile**: Add the rendering pattern in `apps/web/src/features/explore/components/MapView.tsx` inside `drawTilePattern()`.
+
+### 2. Creating a New Map
+1. **Define Map**: Create a file in `packages/game-map/src/maps/<map-id>.ts`:
+   ```ts
+   import { GameMap, TileType } from '../types';
+
+   const W: TileType = 'WALL';
+   const _: TileType = 'WALKABLE';
+   const G: TileType = 'GRASS';
+   const P: TileType = 'WARP';
+
+   export const viridianCityMap: GameMap = {
+     id: 'viridian-city',
+     name: 'Viridian City',
+     width: 12,
+     height: 16,
+     tiles: [
+       [W, W, W, W, W, _, _, W, W, W, W, W],
+       // ... full tile matrix
+     ],
+     spawnPoint: { x: 5, y: 14, facing: 'UP' },
+     warps: [
+       { x: 5, y: 15, targetMapId: 'route-1', targetX: 5, targetY: 1, targetFacing: 'DOWN' }
+     ],
+     encounterTables: {
+       grass: {
+         id: 'viridian-grass',
+         entries: [
+           { speciesId: 16, speciesName: 'Pidgey', minLevel: 3, maxLevel: 6, weight: 60 },
+           { speciesId: 19, speciesName: 'Rattata', minLevel: 3, maxLevel: 5, weight: 40 },
+         ]
+       }
+     }
+   };
+   ```
+2. **Register Map**: Export and register the map in `packages/game-map/src/index.ts`:
+   ```ts
+   export const ALL_MAPS: Record<string, GameMap> = {
+     'pallet-town': palletTownMap,
+     'route-1': route1Map,
+     'viridian-city': viridianCityMap,
+   };
+   ```
+
+### 3. Adding an Encounter Table
+Encounter tables define weighted distributions of species and level ranges:
+- **`speciesId`**: Canonical national Pokédex ID.
+- **`speciesName`**: Display species name.
+- **`minLevel` / `maxLevel`**: Inclusive level bounds rolled upon encounter.
+- **`weight`**: Relative probability weight.
+The server-authoritative exploration engine evaluates encounters on stepping onto encounter tiles using a deterministic seeded PRNG (`mulberry32`), preventing client-side spoofing.
+
 ## Common Commands
 
 - `pnpm dev` - Start the monorepo development server.

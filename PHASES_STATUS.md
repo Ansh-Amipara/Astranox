@@ -14,6 +14,7 @@
 | **Phase 2** | **Game Integrity (Audit, Idempotency, Balance, Data Version)** | **COMPLETED** | Commit `55fe4d1` |
 | **Phase 3** | **Platform (Flags, Request IDs, Admin, Backups)** | **COMPLETED** | Commit `dd2772a` |
 | **Phase 4** | **Frontend Experience (Screen States, Virtualization, Mobile, DevTools)** | **COMPLETED** | Ready to commit |
+| **Phase 5** | **2D Grid Exploration & Server-Authoritative Catching Loop** | **COMPLETED** | Ready to commit |
 
 ---
 
@@ -124,4 +125,31 @@
   - Dev-only route (`/dev/components`) accessible only when `import.meta.env.DEV` is true.
   - Interactive showcase of all UI primitives, states, 360px mobile preview container toggle, and reduced-motion emulation.
   - Verified completely dead-code eliminated from production Vite bundle.
+
+---
+
+### Phase 5: 2D Grid Exploration & Server-Authoritative Catching Loop (COMPLETED)
+- [x] **Item 18: Shared Game Logic Packages (`@astranox/game-map` & `@astranox/battle-engine`)**
+  - Pure packages independent of database or network with zero external runtime dependencies.
+  - `packages/game-map`: Tile types (`WALKABLE`, `WALL`, `GRASS`, `WATER`, `WARP`), maps (`pallet-town`, `route-1`), collision checks (`canMove`), and weighted encounter table rolls (`rollEncounter`).
+  - `packages/battle-engine`: Deterministic Mulberry32 seeded PRNG, Gen 5 damage calculation with intermediate truncation, Gen V+ 4-shake capture thresholds (`calculateCapture`), and pure turn resolver `(state, action, rng) => { state, events }` supporting `USE_MOVE`, `THROW_BALL`, `SWITCH_POKEMON`, `RUN` and outcomes `WON`, `CAPTURED`, `DEFEATED`, `FLED`.
+  - Comprehensive unit test suites (8 tests in game-map, 15 tests in battle-engine, all passing).
+- [x] **Item 19: Data Model & Persistence**
+  - Schema updates: Added overworld tracking fields to `TrainerSave` (`currentMapId`, `posX`, `posY`, `facing`, `lastHealMapId`, `lastHealX`, `lastHealY`, `stepsSinceEncounter`).
+  - Added `EncounterHistory` model with compound indexes on `[userId, createdAt]` and `[trainerId, createdAt]`.
+  - Applied schema changes to MongoDB via `prisma db push` and generated Prisma Client.
+- [x] **Item 20: Server-Authoritative Exploration & Battles**
+  - `ExplorationService`: Tracks authoritative position, verifies collisions and warp triggers, enforces movement rate-limiting (180ms cooldown), and awards 5 steps of encounter immunity post-battle.
+  - `EncounterService`: Spawns encounters from weighted map tables, hydrates player party, and persists active session in Redis (`battle:{battleId}`).
+  - `WildBattleService`: Validates intents, manages item consumption, resolves combat rounds with Redlock synchronization.
+  - `BattleFinalizerService`: Executes atomic Prisma transaction on battle completion, awarding/deducting currency, applying party damage/fainting, creating `OwnedPokemon` on capture, logging `EncounterHistory`, and writing append-only `AuditLog`.
+  - `ExploreGateway`: Socket.io gateway handling `explore:join`, `explore:move`, `battle:action` with schema validation, rate-limiting, and ownership verification.
+  - `AdminController`: Added staff endpoint `GET /admin/exploration` returning maps, encounter tables, and balance constants.
+- [x] **Item 21: Web UI & Accessibility**
+  - `ExplorePage`: Responsive 2D exploration with `<canvas>` viewport (11x9 tiles, DPR-aware, monochrome patterns for WALL, GRASS, WATER, WARP), smooth camera lerp, and fallback for `prefers-reduced-motion`.
+  - Controls: Touch D-pad ($\ge 48\text{px}$ targets, hold-to-repeat) and WASD / Arrow keys.
+  - In-game Battle: Turn-based overlay with move selection (keyboard shortcuts 1–4, Esc), ball tossing, party switching with health bars, and accessible live combat log (`aria-live="polite"`).
+  - Outcome modal (`OutcomeDialog`) with summary of rewards/penalties and return-to-map flow.
+  - Screen states: Full `Skeleton`, `ErrorState`, `OfflineBanner`, and faint guard.
+  - Design compliance: 100% compliant with semantic black/white/grey tokens and Outfit typography (`pnpm run check:colors` passing across all 236 files).
 

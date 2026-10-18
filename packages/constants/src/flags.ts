@@ -19,6 +19,12 @@ export const FEATURE_FLAGS: FeatureFlagDefinition[] = [
     defaultValue: true,
   },
   {
+    key: 'exploration',
+    name: '2D Tile Grid Exploration',
+    description: 'Enables overworld grid movement, map exploration, and wild encounters.',
+    defaultValue: true,
+  },
+  {
     key: 'trading',
     name: 'Player Trading & Marketplace',
     description: 'Allows player-to-player trade requests and market listings.',

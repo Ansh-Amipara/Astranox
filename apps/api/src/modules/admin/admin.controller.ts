@@ -88,4 +88,13 @@ export class AdminController {
       next(err);
     }
   };
+
+  getExplorationOverview = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = this.service.getExplorationOverview();
+      res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

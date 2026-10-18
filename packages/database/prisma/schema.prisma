@@ -116,6 +116,18 @@ model TrainerSave {
   infinityTowerState InfinityTowerState?
   riftState          RiftDungeonState?
   eventProgress      PlayerEventProgress[]
+
+  // Overworld Exploration 2D Grid
+  currentMapId        String   @default("pallet-town")
+  posX                Int      @default(5)
+  posY                Int      @default(5)
+  facing              String   @default("DOWN")
+  lastHealMapId       String   @default("pallet-town")
+  lastHealX           Int      @default(5)
+  lastHealY           Int      @default(5)
+  stepsSinceEncounter Int      @default(0)
+
+  encounterHistory    EncounterHistory[]
 }
 
 model OwnedPokemon {
@@ -702,4 +714,21 @@ model PlayerEventProgress {
 
   @@unique([trainerId, eventChallengeId])
 }
+
+model EncounterHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  trainerId String   @db.ObjectId
+  trainer   TrainerSave @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  mapId     String
+  speciesId Int
+  level     Int
+  outcome   String   // "WON" | "CAPTURED" | "DEFEATED" | "FLED"
+  battleId  String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([trainerId, createdAt])
+}
+
 

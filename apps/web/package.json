@@ -13,7 +13,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@astranox/battle-engine": "workspace:*",
     "@astranox/constants": "workspace:*",
+    "@astranox/game-map": "workspace:*",
     "@astranox/types": "workspace:*",
     "@astranox/utils": "workspace:*",
     "@hookform/resolvers": "^5.9.2",

@@ -87,6 +87,7 @@ Feature-based modules. Shared/cross-cutting code only in `common/`. Don't import
 - **Repositories:** all Prisma queries live here.
 - **`game/` modules (`battle/`, `instance/`, `battle-state/`) are pure and DB-free.** No Prisma imports anywhere inside them, ever. Static reference data they need (species base stats, type matchups, learnsets) is passed in by the caller as a context object (`SpeciesContext`, `BattleContext`) — the repository/service layer does the DB reads and injects the data. This boundary has been enforced consistently since Phase 3 and must not be violated by future phases.
 - **Mapping layer:** `trainers/owned-pokemon.mapper.ts` converts between the DB row shape (`OwnedPokemon`) and the pure `PokemonInstance` domain type. The mapper itself must not do DB lookups (e.g. species base stats must be passed in as a parameter, not fetched internally) — this preserves the purity boundary above.
+- **Server-Authoritative Exploration & Battles:** Exploration and battles are server-authoritative; the client sends intents only. Game rules live in packages/battle-engine and packages/game-map (pure, seeded RNG). Battle outcomes are WON | CAPTURED | DEFEATED and are finalized exactly once, in a transaction, with an audit entry.
 
 **Frontend:** components are presentational; business/data logic lives in hooks or services. No `fetch`/`axios` in components — always through `services/` + a TanStack Query hook.
 
@@ -149,9 +150,9 @@ Feature-based modules. Shared/cross-cutting code only in `common/`. Don't import
 | Auth session persistence | Fixed | httpOnly refresh cookie + in-memory access token + silent boot rehydration |
 | Starter selection | Built | See house rule below |
 | Move-inflicted status/stat effects | Not built | Needs `Move` schema patch (structured `ailment`, `ailment_chance`, `stat_changes`) |
-| Catching wild Pokémon | Not built | |
+| Catching wild Pokémon | Built | Canonical Gen V+ 4-shake threshold algorithm via `@astranox/battle-engine` |
 | XP/leveling from battle | Not built | |
-| Zone/encounter tables | Not built | Currently a random-species placeholder |
+| Zone/encounter tables | Built | 2D tile grid maps with warp transitions and weighted encounter tables via `@astranox/game-map` |
 | Team switching mid-battle | Not built | Battle currently ends if the lead faints |
 | Abilities/items/weather effects | Not built | |
 

@@ -78,4 +78,14 @@ export class RedisLockService {
       logger.warn(`Failed to release lock:`, error?.message);
     }
   }
+
+  public async withLock<T>(resource: string, durationMs: number = 5000, fn: () => Promise<T>): Promise<T> {
+    const lock = await this.acquireLock(resource, durationMs);
+    try {
+      return await fn();
+    } finally {
+      await this.releaseLock(lock);
+    }
+  }
 }
+

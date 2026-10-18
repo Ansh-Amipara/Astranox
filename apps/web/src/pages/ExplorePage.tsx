@@ -1,4 +1,4 @@
-import { ExplorePage as Explore } from '@/features/explore/components/Explore';
+import { ExplorePage as Explore } from '@/features/explore/ExplorePage';
 
 export function ExplorePage() {
   return <Explore />;

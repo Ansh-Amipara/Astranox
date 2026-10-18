@@ -56,6 +56,7 @@ router.post(
   announcementsController.createAnnouncement
 );
 router.get('/battles/:id', requireStaff, controller.getBattleById);
+router.get('/exploration', requireStaff, controller.getExplorationOverview);
 router.delete('/announcements/:id', requireStaff, announcementsController.deleteAnnouncement);
 
 // ==========================================
