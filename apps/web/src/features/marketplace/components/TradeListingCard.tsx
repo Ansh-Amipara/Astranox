@@ -1,5 +1,5 @@
 import { getSpriteUrl } from '@/shared/api/api';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 function timeAgo(date: Date, addSuffix = false): string {
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);

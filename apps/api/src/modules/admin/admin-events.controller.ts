@@ -56,7 +56,7 @@ export class AdminEventsController {
     }
   };
 
-  getAllEvents = async (req: Request, res: Response, next: NextFunction) => {
+  getAllEvents = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const events = await this.repo.getAllEvents();
       res.json({ success: true, data: events });

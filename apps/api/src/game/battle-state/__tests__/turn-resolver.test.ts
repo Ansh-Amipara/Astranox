@@ -25,7 +25,7 @@ describe('Turn Resolver Engine', () => {
     stages: { attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0, accuracy: 0, evasion: 0 }
   });
 
-  const createMockAction = (pokemonId: string, priority: number = 0, power: number = 40): BattleAction => ({
+  const createMockAction = (pokemonId: string, _priority: number = 0, power: number = 40): BattleAction => ({
     type: 'move',
     pokemonId,
     typeEffectivenessMultiplier: 1,

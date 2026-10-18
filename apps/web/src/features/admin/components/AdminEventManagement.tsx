@@ -4,7 +4,7 @@ import { api } from '@/shared/api/api';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
 import { SpeciesDto } from '@astranox/types';
-import { FiPlus, FiTrash2, FiEdit2, FiCheckCircle, FiCircle } from 'react-icons/fi';
+import { FiPlus, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Modal } from '@/shared/ui/Modal';
 import { DatePicker } from '@/shared/ui/DatePicker';
@@ -58,16 +58,6 @@ export function AdminEventManagement() {
     }
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return api.delete(`/admin/events/${id}`);
-    },
-    onSuccess: () => {
-      notify.success('Event deleted');
-      queryClient.invalidateQueries({ queryKey: ['adminEvents'] });
-    }
-  });
-
   const openCreate = () => {
     setEditingEvent(null);
     setFormState({
@@ -79,25 +69,6 @@ export function AdminEventManagement() {
       rewardPotential: 'DIAMOND',
       rewardLevel: getMaxLevelForPotential('DIAMOND'),
       rewardIvs: 'max',
-    });
-    setIsModalOpen(true);
-  };
-
-  const openEdit = (evt: { id: string, name: string, description: string, startDate: string, endDate: string, rules: any, isActive: boolean, taskType: string, taskConfig?: any, rewardConfig?: any }) => {
-    setEditingEvent({
-      ...evt,
-      startDate: new Date(evt.startDate).toISOString().slice(0, 10),
-      endDate: new Date(evt.endDate).toISOString().slice(0, 10),
-    });
-    setFormState({
-      isActive: evt.isActive ? 'true' : 'false',
-      taskType: evt.taskType || 'DEFEAT_WILD_POKEMON',
-      taskPokemonType: evt.taskConfig?.pokemonType || '',
-      speciesFilterCategory: '',
-      rewardSpeciesId: String(evt.rewardConfig?.speciesId || ''),
-      rewardPotential: evt.rewardConfig?.potential || 'DIAMOND',
-      rewardLevel: evt.rewardConfig?.level || getMaxLevelForPotential(evt.rewardConfig?.potential || 'DIAMOND'),
-      rewardIvs: evt.rewardConfig?.ivs || 'max',
     });
     setIsModalOpen(true);
   };
@@ -232,7 +203,7 @@ export function AdminEventManagement() {
                   },
                 };
                 saveMutation.mutate(data);
-              } catch (err) {
+              } catch {
                 notify.error("Failed to parse form data");
               }
             }} className="space-y-4">

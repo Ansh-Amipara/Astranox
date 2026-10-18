@@ -3,7 +3,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { container } from 'tsyringe';
 import { AuditService } from '../core/services/audit.service';
 import { prismaTest } from './setup';
-import { prisma } from '../core/db/prisma';
 
 describe('Audit Service & Transaction Integrity', () => {
   let auditService: AuditService;

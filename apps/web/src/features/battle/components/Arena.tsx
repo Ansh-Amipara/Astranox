@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/shared/api/api';
-import { Swords, Loader2, Coins, Sparkles } from 'lucide-react';
+import { Swords, Loader2 } from 'lucide-react';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
 

@@ -60,7 +60,7 @@ export class AdminController {
 
   editPokemon = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id, pokemonId } = req.params;
+      const { pokemonId } = req.params;
       const { potential, addXp, ivs } = req.body;
 
       const pokemon = await this.service.editPokemon(req.user!.id, pokemonId, { potential, addXp, ivs });

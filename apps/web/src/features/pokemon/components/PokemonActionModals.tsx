@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';
-import { OwnedPokemonDto, MoveDto, TrainerSaveDto } from '@astranox/types';;
+import { OwnedPokemonDto, MoveDto, TrainerSaveDto } from '@astranox/types';
 import { Dialog as Modal } from '@/components/ui/Dialog';
 import { useNavigate } from 'react-router-dom';
 import { useSmeltPokemon } from '../hooks/useSmeltPokemon';
@@ -30,7 +30,7 @@ export type PokemonActionModalsProps = {
 };
 
 export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionModalsProps>(({
-  activeMenuPkm, setActiveMenuPkm, save, allMoves, customActions
+  activeMenuPkm, setActiveMenuPkm, save, allMoves: _allMoves, customActions
 }, ref) => {
   const navigate = useNavigate();
 

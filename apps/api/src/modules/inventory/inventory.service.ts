@@ -1,9 +1,6 @@
 import { injectable } from 'tsyringe';
 import { AppError } from '../../core/errors/AppError';
-import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 import { prisma } from '../../core/db/prisma';
-
-
 
 // Map of XP Candy IDs to the amount of XP they grant
 const XP_CANDY_VALUES: Record<string, number> = {
@@ -16,20 +13,6 @@ const XP_CANDY_VALUES: Record<string, number> = {
 
 @injectable()
 export class InventoryService {
-  /**
-   * Helper to determine XP required for a level using Medium Fast growth rate (Level^3)
-   */
-  private getXpForLevel(level: number): number {
-    return Math.pow(level, 3);
-  }
-
-  /**
-   * Helper to determine Level from XP using Medium Fast growth rate
-   */
-  private getLevelFromXp(xp: number, maxLevel: number): number {
-    const level = Math.floor(Math.cbrt(xp));
-    return Math.min(Math.max(level, 1), maxLevel);
-  }
 
   async useItem(trainerId: string, itemId: string, targetPokemonId?: string, quantityToUse: number = 1) {
     // 1. Verify item existence and quantity

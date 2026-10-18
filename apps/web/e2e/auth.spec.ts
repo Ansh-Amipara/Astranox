@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Authentication Flow', () => {
-  const password = 'Password123!';
-
   test('should register a new user', async ({ page }) => {
     const username = `u_${Date.now().toString().slice(-6)}`;
     const email = `${username}@example.com`;

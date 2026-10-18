@@ -252,7 +252,7 @@ export class TrainersService {
       finalEvolvesToId = targetSpecies.id;
     }
 
-    const evolvedPokemon = await this.repo.evolvePokemon(save.id, pokemonId, finalEvolvesToId, itemIdToConsume);
+    await this.repo.evolvePokemon(save.id, pokemonId, finalEvolvesToId, itemIdToConsume);
     // Since evolvePokemon doesn't return the fully included entity, we should fetch it or map what we have.
     // However, the previous implementation just returned evolvedPokemon which is the OwnedPokemon object.
     const fullyIncludedPokemon = await this.repo.getPokemonById(save.id, pokemonId);

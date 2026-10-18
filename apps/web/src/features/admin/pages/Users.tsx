@@ -12,7 +12,6 @@ import { ReasonField } from '../components/ReasonField';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { AdminUserListItemDto } from '@astranox/types';
 import {
-  Users as UsersIcon,
   Search,
   Filter,
   Shield,
@@ -21,7 +20,6 @@ import {
   Gift,
   ExternalLink,
   X,
-  AlertTriangle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

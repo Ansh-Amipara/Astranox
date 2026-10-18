@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { PrismaClient, PokemonPotential } from '@prisma/client';
+import { PokemonPotential } from '@prisma/client';
 import { AppError } from '../../core/errors/AppError';
 import { getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
 import { getXpForLevel, getLevelFromXp } from '../../game/battle/level-math';

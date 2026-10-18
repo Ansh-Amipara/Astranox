@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 
 export function Flags() {
-  const { data: flags = [], isLoading, isError, refetch } = useAdminFlags();
+  const { data: flags = [], isLoading } = useAdminFlags();
   const updateMutation = useUpdateFeatureFlag();
 
   const [targetFlag, setTargetFlag] = useState<{ flag: FeatureFlagDto; nextEnabled: boolean } | null>(

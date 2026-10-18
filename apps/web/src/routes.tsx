@@ -23,7 +23,6 @@ import {
   InventoryPage,
   PokemonManagementPage,
   ChangeMovesPage,
-  StarterSelectionPage,
   TeamPage,
   PokedexPage,
   ProfilePage,

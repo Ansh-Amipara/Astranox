@@ -4,7 +4,6 @@ import { calculatePokemonCP } from './cp';
 import {
   getMaxLevelForPotential,
   RANK_ORDER,
-  BATTLE_CONSTANTS,
 } from '@astranox/constants';
 
 export { getMaxLevelForPotential };

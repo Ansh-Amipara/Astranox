@@ -4,7 +4,7 @@ import { useRiftState, useStartRiftRun, useGenerateRiftEncounter, useAbandonRift
 import { useNavigate } from 'react-router-dom';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
-import { Loader2, Swords, Skull, ShieldAlert, AlertCircle, X, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Loader2, Swords, AlertCircle, X, ArrowLeft } from 'lucide-react';
 
 const RANKS = [
   'F', 'E',

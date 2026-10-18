@@ -41,7 +41,7 @@ export function Field({
         ? React.cloneElement(children as React.ReactElement<any>, {
             id: (children.props as any).id || inputId,
             hasError: !!error || (children.props as any).hasError,
-            'aria-invalid': !!error ? true : undefined,
+            'aria-invalid': error ? true : undefined,
             'aria-describedby': error ? errorId : helperText ? helperId : undefined,
           })
         : children}

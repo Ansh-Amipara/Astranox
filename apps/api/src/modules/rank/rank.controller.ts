@@ -2,7 +2,6 @@ import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { RankService } from './rank.service';
 import { AppError } from '../../core/errors/AppError';
-import { BattlesService } from '../battles/battles.service';
 
 @injectable()
 export class RankController {

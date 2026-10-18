@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { ValidationError } from '../../../core/errors/AppError';
-import { ActivePokemon, BattleAction } from '../../../game/battle-state/types';
+
 
 @injectable()
 export class BattleValidatorService {

@@ -1,12 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
-import { useState, useRef } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useState } from 'react';
 import { OwnedPokemonDto } from '@astranox/types';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
 import { Skeleton, EmptyState, ErrorState, PokemonSprite } from '@/components/ui';
-import { getOptimizedCloudinaryUrl } from '@/lib/sprite';
 import { Dropdown } from '@/shared/ui/Dropdown';
 
 interface InventoryItem {
@@ -24,7 +22,6 @@ export function Bag() {
   const queryClient = useQueryClient();
   const [selectedItemToUse, setSelectedItemToUse] = useState<InventoryItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const parentRef = useRef<HTMLDivElement>(null);
 
   const { data: save, isLoading, isError, refetch } = useQuery({
     queryKey: ['trainerSave'],

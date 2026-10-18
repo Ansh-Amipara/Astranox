@@ -38,7 +38,7 @@ export class BattleFinalizerService {
     userId: string,
     state: BattleEngineState,
     outcome: 'WON' | 'CAPTURED' | 'DEFEATED' | 'FLED',
-    lastEvents: TurnEvent[]
+    _lastEvents: TurnEvent[]
   ): Promise<FinalizeResult> {
     const lockKey = `lock:battle:${state.battleId}`;
     const finalizedFlagKey = `finalized:${state.battleId}`;

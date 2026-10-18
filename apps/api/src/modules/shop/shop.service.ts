@@ -1,8 +1,7 @@
 import { injectable } from 'tsyringe';
 import { prisma } from '../../core/db/prisma';
-import { AppError, NotFoundError, BadRequestError, PriceChangedError, ForbiddenError } from '../../core/errors/AppError';
+import { NotFoundError, BadRequestError, PriceChangedError, ForbiddenError } from '../../core/errors/AppError';
 import { RedisLockService } from '../../core/services/redis-lock.service';
-import { CacheService } from '../../core/services/cache.service';
 import { FeatureFlagService } from '../../core/services/feature-flag.service';
 import { DEFAULT_SHOP_CATALOG, ECONOMY_CONSTANTS } from '@astranox/constants';
 import type { ShopItemDto, PurchaseShopItemInput, BuyItemInput, BuyBulkInput, BuyMoveInput } from '@astranox/types';
@@ -10,12 +9,8 @@ import { TrainerMapper } from '../trainers/dto/mapper';
 
 @injectable()
 export class ShopService {
-  private readonly CATALOG_CACHE_KEY = 'shop:catalog:public';
-  private readonly CACHE_TTL_SECONDS = 30;
-
   constructor(
     private lockService: RedisLockService,
-    private cacheService: CacheService,
     private featureFlagService: FeatureFlagService
   ) {}
 

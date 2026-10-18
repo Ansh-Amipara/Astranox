@@ -1,7 +1,6 @@
 import { injectable } from 'tsyringe';
 import { Request, Response, NextFunction } from 'express';
 import { TradesService } from './trades.service';
-import { ValidationError } from '../../core/errors/AppError';
 import type { RequestTradeDto } from './dto/request/RequestTradeDto';
 
 @injectable()

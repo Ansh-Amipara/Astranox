@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { PrismaClient, TrainerSave, PokemonPotential } from '@prisma/client';
+import { TrainerSave, PokemonPotential } from '@prisma/client';
 import { ValidationError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
 import { getXpForLevel } from '@astranox/constants';

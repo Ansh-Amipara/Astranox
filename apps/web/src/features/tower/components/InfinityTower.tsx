@@ -1,28 +1,18 @@
-import { useTowerState, useStartTowerFloor, useStartTowerBattle, useSkipTowerFloors } from '../hooks/useTower';
+import { useTowerState, useStartTowerBattle, useSkipTowerFloors } from '../hooks/useTower';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { api } from '@/shared/api/api';
+import { useQueryClient } from '@tanstack/react-query';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
 import { OwnedPokemonDto } from '@astranox/types';
 
-import { Loader2, Coins, AlertCircle, Mountain, Swords, FastForward } from 'lucide-react';
+import { Loader2, AlertCircle, Mountain, Swords, FastForward } from 'lucide-react';
 
 export const InfinityTowerPage: React.FC = () => {
   const { data, isLoading, error } = useTowerState();
-  const startFloor = useStartTowerFloor();
   const startBattle = useStartTowerBattle();
   const skipFloors = useSkipTowerFloors();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const { data: trainerSave } = useQuery({
-    queryKey: ['trainerSave'],
-    queryFn: async () => {
-      const { data } = await api.get('/trainers/me');
-      return data.data;
-    }
-  });
 
   if (isLoading) {
     return (

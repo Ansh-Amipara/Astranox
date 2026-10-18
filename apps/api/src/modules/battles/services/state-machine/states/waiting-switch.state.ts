@@ -6,8 +6,8 @@ export class WaitingSwitchState implements IBattleState {
   async handleAction(
     action: string,
     session: BattleSession,
-    trainerSave: TrainerSave,
-    tx: Prisma.TransactionClient,
+    _trainerSave: TrainerSave,
+    _tx: Prisma.TransactionClient,
     services: StateMachineServices
   ): Promise<any> {
     const { validator, persistence, event, log } = services;

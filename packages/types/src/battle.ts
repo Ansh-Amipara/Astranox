@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { entityIdSchema } from './common';
+
 
 export const battleActionSchema = z.union([
   z.literal('run'),

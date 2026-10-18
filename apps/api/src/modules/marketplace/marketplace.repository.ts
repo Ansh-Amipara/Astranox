@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { PrismaClient, Prisma, TradeListingStatus, TradeOfferStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../core/db/prisma';
 
 

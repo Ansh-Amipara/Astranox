@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
-import { OwnedPokemonDto, MoveDto } from '@astranox/types';
+import { OwnedPokemonDto } from '@astranox/types';
 import { PokemonModalsRef } from './PokemonActionModals';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl } from '@/shared/api/api';

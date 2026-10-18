@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { EventsRepository } from './events.repository';
-import { EventTaskType, PrismaClient } from '@prisma/client';
+import { EventTaskType } from '@prisma/client';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors/AppError';
 import { createPokemonInstance } from '../../game/instance/PokemonInstance';
 import { PokemonInstancePayload } from '../../game/instance/types';
@@ -10,7 +10,7 @@ import { prisma } from '../../core/db/prisma';
 @injectable()
 export class EventsService {
   constructor(private repo: EventsRepository) {}
-  private prisma = new PrismaClient(); // For cross-module ops like checking save or adding pokemon
+  private prisma = prisma; // For cross-module ops like checking save or adding pokemon
 
   async emitEvent(trainerId: string, taskType: EventTaskType, data?: any) {
     const activeEvent = await this.repo.getActiveEvent();

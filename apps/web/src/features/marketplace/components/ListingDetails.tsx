@@ -3,9 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useListingDetails, useAcceptOffer, useRejectOffer, useCancelListing, useCancelOffer } from '../hooks/queries';
 import { TradeOfferModal } from './TradeOfferModal';
 import { getSpriteUrl } from '@/shared/api/api';
-import { Loader2, ArrowLeft, Check, X, Ban, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, Check, X, Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store';
-import { TradeOfferDto } from '@astranox/types';;
+import { TradeOfferDto } from '@astranox/types';
 import { formatPotential } from '@/features/pokemon/pokemonUtils';
 export function ListingDetailsPage() {
   const { id } = useParams<{ id: string }>();

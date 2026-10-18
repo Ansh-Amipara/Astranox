@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { notify } from '@/lib/toast';
 
 export function Announcements() {
-  const { data: announcements = [], isLoading, isError, refetch } = useAdminAnnouncements();
+  const { data: announcements = [], isLoading } = useAdminAnnouncements();
   const createMutation = useCreateAnnouncement();
   const deleteMutation = useDeleteAnnouncement();
 

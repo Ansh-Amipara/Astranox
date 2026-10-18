@@ -3,8 +3,6 @@ import { AppError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
 import { BattleSessionService } from '../battles/services/battle-session.service';
 
-import { getMinPotentialForLevel, getMaxLevelForPotential } from '../../game/instance/PokemonInstance';
-
 import { RANK_ORDER, RANK_REQUIREMENTS } from '@astranox/constants';
 export { RANK_ORDER, RANK_REQUIREMENTS };
 

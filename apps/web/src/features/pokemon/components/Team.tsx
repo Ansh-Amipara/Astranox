@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OwnedPokemonDto, TrainerSaveDto, MoveDto, InventoryItemDto } from '@astranox/types';
+import { OwnedPokemonDto, MoveDto, InventoryItemDto } from '@astranox/types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getSpriteUrl, battleApi } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/lib/axios';
-import { Dropdown } from '@/shared/ui/Dropdown';
 import { ArrowRight } from 'lucide-react';
 import { getPotentialBadgeClasses, formatPotential, getMaxLevelForPotential, getXpForLevel, getLevelFromXp } from '@/features/pokemon/pokemonUtils';
 import { useSmeltPokemon } from '@/features/pokemon/hooks/useSmeltPokemon';

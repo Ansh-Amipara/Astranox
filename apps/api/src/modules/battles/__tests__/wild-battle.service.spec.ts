@@ -2,8 +2,6 @@ import 'reflect-metadata';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { container } from 'tsyringe';
 import { WildBattleService } from '../services/wild-battle.service';
-import { BattleFinalizerService } from '../services/battle-finalizer.service';
-import { EncounterService } from '../../explore/services/encounter.service';
 import { CacheService } from '../../../core/services/cache.service';
 import { RedisLockService } from '../../../core/services/redis-lock.service';
 import { AuditService } from '../../../core/services/audit.service';
@@ -14,7 +12,6 @@ const validTrainerId = '664b1f417e2941001a444444';
 
 describe('WildBattleService & BattleFinalizerService', () => {
   let wildBattleService: WildBattleService;
-  let finalizerService: BattleFinalizerService;
   let mockCache: Record<string, any>;
   let mockAuditLogs: any[];
 
@@ -48,7 +45,6 @@ describe('WildBattleService & BattleFinalizerService', () => {
     container.registerInstance(RedisLockService, lockServiceMock as any);
     container.registerInstance(AuditService, auditMock as any);
 
-    finalizerService = container.resolve(BattleFinalizerService);
     wildBattleService = container.resolve(WildBattleService);
   });
 

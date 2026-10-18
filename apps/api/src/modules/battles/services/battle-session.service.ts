@@ -7,8 +7,6 @@ import { createPokemonInstance } from '../../../game/instance/PokemonInstance';
 import { mapOwnedPokemonToInstance } from '../../trainers/owned-pokemon.mapper';
 import { ActivePokemon } from '../../../game/battle-state/types';
 import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
 import { prisma } from '../../../core/db/prisma';
 
 
@@ -24,7 +22,7 @@ function generateWildIVs() {
   };
 }
 
-import { getMinPotentialForLevel, getMaxLevelForPotential } from '../../../game/instance/PokemonInstance';
+import { getMinPotentialForLevel } from '../../../game/instance/PokemonInstance';
 
 const RANK_LEVEL_BOUNDS: Record<string, { min: number, max: number }> = {
   F: { min: 1, max: 25 },

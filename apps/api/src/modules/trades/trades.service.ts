@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { PrismaClient, TradeStatus } from '@prisma/client';
+import { TradeStatus } from '@prisma/client';
 import { NotFoundError, ValidationError, ForbiddenError } from '../../core/errors/AppError';
 import { TradeMapper } from './dto/mapper';
 import { TrainerMapper } from '../trainers/dto/mapper';

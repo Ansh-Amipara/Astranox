@@ -5,7 +5,7 @@ import { CacheService } from '../../core/services/cache.service';
 import { FeatureFlagService } from '../../core/services/feature-flag.service';
 import { TrainersRepository } from '../trainers/trainers.repository';
 import { EncounterService } from './services/encounter.service';
-import { AppError, FeatureDisabledError, NotFoundError, ValidationError } from '../../core/errors/AppError';
+import { FeatureDisabledError, NotFoundError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
 
 export interface RedisExploreSession {

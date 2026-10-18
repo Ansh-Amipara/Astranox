@@ -3,15 +3,14 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { useAuthStore } from '@/features/auth/store';
-import { User as UserIcon, LogOut, ShieldAlert, Menu, X, Crown } from 'lucide-react';
-import { Button } from '@/shared/ui/Button';
+import { User as UserIcon, LogOut, Menu, X, Crown } from 'lucide-react';
 
 export function Header() {
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { data: profile } = useQuery({
+  const { data: _profile } = useQuery({
     queryKey: ['authProfile'],
     queryFn: async () => {
       const res = await api.get('/auth/profile');

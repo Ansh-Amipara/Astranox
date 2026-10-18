@@ -93,7 +93,7 @@ export class EncounterGeneratorService {
     return { speciesName, level };
   }
 
-  generateEncounter(location: ExploreLocation): { speciesName: string, level: number } {
+  generateEncounter(_location: ExploreLocation): { speciesName: string, level: number } {
     throw new Error('generateEncounter must be called asynchronously now. Use generateEncounterAsync.');
   }
 }

@@ -32,7 +32,7 @@ export function UserDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: user, isLoading, isError, refetch } = useAdminUserDetail(id || '', Boolean(id));
+  const { data: user, isLoading, isError } = useAdminUserDetail(id || '', Boolean(id));
 
   const banMutation = useBanUser();
   const unbanMutation = useUnbanUser();

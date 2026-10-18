@@ -26,7 +26,7 @@ export function calculatePokemonCP(
   baseStats: BaseStats,
   ivs: IVs,
   level: number,
-  potential: string,
+  _potential?: string,
   isGmax: boolean = false,
   movePowers: number[] = []
 ): number {

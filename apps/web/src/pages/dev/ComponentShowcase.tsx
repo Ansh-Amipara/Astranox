@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Button,
-  Card,
   Input,
   Field,
   Badge,
@@ -17,7 +16,7 @@ import {
   PokemonSprite,
 } from '@/components/ui';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { Smartphone, Monitor, Zap, Sparkles, RefreshCw } from 'lucide-react';
+import { Smartphone, Monitor, Zap, Sparkles } from 'lucide-react';
 
 export function ComponentShowcase() {
   const isSystemReducedMotion = useReducedMotion();

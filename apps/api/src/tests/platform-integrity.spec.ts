@@ -7,7 +7,6 @@ import { errorHandler } from '../core/middleware/error-handler';
 import { requireFeatureFlag } from '../core/middleware/require-feature-flag';
 import { FeatureFlagService } from '../core/services/feature-flag.service';
 import { verifySocketRole, verifySocketFeatureFlag } from '../socket';
-import { prismaTest } from './setup';
 import type { UserPayload } from '@astranox/types';
 
 describe('Phase 3: Platform Integrity (Request IDs, Feature Flags, Admin Checks)', () => {

@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { PrismaClient, InfinityTowerState, InfinityTowerEncounter, EncounterStatus, Prisma, InfinityCoinTransaction } from '@prisma/client';
+import { InfinityTowerState, InfinityTowerEncounter, EncounterStatus, Prisma } from '@prisma/client';
 import { prisma } from '../../core/db/prisma';
 
 

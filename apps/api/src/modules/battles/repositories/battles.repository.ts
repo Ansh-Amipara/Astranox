@@ -1,6 +1,6 @@
 import { injectable, singleton } from 'tsyringe';
 // Trigger IDE reload
-import { Prisma, PrismaClient, BattleStatus } from '@prisma/client';
+import { Prisma, BattleStatus } from '@prisma/client';
 import { prisma } from '../../../core/db/prisma';
 import { CacheService } from '../../../core/services/cache.service';
 import { randomUUID } from 'crypto';
@@ -48,7 +48,7 @@ export class BattlesRepository {
     return null;
   }
 
-  async getBattleSession(id: string) {
+  async getBattleSession(_id: string) {
     // To support querying by ID, we need to know the trainerId or loop. 
     // Usually we query by trainerId. We will throw here if needed or just use trainerId instead.
     throw new Error('getBattleSession by ID is deprecated in Redis mode. Use getActiveBattleByTrainer.');

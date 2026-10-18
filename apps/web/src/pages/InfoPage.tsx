@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FiInfo } from 'react-icons/fi';
 import { useQuery } from '@tanstack/react-query';
 import { shopApi } from '@/shared/api/api';
 const RIFT_REWARD_MULTIPLIERS: Record<string, number> = {

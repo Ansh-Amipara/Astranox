@@ -47,7 +47,7 @@ export function SelectDropdown({
   optionsContainerClassName = 'flex flex-col p-2 gap-1',
   renderOption,
   renderTrigger,
-  activeColor = 'blue',
+  activeColor: _activeColor = 'blue',
 }: SelectProps) {
   const selectedOption = options.find((o) => o.value === value);
 

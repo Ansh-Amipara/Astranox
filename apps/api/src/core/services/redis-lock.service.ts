@@ -1,5 +1,5 @@
 import { injectable, singleton } from 'tsyringe';
-import Redlock, { Lock } from 'redlock';
+import Redlock from 'redlock';
 import { CacheService } from './cache.service';
 import { logger } from '../../config/logger';
 import { AppError } from '../errors/AppError';

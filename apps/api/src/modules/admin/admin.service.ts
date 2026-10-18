@@ -1,7 +1,6 @@
 import { injectable } from 'tsyringe';
 import { AdminRepository } from './admin.repository';
 import { ValidationError, NotFoundError, AppError } from '../../core/errors/AppError';
-import { PrismaClient, PokemonPotential } from '@prisma/client';
 import { AdminMapper } from './dto/mapper';
 import type { AdminUserDto } from './dto/response/AdminUserDto';
 import type { AddMoneyDto } from './dto/request/AddMoneyDto';

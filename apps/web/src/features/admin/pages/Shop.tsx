@@ -27,7 +27,6 @@ import {
   Sparkles,
   AlertTriangle,
   X,
-  Check,
   Percent,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';

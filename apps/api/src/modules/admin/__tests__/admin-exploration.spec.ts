@@ -4,7 +4,6 @@ import request from 'supertest';
 import { container } from 'tsyringe';
 import { AdminController } from '../admin.controller';
 import { AdminService } from '../admin.service';
-import { ALL_MAPS } from '@astranox/game-map';
 import { EXPLORATION_CONSTANTS, CATCH_CONSTANTS } from '@astranox/constants';
 
 describe('Admin Exploration Overview Hook', () => {

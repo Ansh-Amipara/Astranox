@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { RiftRepository } from './rift.repository';
-import { TrainerRank, RiftDifficulty, PrismaClient } from '@prisma/client';
+import { TrainerRank, RiftDifficulty } from '@prisma/client';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors/AppError';
 import { 
   RIFT_DIFFICULTY_MULTIPLIERS, RIFT_MAX_FLOORS, RIFT_BASE_INFINITY_COINS, 

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { notify } from '@/lib/toast';
-import { Modal } from '@/shared/ui/Modal';
 
 export function useSmeltPokemon(onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();

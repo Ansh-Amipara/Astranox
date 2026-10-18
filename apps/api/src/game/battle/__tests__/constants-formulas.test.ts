@@ -10,7 +10,6 @@ import {
   getStatusBonusMultiplier,
   getMaxLevelForPotential,
   BATTLE_CONSTANTS,
-  CATCH_CONSTANTS,
   ECONOMY_CONSTANTS,
   PROGRESSION_CONSTANTS,
   LIMIT_CONSTANTS,

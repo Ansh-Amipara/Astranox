@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { getTypeSpriteUrl } from '@/lib/axios';
@@ -62,7 +61,6 @@ export function EventHistory() {
             {filteredData.map((item: any) => {
               const { event } = item;
               const config = event.taskConfig || {};
-              const requiredCount = config.requiredCount || 1;
               const rewardSpecies = event.rewardSpecies;
 
               const displayName = rewardSpecies ?
