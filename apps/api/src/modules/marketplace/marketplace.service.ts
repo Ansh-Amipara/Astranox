@@ -3,6 +3,7 @@ import { MarketplaceRepository } from './marketplace.repository';
 import { AppError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
 import { RedisLockService } from '../../core/services/redis-lock.service';
+import { logger } from '../../config/logger';
 
 @injectable()
 export class MarketplaceService {
@@ -78,7 +79,7 @@ export class MarketplaceService {
       try {
         lock = await this.lockService.acquireLock(`locks:marketplace:listing_v2:${listingId}`, 5000);
       } catch (lockError: any) {
-        console.warn(`[MarketplaceService] Could not acquire lock for ${listingId}, proceeding anyway...`, lockError.message);
+        logger.warn({ err: lockError, listingId }, `[MarketplaceService] Could not acquire lock for ${listingId}, proceeding anyway...`);
       }
       await this.repository.cancelListing(listingId, sellerId);
       return { success: true, message: 'Listing cancelled successfully' };
@@ -88,7 +89,9 @@ export class MarketplaceService {
       if (lock) {
         try {
           await this.lockService.releaseLock(lock);
-        } catch (e) {}
+        } catch (releaseErr: any) {
+          logger.warn({ err: releaseErr, listingId }, '[MarketplaceService] Failed to release lock');
+        }
       }
     }
   }

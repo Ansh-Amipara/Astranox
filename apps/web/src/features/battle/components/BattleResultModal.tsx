@@ -167,7 +167,7 @@ export const BattleResultModal = memo(function BattleResultModal({
                 completeTower.mutate(status === 'WON' ? 'WON' : 'LOST', {
                   onSuccess: handleReturn,
                   onError: (err) => {
-                    console.error(err);
+                    notify.error(parseApiError(err).message || 'Failed to complete tower battle', { id: 'tower-complete-error' });
                     handleReturn(); // Fallback anyway
                   }
                 });
@@ -176,7 +176,7 @@ export const BattleResultModal = memo(function BattleResultModal({
                   completeRift.mutate(undefined, {
                     onSuccess: handleReturn,
                     onError: (err) => {
-                      console.error(err);
+                      notify.error(parseApiError(err).message || 'Failed to complete rift battle', { id: 'rift-complete-error' });
                       handleReturn();
                     }
                   });
@@ -184,7 +184,7 @@ export const BattleResultModal = memo(function BattleResultModal({
                   abandonRift.mutate(undefined, {
                     onSuccess: handleReturn,
                     onError: (err) => {
-                      console.error(err);
+                      notify.error(parseApiError(err).message || 'Failed to abandon rift battle', { id: 'rift-abandon-error' });
                       handleReturn();
                     }
                   });

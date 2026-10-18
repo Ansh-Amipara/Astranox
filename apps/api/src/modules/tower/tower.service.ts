@@ -10,6 +10,7 @@ import { BattleStatus, BattleType, Prisma } from '@prisma/client';
 import { mapOwnedPokemonToInstance } from '../trainers/owned-pokemon.mapper';
 import { EventsService } from '../events/events.service';
 import { prisma } from '../../core/db/prisma';
+import { logger } from '../../config/logger';
 
 
  // For creating battle session directly here, or we can use battle service
@@ -164,7 +165,7 @@ export class TowerService {
     ]);
 
     for (let i = 0; i < skippedCount; i++) {
-      await this.eventsService.emitEvent(trainerId, 'CLEAR_TOWER').catch(e => console.error(e));
+      await this.eventsService.emitEvent(trainerId, 'CLEAR_TOWER').catch(e => logger.error({ err: e }, 'Failed to emit CLEAR_TOWER event'));
     }
 
     const stateData = await this.getState(trainerId);
@@ -352,7 +353,7 @@ export class TowerService {
         reward.infinityCoins || 0,
         reward.storedXp || 0
       );
-      await this.eventsService.emitEvent(trainerId, 'CLEAR_TOWER').catch(e => console.error(e));
+      await this.eventsService.emitEvent(trainerId, 'CLEAR_TOWER').catch(e => logger.error({ err: e }, 'Failed to emit CLEAR_TOWER event'));
     } else {
       await this.repository.failFloor(state.id, encounter.id);
     }

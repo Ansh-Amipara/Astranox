@@ -1,11 +1,12 @@
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { env } from './env';
-import { ASTRANOX_VERSION } from '@astranox/constants';;
+import { logger } from './logger';
+import { ASTRANOX_VERSION } from '@astranox/constants';
 
 export function initSentry() {
   if (!env.SENTRY_DSN) {
-    console.log('⚠️ SENTRY_DSN not provided. Sentry APM is disabled.');
+    logger.warn('SENTRY_DSN not provided. Sentry APM is disabled.');
     return;
   }
 
@@ -22,5 +23,5 @@ export function initSentry() {
     profilesSampleRate: env.NODE_ENV === 'production' ? 0.2 : 1.0, 
   });
 
-  console.log('✅ Sentry APM Initialized');
+  logger.info('Sentry APM Initialized');
 }

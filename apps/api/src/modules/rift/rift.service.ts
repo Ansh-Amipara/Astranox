@@ -14,6 +14,7 @@ import { EventsService } from '../events/events.service';
 import { prisma } from '../../core/db/prisma';
 import { BattlesRepository } from '../battles/repositories/battles.repository';
 import { CacheService } from '../../core/services/cache.service';
+import { logger } from '../../config/logger';
 
 
 @injectable()
@@ -212,7 +213,7 @@ export class RiftService {
       await this.repo.recordRunClear(state.id);
       completedRun = true;
       // Emit Event Challenge Progress
-      await this.eventsService.emitEvent(save.id, 'CLEAR_RIFT').catch(e => console.error('Failed to emit event:', e));
+      await this.eventsService.emitEvent(save.id, 'CLEAR_RIFT').catch(e => logger.error({ err: e }, 'Failed to emit CLEAR_RIFT event'));
     }
 
     // Auto-heal party (OwnedPokemon has currentXp, but we'll leave it as is or fix mapping)

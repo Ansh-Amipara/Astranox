@@ -4,6 +4,7 @@ import { ValidationError } from '../../../../../core/errors/AppError';
 import { BattleAction } from '../../../../../game/battle-state/types';
 import { getBallBonus } from '../../../../../game/battle/catch-math';
 import { EventsService } from '../../../../events/events.service';
+import { logger } from '../../../../../config/logger';
 
 import { container } from 'tsyringe';
 
@@ -266,7 +267,7 @@ export class ActiveState implements IBattleState {
                     });
                   }
                 } catch (itemErr) {
-                  console.error('Failed to grant examiner item reward:', itemErr);
+                  logger.error({ err: itemErr }, 'Failed to grant examiner item reward');
                 }
               }
             }
@@ -288,11 +289,11 @@ export class ActiveState implements IBattleState {
       await persistence.saveCaughtPokemon(trainerSave, wildPokemon, tx);
       await eventsService.emitEvent(session.trainerId, 'CAPTURE_POKEMON', { 
         types: wildPokemon.types || (wildPokemon.species && wildPokemon.species.types) || [] 
-      }).catch(e => console.error(e));
+      }).catch(e => logger.error({ err: e }, 'Failed to emit CAPTURE_POKEMON event'));
     } else if (newStatus === BattleStatus.WON && session.battleType === 'WILD') {
       await eventsService.emitEvent(session.trainerId, 'DEFEAT_WILD_POKEMON', { 
         types: wildPokemon.types || (wildPokemon.species && wildPokemon.species.types) || [] 
-      }).catch(e => console.error(e));
+      }).catch(e => logger.error({ err: e }, 'Failed to emit DEFEAT_WILD_POKEMON event'));
     }
 
     const updatedLog = log.appendTurnLog(session.log, session.turnNumber, result.events);

@@ -52,7 +52,7 @@ export function ExploreDetailPage() {
       try {
         await api.post('/battles/turn', { action: 'run' });
       } catch (e) {
-        console.error('Failed to flee:', e);
+        notify.error(parseApiError(e).message || 'Failed to flee', { id: 'explore-flee-error' });
       }
     }
     setResult(null);

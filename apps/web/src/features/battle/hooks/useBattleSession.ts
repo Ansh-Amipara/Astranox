@@ -4,6 +4,7 @@ import { getEventMessage } from '../utils';
 import { useSocket } from '@/lib/SocketContext';
 import { useEffect } from 'react';
 import { BattleSessionDto, TurnEventDto, ActivePokemonDto } from '@astranox/types';
+import { notify } from '@/lib/toast';
 
 export function useBattleSession() {
   const queryClient = useQueryClient();
@@ -54,7 +55,7 @@ export function useBattleSession() {
     };
 
     const handleError = (error: { message?: string }) => {
-      console.error('Battle Socket Error:', error);
+      notify.error(error?.message || 'Battle error occurred', { id: 'battle-socket-error' });
     };
 
     socket.on('battle:state_update', handleStateUpdate);
