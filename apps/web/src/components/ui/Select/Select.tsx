@@ -86,7 +86,7 @@ export function SelectDropdown({
       <RadixSelect.Portal>
         <RadixSelect.Content
           className={cn(
-            'z-[150] bg-background border border-border text-foreground rounded-xl shadow-2xl overflow-hidden max-h-80',
+            'z-[150] bg-surface border border-border text-foreground rounded-xl shadow-2xl overflow-hidden max-h-80',
             dropdownClassName
           )}
           position="popper"

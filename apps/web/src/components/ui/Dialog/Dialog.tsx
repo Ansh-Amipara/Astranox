@@ -44,7 +44,7 @@ export function DialogContent({
       <RadixDialog.Content
         ref={ref}
         className={cn(
-          'fixed z-50 bg-background border border-border text-foreground shadow-2xl flex flex-col focus:outline-none overflow-hidden',
+          'fixed z-50 bg-surface border border-border text-foreground shadow-2xl flex flex-col focus:outline-none overflow-hidden',
           // Mobile: bottom sheet (slides up, 90dvh max height, safe area padding)
           'bottom-0 left-0 right-0 w-full rounded-t-3xl rounded-b-none border-b-0 max-h-[90dvh] pb-safe',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom duration-300 ease-out',
@@ -152,7 +152,7 @@ export function DialogConvenience({
         <DialogOverlay />
         <RadixDialog.Content
           className={cn(
-            'fixed z-50 bg-background border border-border text-foreground shadow-2xl flex flex-col overflow-hidden',
+            'fixed z-50 bg-surface border border-border text-foreground shadow-2xl flex flex-col overflow-hidden',
             // Mobile (<md): bottom sheet
             'bottom-0 left-0 right-0 w-full rounded-t-3xl rounded-b-none border-b-0 max-h-[90dvh] pb-safe',
             'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom duration-300 ease-out',

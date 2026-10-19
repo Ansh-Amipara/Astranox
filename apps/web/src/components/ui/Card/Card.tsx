@@ -7,11 +7,11 @@ export const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-background border-border text-foreground shadow-xl',
+        default: 'bg-surface border-border text-foreground shadow-xs',
         glass:
-          'bg-surface/80 backdrop-blur-xl border-border shadow-glow text-foreground',
+          'bg-surface/90 backdrop-blur-xl border-border shadow-xs text-foreground',
         glow:
-          'bg-background border-border shadow-glow-card hover:shadow-glow-card-hover hover:border-border text-foreground',
+          'bg-surface border-border shadow-glow-card hover:shadow-glow-card-hover hover:border-border text-foreground',
       },
       padding: {
         none: '',

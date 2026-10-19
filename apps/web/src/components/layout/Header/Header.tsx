@@ -46,7 +46,7 @@ export function Header() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-background/90 border-b border-border shadow-sm pt-safe transition-colors duration-300">
+      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-surface/90 border-b border-border shadow-xs pt-safe transition-colors duration-300">
       <div className="w-full px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 lg:h-20">
 
@@ -146,7 +146,7 @@ export function Header() {
 
       {/* Mobile Sidebar Drawer */}
       <div 
-        className={`fixed top-0 left-0 h-[100dvh] w-72 max-w-[85vw] bg-background border-r border-border shadow-xl z-[120] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto pt-safe pb-safe ${ isSidebarOpen ? 'translate-x-0' : '-translate-x-full' }`}
+        className={`fixed top-0 left-0 h-[100dvh] w-72 max-w-[85vw] bg-surface border-r border-border shadow-xl z-[120] transform transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto pt-safe pb-safe ${ isSidebarOpen ? 'translate-x-0' : '-translate-x-full' }`}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-border">
           <div className="flex items-center gap-2">

@@ -8,20 +8,21 @@
   --color-white: #ffffff;
   --color-transparent: transparent;
 
-  --color-background: #ffffff;
-  --color-surface: #f4f4f6;
-  --color-surface-raised: #e9e9ed;
-  --color-border: #dcdce2;
+  /* Refined Light Theme Canvas & Crisp Surfaces */
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f1f3f5;
+  --color-border: #d4d4d8;
   --color-foreground: #09090b;
-  --color-muted: #5e5e6e;
-  --color-subtle: #8e8e9e;
+  --color-muted: #52525b;
+  --color-subtle: #71717a;
   --color-primary: #09090b;
   --color-primary-foreground: #ffffff;
 
   /* Functional Semantic Tokens (Health, Success, Warning, Danger) */
-  --color-health-high: #22c55e;
-  --color-health-mid: #eab308;
-  --color-health-low: #ef4444;
+  --color-health-high: #16a34a;
+  --color-health-mid: #d97706;
+  --color-health-low: #dc2626;
 
   --color-success: #16a34a;
   --color-success-foreground: #ffffff;
@@ -48,12 +49,19 @@
   --text-body: clamp(0.875rem, 0.5vw + 0.75rem, 1rem);
   --text-caption: clamp(0.75rem, 0.25vw + 0.7rem, 0.875rem);
 
-  /* Monochrome Shadows (tuned for white background) */
-  --shadow-glow: 0 0 15px rgba(0, 0, 0, 0.08);
-  --shadow-glow-lg: 0 0 25px rgba(0, 0, 0, 0.14);
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08);
-  --shadow-glow-card: 0 2px 10px rgba(0, 0, 0, 0.05);
-  --shadow-glow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.10);
+  /* Refined Dual-Layer Elevation Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(16, 24, 40, 0.08), 0 1px 2px -1px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-xl: 0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-2xl: 0 24px 48px -12px rgba(16, 24, 40, 0.16);
+
+  --shadow-glow: 0 0 15px rgba(0, 0, 0, 0.06);
+  --shadow-glow-lg: 0 0 25px rgba(0, 0, 0, 0.10);
+  --shadow-glass: 0 8px 32px rgba(16, 24, 40, 0.08);
+  --shadow-glow-card: 0 1px 3px 0 rgba(16, 24, 40, 0.06), 0 1px 2px 0 rgba(16, 24, 40, 0.04);
+  --shadow-glow-card-hover: 0 6px 16px 0 rgba(16, 24, 40, 0.10), 0 2px 4px 0 rgba(16, 24, 40, 0.04);
 }
 
 @layer base {
