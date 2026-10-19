@@ -11,6 +11,7 @@ import {
 import { DataTable, ColumnDef } from '../components/DataTable';
 import { ReasonField } from '../components/ReasonField';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { PokemonTierSelect } from '../components/PokemonTierSelect';
 import {
   ArenaTrainerDto,
   CreateArenaTrainerInput,
@@ -733,10 +734,25 @@ export function Arena() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Team Pokémon (Comma-separated species names)
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-foreground">
+                  Team Pokémon (Up to 6)
                 </label>
+                <PokemonTierSelect
+                  compact
+                  placeholder="Select Pokémon from Database (Tier-wise) to add to team..."
+                  onSelect={(s) => {
+                    const current = createTeamStr ? createTeamStr.split(',').map((x) => x.trim()).filter(Boolean) : [];
+                    if (current.length >= 6) {
+                      notify.error('Maximum of 6 Pokémon allowed per team');
+                      return;
+                    }
+                    if (!current.includes(s.name.toLowerCase())) {
+                      current.push(s.name.toLowerCase());
+                      setCreateTeamStr(current.join(', '));
+                    }
+                  }}
+                />
                 <input
                   type="text"
                   value={createTeamStr}
@@ -744,7 +760,7 @@ export function Arena() {
                   placeholder="e.g. pikachu, raichu, electabuzz"
                   className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden font-mono"
                 />
-                <span className="text-[10px] text-muted">Up to 6 species names.</span>
+                <span className="text-[10px] text-muted">Pick from tier-wise dropdown above or edit comma-separated names.</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -899,10 +915,25 @@ export function Arena() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Team Pokémon (Comma-separated)
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-foreground">
+                  Team Pokémon (Up to 6)
                 </label>
+                <PokemonTierSelect
+                  compact
+                  placeholder="Select Pokémon from Database (Tier-wise) to add to team..."
+                  onSelect={(s) => {
+                    const current = editTeamStr ? editTeamStr.split(',').map((x) => x.trim()).filter(Boolean) : [];
+                    if (current.length >= 6) {
+                      notify.error('Maximum of 6 Pokémon allowed per team');
+                      return;
+                    }
+                    if (!current.includes(s.name.toLowerCase())) {
+                      current.push(s.name.toLowerCase());
+                      setEditTeamStr(current.join(', '));
+                    }
+                  }}
+                />
                 <input
                   type="text"
                   value={editTeamStr}
@@ -1085,8 +1116,23 @@ export function Arena() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Examiner Team (Comma-separated)</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-foreground">Examiner Team (Comma-separated)</label>
+                  <PokemonTierSelect
+                    compact
+                    placeholder="Select Pokémon from Database (Tier-wise) to add..."
+                    onSelect={(s) => {
+                      const current = editExaminerTeamStr ? editExaminerTeamStr.split(',').map((x) => x.trim()).filter(Boolean) : [];
+                      if (current.length >= 6) {
+                        notify.error('Maximum of 6 Pokémon allowed per team');
+                        return;
+                      }
+                      if (!current.includes(s.name.toLowerCase())) {
+                        current.push(s.name.toLowerCase());
+                        setEditExaminerTeamStr(current.join(', '));
+                      }
+                    }}
+                  />
                   <input
                     type="text"
                     value={editExaminerTeamStr}

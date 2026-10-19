@@ -2,10 +2,7 @@ export type ShopCategory =
   | 'balls'
   | 'iv_items'
   | 'potential_items'
-  | 'xp_candies'
-  | 'healing'
-  | 'evolution'
-  | 'misc';
+  | 'xp_candies';
 
 export type ShopCurrency = 'astralCoins' | 'infinityCoins';
 
@@ -35,9 +32,6 @@ export const SHOP_CATEGORIES: { id: ShopCategory; label: string }[] = [
   { id: 'iv_items', label: 'IV Items' },
   { id: 'potential_items', label: 'Potential Items' },
   { id: 'xp_candies', label: 'XP Candies' },
-  { id: 'healing', label: 'Healing' },
-  { id: 'evolution', label: 'Evolution' },
-  { id: 'misc', label: 'Miscellaneous' },
 ];
 
 export const DEFAULT_SHOP_CATALOG: DefaultShopItem[] = [
@@ -345,166 +339,6 @@ export const DEFAULT_SHOP_CATALOG: DefaultShopItem[] = [
     price: 100000,
     spriteUrl: 'https://res.cloudinary.com/d0baluu2/image/upload/v1792232298/astranox/item/potential/potential.webp',
     sortOrder: 48,
-    enabled: true,
-  },
-
-  // Healing
-  {
-    key: 'potion',
-    name: 'Potion',
-    category: 'healing',
-    description: 'Restores the HP of a Pokémon by 20 points.',
-    currency: 'astralCoins',
-    price: 300,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png',
-    sortOrder: 50,
-    enabled: true,
-  },
-  {
-    key: 'super-potion',
-    name: 'Super Potion',
-    category: 'healing',
-    description: 'Restores the HP of a Pokémon by 60 points.',
-    currency: 'astralCoins',
-    price: 700,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png',
-    sortOrder: 51,
-    enabled: true,
-  },
-  {
-    key: 'hyper-potion',
-    name: 'Hyper Potion',
-    category: 'healing',
-    description: 'Restores the HP of a Pokémon by 120 points.',
-    currency: 'astralCoins',
-    price: 1500,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hyper-potion.png',
-    sortOrder: 52,
-    enabled: true,
-  },
-  {
-    key: 'max-potion',
-    name: 'Max Potion',
-    category: 'healing',
-    description: 'Fully restores the HP of a Pokémon.',
-    currency: 'astralCoins',
-    price: 2500,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png',
-    sortOrder: 53,
-    enabled: true,
-  },
-  {
-    key: 'revive',
-    name: 'Revive',
-    category: 'healing',
-    description: 'Revives a fainted Pokémon and restores half of its maximum HP.',
-    currency: 'astralCoins',
-    price: 2000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png',
-    sortOrder: 54,
-    enabled: true,
-  },
-  {
-    key: 'max-revive',
-    name: 'Max Revive',
-    category: 'healing',
-    description: 'Revives a fainted Pokémon and fully restores its maximum HP.',
-    currency: 'astralCoins',
-    price: 5000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-revive.png',
-    sortOrder: 55,
-    enabled: true,
-  },
-
-  // Evolution
-  {
-    key: 'fire-stone',
-    name: 'Fire Stone',
-    category: 'evolution',
-    description: 'A peculiar stone that can make certain species of Pokémon evolve.',
-    currency: 'astralCoins',
-    price: 10000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png',
-    sortOrder: 60,
-    enabled: true,
-  },
-  {
-    key: 'water-stone',
-    name: 'Water Stone',
-    category: 'evolution',
-    description: 'A peculiar stone that can make certain species of Pokémon evolve.',
-    currency: 'astralCoins',
-    price: 10000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png',
-    sortOrder: 61,
-    enabled: true,
-  },
-  {
-    key: 'thunder-stone',
-    name: 'Thunder Stone',
-    category: 'evolution',
-    description: 'A peculiar stone that can make certain species of Pokémon evolve.',
-    currency: 'astralCoins',
-    price: 10000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
-    sortOrder: 62,
-    enabled: true,
-  },
-  {
-    key: 'leaf-stone',
-    name: 'Leaf Stone',
-    category: 'evolution',
-    description: 'A peculiar stone that can make certain species of Pokémon evolve.',
-    currency: 'astralCoins',
-    price: 10000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png',
-    sortOrder: 63,
-    enabled: true,
-  },
-  {
-    key: 'moon-stone',
-    name: 'Moon Stone',
-    category: 'evolution',
-    description: 'A peculiar stone that can make certain species of Pokémon evolve.',
-    currency: 'astralCoins',
-    price: 10000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
-    sortOrder: 64,
-    enabled: true,
-  },
-  {
-    key: 'sun-stone',
-    name: 'Sun Stone',
-    category: 'evolution',
-    description: 'A peculiar stone that can make certain species of Pokémon evolve.',
-    currency: 'astralCoins',
-    price: 10000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
-    sortOrder: 65,
-    enabled: true,
-  },
-
-  // Misc
-  {
-    key: 'rare-candy',
-    name: 'Rare Candy',
-    category: 'misc',
-    description: 'A candy that is packed with energy. It raises the level of a single Pokémon by one.',
-    currency: 'astralCoins',
-    price: 50000,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png',
-    sortOrder: 70,
-    enabled: true,
-  },
-  {
-    key: 'escape-rope',
-    name: 'Escape Rope',
-    category: 'misc',
-    description: 'A long, durable rope. Use it to escape instantly from a cave or a dungeon.',
-    currency: 'astralCoins',
-    price: 500,
-    spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/escape-rope.png',
-    sortOrder: 71,
     enabled: true,
   },
 ];

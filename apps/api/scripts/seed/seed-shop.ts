@@ -28,12 +28,23 @@ async function main() {
         currency: item.currency,
         price: item.price,
         enabled: item.enabled ?? true,
+        isArchived: false,
         sortOrder: item.sortOrder,
         dataVersion: 1,
       },
     });
     createdCount++;
     console.log(`[+] Seeded shop item: ${item.key} (${item.name}) - ${item.price} ${item.currency}`);
+  }
+
+  // Clean up any items that belong to removed categories
+  const removedResult = await prisma.shopItem.deleteMany({
+    where: {
+      category: { in: ['healing', 'evolution', 'misc'] },
+    },
+  });
+  if (removedResult.count > 0) {
+    console.log(`[-] Removed ${removedResult.count} obsolete items (healing, evolution, misc)`);
   }
 
   console.log(`\nShopItem seeding complete. Created: ${createdCount}, Skipped: ${skippedCount}`);

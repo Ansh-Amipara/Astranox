@@ -9,6 +9,8 @@ import {
 import { DataTable, ColumnDef } from '../components/DataTable';
 import { ReasonField } from '../components/ReasonField';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { PokemonTierSelect } from '../components/PokemonTierSelect';
+import { ItemSelect } from '../components/ItemSelect';
 import {
   DungeonFloorRuleDto,
   CreateDungeonFloorRuleInput,
@@ -23,6 +25,7 @@ import {
   Archive,
   ArchiveRestore,
   Skull,
+  Trash2,
   X,
   Zap,
 } from 'lucide-react';
@@ -31,6 +34,361 @@ import { Button } from '@/components/ui/Button';
 import { notify } from '@/lib/toast';
 
 const RIFT_DIFFICULTIES = ['NORMAL', 'HARD', 'NIGHTMARE', 'ABYSS'] as const;
+
+export interface DungeonEnemyEntry {
+  speciesId: string;
+  name: string;
+  level: string;
+  weight: string;
+}
+
+export interface DungeonRewardItemEntry {
+  itemKey: string;
+  quantity: string;
+  chance?: string;
+}
+
+export interface DungeonRuleModifiersState {
+  weather: string;
+  statBuffMultiplier: string;
+  typeAdvantageMultiplier: string;
+}
+
+function DungeonEnemyPoolEditor({
+  pool,
+  onChange,
+}: {
+  pool: DungeonEnemyEntry[];
+  onChange: (pool: DungeonEnemyEntry[]) => void;
+}) {
+  const handleAdd = (speciesId = '1', name = 'Bulbasaur', level = '50') => {
+    onChange([
+      ...pool,
+      { speciesId, name, level, weight: '1' },
+    ]);
+  };
+
+  const handleRemove = (index: number) => {
+    onChange(pool.filter((_, i) => i !== index));
+  };
+
+  const handleUpdate = (index: number, field: keyof DungeonEnemyEntry, value: string) => {
+    const updated = [...pool];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
+
+  return (
+    <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <label className="block text-xs font-bold text-foreground">
+            Enemy Pool ({pool.length} Pokémon)
+          </label>
+          <span className="text-[10px] text-muted">Species and levels spawned on this dungeon floor (Tier-wise)</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleAdd()}
+          className="flex items-center gap-1 px-2.5 py-1 bg-surface border border-border text-foreground hover:bg-surface-raised rounded-lg text-xs font-bold transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Enemy
+        </button>
+      </div>
+
+      {pool.length === 0 ? (
+        <p className="text-xs text-muted italic py-1">No enemies configured. Click above to add enemy Pokémon.</p>
+      ) : (
+        <div className="space-y-2">
+          {pool.map((entry, idx) => (
+            <div
+              key={idx}
+              className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 bg-surface border border-border rounded-lg"
+            >
+              <div className="flex-1 min-w-[200px]">
+                <PokemonTierSelect
+                  compact
+                  selectedSpeciesId={entry.speciesId}
+                  onSelect={(s) => {
+                    handleUpdate(idx, 'speciesId', String(s.id));
+                    handleUpdate(idx, 'name', s.name);
+                  }}
+                />
+              </div>
+              <div className="w-28">
+                <span className="block text-[10px] text-muted font-bold">Level</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    value={entry.level}
+                    onChange={(e) => handleUpdate(idx, 'level', e.target.value.replace(/\D/g, ''))}
+                    placeholder="50"
+                    className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdate(idx, 'level', String(Math.min(100, (parseInt(entry.level, 10) || 50) + 5)))}
+                      className="px-1 text-[8px] bg-background border border-border rounded text-muted hover:text-foreground cursor-pointer"
+                    >
+                      +5
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdate(idx, 'level', String(Math.max(1, (parseInt(entry.level, 10) || 50) - 5)))}
+                      className="px-1 text-[8px] bg-background border border-border rounded text-muted hover:text-foreground cursor-pointer"
+                    >
+                      -5
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="w-16">
+                <span className="block text-[10px] text-muted font-bold">Weight</span>
+                <input
+                  type="text"
+                  value={entry.weight}
+                  onChange={(e) => handleUpdate(idx, 'weight', e.target.value.replace(/\D/g, ''))}
+                  placeholder="1"
+                  className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemove(idx)}
+                className="p-1.5 text-muted hover:text-danger rounded-lg transition-colors cursor-pointer self-end sm:self-center mt-2 sm:mt-0"
+                title="Remove enemy"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DungeonRewardItemsEditor({
+  items,
+  onChange,
+}: {
+  items: DungeonRewardItemEntry[];
+  onChange: (items: DungeonRewardItemEntry[]) => void;
+}) {
+  const handleAdd = () => {
+    onChange([
+      ...items,
+      { itemKey: 'rare-candy', quantity: '1', chance: '100' },
+    ]);
+  };
+
+  const handleRemove = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  const handleUpdate = (index: number, field: keyof DungeonRewardItemEntry, value: string) => {
+    const updated = [...items];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
+
+  return (
+    <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <label className="block text-xs font-bold text-foreground">
+            Bonus Reward Items ({items.length})
+          </label>
+          <span className="text-[10px] text-muted">Items awarded upon clearing this floor (from Database)</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="flex items-center gap-1 px-2.5 py-1 bg-surface border border-border text-foreground hover:bg-surface-raised rounded-lg text-xs font-bold transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Item
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="text-xs text-muted italic py-1">No bonus items configured (floor only grants coins/infinity coins).</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((entry, idx) => (
+            <div
+              key={idx}
+              className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 bg-surface border border-border rounded-lg"
+            >
+              <div className="flex-1 min-w-[160px]">
+                <ItemSelect
+                  label="Database Item"
+                  value={entry.itemKey}
+                  onChange={(key) => handleUpdate(idx, 'itemKey', key)}
+                />
+              </div>
+
+              <div className="w-20">
+                <span className="block text-[10px] text-muted font-bold">Quantity</span>
+                <input
+                  type="text"
+                  value={entry.quantity}
+                  onChange={(e) => handleUpdate(idx, 'quantity', e.target.value.replace(/\D/g, ''))}
+                  placeholder="1"
+                  className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                />
+              </div>
+
+              <div className="w-20">
+                <span className="block text-[10px] text-muted font-bold">Chance %</span>
+                <input
+                  type="text"
+                  value={entry.chance || '100'}
+                  onChange={(e) => handleUpdate(idx, 'chance', e.target.value.replace(/\D/g, ''))}
+                  placeholder="100"
+                  className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleRemove(idx)}
+                className="p-1.5 text-muted hover:text-danger rounded-lg transition-colors cursor-pointer self-end sm:self-center mt-2 sm:mt-0"
+                title="Remove item"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const WEATHER_OPTIONS = [
+  { value: 'NONE', label: 'None' },
+  { value: 'SUNNY', label: '☀️ Harsh Sun' },
+  { value: 'RAIN', label: '🌧️ Heavy Rain' },
+  { value: 'SANDSTORM', label: '🌪️ Sandstorm' },
+  { value: 'HAIL', label: '❄️ Snow / Hail' },
+];
+
+const STAT_BUFF_OPTIONS = [
+  { value: '1.0', label: '1.0x (Standard)' },
+  { value: '1.25', label: '1.25x (+25%)' },
+  { value: '1.5', label: '1.5x (+50%)' },
+  { value: '2.0', label: '2.0x (+100%)' },
+  { value: '3.0', label: '3.0x (+200%)' },
+];
+
+const TYPE_ADVANTAGE_OPTIONS = [
+  { value: '2.0', label: '2.0x (Standard)' },
+  { value: '1.5', label: '1.5x (Reduced)' },
+  { value: '1.0', label: '1.0x (Neutralized)' },
+  { value: '3.0', label: '3.0x (Hyper)' },
+];
+
+function DungeonRuleModifiersEditor({
+  modifiers,
+  onChange,
+}: {
+  modifiers: DungeonRuleModifiersState;
+  onChange: (mods: DungeonRuleModifiersState) => void;
+}) {
+  const hasActiveModifiers =
+    modifiers.weather !== 'NONE' ||
+    modifiers.statBuffMultiplier !== '1.0' ||
+    modifiers.typeAdvantageMultiplier !== '2.0';
+
+  return (
+    <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <label className="block text-xs font-bold text-foreground">Rule Modifiers & Floor Effects</label>
+          <span className="text-[10px] text-muted">Special battle conditions active for this floor</span>
+        </div>
+        {hasActiveModifiers && (
+          <button
+            type="button"
+            onClick={() =>
+              onChange({
+                weather: 'NONE',
+                statBuffMultiplier: '1.0',
+                typeAdvantageMultiplier: '2.0',
+              })
+            }
+            className="text-[10px] font-bold text-muted hover:text-foreground px-2 py-0.5 rounded border border-border bg-surface transition-colors cursor-pointer"
+          >
+            Reset to Standard
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <label className="block text-[11px] font-bold text-foreground">Field Weather</label>
+        <div className="flex flex-wrap gap-1.5">
+          {WEATHER_OPTIONS.map((w) => (
+            <button
+              key={w.value}
+              type="button"
+              onClick={() => onChange({ ...modifiers, weather: w.value })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
+                modifiers.weather === w.value
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {w.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className="block text-[11px] font-bold text-foreground">Enemy Stat Buff</label>
+        <div className="flex flex-wrap gap-1.5">
+          {STAT_BUFF_OPTIONS.map((s) => (
+            <button
+              key={s.value}
+              type="button"
+              onClick={() => onChange({ ...modifiers, statBuffMultiplier: s.value })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
+                modifiers.statBuffMultiplier === s.value
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className="block text-[11px] font-bold text-foreground">Type Advantage Multiplier</label>
+        <div className="flex flex-wrap gap-1.5">
+          {TYPE_ADVANTAGE_OPTIONS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => onChange({ ...modifiers, typeAdvantageMultiplier: t.value })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
+                modifiers.typeAdvantageMultiplier === t.value
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Dungeons() {
   const [activeTab, setActiveTab] = useState<'INFINITY_TOWER' | 'VOID_RIFT'>('INFINITY_TOWER');
@@ -57,24 +415,34 @@ export function Dungeons() {
   const [createFloorNum, setCreateFloorNum] = useState('1');
   const [createDifficulty, setCreateDifficulty] = useState<'NORMAL' | 'HARD' | 'NIGHTMARE' | 'ABYSS'>('NORMAL');
   const [createTitle, setCreateTitle] = useState('');
-  const [createEnemyPoolStr, setCreateEnemyPoolStr] = useState('[\n  { "speciesId": 25, "name": "pikachu", "level": 50 }\n]');
+  const [createEnemyPool, setCreateEnemyPool] = useState<DungeonEnemyEntry[]>([
+    { speciesId: '25', name: 'Pikachu', level: '50', weight: '1' },
+  ]);
   const [createScalingFactor, setCreateScalingFactor] = useState('1.0');
   const [createRewardCoins, setCreateRewardCoins] = useState('1000');
   const [createRewardInfCoins, setCreateRewardInfCoins] = useState('10');
-  const [createRewardItemsStr, setCreateRewardItemsStr] = useState('[]');
-  const [createRuleModifiersStr, setCreateRuleModifiersStr] = useState('{}');
+  const [createRewardItems, setCreateRewardItems] = useState<DungeonRewardItemEntry[]>([]);
+  const [createRuleModifiers, setCreateRuleModifiers] = useState<DungeonRuleModifiersState>({
+    weather: 'NONE',
+    statBuffMultiplier: '1.0',
+    typeAdvantageMultiplier: '2.0',
+  });
   const [createIsBoss, setCreateIsBoss] = useState(false);
   const [createEnabled, setCreateEnabled] = useState(true);
   const [createReason, setCreateReason] = useState('');
 
   // Edit form
   const [editTitle, setEditTitle] = useState('');
-  const [editEnemyPoolStr, setEditEnemyPoolStr] = useState('[]');
+  const [editEnemyPool, setEditEnemyPool] = useState<DungeonEnemyEntry[]>([]);
   const [editScalingFactor, setEditScalingFactor] = useState('1.0');
   const [editRewardCoins, setEditRewardCoins] = useState('0');
   const [editRewardInfCoins, setEditRewardInfCoins] = useState('0');
-  const [editRewardItemsStr, setEditRewardItemsStr] = useState('[]');
-  const [editRuleModifiersStr, setEditRuleModifiersStr] = useState('{}');
+  const [editRewardItems, setEditRewardItems] = useState<DungeonRewardItemEntry[]>([]);
+  const [editRuleModifiers, setEditRuleModifiers] = useState<DungeonRuleModifiersState>({
+    weather: 'NONE',
+    statBuffMultiplier: '1.0',
+    typeAdvantageMultiplier: '2.0',
+  });
   const [editIsBoss, setEditIsBoss] = useState(false);
   const [editEnabled, setEditEnabled] = useState(true);
   const [editReason, setEditReason] = useState('');
@@ -96,12 +464,18 @@ export function Dungeons() {
     setCreateFloorNum(String(floors.length + 1));
     setCreateDifficulty('NORMAL');
     setCreateTitle('');
-    setCreateEnemyPoolStr('[\n  { "speciesId": 25, "name": "pikachu", "level": 50 }\n]');
+    setCreateEnemyPool([
+      { speciesId: '25', name: 'Pikachu', level: '50', weight: '1' },
+    ]);
     setCreateScalingFactor('1.0');
     setCreateRewardCoins('1000');
     setCreateRewardInfCoins('10');
-    setCreateRewardItemsStr('[]');
-    setCreateRuleModifiersStr('{}');
+    setCreateRewardItems([]);
+    setCreateRuleModifiers({
+      weather: 'NONE',
+      statBuffMultiplier: '1.0',
+      typeAdvantageMultiplier: '2.0',
+    });
     setCreateIsBoss(false);
     setCreateEnabled(true);
     setCreateReason('');
@@ -114,45 +488,49 @@ export function Dungeons() {
       return;
     }
 
-    let parsedPool: any;
-    try {
-      parsedPool = JSON.parse(createEnemyPoolStr);
-    } catch {
-      notify.error('Invalid JSON for enemy pool');
+    if (createEnemyPool.length === 0) {
+      notify.error('At least one enemy Pokémon must be added to the enemy pool');
       return;
     }
 
-    let parsedRewardItems: any = null;
-    if (createRewardItemsStr.trim()) {
-      try {
-        parsedRewardItems = JSON.parse(createRewardItemsStr);
-      } catch {
-        notify.error('Invalid JSON for reward items');
-        return;
-      }
-    }
+    const enemyPoolPayload = createEnemyPool.map((e) => ({
+      speciesId: parseInt(e.speciesId, 10) || 1,
+      name: e.name.trim() || undefined,
+      level: parseInt(e.level, 10) || 50,
+      weight: parseInt(e.weight, 10) || 1,
+    }));
 
-    let parsedModifiers: any = null;
-    if (createRuleModifiersStr.trim()) {
-      try {
-        parsedModifiers = JSON.parse(createRuleModifiersStr);
-      } catch {
-        notify.error('Invalid JSON for rule modifiers');
-        return;
-      }
+    const rewardItemsPayload = createRewardItems.length > 0
+      ? createRewardItems.map((r) => ({
+          itemKey: r.itemKey.trim(),
+          quantity: parseInt(r.quantity, 10) || 1,
+          ...(r.chance && parseFloat(r.chance) < 100 ? { chance: parseFloat(r.chance) } : {}),
+        }))
+      : null;
+
+    const ruleModifiersPayload: Record<string, any> = {};
+    if (createRuleModifiers.weather && createRuleModifiers.weather !== 'NONE') {
+      ruleModifiersPayload.weather = createRuleModifiers.weather;
     }
+    if (createRuleModifiers.statBuffMultiplier && parseFloat(createRuleModifiers.statBuffMultiplier) !== 1.0) {
+      ruleModifiersPayload.statBuffMultiplier = parseFloat(createRuleModifiers.statBuffMultiplier);
+    }
+    if (createRuleModifiers.typeAdvantageMultiplier && parseFloat(createRuleModifiers.typeAdvantageMultiplier) !== 2.0) {
+      ruleModifiersPayload.typeAdvantageMultiplier = parseFloat(createRuleModifiers.typeAdvantageMultiplier);
+    }
+    const finalRuleModifiers = Object.keys(ruleModifiersPayload).length > 0 ? ruleModifiersPayload : null;
 
     const payload: CreateDungeonFloorRuleInput = {
       dungeonType: activeTab,
       floorNumber: parseInt(createFloorNum, 10) || 1,
       difficulty: activeTab === 'VOID_RIFT' ? createDifficulty : null,
       title: createTitle.trim() || null,
-      enemyPool: parsedPool,
+      enemyPool: enemyPoolPayload,
       scalingFactor: parseFloat(createScalingFactor) || 1.0,
       rewardCoins: parseInt(createRewardCoins, 10) || 0,
       rewardInfinityCoins: parseInt(createRewardInfCoins, 10) || 0,
-      rewardItems: parsedRewardItems,
-      ruleModifiers: parsedModifiers,
+      rewardItems: rewardItemsPayload,
+      ruleModifiers: finalRuleModifiers,
       isBossFloor: createIsBoss,
       enabled: createEnabled,
       sortOrder: 0,
@@ -171,12 +549,37 @@ export function Dungeons() {
   const handleOpenEdit = (floor: DungeonFloorRuleDto) => {
     setEditingFloor(floor);
     setEditTitle(floor.title || '');
-    setEditEnemyPoolStr(JSON.stringify(floor.enemyPool, null, 2));
+
+    const pool: DungeonEnemyEntry[] = Array.isArray(floor.enemyPool)
+      ? floor.enemyPool.map((e: any) => ({
+          speciesId: String(e.speciesId ?? 25),
+          name: String(e.name ?? ''),
+          level: String(e.level ?? 50),
+          weight: String(e.weight ?? 1),
+        }))
+      : [{ speciesId: '25', name: 'Pikachu', level: '50', weight: '1' }];
+    setEditEnemyPool(pool);
+
     setEditScalingFactor(String(floor.scalingFactor));
     setEditRewardCoins(String(floor.rewardCoins));
     setEditRewardInfCoins(String(floor.rewardInfinityCoins));
-    setEditRewardItemsStr(floor.rewardItems ? JSON.stringify(floor.rewardItems, null, 2) : '[]');
-    setEditRuleModifiersStr(floor.ruleModifiers ? JSON.stringify(floor.ruleModifiers, null, 2) : '{}');
+
+    const items: DungeonRewardItemEntry[] = Array.isArray(floor.rewardItems)
+      ? floor.rewardItems.map((r: any) => ({
+          itemKey: String(r.itemKey || r.itemId || 'rare-candy'),
+          quantity: String(r.quantity ?? 1),
+          chance: r.chance !== undefined ? String(r.chance) : '100',
+        }))
+      : [];
+    setEditRewardItems(items);
+
+    const mods = floor.ruleModifiers || {};
+    setEditRuleModifiers({
+      weather: mods.weather || 'NONE',
+      statBuffMultiplier: mods.statBuffMultiplier ? String(mods.statBuffMultiplier) : '1.0',
+      typeAdvantageMultiplier: mods.typeAdvantageMultiplier ? String(mods.typeAdvantageMultiplier) : '2.0',
+    });
+
     setEditIsBoss(floor.isBossFloor);
     setEditEnabled(floor.enabled);
     setEditReason('');
@@ -189,42 +592,46 @@ export function Dungeons() {
       return;
     }
 
-    let parsedPool: any;
-    try {
-      parsedPool = JSON.parse(editEnemyPoolStr);
-    } catch {
-      notify.error('Invalid JSON for enemy pool');
+    if (editEnemyPool.length === 0) {
+      notify.error('At least one enemy Pokémon must be added to the enemy pool');
       return;
     }
 
-    let parsedRewardItems: any = null;
-    if (editRewardItemsStr.trim()) {
-      try {
-        parsedRewardItems = JSON.parse(editRewardItemsStr);
-      } catch {
-        notify.error('Invalid JSON for reward items');
-        return;
-      }
-    }
+    const enemyPoolPayload = editEnemyPool.map((e) => ({
+      speciesId: parseInt(e.speciesId, 10) || 1,
+      name: e.name.trim() || undefined,
+      level: parseInt(e.level, 10) || 50,
+      weight: parseInt(e.weight, 10) || 1,
+    }));
 
-    let parsedModifiers: any = null;
-    if (editRuleModifiersStr.trim()) {
-      try {
-        parsedModifiers = JSON.parse(editRuleModifiersStr);
-      } catch {
-        notify.error('Invalid JSON for rule modifiers');
-        return;
-      }
+    const rewardItemsPayload = editRewardItems.length > 0
+      ? editRewardItems.map((r) => ({
+          itemKey: r.itemKey.trim(),
+          quantity: parseInt(r.quantity, 10) || 1,
+          ...(r.chance && parseFloat(r.chance) < 100 ? { chance: parseFloat(r.chance) } : {}),
+        }))
+      : null;
+
+    const ruleModifiersPayload: Record<string, any> = {};
+    if (editRuleModifiers.weather && editRuleModifiers.weather !== 'NONE') {
+      ruleModifiersPayload.weather = editRuleModifiers.weather;
     }
+    if (editRuleModifiers.statBuffMultiplier && parseFloat(editRuleModifiers.statBuffMultiplier) !== 1.0) {
+      ruleModifiersPayload.statBuffMultiplier = parseFloat(editRuleModifiers.statBuffMultiplier);
+    }
+    if (editRuleModifiers.typeAdvantageMultiplier && parseFloat(editRuleModifiers.typeAdvantageMultiplier) !== 2.0) {
+      ruleModifiersPayload.typeAdvantageMultiplier = parseFloat(editRuleModifiers.typeAdvantageMultiplier);
+    }
+    const finalRuleModifiers = Object.keys(ruleModifiersPayload).length > 0 ? ruleModifiersPayload : null;
 
     const payload: UpdateDungeonFloorRuleInput = {
       title: editTitle.trim() || null,
-      enemyPool: parsedPool,
+      enemyPool: enemyPoolPayload,
       scalingFactor: parseFloat(editScalingFactor) || 1.0,
       rewardCoins: parseInt(editRewardCoins, 10) || 0,
       rewardInfinityCoins: parseInt(editRewardInfCoins, 10) || 0,
-      rewardItems: parsedRewardItems,
-      ruleModifiers: parsedModifiers,
+      rewardItems: rewardItemsPayload,
+      ruleModifiers: finalRuleModifiers,
       isBossFloor: editIsBoss,
       enabled: editEnabled,
       reason: editReason.trim(),
@@ -523,17 +930,10 @@ export function Dungeons() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Enemy Pool / Team (JSON array of species and levels)
-                </label>
-                <textarea
-                  value={createEnemyPoolStr}
-                  onChange={(e) => setCreateEnemyPoolStr(e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                />
-              </div>
+              <DungeonEnemyPoolEditor
+                pool={createEnemyPool}
+                onChange={setCreateEnemyPool}
+              />
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
@@ -565,26 +965,15 @@ export function Dungeons() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Reward Items (JSON)</label>
-                  <textarea
-                    value={createRewardItemsStr}
-                    onChange={(e) => setCreateRewardItemsStr(e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Rule Modifiers (JSON)</label>
-                  <textarea
-                    value={createRuleModifiersStr}
-                    onChange={(e) => setCreateRuleModifiersStr(e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-              </div>
+              <DungeonRewardItemsEditor
+                items={createRewardItems}
+                onChange={setCreateRewardItems}
+              />
+
+              <DungeonRuleModifiersEditor
+                modifiers={createRuleModifiers}
+                onChange={setCreateRuleModifiers}
+              />
 
               <div className="flex items-center justify-between p-3 bg-surface-raised border border-border rounded-xl">
                 <div>
@@ -671,17 +1060,10 @@ export function Dungeons() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Enemy Pool / Team (JSON)
-                </label>
-                <textarea
-                  value={editEnemyPoolStr}
-                  onChange={(e) => setEditEnemyPoolStr(e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                />
-              </div>
+              <DungeonEnemyPoolEditor
+                pool={editEnemyPool}
+                onChange={setEditEnemyPool}
+              />
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
@@ -713,26 +1095,15 @@ export function Dungeons() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Reward Items (JSON)</label>
-                  <textarea
-                    value={editRewardItemsStr}
-                    onChange={(e) => setEditRewardItemsStr(e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Rule Modifiers (JSON)</label>
-                  <textarea
-                    value={editRuleModifiersStr}
-                    onChange={(e) => setEditRuleModifiersStr(e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-              </div>
+              <DungeonRewardItemsEditor
+                items={editRewardItems}
+                onChange={setEditRewardItems}
+              />
+
+              <DungeonRuleModifiersEditor
+                modifiers={editRuleModifiers}
+                onChange={setEditRuleModifiers}
+              />
 
               <div className="flex items-center justify-between p-3 bg-surface-raised border border-border rounded-xl">
                 <div>

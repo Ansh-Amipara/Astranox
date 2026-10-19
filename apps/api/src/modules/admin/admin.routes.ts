@@ -276,8 +276,9 @@ router.post(
   eventsController.unarchiveEvent
 );
 
-// Legacy Species & Pokémon Grant Endpoints
-router.get('/species', requireAdmin, controller.getAllSpecies);
+// Species & Items Roster Endpoints
+router.get('/species', requireStaff, controller.getAllSpecies);
+router.get('/items', requireStaff, controller.getAllItems);
 router.get('/users/:id/pokemon', requireAdmin, controller.getUserPokemon);
 router.post('/users/:id/money', requireAdmin, validate(addMoneySchema), controller.addMoney);
 router.post('/users/:id/pokemon', requireAdmin, validate(addPokemonSchema), controller.addPokemon);

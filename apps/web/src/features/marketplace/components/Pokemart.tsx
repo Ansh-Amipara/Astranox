@@ -374,13 +374,19 @@ export function Pokemart() {
                   options={categories.map((cat) => ({
                     value: cat,
                     label:
-                      cat === 'infinity-only' || cat === 'potential'
-                        ? 'Potential'
-                        : cat === 'iv'
-                        ? 'IV'
+                      cat === 'balls'
+                        ? 'Poké Balls'
+                        : cat === 'iv_items' || cat === 'iv'
+                        ? 'IV Items'
+                        : cat === 'potential_items' || cat === 'potential' || cat === 'infinity-only'
+                        ? 'Potential Items'
+                        : cat === 'xp_candies'
+                        ? 'XP Candies'
+                        : cat === 'moves'
+                        ? 'Moves'
                         : cat === 'all'
                         ? 'All'
-                        : cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
+                        : cat.charAt(0).toUpperCase() + cat.slice(1).replace(/[-_]/g, ' '),
                   }))}
                   onChange={(val) => setSelectedCategory(val)}
                   className="w-full"

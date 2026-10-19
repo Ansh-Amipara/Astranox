@@ -3,18 +3,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/shared/api/api';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
-import { SpeciesDto } from '@astranox/types';
 import { FiPlus, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { Dropdown } from '@/shared/ui/Dropdown';
 import { Modal } from '@/shared/ui/Modal';
 import { DatePicker } from '@/shared/ui/DatePicker';
 import { getMaxLevelForPotential } from '@/features/pokemon/pokemonUtils';
+import { PokemonTierSelect } from './PokemonTierSelect';
 
 export function AdminEventManagement() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
-  const [speciesSearch, setSpeciesSearch] = useState<string>('');
   const [formState, setFormState] = useState<any>({});
 
   const { data: eventsData, isLoading } = useQuery({
@@ -25,7 +24,7 @@ export function AdminEventManagement() {
     }
   });
 
-  const { data: speciesList = [], isLoading: speciesLoading } = useQuery({
+  const { data: speciesList = [] } = useQuery({
     queryKey: ['adminSpecies'],
     queryFn: async () => {
       const res = await api.get('/admin/species');
@@ -33,12 +32,7 @@ export function AdminEventManagement() {
     }
   });
 
-  const uniqueCategories = Array.from(new Set(speciesList.map((s: SpeciesDto) => s.category))).sort();
-  const filteredSpecies = speciesList.filter((s: SpeciesDto) => {
-    if (formState.speciesFilterCategory && s.category !== formState.speciesFilterCategory) return false;
-    if (speciesSearch && !s.name.toLowerCase().includes(speciesSearch.toLowerCase())) return false;
-    return true;
-  });
+  const uniqueCategories = Array.from(new Set(speciesList.map((s: any) => s.rank || s.category))).filter(Boolean).sort();
 
   const saveMutation = useMutation({
     mutationFn: async (data: unknown) => {
@@ -282,43 +276,13 @@ export function AdminEventManagement() {
                 <h3 className="font-black text-foreground">Reward Configuration</h3>
 
                 <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-muted mb-1">Search Species</label>
-                      <input
-                        type="text"
-                        placeholder="Search name..."
-                        value={speciesSearch}
-                        onChange={e => setSpeciesSearch(e.target.value)}
-                        className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-border"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-muted mb-1">Select Species</label>
-                      {speciesLoading ? (
-                        <div className="text-subtle text-sm py-2 px-4 bg-surface border border-border rounded-lg">Loading...</div>
-                      ) : (
-                        <>
-                          <Dropdown
-                            value={formState.rewardSpeciesId}
-                            onChange={v => setFormState({ ...formState, rewardSpeciesId: v })}
-                            options={
-                              filteredSpecies.length > 0
-                                ? filteredSpecies.map((s: SpeciesDto) => ({
-                                  value: String(s.id),
-                                  label: `#${s.id} ${s.name} (${s.category})`
-                                }))
-                                : [{ value: '', label: 'No species found' }]
-                            }
-                            placeholder="Select a Pokemon..."
-                            className="!w-full font-bold"
-                            dropdownClassName="!w-full max-h-64"
-                          />
-                          <input type="hidden" name="reward_speciesId" value={formState.rewardSpeciesId} />
-                        </>
-                      )}
-                    </div>
+                  <div className="w-full">
+                    <PokemonTierSelect
+                      label="Reward Pokémon Species (Tier-wise)"
+                      selectedSpeciesId={formState.rewardSpeciesId}
+                      onSelect={(s) => setFormState({ ...formState, rewardSpeciesId: String(s.id) })}
+                    />
+                    <input type="hidden" name="reward_speciesId" value={formState.rewardSpeciesId || ''} />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

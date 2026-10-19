@@ -44,7 +44,7 @@ export class ShopService {
     }
 
     const items = await prisma.shopItem.findMany({
-      where: { enabled: true, isArchived: { not: true } },
+      where: { enabled: true, isArchived: false },
       orderBy: [{ sortOrder: 'asc' }, { price: 'asc' }],
     });
 

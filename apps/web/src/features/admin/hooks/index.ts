@@ -8,3 +8,4 @@ export * from './useAdminBalance';
 export * from './useAdminArena';
 export * from './useAdminDungeons';
 export * from './useAdminEvents';
+export * from './useAdminRoster';

@@ -24,6 +24,15 @@ export class AdminController {
     }
   };
 
+  getAllItems = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const items = await this.service.getAllItems();
+      res.json({ success: true, data: items });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getUserPokemon = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;

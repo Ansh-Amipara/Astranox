@@ -63,6 +63,10 @@ export class AdminService {
     return BattleMapper.toAvailableSpeciesDtoList(species);
   }
 
+  async getAllItems() {
+    return this.repo.getAllItems();
+  }
+
   async getUserPokemon(userId: string): Promise<OwnedPokemonDto[]> {
     const pokemon = await this.repo.getUserPokemon(userId);
     return pokemon.map(TrainerMapper.toOwnedPokemonDto);

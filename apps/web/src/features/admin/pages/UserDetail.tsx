@@ -9,6 +9,7 @@ import {
 } from '../hooks/useAdminUsers';
 import { ReasonField } from '../components/ReasonField';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { ItemSelect } from '../components/ItemSelect';
 import {
   ArrowLeft,
   Shield,
@@ -425,13 +426,10 @@ export function UserDetail() {
 
             <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Item Key</label>
-                <input
-                  type="text"
+                <ItemSelect
+                  label="Select Item (from Database)"
                   value={itemKey}
-                  onChange={(e) => setItemKey(e.target.value.trim().toLowerCase())}
-                  placeholder="e.g. ultra_ball, rare_candy"
-                  className="w-full px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden font-mono touch-manipulation"
+                  onChange={setItemKey}
                 />
               </div>
 

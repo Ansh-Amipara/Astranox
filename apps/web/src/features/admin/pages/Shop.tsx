@@ -41,19 +41,243 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { notify } from '@/lib/toast';
 
-const EFFECT_PRESETS: { type: string; label: string; sampleConfig: Record<string, unknown> }[] = [
-  { type: 'NONE', label: 'None (Standard Item)', sampleConfig: {} },
-  { type: 'POKEBALL', label: 'Poké Ball (Catch Rate)', sampleConfig: { catchMultiplier: 2.0 } },
-  { type: 'HEAL_HP', label: 'Heal HP (Amount or %)', sampleConfig: { healAmount: 60, healPercent: 0 } },
-  { type: 'HEAL_STATUS', label: 'Cure Status Condition', sampleConfig: { status: 'ALL' } },
-  { type: 'REVIVE', label: 'Revive Fainted Pokémon', sampleConfig: { reviveHpPercent: 50 } },
-  { type: 'GIVE_XP', label: 'Give Experience Points', sampleConfig: { xpAmount: 1000 } },
-  { type: 'LEVEL_UP', label: 'Level Up Pokémon', sampleConfig: { levels: 1 } },
-  { type: 'IV_MAX', label: 'Maximize Individual Values', sampleConfig: { stat: 'all' } },
-  { type: 'POTENTIAL_UP', label: 'Increase Potential Tier', sampleConfig: { guaranteeTier: 'S' } },
-  { type: 'EVOLUTION', label: 'Trigger Evolution', sampleConfig: { targetSpeciesIds: [] } },
-  { type: 'CUSTOM', label: 'Custom Scripted Effect', sampleConfig: {} },
+interface EffectConfigState {
+  catchMultiplier: string;
+  xpAmount: string;
+  levels: string;
+  ivStat: string;
+  potentialTier: string;
+}
+
+const DEFAULT_EFFECT_CONFIG: EffectConfigState = {
+  catchMultiplier: '2.0',
+  xpAmount: '1000',
+  levels: '1',
+  ivStat: 'all',
+  potentialTier: 'S',
+};
+
+const EFFECT_PRESETS: { type: string; label: string }[] = [
+  { type: 'NONE', label: 'None (Standard Item)' },
+  { type: 'POKEBALL', label: 'Poké Ball (Catch Rate)' },
+  { type: 'GIVE_XP', label: 'Give Experience Points (XP)' },
+  { type: 'LEVEL_UP', label: 'Level Up Pokémon' },
+  { type: 'IV_MAX', label: 'Maximize Individual Values (IVs)' },
+  { type: 'POTENTIAL_UP', label: 'Upgrade Potential Tier' },
 ];
+
+function serializeEffectConfig(type: string, cfg: EffectConfigState): Record<string, unknown> | null {
+  switch (type) {
+    case 'POKEBALL':
+      return { catchMultiplier: parseFloat(cfg.catchMultiplier) || 2.0 };
+    case 'GIVE_XP':
+      return { xpAmount: parseInt(cfg.xpAmount, 10) || 1000 };
+    case 'LEVEL_UP':
+      return { levels: parseInt(cfg.levels, 10) || 1 };
+    case 'IV_MAX':
+      return { stat: cfg.ivStat || 'all' };
+    case 'POTENTIAL_UP':
+      return { guaranteeTier: cfg.potentialTier || 'S' };
+    default:
+      return null;
+  }
+}
+
+function deserializeEffectConfig(rawConfig: any): EffectConfigState {
+  return {
+    catchMultiplier: String(rawConfig?.catchMultiplier ?? '2.0'),
+    xpAmount: String(rawConfig?.xpAmount ?? '1000'),
+    levels: String(rawConfig?.levels ?? '1'),
+    ivStat: String(rawConfig?.stat ?? 'all'),
+    potentialTier: String(rawConfig?.guaranteeTier ?? 'S'),
+  };
+}
+
+function EffectConfigFields({
+  effectType,
+  config,
+  onChange,
+}: {
+  effectType: string;
+  config: EffectConfigState;
+  onChange: (cfg: EffectConfigState) => void;
+}) {
+  if (effectType === 'NONE') {
+    return (
+      <div className="p-3 bg-surface-raised border border-border rounded-xl text-xs text-muted">
+        Standard catalog item with no active battle or instance script.
+      </div>
+    );
+  }
+
+  if (effectType === 'POKEBALL') {
+    const multipliers = ['1.0', '1.5', '2.0', '2.5', '3.0', '5.0', '255.0'];
+    return (
+      <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2.5">
+        <label className="block text-xs font-bold text-foreground">Catch Rate Multiplier</label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {multipliers.map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => onChange({ ...config, catchMultiplier: m })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors ${
+                config.catchMultiplier === m
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {m}x
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted">Custom:</span>
+          <input
+            type="text"
+            value={config.catchMultiplier}
+            onChange={(e) => onChange({ ...config, catchMultiplier: e.target.value.replace(/[^\d.]/g, '') })}
+            placeholder="2.0"
+            className="w-24 px-2.5 py-1 bg-surface border border-border rounded-lg text-xs font-mono text-foreground focus:outline-hidden"
+          />
+          <span className="text-xs text-muted font-bold">x multiplier</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (effectType === 'GIVE_XP') {
+    const amounts = ['500', '1000', '5000', '10000', '50000'];
+    return (
+      <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2.5">
+        <label className="block text-xs font-bold text-foreground">Experience Points (XP)</label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {amounts.map((a) => (
+            <button
+              key={a}
+              type="button"
+              onClick={() => onChange({ ...config, xpAmount: a })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors ${
+                config.xpAmount === a
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              +{Number(a).toLocaleString()} XP
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted">Custom:</span>
+          <input
+            type="text"
+            value={config.xpAmount}
+            onChange={(e) => onChange({ ...config, xpAmount: e.target.value.replace(/\D/g, '') })}
+            placeholder="1000"
+            className="w-32 px-2.5 py-1 bg-surface border border-border rounded-lg text-xs font-mono text-foreground focus:outline-hidden"
+          />
+          <span className="text-xs text-muted font-bold">XP points</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (effectType === 'LEVEL_UP') {
+    const levelsList = ['1', '2', '3', '5', '10'];
+    return (
+      <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2.5">
+        <label className="block text-xs font-bold text-foreground">Levels to Add</label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {levelsList.map((lvl) => (
+            <button
+              key={lvl}
+              type="button"
+              onClick={() => onChange({ ...config, levels: lvl })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors ${
+                config.levels === lvl
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              +{lvl} {Number(lvl) === 1 ? 'Level' : 'Levels'}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted">Custom:</span>
+          <input
+            type="text"
+            value={config.levels}
+            onChange={(e) => onChange({ ...config, levels: e.target.value.replace(/\D/g, '') })}
+            placeholder="1"
+            className="w-20 px-2.5 py-1 bg-surface border border-border rounded-lg text-xs font-mono text-foreground focus:outline-hidden"
+          />
+          <span className="text-xs text-muted font-bold">levels</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (effectType === 'IV_MAX') {
+    const stats = [
+      { id: 'all', label: 'All Stats (Perfect 31)' },
+      { id: 'hp', label: 'HP' },
+      { id: 'attack', label: 'Attack' },
+      { id: 'defense', label: 'Defense' },
+      { id: 'special-attack', label: 'Sp. Atk' },
+      { id: 'special-defense', label: 'Sp. Def' },
+      { id: 'speed', label: 'Speed' },
+    ];
+    return (
+      <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2.5">
+        <label className="block text-xs font-bold text-foreground">Target IV Stat to Maximize</label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {stats.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => onChange({ ...config, ivStat: s.id })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors ${
+                config.ivStat === s.id
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (effectType === 'POTENTIAL_UP') {
+    const tiers = ['D', 'C', 'B', 'A', 'S-', 'S', 'S+', 'SS-', 'SS', 'SS+', 'SSS-', 'SSS', 'SSS+'];
+    return (
+      <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2.5">
+        <label className="block text-xs font-bold text-foreground">Guaranteed Potential Tier</label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {tiers.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => onChange({ ...config, potentialTier: t })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors ${
+                config.potentialTier === t
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              Tier {t}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export function Shop() {
   // Filters
@@ -94,7 +318,7 @@ export function Shop() {
   const [createSaleEndsAt, setCreateSaleEndsAt] = useState<string | null>(null);
   const [createSpriteUrl, setCreateSpriteUrl] = useState('');
   const [createEffectType, setCreateEffectType] = useState('NONE');
-  const [createEffectConfigStr, setCreateEffectConfigStr] = useState('{}');
+  const [createEffectConfig, setCreateEffectConfig] = useState<EffectConfigState>(DEFAULT_EFFECT_CONFIG);
   const [createMinLevel, setCreateMinLevel] = useState('');
   const [createDailyLimit, setCreateDailyLimit] = useState('');
   const [createStock, setCreateStock] = useState('');
@@ -109,7 +333,7 @@ export function Shop() {
   const [editCurrency, setEditCurrency] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
   const [editSpriteUrl, setEditSpriteUrl] = useState('');
   const [editEffectType, setEditEffectType] = useState('NONE');
-  const [editEffectConfigStr, setEditEffectConfigStr] = useState('{}');
+  const [editEffectConfig, setEditEffectConfig] = useState<EffectConfigState>(DEFAULT_EFFECT_CONFIG);
   const [editPrice, setEditPrice] = useState<number>(0);
   const [editSalePrice, setEditSalePrice] = useState<number | null>(null);
   const [editSaleStartsAt, setEditSaleStartsAt] = useState<string | null>(null);
@@ -138,7 +362,11 @@ export function Shop() {
 
   // Filtered items
   const filteredItems = useMemo(() => {
+    const validCategories = new Set<string>(SHOP_CATEGORIES.map((c) => c.id));
     return items.filter((item) => {
+      if (!validCategories.has(item.category)) {
+        return false;
+      }
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
       }
@@ -171,7 +399,7 @@ export function Shop() {
     setCreateSaleEndsAt(null);
     setCreateSpriteUrl('');
     setCreateEffectType('NONE');
-    setCreateEffectConfigStr('{}');
+    setCreateEffectConfig(DEFAULT_EFFECT_CONFIG);
     setCreateMinLevel('');
     setCreateDailyLimit('');
     setCreateStock('');
@@ -196,15 +424,7 @@ export function Shop() {
       return;
     }
 
-    let parsedConfig: Record<string, unknown> | null = null;
-    if (createEffectType !== 'NONE' && createEffectConfigStr.trim()) {
-      try {
-        parsedConfig = JSON.parse(createEffectConfigStr);
-      } catch {
-        notify.error('Invalid JSON for effect configuration');
-        return;
-      }
-    }
+    const parsedConfig = serializeEffectConfig(createEffectType, createEffectConfig);
 
     const payload: CreateShopItemInput = {
       key: createKey.trim().toLowerCase(),
@@ -244,7 +464,7 @@ export function Shop() {
     setEditCurrency(item.currency);
     setEditSpriteUrl(item.spriteUrl || '');
     setEditEffectType(item.effectType || 'NONE');
-    setEditEffectConfigStr(item.effectConfig ? JSON.stringify(item.effectConfig, null, 2) : '{}');
+    setEditEffectConfig(deserializeEffectConfig(item.effectConfig));
     setEditPrice(item.price);
     setEditSalePrice(item.salePrice);
     setEditSaleStartsAt(item.saleStartsAt);
@@ -266,15 +486,7 @@ export function Shop() {
       return;
     }
 
-    let parsedConfig: Record<string, unknown> | null = null;
-    if (editEffectType !== 'NONE' && editEffectConfigStr.trim()) {
-      try {
-        parsedConfig = JSON.parse(editEffectConfigStr);
-      } catch {
-        notify.error('Invalid JSON for effect configuration');
-        return;
-      }
-    }
+    const parsedConfig = serializeEffectConfig(editEffectType, editEffectConfig);
 
     const payload: UpdateShopItemInput = {
       name: editName.trim(),
@@ -802,40 +1014,25 @@ export function Shop() {
                 <span className="block text-xs font-black text-foreground uppercase tracking-wider">
                   Functional Item Effect
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">Effect Type</label>
-                    <select
-                      value={createEffectType}
-                      onChange={(e) => {
-                        const newType = e.target.value;
-                        setCreateEffectType(newType);
-                        const preset = EFFECT_PRESETS.find((p) => p.type === newType);
-                        if (preset) {
-                          setCreateEffectConfigStr(JSON.stringify(preset.sampleConfig, null, 2));
-                        }
-                      }}
-                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
-                    >
-                      {EFFECT_PRESETS.map((p) => (
-                        <option key={p.type} value={p.type}>
-                          {p.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">
-                      Effect Config (JSON)
-                    </label>
-                    <textarea
-                      value={createEffectConfigStr}
-                      onChange={(e) => setCreateEffectConfigStr(e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Effect Type</label>
+                  <select
+                    value={createEffectType}
+                    onChange={(e) => setCreateEffectType(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden mb-3"
+                  >
+                    {EFFECT_PRESETS.map((p) => (
+                      <option key={p.type} value={p.type}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                <EffectConfigFields
+                  effectType={createEffectType}
+                  config={createEffectConfig}
+                  onChange={setCreateEffectConfig}
+                />
               </div>
 
               {/* Base Price & Sale */}
@@ -1048,40 +1245,25 @@ export function Shop() {
                 <span className="block text-xs font-black text-foreground uppercase tracking-wider">
                   Functional Item Effect
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">Effect Type</label>
-                    <select
-                      value={editEffectType}
-                      onChange={(e) => {
-                        const newType = e.target.value;
-                        setEditEffectType(newType);
-                        const preset = EFFECT_PRESETS.find((p) => p.type === newType);
-                        if (preset && (!editEffectConfigStr || editEffectConfigStr === '{}')) {
-                          setEditEffectConfigStr(JSON.stringify(preset.sampleConfig, null, 2));
-                        }
-                      }}
-                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
-                    >
-                      {EFFECT_PRESETS.map((p) => (
-                        <option key={p.type} value={p.type}>
-                          {p.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">
-                      Effect Config (JSON)
-                    </label>
-                    <textarea
-                      value={editEffectConfigStr}
-                      onChange={(e) => setEditEffectConfigStr(e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Effect Type</label>
+                  <select
+                    value={editEffectType}
+                    onChange={(e) => setEditEffectType(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden mb-3"
+                  >
+                    {EFFECT_PRESETS.map((p) => (
+                      <option key={p.type} value={p.type}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                <EffectConfigFields
+                  effectType={editEffectType}
+                  config={editEffectConfig}
+                  onChange={setEditEffectConfig}
+                />
               </div>
 
               {/* Base Price */}

@@ -9,7 +9,9 @@ export class BattleMapper {
       id: entity.id,
       name: entity.name,
       spriteUrl: entity.spriteUrl,
-      category: entity.category,
+      category: entity.category || entity.rank || 'F',
+      rank: entity.rank || 'F',
+      pokedexNumber: entity.pokedexNumber ?? entity.id,
     };
   }
 

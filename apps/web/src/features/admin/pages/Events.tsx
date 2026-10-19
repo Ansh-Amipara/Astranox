@@ -10,6 +10,7 @@ import { DataTable, ColumnDef } from '../components/DataTable';
 import { ReasonField } from '../components/ReasonField';
 import { DateRangeField } from '../components/DateRangeField';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { PokemonTierSelect } from '../components/PokemonTierSelect';
 import {
   EventChallengeDto,
   CreateEventInput,
@@ -26,6 +27,7 @@ import {
   X,
   Gift,
   Target,
+  Trash2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -37,6 +39,389 @@ const TASK_TYPES = [
   { value: 'CLEAR_TOWER', label: 'Clear Infinity Tower Floors' },
   { value: 'CLEAR_RIFT', label: 'Clear Void Rift Floors' },
 ] as const;
+
+interface EventTaskConfigState {
+  requiredCount: string;
+  pokemonType: string;
+}
+
+interface EventRewardConfigState {
+  speciesId: string;
+  level: string;
+  potential: string;
+  coins: string;
+  form: string;
+  ivs: string;
+}
+
+interface PoolEntry {
+  speciesId: string;
+  name: string;
+  minLevel: string;
+  maxLevel: string;
+  weight: string;
+}
+
+const DEFAULT_TASK_CONFIG: EventTaskConfigState = {
+  requiredCount: '10',
+  pokemonType: 'Fire',
+};
+
+const DEFAULT_REWARD_CONFIG: EventRewardConfigState = {
+  speciesId: '6',
+  level: '30',
+  potential: 'S',
+  coins: '5000',
+  form: 'Normal',
+  ivs: 'max',
+};
+
+const DEFAULT_POKEMON_POOL: PoolEntry[] = [
+  { speciesId: '4', name: 'charmander', minLevel: '5', maxLevel: '15', weight: '50' },
+  { speciesId: '5', name: 'charmeleon', minLevel: '16', maxLevel: '25', weight: '20' },
+];
+
+function serializeTaskConfig(cfg: EventTaskConfigState) {
+  return {
+    requiredCount: parseInt(cfg.requiredCount, 10) || 5,
+    ...(cfg.pokemonType ? { pokemonType: cfg.pokemonType } : {}),
+  };
+}
+
+function serializeRewardConfig(cfg: EventRewardConfigState) {
+  return {
+    ...(cfg.speciesId ? { speciesId: parseInt(cfg.speciesId, 10) } : {}),
+    level: parseInt(cfg.level, 10) || 50,
+    potential: cfg.potential || 'DIAMOND',
+    form: cfg.form || 'Normal',
+    ivs: cfg.ivs || 'max',
+    ...(cfg.coins && parseInt(cfg.coins, 10) > 0 ? { coins: parseInt(cfg.coins, 10) } : {}),
+  };
+}
+
+function serializePool(pool: PoolEntry[]) {
+  if (pool.length === 0) return null;
+  return pool.map((p) => ({
+    speciesId: parseInt(p.speciesId, 10) || 1,
+    name: p.name.trim() || undefined,
+    minLevel: parseInt(p.minLevel, 10) || 5,
+    maxLevel: parseInt(p.maxLevel, 10) || 15,
+    weight: parseInt(p.weight, 10) || 50,
+  }));
+}
+
+function deserializeTaskConfig(cfg: any): EventTaskConfigState {
+  return {
+    requiredCount: String(cfg?.requiredCount ?? 5),
+    pokemonType: String(cfg?.pokemonType ?? ''),
+  };
+}
+
+function deserializeRewardConfig(cfg: any): EventRewardConfigState {
+  return {
+    speciesId: String(cfg?.speciesId ?? '6'),
+    level: String(cfg?.level ?? '30'),
+    potential: String(cfg?.potential ?? 'S'),
+    coins: String(cfg?.coins ?? '5000'),
+    form: String(cfg?.form ?? 'Normal'),
+    ivs: String(cfg?.ivs ?? 'max'),
+  };
+}
+
+function deserializePool(pool: any): PoolEntry[] {
+  if (!Array.isArray(pool)) return [];
+  return pool.map((p) => ({
+    speciesId: String(p?.speciesId ?? 1),
+    name: String(p?.name ?? ''),
+    minLevel: String(p?.minLevel ?? 5),
+    maxLevel: String(p?.maxLevel ?? 15),
+    weight: String(p?.weight ?? 50),
+  }));
+}
+
+function EventTaskConfigFields({
+  taskType,
+  config,
+  onChange,
+}: {
+  taskType: string;
+  config: EventTaskConfigState;
+  onChange: (cfg: EventTaskConfigState) => void;
+}) {
+  const isTypeRelevant = ['DEFEAT_WILD_POKEMON', 'CAPTURE_POKEMON'].includes(taskType);
+  const presets = ['5', '10', '25', '50', '100'];
+  const types = [
+    { value: '', label: 'Any Type' },
+    ...['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'].map((t) => ({
+      value: t.charAt(0).toUpperCase() + t.slice(1),
+      label: t.charAt(0).toUpperCase() + t.slice(1),
+    })),
+  ];
+
+  return (
+    <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+      <div className="space-y-1.5">
+        <label className="block text-xs font-bold text-foreground">
+          {['CLEAR_TOWER', 'CLEAR_RIFT'].includes(taskType) ? 'Floors to Clear' : 'Required Count'}
+        </label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {presets.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onChange({ ...config, requiredCount: p })}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-colors ${
+                config.requiredCount === p
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-surface border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <input
+            type="text"
+            value={config.requiredCount}
+            onChange={(e) => onChange({ ...config, requiredCount: e.target.value.replace(/\D/g, '') })}
+            placeholder="Count"
+            className="w-20 px-2.5 py-1 bg-surface border border-border rounded-lg text-xs font-mono text-foreground focus:outline-hidden"
+          />
+        </div>
+      </div>
+
+      {isTypeRelevant && (
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-foreground">Target Pokémon Type</label>
+          <select
+            value={config.pokemonType}
+            onChange={(e) => onChange({ ...config, pokemonType: e.target.value })}
+            className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs text-foreground focus:outline-hidden"
+          >
+            {types.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EventRewardConfigFields({
+  config,
+  onChange,
+}: {
+  config: EventRewardConfigState;
+  onChange: (cfg: EventRewardConfigState) => void;
+}) {
+  const levelPresets = ['5', '25', '50', '70', '100'];
+  const potentialTiers = ['NONE', 'D', 'C', 'B', 'A', 'S', 'S+', 'SS', 'SS+', 'SSS', 'SSS+', 'DIAMOND'];
+
+  return (
+    <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+      {/* Dynamic Tier-wise Species Selector */}
+      <PokemonTierSelect
+        label="Reward Pokémon Species (Tier-wise)"
+        selectedSpeciesId={config.speciesId}
+        onSelect={(s) => onChange({ ...config, speciesId: String(s.id) })}
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Level */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-foreground">Reward Level</label>
+          <div className="flex flex-wrap items-center gap-1">
+            {levelPresets.map((lvl) => (
+              <button
+                key={lvl}
+                type="button"
+                onClick={() => onChange({ ...config, level: lvl })}
+                className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-colors ${
+                  config.level === lvl
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-surface border-border text-muted hover:text-foreground'
+                }`}
+              >
+                Lv.{lvl}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={config.level}
+            onChange={(e) => onChange({ ...config, level: e.target.value.replace(/\D/g, '') })}
+            placeholder="50"
+            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs font-mono text-foreground focus:outline-hidden mt-1"
+          />
+        </div>
+
+        {/* Potential */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-foreground">Potential Tier</label>
+          <select
+            value={config.potential}
+            onChange={(e) => onChange({ ...config, potential: e.target.value })}
+            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs text-foreground focus:outline-hidden"
+          >
+            {potentialTiers.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Coins */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Astral Coins</label>
+          <input
+            type="text"
+            value={config.coins}
+            onChange={(e) => onChange({ ...config, coins: e.target.value.replace(/\D/g, '') })}
+            placeholder="0"
+            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs font-mono text-foreground focus:outline-hidden"
+          />
+        </div>
+
+        {/* Form */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Form</label>
+          <select
+            value={config.form}
+            onChange={(e) => onChange({ ...config, form: e.target.value })}
+            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs text-foreground focus:outline-hidden"
+          >
+            <option value="Normal">Normal</option>
+            <option value="Mega">Mega</option>
+            <option value="G-Max">Gigantamax</option>
+          </select>
+        </div>
+
+        {/* IVs */}
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">IV Guarantee</label>
+          <select
+            value={config.ivs}
+            onChange={(e) => onChange({ ...config, ivs: e.target.value })}
+            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs text-foreground focus:outline-hidden"
+          >
+            <option value="max">Max (31/31)</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EventPokemonPoolEditor({
+  pool,
+  onChange,
+}: {
+  pool: PoolEntry[];
+  onChange: (pool: PoolEntry[]) => void;
+}) {
+  const handleAdd = () => {
+    onChange([
+      ...pool,
+      { speciesId: '25', name: 'pikachu', minLevel: '10', maxLevel: '20', weight: '50' },
+    ]);
+  };
+
+  const handleRemove = (index: number) => {
+    onChange(pool.filter((_, i) => i !== index));
+  };
+
+  const handleUpdate = (index: number, field: keyof PoolEntry, value: string) => {
+    const updated = [...pool];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
+
+  return (
+    <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="block text-xs font-bold text-foreground">
+          Encounter Pool ({pool.length} Species)
+        </label>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="flex items-center gap-1 px-2.5 py-1 bg-surface border border-border text-foreground hover:bg-surface-raised rounded-lg text-xs font-bold transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Species
+        </button>
+      </div>
+
+      {pool.length === 0 ? (
+        <p className="text-xs text-muted italic py-1">No custom encounter pool configured (uses standard biome pool).</p>
+      ) : (
+        <div className="space-y-2">
+          {pool.map((entry, idx) => (
+            <div
+              key={idx}
+              className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 bg-surface border border-border rounded-lg"
+            >
+              <div className="flex-1 min-w-[200px]">
+                <PokemonTierSelect
+                  compact
+                  selectedSpeciesId={entry.speciesId}
+                  onSelect={(s) => {
+                    handleUpdate(idx, 'speciesId', String(s.id));
+                    handleUpdate(idx, 'name', s.name);
+                  }}
+                />
+              </div>
+              <div className="w-16">
+                <span className="block text-[10px] text-muted font-bold">Min Lv</span>
+                <input
+                  type="text"
+                  value={entry.minLevel}
+                  onChange={(e) => handleUpdate(idx, 'minLevel', e.target.value.replace(/\D/g, ''))}
+                  placeholder="5"
+                  className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                />
+              </div>
+              <div className="w-16">
+                <span className="block text-[10px] text-muted font-bold">Max Lv</span>
+                <input
+                  type="text"
+                  value={entry.maxLevel}
+                  onChange={(e) => handleUpdate(idx, 'maxLevel', e.target.value.replace(/\D/g, ''))}
+                  placeholder="15"
+                  className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                />
+              </div>
+              <div className="w-16">
+                <span className="block text-[10px] text-muted font-bold">Weight</span>
+                <input
+                  type="text"
+                  value={entry.weight}
+                  onChange={(e) => handleUpdate(idx, 'weight', e.target.value.replace(/\D/g, ''))}
+                  placeholder="50"
+                  className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-mono text-foreground focus:outline-hidden"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemove(idx)}
+                className="p-1.5 text-muted hover:text-danger rounded transition-colors self-end sm:self-center mt-3 sm:mt-0"
+                title="Remove species"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Events() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,9 +450,9 @@ export function Events() {
   const [createTaskType, setCreateTaskType] = useState<
     'DEFEAT_WILD_POKEMON' | 'CAPTURE_POKEMON' | 'CLEAR_TOWER' | 'CLEAR_RIFT'
   >('DEFEAT_WILD_POKEMON');
-  const [createTaskConfigStr, setCreateTaskConfigStr] = useState('{\n  "requiredCount": 10,\n  "pokemonType": "Fire"\n}');
-  const [createRewardConfigStr, setCreateRewardConfigStr] = useState('{\n  "speciesId": 6,\n  "level": 30,\n  "potential": "S",\n  "coins": 5000\n}');
-  const [createPokemonPoolStr, setCreatePokemonPoolStr] = useState('[\n  { "speciesId": 4, "name": "charmander", "minLevel": 5, "maxLevel": 15, "weight": 50 },\n  { "speciesId": 5, "name": "charmeleon", "minLevel": 16, "maxLevel": 25, "weight": 20 }\n]');
+  const [createTaskConfig, setCreateTaskConfig] = useState<EventTaskConfigState>(DEFAULT_TASK_CONFIG);
+  const [createRewardConfig, setCreateRewardConfig] = useState<EventRewardConfigState>(DEFAULT_REWARD_CONFIG);
+  const [createPokemonPool, setCreatePokemonPool] = useState<PoolEntry[]>(DEFAULT_POKEMON_POOL);
   const [createReason, setCreateReason] = useState('');
 
   // Edit form
@@ -77,9 +462,9 @@ export function Events() {
   const [editEndDate, setEditEndDate] = useState('');
   const [editIsActive, setEditIsActive] = useState(false);
   const [editTaskType, setEditTaskType] = useState<any>('DEFEAT_WILD_POKEMON');
-  const [editTaskConfigStr, setEditTaskConfigStr] = useState('{}');
-  const [editRewardConfigStr, setEditRewardConfigStr] = useState('{}');
-  const [editPokemonPoolStr, setEditPokemonPoolStr] = useState('[]');
+  const [editTaskConfig, setEditTaskConfig] = useState<EventTaskConfigState>(DEFAULT_TASK_CONFIG);
+  const [editRewardConfig, setEditRewardConfig] = useState<EventRewardConfigState>(DEFAULT_REWARD_CONFIG);
+  const [editPokemonPool, setEditPokemonPool] = useState<PoolEntry[]>([]);
   const [editReason, setEditReason] = useState('');
 
   // Filtered events
@@ -103,9 +488,9 @@ export function Events() {
     setCreateEndDate(new Date(Date.now() + 7 * 86400000).toISOString());
     setCreateIsActive(true);
     setCreateTaskType('DEFEAT_WILD_POKEMON');
-    setCreateTaskConfigStr('{\n  "requiredCount": 10,\n  "pokemonType": "Fire"\n}');
-    setCreateRewardConfigStr('{\n  "speciesId": 6,\n  "level": 30,\n  "potential": "S",\n  "coins": 5000\n}');
-    setCreatePokemonPoolStr('[\n  { "speciesId": 4, "name": "charmander", "minLevel": 5, "maxLevel": 15, "weight": 50 },\n  { "speciesId": 5, "name": "charmeleon", "minLevel": 16, "maxLevel": 25, "weight": 20 }\n]');
+    setCreateTaskConfig(DEFAULT_TASK_CONFIG);
+    setCreateRewardConfig(DEFAULT_REWARD_CONFIG);
+    setCreatePokemonPool(DEFAULT_POKEMON_POOL);
     setCreateReason('');
     setIsCreateOpen(true);
   };
@@ -120,32 +505,6 @@ export function Events() {
       return;
     }
 
-    let parsedTaskConfig = {};
-    try {
-      parsedTaskConfig = JSON.parse(createTaskConfigStr);
-    } catch {
-      notify.error('Invalid JSON in task configuration');
-      return;
-    }
-
-    let parsedRewardConfig = {};
-    try {
-      parsedRewardConfig = JSON.parse(createRewardConfigStr);
-    } catch {
-      notify.error('Invalid JSON in reward configuration');
-      return;
-    }
-
-    let parsedPool: any = null;
-    if (createPokemonPoolStr.trim()) {
-      try {
-        parsedPool = JSON.parse(createPokemonPoolStr);
-      } catch {
-        notify.error('Invalid JSON in Pokémon pool');
-        return;
-      }
-    }
-
     const payload: CreateEventInput = {
       name: createName.trim(),
       description: createDescription.trim(),
@@ -153,9 +512,9 @@ export function Events() {
       endDate: createEndDate,
       isActive: createIsActive,
       taskType: createTaskType,
-      taskConfig: parsedTaskConfig,
-      rewardConfig: parsedRewardConfig,
-      pokemonPool: parsedPool,
+      taskConfig: serializeTaskConfig(createTaskConfig),
+      rewardConfig: serializeRewardConfig(createRewardConfig),
+      pokemonPool: serializePool(createPokemonPool),
       reason: createReason.trim(),
     };
 
@@ -176,9 +535,9 @@ export function Events() {
     setEditEndDate(event.endDate);
     setEditIsActive(event.isActive);
     setEditTaskType(event.taskType);
-    setEditTaskConfigStr(JSON.stringify(event.taskConfig || {}, null, 2));
-    setEditRewardConfigStr(JSON.stringify(event.rewardConfig || {}, null, 2));
-    setEditPokemonPoolStr(event.pokemonPool ? JSON.stringify(event.pokemonPool, null, 2) : '[]');
+    setEditTaskConfig(deserializeTaskConfig(event.taskConfig));
+    setEditRewardConfig(deserializeRewardConfig(event.rewardConfig));
+    setEditPokemonPool(deserializePool(event.pokemonPool));
     setEditReason('');
   };
 
@@ -189,32 +548,6 @@ export function Events() {
       return;
     }
 
-    let parsedTaskConfig = {};
-    try {
-      parsedTaskConfig = JSON.parse(editTaskConfigStr);
-    } catch {
-      notify.error('Invalid JSON in task configuration');
-      return;
-    }
-
-    let parsedRewardConfig = {};
-    try {
-      parsedRewardConfig = JSON.parse(editRewardConfigStr);
-    } catch {
-      notify.error('Invalid JSON in reward configuration');
-      return;
-    }
-
-    let parsedPool: any = null;
-    if (editPokemonPoolStr.trim()) {
-      try {
-        parsedPool = JSON.parse(editPokemonPoolStr);
-      } catch {
-        notify.error('Invalid JSON in Pokémon pool');
-        return;
-      }
-    }
-
     const payload: UpdateEventInput = {
       name: editName.trim(),
       description: editDescription.trim(),
@@ -222,9 +555,9 @@ export function Events() {
       endDate: editEndDate,
       isActive: editIsActive,
       taskType: editTaskType,
-      taskConfig: parsedTaskConfig,
-      rewardConfig: parsedRewardConfig,
-      pokemonPool: parsedPool,
+      taskConfig: serializeTaskConfig(editTaskConfig),
+      rewardConfig: serializeRewardConfig(editRewardConfig),
+      pokemonPool: serializePool(editPokemonPool),
       reason: editReason.trim(),
     };
 
@@ -499,36 +832,19 @@ export function Events() {
                 helperText="Event objective tracking is active strictly during this period."
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Task Config (JSON)</label>
-                  <textarea
-                    value={createTaskConfigStr}
-                    onChange={(e) => setCreateTaskConfigStr(e.target.value)}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Reward Config (JSON)</label>
-                  <textarea
-                    value={createRewardConfigStr}
-                    onChange={(e) => setCreateRewardConfigStr(e.target.value)}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Pokémon Encounter Pool (JSON array of species, ranges & weights)
-                </label>
-                <textarea
-                  value={createPokemonPoolStr}
-                  onChange={(e) => setCreatePokemonPoolStr(e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
+              <div className="space-y-4">
+                <EventTaskConfigFields
+                  taskType={createTaskType}
+                  config={createTaskConfig}
+                  onChange={setCreateTaskConfig}
+                />
+                <EventRewardConfigFields
+                  config={createRewardConfig}
+                  onChange={setCreateRewardConfig}
+                />
+                <EventPokemonPoolEditor
+                  pool={createPokemonPool}
+                  onChange={setCreatePokemonPool}
                 />
               </div>
 
@@ -640,36 +956,19 @@ export function Events() {
                 helperText="Event objective tracking is active strictly during this period."
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Task Config (JSON)</label>
-                  <textarea
-                    value={editTaskConfigStr}
-                    onChange={(e) => setEditTaskConfigStr(e.target.value)}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Reward Config (JSON)</label>
-                  <textarea
-                    value={editRewardConfigStr}
-                    onChange={(e) => setEditRewardConfigStr(e.target.value)}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Pokémon Encounter Pool (JSON array)
-                </label>
-                <textarea
-                  value={editPokemonPoolStr}
-                  onChange={(e) => setEditPokemonPoolStr(e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:outline-hidden resize-none"
+              <div className="space-y-4">
+                <EventTaskConfigFields
+                  taskType={editTaskType}
+                  config={editTaskConfig}
+                  onChange={setEditTaskConfig}
+                />
+                <EventRewardConfigFields
+                  config={editRewardConfig}
+                  onChange={setEditRewardConfig}
+                />
+                <EventPokemonPoolEditor
+                  pool={editPokemonPool}
+                  onChange={setEditPokemonPool}
                 />
               </div>
 

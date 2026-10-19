@@ -49,8 +49,31 @@ export class AdminRepository {
 
   async getAllSpecies() {
     return prisma.species.findMany({
-      select: { id: true, name: true, spriteUrl: true },
-      orderBy: { id: 'asc' }
+      select: {
+        id: true,
+        name: true,
+        spriteUrl: true,
+        rank: true,
+        pokedexNumber: true,
+      },
+      orderBy: [
+        { pokedexNumber: 'asc' },
+        { id: 'asc' },
+      ],
+    });
+  }
+
+  async getAllItems() {
+    return prisma.item.findMany({
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        cost: true,
+        description: true,
+        spriteUrl: true,
+      },
+      orderBy: { name: 'asc' },
     });
   }
 
