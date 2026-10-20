@@ -6,6 +6,9 @@ import type {
   CreateDungeonFloorRuleInput,
   UpdateDungeonFloorRuleInput,
   ArchiveDungeonFloorRuleInput,
+  BulkUpdateTowerFloorsInput,
+  CopyTowerFloorInput,
+  ResetTowerFloorInput,
 } from '@astranox/types';
 
 export const adminDungeonKeys = {
@@ -106,3 +109,61 @@ export function useUnarchiveDungeonFloor() {
     },
   });
 }
+
+export function useBulkUpdateDungeonFloors() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: BulkUpdateTowerFloorsInput) => {
+      const res = await api.post('/admin/dungeons/floors/bulk-update', data);
+      return res.data.data as { updatedCount: number };
+    },
+    onSuccess: (result) => {
+      notify.success(`Successfully updated ${result.updatedCount} floors!`);
+      queryClient.invalidateQueries({ queryKey: adminDungeonKeys.all });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.error?.message || 'Failed to bulk update floors';
+      notify.error(message, { id: 'admin-bulk-update-error' });
+    },
+  });
+}
+
+export function useCopyDungeonFloor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CopyTowerFloorInput) => {
+      const res = await api.post('/admin/dungeons/floors/copy', data);
+      return res.data.data as { updatedCount: number };
+    },
+    onSuccess: (result) => {
+      notify.success(`Successfully copied floor to ${result.updatedCount} floors!`);
+      queryClient.invalidateQueries({ queryKey: adminDungeonKeys.all });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.error?.message || 'Failed to copy floor';
+      notify.error(message, { id: 'admin-copy-floor-error' });
+    },
+  });
+}
+
+export function useResetDungeonFloors() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: ResetTowerFloorInput) => {
+      const res = await api.post('/admin/dungeons/floors/reset', data);
+      return res.data.data as { resetCount: number };
+    },
+    onSuccess: (result) => {
+      notify.success(`Successfully reset ${result.resetCount} floors to procedural defaults!`);
+      queryClient.invalidateQueries({ queryKey: adminDungeonKeys.all });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.error?.message || 'Failed to reset floors';
+      notify.error(message, { id: 'admin-reset-floor-error' });
+    },
+  });
+}
+

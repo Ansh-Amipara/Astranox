@@ -71,7 +71,7 @@ export class EventsService {
     if (!species) throw new AppError('Reward species not found.', 500);
 
     const level = rewardConfig.level || 5;
-    const potential = rewardConfig.potential || 'DIAMOND';
+    const potential = rewardConfig.potential || 'EX';
     const form = rewardConfig.form || 'Normal';
 
     // Fetch learnsets

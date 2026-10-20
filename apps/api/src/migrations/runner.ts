@@ -3,10 +3,12 @@ import { prisma } from '../core/db/prisma';
 import { logger } from '../config/logger';
 import { Migration } from './types';
 import { migration0001 } from './0001_initial_data_version';
+import { migration0002 } from './0002_normalize_pokemon_level_and_xp';
 
 export class MigrationRunner {
   private migrations: Migration[] = [
     migration0001,
+    migration0002,
   ];
 
   constructor(private client: PrismaClient = prisma) {}

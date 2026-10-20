@@ -126,4 +126,83 @@ describe('AdminDungeonService', () => {
       expect(result.enabled).toBe(false);
     });
   });
+
+  describe('bulk operations', () => {
+    it('bulk updates scaling and rewards across floor range', async () => {
+      vi.spyOn(prisma.dungeonFloorRule, 'updateMany').mockResolvedValue({ count: 50 });
+      vi.spyOn(prisma.auditLog, 'create').mockResolvedValue({} as any);
+
+      const result = await dungeonService.bulkUpdateFloors(adminId, {
+        dungeonType: 'INFINITY_TOWER',
+        fromFloor: 1,
+        toFloor: 50,
+        patch: {
+          scalingFactor: 1.5,
+          rewardInfinityCoins: 100,
+          rewardXp: 5000,
+        },
+        reason: 'Rebalancing floors 1-50',
+      });
+
+      expect(result.updatedCount).toBe(50);
+      expect(prisma.dungeonFloorRule.updateMany).toHaveBeenCalledWith({
+        where: {
+          dungeonType: 'INFINITY_TOWER',
+          floorNumber: { gte: 1, lte: 50 },
+          isArchived: false,
+        },
+        data: expect.objectContaining({
+          scalingFactor: 1.5,
+          rewardInfinityCoins: 100,
+          rewardXp: 5000,
+          updatedBy: adminId,
+        }),
+      });
+    });
+
+    it('copies floor setup from template floor to target range', async () => {
+      vi.spyOn(prisma.dungeonFloorRule, 'findFirst').mockResolvedValue({
+        id: '664b1f417e2941001a333336',
+        dungeonType: 'INFINITY_TOWER',
+        floorNumber: 50,
+        enemyPool: [{ speciesId: 25, level: 50 }],
+        scalingFactor: 2.0,
+        rewardCoins: 1000,
+        rewardInfinityCoins: 50,
+        rewardXp: 10000,
+        rewardItems: null,
+        ruleModifiers: null,
+        isBossFloor: true,
+        enabled: true,
+      } as any);
+
+      vi.spyOn(prisma.dungeonFloorRule, 'updateMany').mockResolvedValue({ count: 5 });
+      vi.spyOn(prisma.auditLog, 'create').mockResolvedValue({} as any);
+
+      const result = await dungeonService.copyFloor(adminId, {
+        dungeonType: 'INFINITY_TOWER',
+        sourceFloor: 50,
+        fromFloor: 51,
+        toFloor: 55,
+        reason: 'Cloning floor 50 setup to floors 51-55',
+      });
+
+      expect(result.updatedCount).toBe(5);
+    });
+
+    it('resets floors back to procedural defaults using generateTowerConfig', async () => {
+      vi.spyOn(prisma.dungeonFloorRule, 'upsert').mockResolvedValue({} as any);
+      vi.spyOn(prisma, '$transaction').mockResolvedValue([{}, {}] as any);
+      vi.spyOn(prisma.auditLog, 'create').mockResolvedValue({} as any);
+
+      const result = await dungeonService.resetFloors(adminId, {
+        dungeonType: 'INFINITY_TOWER',
+        fromFloor: 1,
+        toFloor: 2,
+        reason: 'Resetting floors 1-2 to canonical generation',
+      });
+
+      expect(result.resetCount).toBe(2);
+    });
+  });
 });

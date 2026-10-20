@@ -47,13 +47,13 @@ export function UserDetail() {
   // Grant Currency Modal state
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
   const [currencyType, setCurrencyType] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
-  const [currencyAmount, setCurrencyAmount] = useState<string>('1000');
+  const [currencyAmount, setCurrencyAmount] = useState<string>('');
   const [currencyReason, setCurrencyReason] = useState<string>('');
 
   // Grant Item Modal state
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [itemKey, setItemKey] = useState<string>('ultra_ball');
-  const [itemQuantity, setItemQuantity] = useState<string>('5');
+  const [itemKey, setItemKey] = useState<string>('');
+  const [itemQuantity, setItemQuantity] = useState<string>('1');
   const [itemReason, setItemReason] = useState<string>('');
 
   if (isLoading) {

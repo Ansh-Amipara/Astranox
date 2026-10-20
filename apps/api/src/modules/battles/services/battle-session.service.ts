@@ -768,7 +768,7 @@ export const RANK_EXAMINERS: Record<string, {
     team: ['primarina','pawmi'],
     coins: 300,
     xp: 1000,
-    items: ['Bronze Pearl']
+    items: ['E Pearl']
   },
   'E': {
     name: 'E Rank Examiner',
@@ -778,7 +778,7 @@ export const RANK_EXAMINERS: Record<string, {
     team: ['orbeetle-gmax','litwick','honedge'],
     coins: 700,
     xp: 3000,
-    items: ['Silver Pearl','Gold Pearl']
+    items: ['D Pearl']
   },
   'D': {
     name: 'D Rank Examiner',
@@ -788,7 +788,7 @@ export const RANK_EXAMINERS: Record<string, {
     team: ['yamper','grapploct','wishiwashi-solo','caterpie'],
     coins: 2000,
     xp: 11000,
-    items: ['Platinum Pearl','Adamantite Pearl']
+    items: ['C Pearl']
   },
   'C': {
     name: 'C Rank Examiner',
@@ -798,7 +798,7 @@ export const RANK_EXAMINERS: Record<string, {
     team: ['cutiefly','pawmi','joltik','corsola','mudkip'],
     coins: 7000,
     xp: 35000,
-    items: ['Diamond Pearl']
+    items: ['B Pearl']
   },
   'B': {
     name: 'B Rank Examiner',
@@ -808,7 +808,7 @@ export const RANK_EXAMINERS: Record<string, {
     team: ['crabominable-mega','horsea','minior-indigo-meteor','venusaur-mega','vigoroth','shieldon'],
     coins: 20000,
     xp: 90000,
-    items: ['Crystal Pearl']
+    items: ['A Pearl']
   },
   'A': {
     name: 'A Rank Examiner',
@@ -818,7 +818,7 @@ export const RANK_EXAMINERS: Record<string, {
     team: ['sharpedo-mega','stunfisk-galar','magnezone','gardevoir-mega','carnivine','charizard'],
     coins: 45000,
     xp: 230000,
-    items: ['Epic Pearl']
+    items: ['S- Pearl']
   },
   'S_MINUS': {
     name: 'S- Rank Examiner',

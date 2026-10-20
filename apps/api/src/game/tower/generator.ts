@@ -122,7 +122,7 @@ export function estimateTowerFloorCP(floor: number): number {
     baseStats, 
     ivs, 
     config.level, 
-    getMinPotentialForLevel(config.level, config.isBoss || config.isMegaBoss ? 'DIAMOND' : 'SILVER'),
+    getMinPotentialForLevel(config.level, config.isBoss || config.isMegaBoss ? 'EX' : 'F'),
     config.allowMega || config.allowGmax // Pass a boolean if cp depends on isGmax/isMega
   );
   

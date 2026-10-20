@@ -1,4 +1,4 @@
-import { CURRENT_DATA_VERSION, DataVersionModel } from '@astranox/constants';
+import { CURRENT_DATA_VERSION, DataVersionModel, getLevelFromXp, getMaxLevelForPotential } from '@astranox/constants';
 import { prisma } from '../core/db/prisma';
 import { logger } from '../config/logger';
 
@@ -22,25 +22,40 @@ export function migrateOnRead<T extends { id: string; dataVersion?: number | nul
   );
 
   // In-memory upgrade
-  const migrated = {
+  const migrated: any = {
     ...record,
     dataVersion: targetVersion,
   };
 
+  // Specific transform: recalculate Pokémon level based on currentXp
+  if (model === 'OWNED_POKEMON' && currentVersion < 2) {
+    const rawPkm = record as any;
+    if (typeof rawPkm.currentXp === 'number') {
+      const maxLvl = rawPkm.potential ? getMaxLevelForPotential(rawPkm.potential) : 5000;
+      migrated.level = getLevelFromXp(rawPkm.currentXp, undefined, maxLvl);
+    }
+  }
+
   // Asynchronous background persistence to MongoDB
-  persistMigratedRecord(model, record.id, targetVersion).catch((err) => {
+  persistMigratedRecord(model, record.id, targetVersion, (migrated as any).level).catch((err) => {
     logger.warn({ err, model, id: record.id }, '[MigrateOnRead] Failed background version persist');
   });
 
-  return migrated;
+  return migrated as T;
 }
 
-async function persistMigratedRecord(model: DataVersionModel, id: string, version: number): Promise<void> {
+async function persistMigratedRecord(model: DataVersionModel, id: string, version: number, calculatedLevel?: number): Promise<void> {
+  // If id is not a valid 24-char hex ObjectId (e.g. In-memory mock/test ID), skip DB update
+  if (!/^[0-9a-fA-F]{24}$/.test(id)) return;
+
   switch (model) {
     case 'OWNED_POKEMON':
       await prisma.ownedPokemon.update({
         where: { id },
-        data: { dataVersion: version },
+        data: {
+          dataVersion: version,
+          ...(typeof calculatedLevel === 'number' ? { level: calculatedLevel } : {}),
+        },
       });
       break;
     case 'TRAINER_SAVE':

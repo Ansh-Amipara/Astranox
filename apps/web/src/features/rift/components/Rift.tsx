@@ -4,7 +4,7 @@ import { useRiftState, useStartRiftRun, useGenerateRiftEncounter, useAbandonRift
 import { useNavigate } from 'react-router-dom';
 import { notify } from '@/lib/toast';
 import { parseApiError } from '@/lib/apiError';
-import { Loader2, Swords, AlertCircle, X, ArrowLeft } from 'lucide-react';
+import { Loader2, Swords, AlertCircle, X, ArrowLeft, Zap } from 'lucide-react';
 
 const RANKS = [
   'F', 'E',
@@ -39,7 +39,7 @@ export const RiftPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex-1 bg-background flex items-center justify-center min-h-[calc(100dvh-64px)]">
-        <Loader2 className="w-12 h-12 text-foreground animate-spin" />
+        <Loader2 className="w-10 h-10 text-foreground animate-spin" />
       </div>
     );
   }
@@ -47,9 +47,9 @@ export const RiftPage: React.FC = () => {
   if (error || !data) {
     return (
       <div className="flex-1 bg-background flex items-center justify-center p-4 sm:p-6 min-h-[calc(100dvh-64px)]">
-        <div className="p-4 bg-surface-raised text-foreground font-bold rounded-xl flex items-center gap-2">
-          <AlertCircle className="w-5 h-5" />
-          Error loading Rift state.
+        <div className="p-5 bg-surface text-foreground rounded-2xl border border-border shadow-sm flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-danger shrink-0" />
+          <span className="text-sm font-bold text-muted">Error loading Void Rift state. Please try again.</span>
         </div>
       </div>
     );
@@ -89,23 +89,60 @@ export const RiftPage: React.FC = () => {
     }
   };
 
-  if (!state.currentRunStartedAt) {
-    return (
-      <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 flex flex-col items-start w-full">
-        <div className="w-full max-w-5xl mx-auto space-y-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-              Void Rifts
-            </h1>
-            <p className="text-xs sm:text-sm text-muted mt-0.5">Enter high-stakes void anomalies for rare rewards and ranked encounters</p>
-          </div>
+  return (
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full max-w-5xl mx-auto space-y-4 md:space-y-6">
 
-          <div className="w-full bg-surface border border-border rounded-2xl p-5 sm:p-8 shadow-xs flex flex-col">
+        {/* Hero Banner Section */}
+        <div className="relative w-full h-44 sm:h-56 md:h-64 rounded-3xl overflow-hidden border border-border shadow-sm bg-surface">
+          <img
+            src="/banners/rift-hero.webp"
+            alt="Void Rift Anomaly"
+            loading="lazy"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Contrast Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-8 text-white">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/25">
+                    Dimensional Incursion
+                  </span>
+                  <span className="text-[10px] sm:text-xs font-bold text-white/70">
+                    High Stakes Anomaly
+                  </span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+                  Void Rifts
+                </h1>
+                <p className="text-xs sm:text-sm text-white/80 max-w-lg line-clamp-1 sm:line-clamp-none">
+                  Enter dimensional anomalies to challenge extreme ranked encounters and earn exclusive rewards.
+                </p>
+              </div>
+
+              {/* Player Current Rank Chip */}
+              <div className="flex items-center gap-2">
+                <div className="bg-black/40 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-xl flex flex-col">
+                  <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Your Certification</span>
+                  <span className="text-xs sm:text-sm font-black text-white">{formatRankName(rank)} Rank</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Configuration or Active Run */}
+        {!state.currentRunStartedAt ? (
+          <div className="w-full bg-surface border border-border rounded-3xl p-5 sm:p-8 shadow-xs flex flex-col space-y-6">
             {step === 'MAJOR_RANK' ? (
               <div className="flex flex-col animate-in fade-in duration-200 w-full space-y-4">
-                <h2 className="text-xs sm:text-sm font-black text-muted uppercase tracking-wider text-left">
-                  Select Challenge Rank
-                </h2>
+                <div className="flex items-center justify-between border-b border-border pb-3">
+                  <h2 className="text-xs sm:text-sm font-black text-muted uppercase tracking-wider">
+                    Select Challenge Tier
+                  </h2>
+                  <span className="text-xs text-muted font-medium">Rank requirement applies</span>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full">
                   {MAJOR_RANKS.map((r) => {
                     const requiredIndex = RANKS.indexOf(`${r}_MINUS`);
@@ -119,13 +156,14 @@ export const RiftPage: React.FC = () => {
                           setSelectedSubRank(r);
                           setStep('DETAILS'); 
                         }}
-                        className={`p-3.5 sm:p-4 min-h-[48px] rounded-xl text-sm sm:text-base font-black border transition-all duration-200 flex items-center justify-center touch-manipulation select-none active:scale-[0.98] ${
+                        className={`p-4 min-h-[52px] rounded-2xl text-sm sm:text-base font-black border transition-all duration-200 flex flex-col items-center justify-center gap-1 touch-manipulation select-none active:scale-[0.98] ${
                           locked
                             ? 'bg-surface-raised border-border text-muted opacity-40 cursor-not-allowed'
                             : 'bg-surface border-border text-foreground hover:bg-surface-raised hover:shadow-xs hover:-translate-y-0.5'
                         }`}
                       >
-                        {r} Rank
+                        <span className="text-base sm:text-lg">{r}</span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-muted">Tier</span>
                       </button>
                     );
                   })}
@@ -133,15 +171,14 @@ export const RiftPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col animate-in fade-in duration-200 relative w-full space-y-6">
-                <button
-                  onClick={() => setStep('MAJOR_RANK')}
-                  className="self-start -ml-2 p-2 min-h-[44px] flex items-center gap-1.5 text-xs font-bold text-muted hover:text-foreground transition-colors touch-manipulation select-none"
-                >
-                  <ArrowLeft className="w-4 h-4" /> Back to Ranks
-                </button>
-
-                <div className="text-center">
-                  <span className="inline-block px-3 py-1 bg-surface-raised text-foreground font-black rounded-full border border-border text-xs uppercase tracking-wider">
+                <div className="flex items-center justify-between border-b border-border pb-3">
+                  <button
+                    onClick={() => setStep('MAJOR_RANK')}
+                    className="p-2 min-h-[44px] flex items-center gap-1.5 text-xs font-bold text-muted hover:text-foreground transition-colors touch-manipulation select-none"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Back to Tiers
+                  </button>
+                  <span className="px-3 py-1 bg-surface-raised text-foreground font-black rounded-full border border-border text-xs uppercase tracking-wider">
                     {selectedMajorRank} Rank Selected
                   </span>
                 </div>
@@ -149,7 +186,7 @@ export const RiftPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mx-auto">
                   {!['F', 'E', 'D', 'C', 'B', 'A', 'EX'].includes(selectedMajorRank) && (
                     <div className="flex flex-col space-y-2">
-                      <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Sub-Rank</h3>
+                      <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Sub-Rank Division</h3>
                       <div className="flex gap-2">
                         {[
                           { id: `${selectedMajorRank}_MINUS`, label: '-' },
@@ -180,7 +217,7 @@ export const RiftPage: React.FC = () => {
                   )}
 
                   <div className="flex flex-col space-y-2">
-                    <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Difficulty</h3>
+                    <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Anomaly Difficulty</h3>
                     <div className="grid grid-cols-2 gap-2">
                       {DIFFICULTIES.map(d => {
                         const isSelected = selectedDifficulty === d;
@@ -206,63 +243,58 @@ export const RiftPage: React.FC = () => {
                   <button
                     onClick={handleStart}
                     disabled={startRun.isPending}
-                    className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3 px-10 min-h-[44px] rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 touch-manipulation select-none"
+                    className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3.5 px-10 min-h-[44px] rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 touch-manipulation select-none"
                   >
-                    {startRun.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
-                    Enter Rift!
+                    {startRun.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                    Enter Void Rift
                   </button>
                 </div>
               </div>
             )}
           </div>
-        </div>
-      </div>
-    );
-  }
+        ) : (
+          /* Active Run View */
+          <div className="w-full bg-surface border border-border rounded-3xl p-6 sm:p-10 shadow-xs relative overflow-hidden text-center space-y-6">
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={handleAbandon}
+                title="Abandon Run"
+                className="text-muted hover:text-danger transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-surface-raised rounded-full border border-border touch-manipulation select-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-  // Active Run View
-  return (
-    <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 flex flex-col items-start w-full">
-      <div className="w-full max-w-3xl mx-auto bg-surface border border-border rounded-2xl p-6 sm:p-10 shadow-xs relative overflow-hidden text-center space-y-6">
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
-          <button
-            onClick={handleAbandon}
-            title="Abandon Run"
-            className="text-muted hover:text-danger transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-surface-raised rounded-full border border-border touch-manipulation select-none"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            <div className="space-y-3 mt-2">
+              <span className="text-xs font-black text-muted uppercase tracking-wider px-3.5 py-1 bg-surface-raised border border-border rounded-full inline-block">
+                Active Anomaly Incursion
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black text-foreground">
+                {formatRankName(state.rank)} Tier
+              </h2>
+              <div className="flex items-center justify-center gap-2">
+                <span className="px-3 py-1 bg-surface-raised text-foreground text-xs font-bold rounded-full border border-border">
+                  {state.difficulty} Mode
+                </span>
+                <span className="px-3 py-1 bg-surface-raised text-muted text-xs font-bold rounded-full border border-border">
+                  Floor {state.currentFloor}
+                </span>
+              </div>
+            </div>
 
-        <div className="space-y-2 mt-2">
-          <span className="text-xs font-black text-muted uppercase tracking-wider px-3 py-1 bg-surface-raised border border-border rounded-full">
-            Active Rift Anomaly
-          </span>
-          <h1 className="text-2xl sm:text-4xl font-black text-foreground">
-            {formatRankName(state.rank)} Tier
-          </h1>
-          <div className="flex items-center justify-center gap-2">
-            <span className="px-3 py-0.5 bg-surface-raised text-foreground text-xs font-bold rounded-full border border-border">
-              {state.difficulty}
-            </span>
-            <span className="px-3 py-0.5 bg-surface-raised text-muted text-xs font-bold rounded-full border border-border">
-              Floor {state.currentFloor}
-            </span>
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={handleGenerate}
+                disabled={generateEncounter.isPending}
+                className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3.5 px-10 min-h-[44px] rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation select-none"
+              >
+                {generateEncounter.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
+                {generateEncounter.isPending ? 'Generating Anomaly...' : `Challenge Floor ${state.currentFloor}`}
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="flex justify-center pt-2">
-          <button
-            onClick={handleGenerate}
-            disabled={generateEncounter.isPending}
-            className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3.5 px-10 min-h-[44px] rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation select-none"
-          >
-            {generateEncounter.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
-            {generateEncounter.isPending ? 'Generating Encounter...' : `Proceed to Floor ${state.currentFloor}`}
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
 };
-

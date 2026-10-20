@@ -1,21 +1,36 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { prisma } from '../../core/db/prisma';
 import { NotFoundError, BadRequestError, PriceChangedError, ForbiddenError } from '../../core/errors/AppError';
 import { RedisLockService } from '../../core/services/redis-lock.service';
 import { FeatureFlagService } from '../../core/services/feature-flag.service';
-import { DEFAULT_SHOP_CATALOG, ECONOMY_CONSTANTS } from '@astranox/constants';
+import { DEFAULT_SHOP_CATALOG, ECONOMY_CONSTANTS, XP_CANDY_VALUES, EconomyBalanceConfig } from '@astranox/constants';
 import type { ShopItemDto, PurchaseShopItemInput, BuyItemInput, BuyBulkInput, BuyMoveInput } from '@astranox/types';
 import { TrainerMapper } from '../trainers/dto/mapper';
+import { BalanceService } from '../balance/balance.service';
 
 @injectable()
 export class ShopService {
   constructor(
     private lockService: RedisLockService,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
+    @inject(BalanceService)
+    private balanceService?: BalanceService
   ) {}
 
   private getTodayDateString(): string {
     return new Date().toISOString().slice(0, 10);
+  }
+
+  public async getXpCandyRatio(): Promise<number> {
+    if (!this.balanceService) {
+      return ECONOMY_CONSTANTS.XP_CANDY_COIN_RATIO;
+    }
+    try {
+      const economyConfig = await this.balanceService.get<EconomyBalanceConfig>('economy');
+      return economyConfig?.XP_CANDY_COIN_RATIO ?? ECONOMY_CONSTANTS.XP_CANDY_COIN_RATIO;
+    } catch {
+      return ECONOMY_CONSTANTS.XP_CANDY_COIN_RATIO;
+    }
   }
 
   public isSaleActive(item: { salePrice: number | null; saleStartsAt: Date | null; saleEndsAt: Date | null }): boolean {
@@ -26,13 +41,24 @@ export class ShopService {
     return true;
   }
 
-  public calculateEffectivePrice(item: { price: number; salePrice: number | null; saleStartsAt: Date | null; saleEndsAt: Date | null }): {
+  public calculateEffectivePrice(
+    item: { price: number; salePrice: number | null; saleStartsAt: Date | null; saleEndsAt: Date | null; category?: string; key?: string },
+    candyCoinRatio: number = ECONOMY_CONSTANTS.XP_CANDY_COIN_RATIO
+  ): {
     effectivePrice: number;
     isOnSale: boolean;
   } {
     const onSale = this.isSaleActive(item);
+    let basePrice = item.price;
+
+    // Dynamically calculate base price for XP candies if configured
+    if ((item.category === 'xp_candies' || item.category === 'candies') && item.key && XP_CANDY_VALUES[item.key]) {
+      const xp = XP_CANDY_VALUES[item.key];
+      basePrice = Math.max(1, Math.round(xp * candyCoinRatio));
+    }
+
     return {
-      effectivePrice: onSale && item.salePrice != null ? item.salePrice : item.price,
+      effectivePrice: onSale && item.salePrice != null ? item.salePrice : basePrice,
       isOnSale: onSale,
     };
   }
@@ -50,6 +76,7 @@ export class ShopService {
 
     const catalogMap = new Map(DEFAULT_SHOP_CATALOG.map((c) => [c.key, c]));
     const today = this.getTodayDateString();
+    const candyRatio = await this.getXpCandyRatio();
 
     let userDailyMap = new Map<string, number>();
     if (userId) {
@@ -60,7 +87,7 @@ export class ShopService {
     }
 
     return items.map((item) => {
-      const { effectivePrice, isOnSale } = this.calculateEffectivePrice(item);
+      const { effectivePrice, isOnSale } = this.calculateEffectivePrice(item, candyRatio);
       const defaultMeta = catalogMap.get(item.key);
       const userPurchased = userDailyMap.get(item.key) || 0;
       const remainingDaily = item.dailyLimitPerUser != null ? Math.max(0, item.dailyLimitPerUser - userPurchased) : null;
@@ -121,7 +148,8 @@ export class ShopService {
       }
 
       // 2. Compute server-side effective price
-      const { effectivePrice } = this.calculateEffectivePrice(shopItem);
+      const candyRatio = await this.getXpCandyRatio();
+      const { effectivePrice } = this.calculateEffectivePrice(shopItem, candyRatio);
 
       if (expectedPrice !== undefined && expectedPrice !== effectivePrice) {
         throw new PriceChangedError(

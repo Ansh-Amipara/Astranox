@@ -343,28 +343,34 @@ export function Pokemart() {
   }
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] flex flex-col justify-start">
-      <div className="w-full mx-auto space-y-4 md:space-y-6">
-        {/* Header and Controls section */}
-        <div className="mb-8 border-b border-border pb-4">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-            <h1 className="text-3xl font-black text-foreground tracking-tight shrink-0">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-4rem)] flex flex-col justify-start">
+      <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
               Pokémart
             </h1>
-
-            <div className="w-full md:w-auto bg-surface border border-border px-4 py-2 rounded-xl flex items-center justify-between gap-3 shadow-xs shrink-0">
-              <div className="flex items-center gap-2">
-                {storeCurrency.icon}
-                <span className="text-xs font-bold text-muted uppercase tracking-wider">
-                  {storeCurrency.name}
-                </span>
-              </div>
-              <span className="text-lg font-black text-foreground">
-                {storeCurrency.amount.toLocaleString()}
-              </span>
-            </div>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              Acquire essential trainer gear, evolution items, TMs, and experience candies
+            </p>
           </div>
 
+          <div className="w-full md:w-auto bg-surface border border-border px-4 py-2 rounded-2xl flex items-center justify-between gap-3 shadow-xs shrink-0">
+            <div className="flex items-center gap-2">
+              {storeCurrency.icon}
+              <span className="text-xs font-bold text-muted uppercase tracking-wider">
+                {storeCurrency.name}
+              </span>
+            </div>
+            <span className="text-lg font-black text-foreground">
+              {storeCurrency.amount.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Controls Section */}
+        <div className="mb-4">
           <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 w-full bg-surface p-3 md:p-4 rounded-2xl border border-border shadow-xs">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto flex-1">
               {/* Category Dropdown */}

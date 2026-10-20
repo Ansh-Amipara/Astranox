@@ -1,21 +1,5 @@
 [
   {
-    "id": "f-pearl",
-    "name": "F Pearl",
-    "cost": 200,
-    "description": "Upgrades a Pokémon to F potential.",
-    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
-    "category": "potential"
-  },
-  {
-    "id": "f-plus-pearl",
-    "name": "F+ Pearl",
-    "cost": 500,
-    "description": "Upgrades a Pokémon to F+ potential.",
-    "spriteUrl": "https://res.cloudinary.com/d0baluu2/image/upload/v1/astranox/item/potential/epic-pearl.png",
-    "category": "potential"
-  },
-  {
     "id": "e-minus-pearl",
     "name": "E- Pearl",
     "cost": 2000,

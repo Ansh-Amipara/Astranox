@@ -59,13 +59,13 @@ export function Users() {
   // Grant Currency Modal state
   const [currencyTargetUser, setCurrencyTargetUser] = useState<AdminUserListItemDto | null>(null);
   const [currencyType, setCurrencyType] = useState<'astralCoins' | 'infinityCoins'>('astralCoins');
-  const [currencyAmount, setCurrencyAmount] = useState<string>('1000');
+  const [currencyAmount, setCurrencyAmount] = useState<string>('');
   const [currencyReason, setCurrencyReason] = useState<string>('');
 
   // Grant Item Modal state
   const [itemTargetUser, setItemTargetUser] = useState<AdminUserListItemDto | null>(null);
-  const [itemKey, setItemKey] = useState<string>('ultra_ball');
-  const [itemQuantity, setItemQuantity] = useState<string>('5');
+  const [itemKey, setItemKey] = useState<string>('');
+  const [itemQuantity, setItemQuantity] = useState<string>('1');
   const [itemReason, setItemReason] = useState<string>('');
 
   // Ban confirmation with reason

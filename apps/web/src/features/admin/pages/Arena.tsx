@@ -34,25 +34,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { notify } from '@/lib/toast';
 
-const RANK_OPTIONS = [
-  'F',
-  'E',
-  'D',
-  'C',
-  'B',
-  'A',
-  'S_MINUS',
-  'S',
-  'S_PLUS',
-  'SS_MINUS',
-  'SS',
-  'SS_PLUS',
-  'SSS_MINUS',
-  'SSS',
-  'SSS_PLUS',
-  'EX',
-];
-
 export function Arena() {
   const [activeTab, setActiveTab] = useState<'trainers' | 'ranks'>('trainers');
 
@@ -73,6 +54,10 @@ export function Arena() {
     useAdminRanks();
   const updateRankMutation = useUpdateRankDefinition();
 
+  const rankOptions = useMemo(() => {
+    return ranks.map((r) => r.rank);
+  }, [ranks]);
+
   // Modals state
   const [isCreateTrainerOpen, setIsCreateTrainerOpen] = useState(false);
   const [editingTrainer, setEditingTrainer] = useState<ArenaTrainerDto | null>(null);
@@ -83,12 +68,12 @@ export function Arena() {
   // Create Trainer form
   const [createKey, setCreateKey] = useState('');
   const [createName, setCreateName] = useState('');
-  const [createTargetRank, setCreateTargetRank] = useState('F');
+  const [createTargetRank, setCreateTargetRank] = useState('');
   const [createLevel, setCreateLevel] = useState('20');
-  const [createTeamStr, setCreateTeamStr] = useState('caterpie, scyther');
-  const [createCoins, setCreateCoins] = useState('300');
-  const [createXp, setCreateXp] = useState('500');
-  const [createTheme, setCreateTheme] = useState('Bug');
+  const [createTeamStr, setCreateTeamStr] = useState('');
+  const [createCoins, setCreateCoins] = useState('0');
+  const [createXp, setCreateXp] = useState('0');
+  const [createTheme, setCreateTheme] = useState('');
   const [createRatingDelta, setCreateRatingDelta] = useState('25');
   const [createCooldown, setCreateCooldown] = useState('0');
   const [createEnabled, setCreateEnabled] = useState(true);
@@ -610,7 +595,7 @@ export function Arena() {
                   className="px-3 py-2.5 min-h-[44px] bg-background border border-border rounded-xl text-base sm:text-xs text-foreground focus:outline-hidden touch-manipulation"
                 >
                   <option value="all">All Ranks</option>
-                  {RANK_OPTIONS.map((r) => (
+                  {rankOptions.map((r) => (
                     <option key={r} value={r}>
                       Rank {r.replace('_MINUS', '-').replace('_PLUS', '+')}
                     </option>
@@ -706,7 +691,7 @@ export function Arena() {
                     onChange={(e) => setCreateTargetRank(e.target.value)}
                     className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
                   >
-                    {RANK_OPTIONS.map((r) => (
+                    {rankOptions.map((r) => (
                       <option key={r} value={r}>
                         Rank {r.replace('_MINUS', '-').replace('_PLUS', '+')}
                       </option>
@@ -885,7 +870,7 @@ export function Arena() {
                     onChange={(e) => setEditTargetRank(e.target.value)}
                     className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
                   >
-                    {RANK_OPTIONS.map((r) => (
+                    {rankOptions.map((r) => (
                       <option key={r} value={r}>
                         Rank {r.replace('_MINUS', '-').replace('_PLUS', '+')}
                       </option>

@@ -1,15 +1,7 @@
 import { injectable } from 'tsyringe';
 import { AppError } from '../../core/errors/AppError';
 import { prisma } from '../../core/db/prisma';
-
-// Map of XP Candy IDs to the amount of XP they grant
-const XP_CANDY_VALUES: Record<string, number> = {
-  'exp-candy-xs': 100,
-  'exp-candy-s': 800,
-  'exp-candy-m': 3000,
-  'exp-candy-l': 10000,
-  'exp-candy-xl': 30000,
-};
+import { XP_CANDY_VALUES } from '@astranox/constants';
 
 @injectable()
 export class InventoryService {
@@ -31,9 +23,30 @@ export class InventoryService {
     }
 
     // 2. Handle item effects
-    if (inventoryItem.item.category === 'xp-candy') {
-      const xpGainedPerItem = XP_CANDY_VALUES[itemId];
-      if (!xpGainedPerItem) throw new AppError('Invalid XP Candy.', 400);
+    const isCandy = inventoryItem.item.category === 'xp-candy' || inventoryItem.item.category === 'candies';
+    if (isCandy) {
+      let xpGainedPerItem: number | undefined;
+
+      // Look up authoritative dynamic definition in ShopItem
+      const shopItem = await prisma.shopItem.findUnique({
+        where: { key: itemId },
+        select: { effectType: true, effectConfig: true },
+      });
+
+      if (shopItem?.effectConfig && typeof shopItem.effectConfig === 'object') {
+        const cfg = shopItem.effectConfig as Record<string, unknown>;
+        if (typeof cfg.xpAmount === 'number' || typeof cfg.xpAmount === 'string') {
+          xpGainedPerItem = Number(cfg.xpAmount);
+        }
+      }
+
+      if (!xpGainedPerItem || isNaN(xpGainedPerItem)) {
+        xpGainedPerItem = XP_CANDY_VALUES[itemId];
+      }
+
+      if (!xpGainedPerItem || xpGainedPerItem <= 0) {
+        throw new AppError('Invalid XP Candy configuration.', 400);
+      }
 
       const totalXpGained = xpGainedPerItem * quantityToUse;
 
@@ -41,18 +54,33 @@ export class InventoryService {
       await prisma.$transaction([
         prisma.inventoryItem.update({
           where: { id: inventoryItem.id },
-          data: { quantity: { decrement: quantityToUse } }
+          data: { quantity: { decrement: quantityToUse } },
         }),
         prisma.trainerSave.update({
           where: { id: trainerId },
-          data: { storedXp: { increment: totalXpGained } }
-        })
+          data: { storedXp: { increment: totalXpGained } },
+        }),
+        prisma.auditLog.create({
+          data: {
+            adminId: trainerId,
+            action: 'ITEM_USE_CANDY',
+            entityType: 'INVENTORY_ITEM',
+            entityId: itemId,
+            reason: `Used ${quantityToUse}x ${inventoryItem.item.name}`,
+            afterValues: {
+              itemId,
+              quantity: quantityToUse,
+              xpPerItem: xpGainedPerItem,
+              totalXpGained,
+            },
+          },
+        }),
       ]);
 
       return {
         success: true,
         message: `Used ${quantityToUse}x ${inventoryItem.item.name}. Gained ${totalXpGained} Stored XP!`,
-        xpGained: totalXpGained
+        xpGained: totalXpGained,
       };
     }
 

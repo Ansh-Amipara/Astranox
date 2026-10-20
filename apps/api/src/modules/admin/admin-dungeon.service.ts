@@ -2,10 +2,14 @@ import { injectable } from 'tsyringe';
 import { prisma } from '../../core/db/prisma';
 import { NotFoundError, BadRequestError } from '../../core/errors/AppError';
 import { CacheService } from '../../core/services/cache.service';
+import { generateTowerConfig } from '../../game/tower/generator';
 import type {
   DungeonFloorRuleDto,
   CreateDungeonFloorRuleInput,
   UpdateDungeonFloorRuleInput,
+  BulkUpdateTowerFloorsInput,
+  CopyTowerFloorInput,
+  ResetTowerFloorInput,
 } from '@astranox/types';
 
 @injectable()
@@ -23,6 +27,7 @@ export class AdminDungeonService {
       scalingFactor: floor.scalingFactor ?? 1.0,
       rewardCoins: floor.rewardCoins ?? 0,
       rewardInfinityCoins: floor.rewardInfinityCoins ?? 0,
+      rewardXp: floor.rewardXp ?? 0,
       rewardItems: floor.rewardItems || null,
       ruleModifiers: floor.ruleModifiers || null,
       isBossFloor: floor.isBossFloor ?? false,
@@ -93,6 +98,7 @@ export class AdminDungeonService {
           scalingFactor: input.scalingFactor ?? 1.0,
           rewardCoins: input.rewardCoins ?? 0,
           rewardInfinityCoins: input.rewardInfinityCoins ?? 0,
+          rewardXp: input.rewardXp ?? 0,
           rewardItems: input.rewardItems || null,
           ruleModifiers: input.ruleModifiers || null,
           isBossFloor: input.isBossFloor ?? false,
@@ -141,6 +147,7 @@ export class AdminDungeonService {
       scalingFactor: existing.scalingFactor,
       rewardCoins: existing.rewardCoins,
       rewardInfinityCoins: existing.rewardInfinityCoins,
+      rewardXp: existing.rewardXp,
       rewardItems: existing.rewardItems,
       ruleModifiers: existing.ruleModifiers,
       isBossFloor: existing.isBossFloor,
@@ -159,6 +166,7 @@ export class AdminDungeonService {
     if (input.scalingFactor !== undefined) updateData.scalingFactor = input.scalingFactor;
     if (input.rewardCoins !== undefined) updateData.rewardCoins = input.rewardCoins;
     if (input.rewardInfinityCoins !== undefined) updateData.rewardInfinityCoins = input.rewardInfinityCoins;
+    if (input.rewardXp !== undefined) updateData.rewardXp = input.rewardXp;
     if (input.rewardItems !== undefined) updateData.rewardItems = input.rewardItems;
     if (input.ruleModifiers !== undefined) updateData.ruleModifiers = input.ruleModifiers;
     if (input.isBossFloor !== undefined) updateData.isBossFloor = input.isBossFloor;
@@ -279,5 +287,228 @@ export class AdminDungeonService {
 
     await this.cache.del(`dungeon:${existing.dungeonType}:floors`);
     return this.mapFloorToDto(updated);
+  }
+
+  async bulkUpdateFloors(
+    adminId: string,
+    input: BulkUpdateTowerFloorsInput,
+    requestId?: string
+  ): Promise<{ updatedCount: number }> {
+    if (input.fromFloor > input.toFloor) {
+      throw new BadRequestError('fromFloor must be less than or equal to toFloor');
+    }
+
+    const where: any = {
+      dungeonType: input.dungeonType,
+      floorNumber: {
+        gte: input.fromFloor,
+        lte: input.toFloor,
+      },
+      isArchived: false,
+    };
+
+    const updateData: any = {
+      dataVersion: { increment: 1 },
+      updatedBy: adminId,
+    };
+
+    if (input.patch.scalingFactor !== undefined) updateData.scalingFactor = input.patch.scalingFactor;
+    if (input.patch.rewardCoins !== undefined) updateData.rewardCoins = input.patch.rewardCoins;
+    if (input.patch.rewardInfinityCoins !== undefined) updateData.rewardInfinityCoins = input.patch.rewardInfinityCoins;
+    if (input.patch.rewardXp !== undefined) updateData.rewardXp = input.patch.rewardXp;
+    if (input.patch.isBossFloor !== undefined) updateData.isBossFloor = input.patch.isBossFloor;
+    if (input.patch.enabled !== undefined) updateData.enabled = input.patch.enabled;
+
+    const result = await prisma.dungeonFloorRule.updateMany({
+      where,
+      data: updateData,
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        adminId,
+        action: 'DUNGEON_FLOOR_BULK_UPDATE',
+        entityType: 'DUNGEON_FLOOR_RULE',
+        entityId: `${input.dungeonType}:${input.fromFloor}-${input.toFloor}`,
+        reason: input.reason,
+        requestId: requestId || null,
+        beforeValues: null,
+        afterValues: {
+          fromFloor: input.fromFloor,
+          toFloor: input.toFloor,
+          patch: input.patch,
+          affected: result.count,
+        },
+      },
+    });
+
+    await this.cache.del(`dungeon:${input.dungeonType}:floors`);
+    return { updatedCount: result.count };
+  }
+
+  async copyFloor(
+    adminId: string,
+    input: CopyTowerFloorInput,
+    requestId?: string
+  ): Promise<{ updatedCount: number }> {
+    if (input.fromFloor > input.toFloor) {
+      throw new BadRequestError('fromFloor must be less than or equal to toFloor');
+    }
+
+    const source = await prisma.dungeonFloorRule.findFirst({
+      where: {
+        dungeonType: input.dungeonType,
+        floorNumber: input.sourceFloor,
+      },
+    });
+
+    if (!source) {
+      throw new NotFoundError(`Source floor ${input.sourceFloor} not found for ${input.dungeonType}`);
+    }
+
+    const copyData: any = {
+      enemyPool: source.enemyPool as any,
+      scalingFactor: source.scalingFactor,
+      rewardCoins: source.rewardCoins,
+      rewardInfinityCoins: source.rewardInfinityCoins,
+      rewardXp: source.rewardXp,
+      rewardItems: source.rewardItems as any,
+      ruleModifiers: source.ruleModifiers as any,
+      isBossFloor: source.isBossFloor,
+      enabled: source.enabled,
+      updatedBy: adminId,
+      dataVersion: { increment: 1 },
+    };
+
+    const result = await prisma.dungeonFloorRule.updateMany({
+      where: {
+        dungeonType: input.dungeonType,
+        floorNumber: {
+          gte: input.fromFloor,
+          lte: input.toFloor,
+        },
+      },
+      data: copyData,
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        adminId,
+        action: 'DUNGEON_FLOOR_COPY',
+        entityType: 'DUNGEON_FLOOR_RULE',
+        entityId: `${input.dungeonType}:${input.sourceFloor}->${input.fromFloor}-${input.toFloor}`,
+        reason: input.reason,
+        requestId: requestId || null,
+        beforeValues: { sourceFloor: input.sourceFloor },
+        afterValues: {
+          fromFloor: input.fromFloor,
+          toFloor: input.toFloor,
+          affected: result.count,
+        },
+      },
+    });
+
+    await this.cache.del(`dungeon:${input.dungeonType}:floors`);
+    return { updatedCount: result.count };
+  }
+
+  async resetFloors(
+    adminId: string,
+    input: ResetTowerFloorInput,
+    requestId?: string
+  ): Promise<{ resetCount: number }> {
+    if (input.fromFloor > input.toFloor) {
+      throw new BadRequestError('fromFloor must be less than or equal to toFloor');
+    }
+
+    let resetCount = 0;
+    const updates = [];
+
+    for (let f = input.fromFloor; f <= input.toFloor; f++) {
+      if (input.dungeonType === 'INFINITY_TOWER') {
+        const config = generateTowerConfig(f);
+        const enemyPool = {
+          teamSize: config.teamSize,
+          level: config.level,
+          ivs: config.ivs,
+          evolutionStage: config.evolutionStage,
+          allowLegendaryMythical: config.allowLegendaryMythical,
+          allowPseudoLegendary: config.allowPseudoLegendary,
+          allowParadoxUltraBeast: config.allowParadoxUltraBeast,
+          allowMega: config.allowMega,
+          allowGmax: config.allowGmax,
+        };
+
+        updates.push(
+          prisma.dungeonFloorRule.upsert({
+            where: {
+              dungeonType_floorNumber_difficulty: {
+                dungeonType: 'INFINITY_TOWER',
+                floorNumber: f,
+                difficulty: null as any,
+              },
+            },
+            create: {
+              dungeonType: 'INFINITY_TOWER',
+              floorNumber: f,
+              title: `Floor ${f}`,
+              enemyPool,
+              scalingFactor: 1.0,
+              rewardCoins: 0,
+              rewardInfinityCoins: config.rewardCoins,
+              rewardXp: config.rewardXp,
+              isBossFloor: config.isBoss || config.isMegaBoss,
+              enabled: true,
+              isArchived: false,
+              sortOrder: f,
+              dataVersion: 1,
+              updatedBy: adminId,
+            },
+            update: {
+              title: `Floor ${f}`,
+              enemyPool,
+              scalingFactor: 1.0,
+              rewardCoins: 0,
+              rewardInfinityCoins: config.rewardCoins,
+              rewardXp: config.rewardXp,
+              rewardItems: null as any,
+              ruleModifiers: null as any,
+              isBossFloor: config.isBoss || config.isMegaBoss,
+              enabled: true,
+              isArchived: false,
+              dataVersion: { increment: 1 },
+              updatedBy: adminId,
+            },
+          })
+        );
+      }
+    }
+
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < updates.length; i += BATCH_SIZE) {
+      const batch = updates.slice(i, i + BATCH_SIZE);
+      await prisma.$transaction(batch);
+      resetCount += batch.length;
+    }
+
+    await prisma.auditLog.create({
+      data: {
+        adminId,
+        action: 'DUNGEON_FLOOR_RESET',
+        entityType: 'DUNGEON_FLOOR_RULE',
+        entityId: `${input.dungeonType}:${input.fromFloor}-${input.toFloor}`,
+        reason: input.reason,
+        requestId: requestId || null,
+        beforeValues: null,
+        afterValues: {
+          fromFloor: input.fromFloor,
+          toFloor: input.toFloor,
+          affected: resetCount,
+        },
+      },
+    });
+
+    await this.cache.del(`dungeon:${input.dungeonType}:floors`);
+    return { resetCount };
   }
 }

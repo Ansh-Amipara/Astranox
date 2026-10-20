@@ -620,7 +620,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"potential\": \"DIAMOND\",\n  \"addXp\": 500,\n  \"ivs\": {\"hp\": 31, \"attack\": 31, \"defense\": 31, \"spAtk\": 31, \"spDef\": 31, \"speed\": 31}\n}"
+              "raw": "{\n  \"potential\": \"EX\",\n  \"addXp\": 500,\n  \"ivs\": {\"hp\": 31, \"attack\": 31, \"defense\": 31, \"spAtk\": 31, \"spDef\": 31, \"speed\": 31}\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/users/1/pokemon/uuid-here",

@@ -115,14 +115,28 @@ export class TowerService {
     let currentFloor = state.currentFloor;
     const startFloor = state.currentFloor;
 
+    const floorRules = await prisma.dungeonFloorRule.findMany({
+      where: {
+        dungeonType: 'INFINITY_TOWER',
+        floorNumber: {
+          gte: state.currentFloor,
+          lte: Math.min(1000, state.currentFloor + 100),
+        },
+        enabled: true,
+        isArchived: false,
+      },
+    });
+    const floorRuleMap = new Map(floorRules.map(r => [r.floorNumber, r]));
+
     while (skippedCount < 100 && currentFloor <= 1000) {
+      const rule = floorRuleMap.get(currentFloor);
       const floorCp = estimateTowerFloorCP(currentFloor);
       if (floorCp >= playerCp * 0.1) {
         break;
       }
       const config = generateTowerConfig(currentFloor);
-      accumulatedCoins += config.rewardCoins;
-      accumulatedXp += config.rewardXp;
+      accumulatedCoins += rule?.rewardInfinityCoins ?? config.rewardCoins;
+      accumulatedXp += rule?.rewardXp ?? config.rewardXp;
       currentFloor++;
       skippedCount++;
     }
@@ -197,7 +211,47 @@ export class TowerService {
     }
 
     const config = generateTowerConfig(state.currentFloor);
-    const speciesList = await this.repository.getRandomSpecies(config.teamSize, config);
+    const floorRule = await prisma.dungeonFloorRule.findFirst({
+      where: {
+        dungeonType: 'INFINITY_TOWER',
+        floorNumber: state.currentFloor,
+        enabled: true,
+        isArchived: false,
+      },
+    });
+
+    const ruleEnemyPool = (floorRule?.enemyPool as any) || {};
+    const effectiveTeamSize = ruleEnemyPool.teamSize ?? config.teamSize;
+    const effectiveLevel = Math.round((ruleEnemyPool.level ?? config.level) * (floorRule?.scalingFactor ?? 1.0));
+    const effectiveIvs = ruleEnemyPool.ivs ?? config.ivs;
+    const isBoss = floorRule?.isBossFloor ?? (config.isBoss || config.isMegaBoss);
+    const isMegaBoss = config.isMegaBoss;
+
+    const effectiveConfig = {
+      ...config,
+      teamSize: effectiveTeamSize,
+      level: effectiveLevel,
+      ivs: effectiveIvs,
+      isBoss,
+      isMegaBoss,
+      ...ruleEnemyPool,
+    };
+
+    let speciesList: any[] = [];
+    if (Array.isArray(ruleEnemyPool.speciesIds) && ruleEnemyPool.speciesIds.length > 0) {
+      speciesList = await prisma.species.findMany({
+        where: { id: { in: ruleEnemyPool.speciesIds } },
+        include: {
+          type1: true,
+          type2: true,
+          learnsets: { include: { move: { include: { type: true } } } },
+        },
+      });
+    }
+
+    if (speciesList.length === 0) {
+      speciesList = await this.repository.getRandomSpecies(effectiveConfig.teamSize, effectiveConfig);
+    }
 
     if (speciesList.length === 0) {
       throw new AppError('Could not generate enemy team - no species found', 500);
@@ -205,9 +259,9 @@ export class TowerService {
 
     // Generate instances
     const enemyTeam = speciesList.map(species => {
-      // Pick up to 4 moves from learnsets that are available at config.level
+      // Pick up to 4 moves from learnsets that are available at effectiveConfig.level
       const availableMoves = species.learnsets
-        .filter((l: any) => l.unlockLevel <= config.level)
+        .filter((l: any) => l.unlockLevel <= effectiveConfig.level)
         .map((l: any) => l.move);
 
       // Shuffle and take 4
@@ -233,15 +287,15 @@ export class TowerService {
       const payload: PokemonInstancePayload = {
         id: crypto.randomUUID(),
         nickname: species.name,
-        level: config.level,
-        potential: getMinPotentialForLevel(config.level, config.isBoss || config.isMegaBoss ? 'DIAMOND' : 'SILVER'),
+        level: effectiveConfig.level,
+        potential: getMinPotentialForLevel(effectiveConfig.level, effectiveConfig.isBoss || effectiveConfig.isMegaBoss ? 'EX' : 'F'),
         ivs: {
-          hp: config.ivs,
-          attack: config.ivs,
-          defense: config.ivs,
-          spAtk: config.ivs,
-          spDef: config.ivs,
-          speed: config.ivs
+          hp: effectiveConfig.ivs,
+          attack: effectiveConfig.ivs,
+          defense: effectiveConfig.ivs,
+          spAtk: effectiveConfig.ivs,
+          spDef: effectiveConfig.ivs,
+          speed: effectiveConfig.ivs
         },
         species: speciesContext,
         moves: selectedMoves.map((m: any, index: number) => ({
@@ -257,8 +311,8 @@ export class TowerService {
     });
 
     const reward = {
-      infinityCoins: config.rewardCoins,
-      storedXp: config.rewardXp
+      infinityCoins: floorRule?.rewardInfinityCoins ?? config.rewardCoins,
+      storedXp: floorRule?.rewardXp ?? config.rewardXp
     };
 
     const encounter = await this.repository.createEncounter(

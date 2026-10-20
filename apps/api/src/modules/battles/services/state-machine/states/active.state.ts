@@ -243,8 +243,16 @@ export class ActiveState implements IBattleState {
             if (wildPokemon.examinerItems && Array.isArray(wildPokemon.examinerItems)) {
               for (const rawItemName of wildPokemon.examinerItems) {
                 try {
-                  const itemId = rawItemName.toLowerCase().replace(/\s+/g, '-');
-                  const dbItem = await tx.item.findUnique({ where: { id: itemId } });
+                  const normalizedId = rawItemName
+                    .toLowerCase()
+                    .replace(/\+/g, '-plus')
+                    .replace(/-\s*/g, '-minus-')
+                    .replace(/--+/g, '-')
+                    .replace(/\s+/g, '-');
+                  let dbItem = await tx.item.findUnique({ where: { id: normalizedId } });
+                  if (!dbItem) {
+                    dbItem = await tx.item.findFirst({ where: { name: { equals: rawItemName, mode: 'insensitive' } } });
+                  }
                   if (dbItem) {
                     await tx.inventoryItem.upsert({
                       where: {

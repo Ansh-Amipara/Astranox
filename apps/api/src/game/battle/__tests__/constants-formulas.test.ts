@@ -109,15 +109,17 @@ describe('Game Balance Constants & Formulas', () => {
   describe('Progression & Leveling Formulas', () => {
     it('computes level from XP and XP for level symmetrically', () => {
       expect(getXpForLevel(1)).toBe(0);
-      expect(getXpForLevel(2)).toBe(101);
-      expect(getXpForLevel(5)).toBe(401);
-      expect(getXpForLevel(50)).toBe(4901);
+      expect(getXpForLevel(2)).toBe(100);
+      expect(getXpForLevel(5)).toBe(400);
+      expect(getXpForLevel(50)).toBe(4900);
+      expect(getXpForLevel(5000)).toBe(499900);
 
       expect(getLevelFromXp(0)).toBe(1);
-      expect(getLevelFromXp(100)).toBe(1);
-      expect(getLevelFromXp(101)).toBe(2);
-      expect(getLevelFromXp(401)).toBe(5);
-      expect(getLevelFromXp(4901)).toBe(50);
+      expect(getLevelFromXp(99)).toBe(1);
+      expect(getLevelFromXp(100)).toBe(2);
+      expect(getLevelFromXp(400)).toBe(5);
+      expect(getLevelFromXp(4900)).toBe(50);
+      expect(getLevelFromXp(499900)).toBe(5000);
     });
 
     it('computes correct wild exp yield', () => {

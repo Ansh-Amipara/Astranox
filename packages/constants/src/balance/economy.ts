@@ -11,6 +11,7 @@ export const economyBalanceSchema = z.object({
   SHOP_SELL_PRICE_RATIO: z.number().min(0.0).max(1.0).describe('Percentage of item base cost refunded when selling to shop'),
   DEFAULT_SHOP_ITEM_COST: z.number().min(1).max(1000000).describe('Fallback default shop item unit cost'),
   MIN_AUDIT_REASON_LENGTH: z.number().min(1).max(50).describe('Minimum reason length for modifying economy and shop catalog actions'),
+  XP_CANDY_COIN_RATIO: z.number().min(0.01).max(100.0).describe('Coins per XP ratio for XP candies in Pokémart (default 1.0)'),
 });
 
 export type EconomyBalanceConfig = z.infer<typeof economyBalanceSchema>;
@@ -33,4 +34,7 @@ export const ECONOMY_CONSTANTS = {
 
   /** Minimum reason length for modifying economy and shop catalog actions */
   MIN_AUDIT_REASON_LENGTH: 5,
+
+  /** Coins per XP ratio for XP candies in Pokémart (default 1.0 = 1 coin per 1 XP) */
+  XP_CANDY_COIN_RATIO: 1.0,
 } as const;

@@ -4,9 +4,7 @@ import { env } from '../src/config/env';
 const prisma = new PrismaClient();
 
 const POTENTIAL_PEARLS = [
-  // Astral Coins Pearls (F to A+)
-  { id: 'f-pearl', name: 'F Pearl', cost: 200, description: 'Upgrades a Pokémon to F potential.', category: 'potential' },
-  { id: 'f-plus-pearl', name: 'F+ Pearl', cost: 500, description: 'Upgrades a Pokémon to F+ potential.', category: 'potential' },
+  // Astral Coins Pearls (E to A+)
   
   { id: 'e-minus-pearl', name: 'E- Pearl', cost: 2000, description: 'Upgrades a Pokémon to E- potential.', category: 'potential' },
   { id: 'e-pearl', name: 'E Pearl', cost: 5000, description: 'Upgrades a Pokémon to E potential.', category: 'potential' },

@@ -1,7 +1,7 @@
-import { AdminEventManagement } from '@/features/admin/components/AdminEventManagement';
+import { Events } from '@/features/admin/pages/Events';
 
 export function AdminEventsPage() {
-  return <AdminEventManagement />;
+  return <Events />;
 }
 
 export default AdminEventsPage;

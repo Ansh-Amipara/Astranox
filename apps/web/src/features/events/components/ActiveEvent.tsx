@@ -155,7 +155,7 @@ export function ActiveEvent() {
                     
                     <div className="flex flex-wrap justify-center gap-2 text-xs font-bold mb-4 w-full">
                       <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">Lv. {event.rewardConfig?.level || 5}</span>
-                      <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">{event.rewardConfig?.potential || 'DIAMOND'}</span>
+                      <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">{event.rewardConfig?.potential || 'EX'}</span>
                       <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">{event.rewardConfig?.ivs || 'Max'} IVs</span>
                     </div>
                     <div className="flex items-center justify-center gap-2 mb-6">

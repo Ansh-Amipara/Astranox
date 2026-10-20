@@ -116,7 +116,7 @@ export function EventHistory() {
 
                         <div className="flex flex-wrap justify-center gap-1 text-[10px] font-bold mb-2 w-full">
                           <span className="px-1.5 py-0.5 bg-surface rounded text-muted border border-border">Lv. {event.rewardConfig?.level || 5}</span>
-                          <span className="px-1.5 py-0.5 bg-surface rounded text-muted border border-border">{event.rewardConfig?.potential || 'DIAMOND'}</span>
+                          <span className="px-1.5 py-0.5 bg-surface rounded text-muted border border-border">{event.rewardConfig?.potential || 'EX'}</span>
                         </div>
                         <div className="flex items-center justify-center gap-1.5">
                           {rewardSpecies.type1 && <img src={getTypeSpriteUrl(rewardSpecies.type1.name, false)} alt={rewardSpecies.type1.name} title={rewardSpecies.type1.name} className="h-5 w-auto object-contain" loading="lazy" />}

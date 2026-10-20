@@ -63,23 +63,20 @@ interface PoolEntry {
 }
 
 const DEFAULT_TASK_CONFIG: EventTaskConfigState = {
-  requiredCount: '10',
-  pokemonType: 'Fire',
+  requiredCount: '5',
+  pokemonType: '',
 };
 
 const DEFAULT_REWARD_CONFIG: EventRewardConfigState = {
-  speciesId: '6',
-  level: '30',
-  potential: 'S',
-  coins: '5000',
+  speciesId: '',
+  level: '10',
+  potential: 'EX',
+  coins: '0',
   form: 'Normal',
   ivs: 'max',
 };
 
-const DEFAULT_POKEMON_POOL: PoolEntry[] = [
-  { speciesId: '4', name: 'charmander', minLevel: '5', maxLevel: '15', weight: '50' },
-  { speciesId: '5', name: 'charmeleon', minLevel: '16', maxLevel: '25', weight: '20' },
-];
+const DEFAULT_POKEMON_POOL: PoolEntry[] = [];
 
 function serializeTaskConfig(cfg: EventTaskConfigState) {
   return {
@@ -92,7 +89,7 @@ function serializeRewardConfig(cfg: EventRewardConfigState) {
   return {
     ...(cfg.speciesId ? { speciesId: parseInt(cfg.speciesId, 10) } : {}),
     level: parseInt(cfg.level, 10) || 50,
-    potential: cfg.potential || 'DIAMOND',
+    potential: cfg.potential || 'EX',
     form: cfg.form || 'Normal',
     ivs: cfg.ivs || 'max',
     ...(cfg.coins && parseInt(cfg.coins, 10) > 0 ? { coins: parseInt(cfg.coins, 10) } : {}),
@@ -217,7 +214,7 @@ function EventRewardConfigFields({
   onChange: (cfg: EventRewardConfigState) => void;
 }) {
   const levelPresets = ['5', '25', '50', '70', '100'];
-  const potentialTiers = ['NONE', 'D', 'C', 'B', 'A', 'S', 'S+', 'SS', 'SS+', 'SSS', 'SSS+', 'DIAMOND'];
+  const potentialTiers = ['F', 'E', 'D', 'C', 'B', 'A', 'S_MINUS', 'S', 'S_PLUS', 'SS_MINUS', 'SS', 'SS_PLUS', 'SSS_MINUS', 'SSS', 'SSS_PLUS', 'EX'];
 
   return (
     <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">

@@ -659,48 +659,45 @@ export function TeamPage() {
       {/* --- 5. Boost Potential Modal --- */}
       {boostPkm && (() => {
         const potentialMap: Record<string, { next: string, item: string, itemName: string }> = {
-          'BLACK_IRON': { next: 'BRONZE', item: 'bronze-pearl', itemName: 'Bronze Pearl' },
-          'BRONZE': { next: 'SILVER', item: 'silver-pearl', itemName: 'Silver Pearl' },
-          'SILVER': { next: 'GOLD', item: 'gold-pearl', itemName: 'Gold Pearl' },
-          'GOLD': { next: 'PLATINUM', item: 'platinum-pearl', itemName: 'Platinum Pearl' },
-          'PLATINUM': { next: 'ADAMANTITE', item: 'adamantite-pearl', itemName: 'Adamantite Pearl' },
-          'ADAMANTITE': { next: 'DIAMOND', item: 'diamond-pearl', itemName: 'Diamond Pearl' },
-          'DIAMOND': { next: 'CRYSTAL', item: 'crystal-pearl', itemName: 'Crystal Pearl' },
-          'CRYSTAL': { next: 'EPIC', item: 'epic-pearl', itemName: 'Epic Pearl' },
-          'EPIC': { next: 'HEROIC', item: 'heroic-pearl', itemName: 'Heroic Pearl' },
-          'HEROIC': { next: 'SOVEREIGN', item: 'sovereign-pearl', itemName: 'Sovereign Pearl' },
-          'SOVEREIGN': { next: 'LEGENDARY', item: 'legendary-pearl', itemName: 'Legendary Pearl' },
-          'LEGENDARY': { next: 'DIVINE', item: 'divine-pearl', itemName: 'Divine Pearl' },
-          'DIVINE': { next: 'CELESTIAL', item: 'celestial-pearl', itemName: 'Celestial Pearl' },
-          'CELESTIAL': { next: 'PRIMORDIAL', item: 'primordial-pearl', itemName: 'Primordial Pearl' },
-          'PRIMORDIAL': { next: 'MYTHICAL', item: 'mythical-pearl', itemName: 'Mythical Pearl' },
-          'MYTHICAL': { next: 'INFINITY', item: 'infinity-pearl', itemName: 'Infinity Pearl' },
-          'INFINITY': { next: 'ETERNAL', item: 'eternal-pearl', itemName: 'Eternal Pearl' },
+          'F': { next: 'E', item: 'e-pearl', itemName: 'E Pearl' },
+          'E': { next: 'D', item: 'd-pearl', itemName: 'D Pearl' },
+          'D': { next: 'C', item: 'c-pearl', itemName: 'C Pearl' },
+          'C': { next: 'B', item: 'b-pearl', itemName: 'B Pearl' },
+          'B': { next: 'A', item: 'a-pearl', itemName: 'A Pearl' },
+          'A': { next: 'S_MINUS', item: 's-minus-pearl', itemName: 'S- Pearl' },
+          'S_MINUS': { next: 'S', item: 's-pearl', itemName: 'S Pearl' },
+          'S': { next: 'S_PLUS', item: 's-plus-pearl', itemName: 'S+ Pearl' },
+          'S_PLUS': { next: 'SS_MINUS', item: 'ss-minus-pearl', itemName: 'SS- Pearl' },
+          'SS_MINUS': { next: 'SS', item: 'ss-pearl', itemName: 'SS Pearl' },
+          'SS': { next: 'SS_PLUS', item: 'ss-plus-pearl', itemName: 'SS+ Pearl' },
+          'SS_PLUS': { next: 'SSS_MINUS', item: 'sss-minus-pearl', itemName: 'SSS- Pearl' },
+          'SSS_MINUS': { next: 'SSS', item: 'sss-pearl', itemName: 'SSS Pearl' },
+          'SSS': { next: 'SSS_PLUS', item: 'sss-plus-pearl', itemName: 'SSS+ Pearl' },
+          'SSS_PLUS': { next: 'EX', item: 'ex-pearl', itemName: 'EX Pearl' },
         };
         const mapping = potentialMap[boostPkm.potential || ''];
         const ownedCrystal = save?.inventory?.find((i: InventoryItemDto) => i.itemId === mapping?.item);
         const hasCrystal = ownedCrystal && ownedCrystal.quantity > 0;
 
-        const themeMap: Record<string, { border: string, shadow: string, bgGradient: string, textGradient: string, textBase: string, arrow: string, buttonBg: string, buttonHover: string }> = {
-          'BRONZE': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'SILVER': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-muted', arrow: 'text-muted', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'GOLD': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'PLATINUM': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-muted', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'ADAMANTITE': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'DIAMOND': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-muted', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'CRYSTAL': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-muted', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'EPIC': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'HEROIC': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'SOVEREIGN': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'LEGENDARY': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'DIVINE': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'CELESTIAL': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'PRIMORDIAL': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'MYTHICAL': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'INFINITY': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
-          'ETERNAL': { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised  ', textGradient: 'from-surface to-surface-raised  ', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' },
+        const defaultTheme = { border: 'border-border', shadow: 'shadow-glow', bgGradient: 'from-surface to-surface-raised', textGradient: 'from-surface to-surface-raised', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-surface-raised', buttonHover: 'hover:bg-surface-raised' };
+        const themeMap: Record<string, typeof defaultTheme> = {
+          'E': defaultTheme,
+          'D': defaultTheme,
+          'C': defaultTheme,
+          'B': defaultTheme,
+          'A': defaultTheme,
+          'S_MINUS': defaultTheme,
+          'S': defaultTheme,
+          'S_PLUS': defaultTheme,
+          'SS_MINUS': defaultTheme,
+          'SS': defaultTheme,
+          'SS_PLUS': defaultTheme,
+          'SSS_MINUS': defaultTheme,
+          'SSS': defaultTheme,
+          'SSS_PLUS': defaultTheme,
+          'EX': { border: 'border-foreground', shadow: 'shadow-glow-lg', bgGradient: 'from-surface to-surface-raised', textGradient: 'from-surface to-surface-raised', textBase: 'text-foreground', arrow: 'text-foreground', buttonBg: 'bg-primary text-primary-foreground', buttonHover: 'hover:bg-primary/90' },
         };
-        const theme = themeMap[mapping?.next] || themeMap['GOLD'];
+        const theme = themeMap[mapping?.next] || defaultTheme;
 
         return (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/50 backdrop-blur-sm" onClick={() => !boostMutation.isPending && setBoostPkm(null)}>

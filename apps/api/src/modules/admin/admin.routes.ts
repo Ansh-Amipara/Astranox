@@ -31,6 +31,9 @@ import {
   createDungeonFloorRuleSchema,
   updateDungeonFloorRuleSchema,
   archiveDungeonFloorRuleSchema,
+  bulkUpdateTowerFloorsSchema,
+  copyTowerFloorSchema,
+  resetTowerFloorSchema,
   banUserSchema,
   unbanUserSchema,
   adminGrantCurrencySchema,
@@ -228,6 +231,24 @@ router.post(
   requireIdempotency(),
   validate(createDungeonFloorRuleSchema),
   dungeonController.createFloor
+);
+router.post(
+  '/dungeons/floors/bulk-update',
+  requireAdmin,
+  validate(bulkUpdateTowerFloorsSchema),
+  dungeonController.bulkUpdateFloors
+);
+router.post(
+  '/dungeons/floors/copy',
+  requireAdmin,
+  validate(copyTowerFloorSchema),
+  dungeonController.copyFloor
+);
+router.post(
+  '/dungeons/floors/reset',
+  requireAdmin,
+  validate(resetTowerFloorSchema),
+  dungeonController.resetFloors
 );
 router.patch(
   '/dungeons/floors/:id',

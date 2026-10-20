@@ -34,6 +34,16 @@ export const SHOP_CATEGORIES: { id: ShopCategory; label: string }[] = [
   { id: 'xp_candies', label: 'XP Candies' },
 ];
 
+export const XP_CANDY_VALUES: Record<string, number> = {
+  'exp-candy-xs': 100,
+  'exp-candy-s': 800,
+  'exp-candy-m': 3000,
+  'exp-candy-l': 10000,
+  'exp-candy-xl': 30000,
+  'exp-candy-xxl': 100000,
+  'exp-candy-max': 500000,
+};
+
 export const DEFAULT_SHOP_CATALOG: DefaultShopItem[] = [
   // Poké Balls
   {
@@ -172,19 +182,30 @@ export const DEFAULT_SHOP_CATALOG: DefaultShopItem[] = [
     sortOrder: 24,
     enabled: true,
   },
-
-  // Potential Upgrade Pearls (Astral)
   {
-    key: 'f-pearl',
-    name: 'F Pearl',
-    category: 'potential_items',
-    description: 'Upgrades a G rank potential Pokémon to F potential.',
+    key: 'exp-candy-xxl',
+    name: 'Exp. Candy XXL',
+    category: 'xp_candies',
+    description: 'A colossal candy that grants 100,000 Experience Points to a single Pokémon.',
     currency: 'astralCoins',
-    price: 200,
-    spriteUrl: 'https://res.cloudinary.com/d0baluu2/image/upload/v1792232298/astranox/item/potential/potential.webp',
-    sortOrder: 30,
+    price: 100000,
+    spriteUrl: 'https://res.cloudinary.com/d0baluu2/image/upload/v1792232153/astranox/item/xp-candy.webp',
+    sortOrder: 25,
     enabled: true,
   },
+  {
+    key: 'exp-candy-max',
+    name: 'Exp. Candy MAX',
+    category: 'xp_candies',
+    description: 'An ultimate max candy that grants 500,000 Experience Points to a single Pokémon.',
+    currency: 'astralCoins',
+    price: 500000,
+    spriteUrl: 'https://res.cloudinary.com/d0baluu2/image/upload/v1792232153/astranox/item/xp-candy.webp',
+    sortOrder: 26,
+    enabled: true,
+  },
+
+  // Potential Upgrade Pearls (Astral)
   {
     key: 'e-pearl',
     name: 'E Pearl',
@@ -339,6 +360,17 @@ export const DEFAULT_SHOP_CATALOG: DefaultShopItem[] = [
     price: 100000,
     spriteUrl: 'https://res.cloudinary.com/d0baluu2/image/upload/v1792232298/astranox/item/potential/potential.webp',
     sortOrder: 48,
+    enabled: true,
+  },
+  {
+    key: 'ex-pearl',
+    name: 'EX Pearl',
+    category: 'potential_items',
+    description: 'Upgrades an SSS+ rank potential Pokémon to EX potential.',
+    currency: 'infinityCoins',
+    price: 250000,
+    spriteUrl: 'https://res.cloudinary.com/d0baluu2/image/upload/v1792232298/astranox/item/potential/potential.webp',
+    sortOrder: 49,
     enabled: true,
   },
 ];

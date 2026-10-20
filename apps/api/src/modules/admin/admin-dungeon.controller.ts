@@ -68,4 +68,37 @@ export class AdminDungeonController {
       next(err);
     }
   };
+
+  bulkUpdateFloors = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
+      const result = await this.service.bulkUpdateFloors(adminId, req.body, requestId);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  copyFloor = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
+      const result = await this.service.copyFloor(adminId, req.body, requestId);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  resetFloors = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const adminId = (req as any).user.id;
+      const requestId = (req as any).id;
+      const result = await this.service.resetFloors(adminId, req.body, requestId);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

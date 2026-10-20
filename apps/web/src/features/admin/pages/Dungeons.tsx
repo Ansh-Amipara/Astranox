@@ -5,6 +5,9 @@ import {
   useUpdateDungeonFloor,
   useArchiveDungeonFloor,
   useUnarchiveDungeonFloor,
+  useBulkUpdateDungeonFloors,
+  useCopyDungeonFloor,
+  useResetDungeonFloors,
 } from '../hooks/useAdminDungeons';
 import { DataTable, ColumnDef } from '../components/DataTable';
 import { ReasonField } from '../components/ReasonField';
@@ -28,6 +31,10 @@ import {
   Trash2,
   X,
   Zap,
+  Layers,
+  Copy,
+  RotateCcw,
+  Search,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -61,7 +68,7 @@ function DungeonEnemyPoolEditor({
   pool: DungeonEnemyEntry[];
   onChange: (pool: DungeonEnemyEntry[]) => void;
 }) {
-  const handleAdd = (speciesId = '1', name = 'Bulbasaur', level = '50') => {
+  const handleAdd = (speciesId = '', name = '', level = '10') => {
     onChange([
       ...pool,
       { speciesId, name, level, weight: '1' },
@@ -129,14 +136,14 @@ function DungeonEnemyPoolEditor({
                   <div className="flex flex-col gap-0.5">
                     <button
                       type="button"
-                      onClick={() => handleUpdate(idx, 'level', String(Math.min(100, (parseInt(entry.level, 10) || 50) + 5)))}
+                      onClick={() => handleUpdate(idx, 'level', String(Math.min(5000, (parseInt(entry.level, 10) || 10) + 5)))}
                       className="px-1 text-[8px] bg-background border border-border rounded text-muted hover:text-foreground cursor-pointer"
                     >
                       +5
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleUpdate(idx, 'level', String(Math.max(1, (parseInt(entry.level, 10) || 50) - 5)))}
+                      onClick={() => handleUpdate(idx, 'level', String(Math.max(1, (parseInt(entry.level, 10) || 10) - 5)))}
                       className="px-1 text-[8px] bg-background border border-border rounded text-muted hover:text-foreground cursor-pointer"
                     >
                       -5
@@ -404,12 +411,33 @@ export function Dungeons() {
   const updateFloorMutation = useUpdateDungeonFloor();
   const archiveFloorMutation = useArchiveDungeonFloor();
   const unarchiveFloorMutation = useUnarchiveDungeonFloor();
+  const bulkUpdateMutation = useBulkUpdateDungeonFloors();
+  const copyFloorMutation = useCopyDungeonFloor();
+  const resetFloorsMutation = useResetDungeonFloors();
+
+  // Search & quick jump filters
+  const [floorSearch, setFloorSearch] = useState('');
+  const [floorRangeFilter, setFloorRangeFilter] = useState('all');
 
   // Modals & form state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingFloor, setEditingFloor] = useState<DungeonFloorRuleDto | null>(null);
   const [archiveTargetFloor, setArchiveTargetFloor] = useState<DungeonFloorRuleDto | null>(null);
   const [restoreTargetFloor, setRestoreTargetFloor] = useState<DungeonFloorRuleDto | null>(null);
+
+  // Bulk operations modal
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkTab, setBulkTab] = useState<'update' | 'copy' | 'reset'>('update');
+  const [bulkFromFloor, setBulkFromFloor] = useState('1');
+  const [bulkToFloor, setBulkToFloor] = useState('100');
+  const [bulkScaling, setBulkScaling] = useState('');
+  const [bulkRewardCoins, setBulkRewardCoins] = useState('');
+  const [bulkRewardInfCoins, setBulkRewardInfCoins] = useState('');
+  const [bulkRewardXp, setBulkRewardXp] = useState('');
+  const [bulkIsBoss, setBulkIsBoss] = useState<'keep' | 'boss' | 'normal'>('keep');
+  const [bulkEnabled, setBulkEnabled] = useState<'keep' | 'enable' | 'disable'>('keep');
+  const [bulkCopySource, setBulkCopySource] = useState('1');
+  const [bulkReason, setBulkReason] = useState('');
 
   // Create form
   const [createFloorNum, setCreateFloorNum] = useState('1');
@@ -421,6 +449,7 @@ export function Dungeons() {
   const [createScalingFactor, setCreateScalingFactor] = useState('1.0');
   const [createRewardCoins, setCreateRewardCoins] = useState('1000');
   const [createRewardInfCoins, setCreateRewardInfCoins] = useState('10');
+  const [createRewardXp, setCreateRewardXp] = useState('0');
   const [createRewardItems, setCreateRewardItems] = useState<DungeonRewardItemEntry[]>([]);
   const [createRuleModifiers, setCreateRuleModifiers] = useState<DungeonRuleModifiersState>({
     weather: 'NONE',
@@ -437,6 +466,7 @@ export function Dungeons() {
   const [editScalingFactor, setEditScalingFactor] = useState('1.0');
   const [editRewardCoins, setEditRewardCoins] = useState('0');
   const [editRewardInfCoins, setEditRewardInfCoins] = useState('0');
+  const [editRewardXp, setEditRewardXp] = useState('0');
   const [editRewardItems, setEditRewardItems] = useState<DungeonRewardItemEntry[]>([]);
   const [editRuleModifiers, setEditRuleModifiers] = useState<DungeonRuleModifiersState>({
     weather: 'NONE',
@@ -447,7 +477,7 @@ export function Dungeons() {
   const [editEnabled, setEditEnabled] = useState(true);
   const [editReason, setEditReason] = useState('');
 
-  // Filtered floors
+  // Filtered floors with fast search & range filtering
   const filteredFloors = useMemo(() => {
     return floors.filter((f) => {
       if (activeTab === 'VOID_RIFT' && selectedDifficulty !== 'all' && f.difficulty !== selectedDifficulty) {
@@ -455,9 +485,22 @@ export function Dungeons() {
       }
       if (statusFilter === 'active' && f.isArchived) return false;
       if (statusFilter === 'archived' && !f.isArchived) return false;
+
+      if (floorRangeFilter !== 'all') {
+        const [start, end] = floorRangeFilter.split('-').map(Number);
+        if (f.floorNumber < start || f.floorNumber > end) return false;
+      }
+
+      if (floorSearch.trim()) {
+        const q = floorSearch.trim().toLowerCase();
+        const matchesNum = String(f.floorNumber).includes(q);
+        const matchesTitle = f.title ? f.title.toLowerCase().includes(q) : false;
+        if (!matchesNum && !matchesTitle) return false;
+      }
+
       return true;
     });
-  }, [floors, activeTab, selectedDifficulty, statusFilter]);
+  }, [floors, activeTab, selectedDifficulty, statusFilter, floorRangeFilter, floorSearch]);
 
   // Open Create Modal
   const handleOpenCreate = () => {
@@ -470,6 +513,7 @@ export function Dungeons() {
     setCreateScalingFactor('1.0');
     setCreateRewardCoins('1000');
     setCreateRewardInfCoins('10');
+    setCreateRewardXp('0');
     setCreateRewardItems([]);
     setCreateRuleModifiers({
       weather: 'NONE',
@@ -529,6 +573,7 @@ export function Dungeons() {
       scalingFactor: parseFloat(createScalingFactor) || 1.0,
       rewardCoins: parseInt(createRewardCoins, 10) || 0,
       rewardInfinityCoins: parseInt(createRewardInfCoins, 10) || 0,
+      rewardXp: parseInt(createRewardXp, 10) || 0,
       rewardItems: rewardItemsPayload,
       ruleModifiers: finalRuleModifiers,
       isBossFloor: createIsBoss,
@@ -557,12 +602,13 @@ export function Dungeons() {
           level: String(e.level ?? 50),
           weight: String(e.weight ?? 1),
         }))
-      : [{ speciesId: '25', name: 'Pikachu', level: '50', weight: '1' }];
+      : [{ speciesId: '25', name: 'Pikachu', level: String((floor.enemyPool as any)?.level ?? 50), weight: '1' }];
     setEditEnemyPool(pool);
 
     setEditScalingFactor(String(floor.scalingFactor));
     setEditRewardCoins(String(floor.rewardCoins));
     setEditRewardInfCoins(String(floor.rewardInfinityCoins));
+    setEditRewardXp(String(floor.rewardXp ?? 0));
 
     const items: DungeonRewardItemEntry[] = Array.isArray(floor.rewardItems)
       ? floor.rewardItems.map((r: any) => ({
@@ -630,6 +676,7 @@ export function Dungeons() {
       scalingFactor: parseFloat(editScalingFactor) || 1.0,
       rewardCoins: parseInt(editRewardCoins, 10) || 0,
       rewardInfinityCoins: parseInt(editRewardInfCoins, 10) || 0,
+      rewardXp: parseInt(editRewardXp, 10) || 0,
       rewardItems: rewardItemsPayload,
       ruleModifiers: finalRuleModifiers,
       isBossFloor: editIsBoss,
@@ -642,6 +689,101 @@ export function Dungeons() {
       setEditingFloor(null);
     } catch {
       // Handled in mutation onError
+    }
+  };
+
+  // Bulk actions handlers
+  const handleExecuteBulkUpdate = async () => {
+    const from = parseInt(bulkFromFloor, 10);
+    const to = parseInt(bulkToFloor, 10);
+    if (isNaN(from) || isNaN(to) || from < 1 || to > 1000 || from > to) {
+      notify.error('Please enter a valid floor range (1 to 1000, from <= to)');
+      return;
+    }
+    if (bulkReason.trim().length < 5) {
+      notify.error('Audit reason must be at least 5 characters');
+      return;
+    }
+
+    const patch: any = {};
+    if (bulkScaling.trim()) patch.scalingFactor = parseFloat(bulkScaling);
+    if (bulkRewardCoins.trim()) patch.rewardCoins = parseInt(bulkRewardCoins, 10);
+    if (bulkRewardInfCoins.trim()) patch.rewardInfinityCoins = parseInt(bulkRewardInfCoins, 10);
+    if (bulkRewardXp.trim()) patch.rewardXp = parseInt(bulkRewardXp, 10);
+    if (bulkIsBoss !== 'keep') patch.isBossFloor = bulkIsBoss === 'boss';
+    if (bulkEnabled !== 'keep') patch.enabled = bulkEnabled === 'enable';
+
+    if (Object.keys(patch).length === 0) {
+      notify.error('Please specify at least one field to update across the range');
+      return;
+    }
+
+    try {
+      await bulkUpdateMutation.mutateAsync({
+        dungeonType: activeTab,
+        fromFloor: from,
+        toFloor: to,
+        patch,
+        reason: bulkReason.trim(),
+      });
+      setIsBulkModalOpen(false);
+      setBulkReason('');
+    } catch {
+      // Handled in onError
+    }
+  };
+
+  const handleExecuteCopy = async () => {
+    const src = parseInt(bulkCopySource, 10);
+    const from = parseInt(bulkFromFloor, 10);
+    const to = parseInt(bulkToFloor, 10);
+    if (isNaN(src) || isNaN(from) || isNaN(to) || src < 1 || src > 1000 || from < 1 || to > 1000 || from > to) {
+      notify.error('Please enter valid source and target floor numbers');
+      return;
+    }
+    if (bulkReason.trim().length < 5) {
+      notify.error('Audit reason must be at least 5 characters');
+      return;
+    }
+
+    try {
+      await copyFloorMutation.mutateAsync({
+        dungeonType: activeTab,
+        sourceFloor: src,
+        fromFloor: from,
+        toFloor: to,
+        reason: bulkReason.trim(),
+      });
+      setIsBulkModalOpen(false);
+      setBulkReason('');
+    } catch {
+      // Handled in onError
+    }
+  };
+
+  const handleExecuteReset = async () => {
+    const from = parseInt(bulkFromFloor, 10);
+    const to = parseInt(bulkToFloor, 10);
+    if (isNaN(from) || isNaN(to) || from < 1 || to > 1000 || from > to) {
+      notify.error('Please enter a valid floor range (1 to 1000, from <= to)');
+      return;
+    }
+    if (bulkReason.trim().length < 5) {
+      notify.error('Audit reason must be at least 5 characters');
+      return;
+    }
+
+    try {
+      await resetFloorsMutation.mutateAsync({
+        dungeonType: activeTab,
+        fromFloor: from,
+        toFloor: to,
+        reason: bulkReason.trim(),
+      });
+      setIsBulkModalOpen(false);
+      setBulkReason('');
+    } catch {
+      // Handled in onError
     }
   };
 
@@ -702,6 +844,9 @@ export function Dungeons() {
           </span>
           <span className="text-muted block text-[10px]">
             Infinity Coins: <strong className="text-foreground">{item.rewardInfinityCoins.toLocaleString()}</strong>
+          </span>
+          <span className="text-muted block text-[10px]">
+            XP: <strong className="text-foreground">{(item.rewardXp ?? 0).toLocaleString()}</strong>
           </span>
         </div>
       ),
@@ -792,31 +937,51 @@ export function Dungeons() {
             Configure floor definitions, boss encounters, difficulty scaling, rule modifiers, and reward payouts.
           </p>
         </div>
-        <Button
-          onClick={handleOpenCreate}
-          className="flex items-center justify-center gap-1.5 text-xs min-h-[44px] w-full sm:w-auto touch-manipulation"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add Floor Rule</span>
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {activeTab === 'INFINITY_TOWER' && (
+            <Button
+              variant="outline"
+              onClick={() => setIsBulkModalOpen(true)}
+              className="flex items-center justify-center gap-1.5 text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Bulk Actions</span>
+            </Button>
+          )}
+          <Button
+            onClick={handleOpenCreate}
+            className="flex items-center justify-center gap-1.5 text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Floor Rule</span>
+          </Button>
+        </div>
       </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-border pb-2">
         <button
-          onClick={() => setActiveTab('INFINITY_TOWER')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors touch-manipulation ${
+          onClick={() => {
+            setActiveTab('INFINITY_TOWER');
+            setFloorSearch('');
+            setFloorRangeFilter('all');
+          }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors touch-manipulation cursor-pointer ${
             activeTab === 'INFINITY_TOWER'
               ? 'bg-primary text-primary-foreground'
               : 'bg-surface border border-border text-muted hover:text-foreground'
           }`}
         >
           <Castle className="w-3.5 h-3.5" />
-          <span>Infinity Tower</span>
+          <span>Infinity Tower (1-1000)</span>
         </button>
         <button
-          onClick={() => setActiveTab('VOID_RIFT')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors touch-manipulation ${
+          onClick={() => {
+            setActiveTab('VOID_RIFT');
+            setFloorSearch('');
+            setFloorRangeFilter('all');
+          }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors touch-manipulation cursor-pointer ${
             activeTab === 'VOID_RIFT'
               ? 'bg-primary text-primary-foreground'
               : 'bg-surface border border-border text-muted hover:text-foreground'
@@ -827,37 +992,84 @@ export function Dungeons() {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="p-3 sm:p-4 bg-surface border border-border rounded-2xl flex items-center justify-between gap-3">
-        {activeTab === 'VOID_RIFT' ? (
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-muted shrink-0" />
-            <select
-              value={selectedDifficulty}
-              onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden touch-manipulation"
-            >
-              <option value="all">All Difficulties</option>
-              {RIFT_DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+      {/* Filters & Fast Navigation */}
+      <div className="p-3 sm:p-4 bg-surface border border-border rounded-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          {/* Search or Jump to Floor */}
+          <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search / Jump to floor (e.g. 500)..."
+              value={floorSearch}
+              onChange={(e) => setFloorSearch(e.target.value)}
+              className="w-full pl-8 pr-8 py-2 bg-background border border-border rounded-xl text-xs text-foreground placeholder:text-muted focus:outline-hidden"
+            />
+            {floorSearch && (
+              <button
+                type="button"
+                onClick={() => setFloorSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground text-xs cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
-        ) : (
-          <span className="text-xs text-muted">Showing all floors in sequential climb order.</span>
-        )}
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
-          className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden touch-manipulation"
-        >
-          <option value="all">All Statuses</option>
-          <option value="active">Active Only</option>
-          <option value="archived">Archived Only</option>
-        </select>
+          {/* Quick Floor Range Filter (Infinity Tower) */}
+          {activeTab === 'INFINITY_TOWER' && (
+            <select
+              value={floorRangeFilter}
+              onChange={(e) => setFloorRangeFilter(e.target.value)}
+              className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden touch-manipulation cursor-pointer"
+            >
+              <option value="all">All Floors (1-1000)</option>
+              <option value="1-100">Floors 1 - 100</option>
+              <option value="101-200">Floors 101 - 200</option>
+              <option value="201-300">Floors 201 - 300</option>
+              <option value="301-400">Floors 301 - 400</option>
+              <option value="401-500">Floors 401 - 500</option>
+              <option value="501-600">Floors 501 - 600</option>
+              <option value="601-700">Floors 601 - 700</option>
+              <option value="701-800">Floors 701 - 800</option>
+              <option value="801-900">Floors 801 - 900</option>
+              <option value="901-1000">Floors 901 - 1000</option>
+            </select>
+          )}
+
+          {activeTab === 'VOID_RIFT' && (
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted shrink-0" />
+              <select
+                value={selectedDifficulty}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden touch-manipulation cursor-pointer"
+              >
+                <option value="all">All Difficulties</option>
+                {RIFT_DIFFICULTIES.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-muted font-bold whitespace-nowrap">
+            {filteredFloors.length} {filteredFloors.length === 1 ? 'Floor' : 'Floors'}
+          </span>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden touch-manipulation cursor-pointer"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="archived">Archived Only</option>
+          </select>
+        </div>
       </div>
 
       {/* Floors Data Table */}
@@ -935,7 +1147,7 @@ export function Dungeons() {
                 onChange={setCreateEnemyPool}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-foreground mb-1">Scaling Factor</label>
                   <input
@@ -946,7 +1158,7 @@ export function Dungeons() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Reward Coins</label>
+                  <label className="block text-xs font-bold text-foreground mb-1">Standard Coins</label>
                   <input
                     type="text"
                     value={createRewardCoins}
@@ -960,6 +1172,15 @@ export function Dungeons() {
                     type="text"
                     value={createRewardInfCoins}
                     onChange={(e) => setCreateRewardInfCoins(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">XP Reward</label>
+                  <input
+                    type="text"
+                    value={createRewardXp}
+                    onChange={(e) => setCreateRewardXp(e.target.value.replace(/\D/g, ''))}
                     className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
                   />
                 </div>
@@ -1065,7 +1286,7 @@ export function Dungeons() {
                 onChange={setEditEnemyPool}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-foreground mb-1">Scaling Factor</label>
                   <input
@@ -1076,7 +1297,7 @@ export function Dungeons() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Reward Coins</label>
+                  <label className="block text-xs font-bold text-foreground mb-1">Standard Coins</label>
                   <input
                     type="text"
                     value={editRewardCoins}
@@ -1090,6 +1311,15 @@ export function Dungeons() {
                     type="text"
                     value={editRewardInfCoins}
                     onChange={(e) => setEditRewardInfCoins(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">XP Reward</label>
+                  <input
+                    type="text"
+                    value={editRewardXp}
+                    onChange={(e) => setEditRewardXp(e.target.value.replace(/\D/g, ''))}
                     className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
                   />
                 </div>
@@ -1189,6 +1419,262 @@ export function Dungeons() {
         confirmLabel="Restore Floor"
         isLoading={unarchiveFloorMutation.isPending}
       />
+
+      {/* Bulk Operations Modal */}
+      {isBulkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-xs">
+          <div className="bg-surface border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] pb-safe animate-in fade-in slide-in-from-bottom sm:zoom-in duration-200">
+            <div className="sm:hidden mx-auto mt-3 -mb-1 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-foreground flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-primary" />
+                  <span>Bulk Floor Operations</span>
+                </h3>
+                <span className="text-xs text-muted">
+                  Batch edit, copy, or reset floors across {activeTab === 'INFINITY_TOWER' ? 'Infinity Tower' : 'Void Rifts'} (1-1000).
+                </span>
+              </div>
+              <button
+                onClick={() => setIsBulkModalOpen(false)}
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted hover:text-foreground touch-manipulation cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Sub-tabs */}
+            <div className="px-4 sm:px-5 pt-3 pb-0 flex items-center gap-2 border-b border-border bg-surface-raised/40">
+              <button
+                type="button"
+                onClick={() => setBulkTab('update')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer ${
+                  bulkTab === 'update'
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted hover:text-foreground'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Bulk Edit Range</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkTab('copy')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer ${
+                  bulkTab === 'copy'
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted hover:text-foreground'
+                }`}
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy Floor to Range</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkTab('reset')}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold border-b-2 transition-colors cursor-pointer ${
+                  bulkTab === 'reset'
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted hover:text-foreground'
+                }`}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset to Defaults</span>
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
+              {/* Floor range selector (used by all tabs) */}
+              <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2">
+                <span className="text-xs font-bold text-foreground block">Target Floor Range</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] text-muted font-bold mb-1">From Floor</label>
+                    <input
+                      type="text"
+                      value={bulkFromFloor}
+                      onChange={(e) => setBulkFromFloor(e.target.value.replace(/\D/g, ''))}
+                      placeholder="1"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-muted font-bold mb-1">To Floor</label>
+                    <input
+                      type="text"
+                      value={bulkToFloor}
+                      onChange={(e) => setBulkToFloor(e.target.value.replace(/\D/g, ''))}
+                      placeholder="100"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Tab 1: Bulk Update Fields */}
+              {bulkTab === 'update' && (
+                <div className="space-y-3">
+                  <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+                    <div>
+                      <span className="text-xs font-bold text-foreground block">Patch Values</span>
+                      <span className="text-[10px] text-muted">
+                        Leave blank to keep existing values. Only specified values will overwrite the range.
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] text-muted font-bold mb-1">Scaling Factor</label>
+                        <input
+                          type="text"
+                          value={bulkScaling}
+                          onChange={(e) => setBulkScaling(e.target.value.replace(/[^\d.]/g, ''))}
+                          placeholder="e.g. 1.25"
+                          className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-muted font-bold mb-1">Infinity Coins</label>
+                        <input
+                          type="text"
+                          value={bulkRewardInfCoins}
+                          onChange={(e) => setBulkRewardInfCoins(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 25"
+                          className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-muted font-bold mb-1">XP Reward</label>
+                        <input
+                          type="text"
+                          value={bulkRewardXp}
+                          onChange={(e) => setBulkRewardXp(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 1500"
+                          className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-muted font-bold mb-1">Standard Coins</label>
+                        <input
+                          type="text"
+                          value={bulkRewardCoins}
+                          onChange={(e) => setBulkRewardCoins(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 5000"
+                          className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <label className="block text-[10px] text-muted font-bold mb-1">Boss Designation</label>
+                        <select
+                          value={bulkIsBoss}
+                          onChange={(e) => setBulkIsBoss(e.target.value as any)}
+                          className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden cursor-pointer"
+                        >
+                          <option value="keep">Keep Existing</option>
+                          <option value="boss">Set as Boss Floor</option>
+                          <option value="normal">Set as Normal Floor</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-muted font-bold mb-1">Enabled State</label>
+                        <select
+                          value={bulkEnabled}
+                          onChange={(e) => setBulkEnabled(e.target.value as any)}
+                          className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden cursor-pointer"
+                        >
+                          <option value="keep">Keep Existing</option>
+                          <option value="enable">Enable All</option>
+                          <option value="disable">Disable All</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 2: Copy Floor Setup */}
+              {bulkTab === 'copy' && (
+                <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-3">
+                  <div>
+                    <span className="text-xs font-bold text-foreground block">Source Template Floor</span>
+                    <span className="text-[10px] text-muted">
+                      Enemy pool, scaling factor, reward payouts, and modifiers from this floor will be copied to all floors in the target range.
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-muted font-bold mb-1">Source Floor Number</label>
+                    <input
+                      type="text"
+                      value={bulkCopySource}
+                      onChange={(e) => setBulkCopySource(e.target.value.replace(/\D/g, ''))}
+                      placeholder="e.g. 50"
+                      className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:outline-hidden"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: Reset to Procedural Defaults */}
+              {bulkTab === 'reset' && (
+                <div className="p-3 bg-surface-raised border border-border rounded-xl space-y-2">
+                  <span className="text-xs font-bold text-foreground block">Regenerate Defaults</span>
+                  <p className="text-xs text-muted leading-relaxed">
+                    This will recalculate and upsert floors <strong>{bulkFromFloor || '1'}</strong> through <strong>{bulkToFloor || '100'}</strong> using canonical game formulas (levels, IVs, evolution tiers, boss milestones at 25/50/100, and coin/XP payouts).
+                  </p>
+                </div>
+              )}
+
+              <ReasonField
+                value={bulkReason}
+                onChange={setBulkReason}
+                label="Audit Reason (Mandatory)"
+                helperText="Required log entry for this bulk modification."
+              />
+            </div>
+
+            <div className="p-3 sm:p-4 border-t border-border flex items-center justify-end gap-2 bg-surface">
+              <Button
+                variant="outline"
+                onClick={() => setIsBulkModalOpen(false)}
+                className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation cursor-pointer"
+              >
+                Cancel
+              </Button>
+              {bulkTab === 'update' && (
+                <Button
+                  onClick={handleExecuteBulkUpdate}
+                  disabled={bulkUpdateMutation.isPending || bulkReason.trim().length < 5}
+                  className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation cursor-pointer"
+                >
+                  {bulkUpdateMutation.isPending ? 'Applying...' : 'Apply Bulk Update'}
+                </Button>
+              )}
+              {bulkTab === 'copy' && (
+                <Button
+                  onClick={handleExecuteCopy}
+                  disabled={copyFloorMutation.isPending || bulkReason.trim().length < 5}
+                  className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation cursor-pointer"
+                >
+                  {copyFloorMutation.isPending ? 'Copying...' : 'Copy Floor Setup'}
+                </Button>
+              )}
+              {bulkTab === 'reset' && (
+                <Button
+                  onClick={handleExecuteReset}
+                  disabled={resetFloorsMutation.isPending || bulkReason.trim().length < 5}
+                  className="text-xs min-h-[44px] flex-1 sm:flex-initial touch-manipulation cursor-pointer"
+                >
+                  {resetFloorsMutation.isPending ? 'Resetting...' : 'Reset to Defaults'}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

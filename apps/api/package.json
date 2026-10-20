@@ -11,6 +11,7 @@
     "seed:pokeapi": "tsx scripts/seed/pokeapi/index.ts",
     "seed:pokemondb": "tsx scripts/seed/pokemondb/index.ts",
     "seed:shop": "tsx scripts/seed/seed-shop.ts",
+    "seed:tower": "tsx scripts/seed/seed-tower-floors.ts",
     "migrate:data": "tsx src/migrations/cli.ts",
     "test": "vitest run"
   },

@@ -716,7 +716,7 @@ model EventChallenge {
 
   taskType    EventTaskType
   taskConfig  Json     // e.g., { requiredCount: 5, pokemonType: "Fire" }
-  rewardConfig Json    // e.g., { speciesId: 6, form: "Mega", potential: "DIAMOND", level: 5 }
+  rewardConfig Json    // e.g., { speciesId: 6, form: "Mega", potential: "EX", level: 5 }
   pokemonPool Json?    // array of { speciesId: number, name: string, minLevel: number, maxLevel: number, weight: number }
 
   playerProgress PlayerEventProgress[]
@@ -830,6 +830,7 @@ model DungeonFloorRule {
   scalingFactor       Float          @default(1.0)
   rewardCoins         Int            @default(0)
   rewardInfinityCoins Int            @default(0)
+  rewardXp            Int            @default(0)
   rewardItems         Json?          // array of { itemKey: string, quantity: number, chance?: number }
   ruleModifiers       Json?          // e.g. { weather?: string, banTypes?: string[], hpMultiplier?: number }
   isBossFloor         Boolean        @default(false)

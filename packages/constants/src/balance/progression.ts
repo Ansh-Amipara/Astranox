@@ -103,23 +103,26 @@ export type PotentialTier = keyof typeof POTENTIAL_MAX_LEVELS;
 
 /**
  * Calculates the minimum XP required to reach a specific level.
- * Level 1 = 0 XP, Level 2 = 101 XP, Level 3 = 201 XP...
- * Formula: (L - 1) * XP_PER_LEVEL + 1 (for L > 1), 0 (for L <= 1).
+ * Level 1 = 0 XP, Level 2 = 100 XP, Level 3 = 200 XP...
+ * Formula: (L - 1) * XP_PER_LEVEL (for L > 1), 0 (for L <= 1).
  */
 export function getXpForLevel(level: number, config?: ProgressionBalanceConfig): number {
   if (level <= 1) return 0;
   const xpPerLevel = config?.XP_PER_LEVEL ?? PROGRESSION_CONSTANTS.XP_PER_LEVEL;
-  return (level - 1) * xpPerLevel + 1;
+  return (level - 1) * xpPerLevel;
 }
 
 /**
  * Calculates the current level based on total XP.
- * 0-100 XP => Level 1, 101-200 XP => Level 2, 201-300 XP => Level 3...
+ * Formula: floor(currentXp / 100) + 1, capped at maxLevelLimit (default ABSOLUTE_MAX_LEVEL 5000).
+ * 0-99 XP => Level 1, 100-199 XP => Level 2, 200-299 XP => Level 3...
  */
-export function getLevelFromXp(xp: number, config?: ProgressionBalanceConfig): number {
+export function getLevelFromXp(xp: number, config?: ProgressionBalanceConfig, maxLevelLimit?: number): number {
   if (xp <= 0) return 1;
   const xpPerLevel = config?.XP_PER_LEVEL ?? PROGRESSION_CONSTANTS.XP_PER_LEVEL;
-  return Math.floor((xp - 1) / xpPerLevel) + 1;
+  const calculated = Math.floor(Math.max(0, xp) / xpPerLevel) + 1;
+  const absoluteMax = maxLevelLimit ?? (config?.ABSOLUTE_MAX_LEVEL ?? PROGRESSION_CONSTANTS.ABSOLUTE_MAX_LEVEL);
+  return Math.min(calculated, absoluteMax);
 }
 
 /**

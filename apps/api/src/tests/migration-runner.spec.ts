@@ -15,6 +15,7 @@ describe('Data Migration Runner & Migrate-On-Read', { timeout: 30000 }, () => {
 
     const firstRun = await runner.runMigrations();
     expect(firstRun.applied).toContain('0001_initial_data_version');
+    expect(firstRun.applied).toContain('0002_normalize_pokemon_level_and_xp');
     expect(firstRun.skipped).toHaveLength(0);
 
     const recorded = await prismaTest.migrationRun.findMany({
@@ -27,6 +28,7 @@ describe('Data Migration Runner & Migrate-On-Read', { timeout: 30000 }, () => {
     const secondRun = await runner.runMigrations();
     expect(secondRun.applied).toHaveLength(0);
     expect(secondRun.skipped).toContain('0001_initial_data_version');
+    expect(secondRun.skipped).toContain('0002_normalize_pokemon_level_and_xp');
   });
 
   it('executes custom migrations in sequential order with incrementing batches', async () => {
@@ -35,7 +37,7 @@ describe('Data Migration Runner & Migrate-On-Read', { timeout: 30000 }, () => {
 
     let customMigrationExecuted = false;
     runner.registerMigration({
-      id: '0002_test_custom_noop',
+      id: '0003_test_custom_noop',
       description: 'Test no-op custom migration',
       up: async () => {
         customMigrationExecuted = true;
@@ -44,11 +46,12 @@ describe('Data Migration Runner & Migrate-On-Read', { timeout: 30000 }, () => {
 
     const runResult = await runner.runMigrations();
     expect(customMigrationExecuted).toBe(true);
-    expect(runResult.applied).toContain('0002_test_custom_noop');
+    expect(runResult.applied).toContain('0003_test_custom_noop');
     expect(runResult.skipped).toContain('0001_initial_data_version');
+    expect(runResult.skipped).toContain('0002_normalize_pokemon_level_and_xp');
 
     const recorded2 = await prismaTest.migrationRun.findUnique({
-      where: { name: '0002_test_custom_noop' },
+      where: { name: '0003_test_custom_noop' },
     });
     expect(recorded2?.batch).toBe(2);
   });
