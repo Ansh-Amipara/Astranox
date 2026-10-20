@@ -8,11 +8,12 @@
   --color-white: #ffffff;
   --color-transparent: transparent;
 
-  /* Refined Light Theme Canvas & Crisp Surfaces */
-  --color-background: #f8f9fa;
+  /* Modern Minimal Light Theme Canvas & Crisp Surfaces */
+  --color-background: #fafafa;
   --color-surface: #ffffff;
-  --color-surface-raised: #f1f3f5;
-  --color-border: #d4d4d8;
+  --color-surface-raised: #f4f4f5;
+  --color-border: #e4e4e7;
+  --color-border-subtle: #f4f4f5;
   --color-foreground: #09090b;
   --color-muted: #52525b;
   --color-subtle: #71717a;
@@ -49,19 +50,19 @@
   --text-body: clamp(0.875rem, 0.5vw + 0.75rem, 1rem);
   --text-caption: clamp(0.75rem, 0.25vw + 0.7rem, 0.875rem);
 
-  /* Refined Dual-Layer Elevation Shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(16, 24, 40, 0.08), 0 1px 2px -1px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
-  --shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
-  --shadow-xl: 0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
-  --shadow-2xl: 0 24px 48px -12px rgba(16, 24, 40, 0.16);
+  /* Soft Multi-Tiered Diffused Ambient Shadows (Linear / Pokémon HOME style) */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.06), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 20px 32px -4px rgba(0, 0, 0, 0.07), 0 8px 16px -4px rgba(0, 0, 0, 0.03);
+  --shadow-2xl: 0 24px 48px -12px rgba(0, 0, 0, 0.12);
 
-  --shadow-glow: 0 0 15px rgba(0, 0, 0, 0.06);
-  --shadow-glow-lg: 0 0 25px rgba(0, 0, 0, 0.10);
-  --shadow-glass: 0 8px 32px rgba(16, 24, 40, 0.08);
-  --shadow-glow-card: 0 1px 3px 0 rgba(16, 24, 40, 0.06), 0 1px 2px 0 rgba(16, 24, 40, 0.04);
-  --shadow-glow-card-hover: 0 6px 16px 0 rgba(16, 24, 40, 0.10), 0 2px 4px 0 rgba(16, 24, 40, 0.04);
+  --shadow-glow: 0 0 16px rgba(0, 0, 0, 0.04);
+  --shadow-glow-lg: 0 0 28px rgba(0, 0, 0, 0.07);
+  --shadow-glass: 0 8px 30px rgba(0, 0, 0, 0.05);
+  --shadow-glow-card: 0 2px 8px -1px rgba(0, 0, 0, 0.04), 0 1px 3px -1px rgba(0, 0, 0, 0.03);
+  --shadow-glow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
 }
 
 @layer base {

@@ -46,14 +46,14 @@ export function Header() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-surface/90 border-b border-border shadow-xs pt-safe transition-colors duration-300">
+      <nav className="sticky top-0 z-[100] w-full backdrop-blur-md bg-surface/85 border-b border-border shadow-xs pt-safe transition-colors duration-200">
       <div className="w-full px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-16 lg:h-18">
 
           {/* Logo & Mobile Menu Toggle */}
           <div className="flex items-center flex-shrink-0 pr-4">
             <button 
-              className="lg:hidden -ml-2 mr-2 w-11 h-11 flex items-center justify-center text-muted hover:text-foreground active:bg-surface rounded-xl touch-manipulation"
+              className="lg:hidden -ml-2 mr-2 w-11 h-11 flex items-center justify-center text-muted hover:text-foreground active:bg-surface-raised rounded-xl touch-manipulation transition-colors"
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open menu"
             >
@@ -61,22 +61,22 @@ export function Header() {
             </button>
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-colors duration-300"></div>
-                <img src="/logo.webp" alt="Astranox" className="w-9 h-9 object-contain relative z-10" />
+                <div className="absolute inset-0 bg-primary/5 rounded-full blur-md group-hover:bg-primary/10 transition-colors duration-200"></div>
+                <img src="/logo.webp" alt="Astranox" className="w-9 h-9 object-contain relative z-10 transition-transform duration-200 group-hover:scale-105" />
               </div>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex flex-1 items-center px-2">
-            <div className="flex items-center space-x-1.5 py-2">
+            <div className="flex items-center space-x-1 py-1.5 bg-surface-raised/50 border border-border/60 p-1 rounded-full shadow-xs">
               {navLinks.map((link) => {
                 const isActive = location.pathname.startsWith(link.to);
                 return (
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-bold uppercase tracking-wider whitespace-nowrap flex-shrink-0 transition-all duration-300 ${isActive ? 'bg-primary text-primary-foreground font-extrabold shadow-sm' : 'text-muted hover:bg-surface hover:text-foreground' }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap flex-shrink-0 transition-all duration-200 ${isActive ? 'bg-primary text-primary-foreground font-black shadow-xs' : 'text-muted hover:bg-surface hover:text-foreground' }`}
                   >
                     {link.label}
                   </Link>
@@ -91,15 +91,15 @@ export function Header() {
               <>
                 {save && (
                   <div className="hidden xl:flex items-center gap-2 mr-1">
-                    <div className="flex items-center gap-1.5 bg-surface border border-border px-2.5 py-1 rounded-xl text-xs font-bold text-foreground shadow-sm" title="Astral Coins">
+                    <div className="flex items-center gap-1.5 bg-surface-raised border border-border px-3 py-1 rounded-full text-xs font-bold text-foreground shadow-xs" title="Astral Coins">
                       <img src="/astral.webp" alt="Astral" className="w-4 h-4 object-contain" />
                       <span>{save.astralCoins?.toLocaleString() || 0}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-surface border border-border px-2.5 py-1 rounded-xl text-xs font-bold text-foreground shadow-sm" title="Infinity Coins">
+                    <div className="flex items-center gap-1.5 bg-surface-raised border border-border px-3 py-1 rounded-full text-xs font-bold text-foreground shadow-xs" title="Infinity Coins">
                       <img src="/infinity.webp" alt="Infinity" className="w-4 h-4 object-contain" />
                       <span>{save.infinityCoins?.toLocaleString() || 0}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-surface border border-border px-2.5 py-1 rounded-xl text-xs font-bold text-foreground shadow-sm" title="Stored XP">
+                    <div className="flex items-center gap-1.5 bg-surface-raised border border-border px-3 py-1 rounded-full text-xs font-bold text-foreground shadow-xs" title="Stored XP">
                       <img src="/xp.webp" alt="Stored XP" className="w-4 h-4 object-contain" />
                       <span>{save.storedXp?.toLocaleString() || 0}</span>
                     </div>
@@ -108,7 +108,7 @@ export function Header() {
 
                 {user.role === 'ADMIN' && (
                   <Link to="/admin/dashboard" className="mr-1">
-                    <button className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-bold bg-surface text-foreground border border-border rounded-xl hover:bg-surface-raised transition-colors touch-manipulation">
+                    <button className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-bold bg-surface text-foreground border border-border rounded-xl hover:bg-surface-raised transition-colors touch-manipulation shadow-xs">
                       <Crown className="w-4 h-4" /> <span className="hidden sm:inline">Admin</span>
                     </button>
                   </Link>
@@ -117,7 +117,7 @@ export function Header() {
                 <Link to="/profile">
                   <button
                     aria-label="Profile"
-                    className="flex items-center justify-center w-11 h-11 bg-surface text-foreground border border-border hover:bg-surface-raised hover:text-foreground rounded-xl transition-colors touch-manipulation"
+                    className="flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 bg-surface text-foreground border border-border hover:bg-surface-raised hover:text-foreground rounded-xl transition-colors touch-manipulation shadow-xs"
                   >
                     <UserIcon className="w-4 h-4" />
                   </button>
@@ -125,7 +125,7 @@ export function Header() {
                 <button
                   aria-label="Logout"
                   onClick={logout}
-                  className="flex items-center justify-center w-11 h-11 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-colors touch-manipulation"
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 text-muted hover:text-foreground hover:bg-surface border border-transparent hover:border-border rounded-xl transition-colors touch-manipulation"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

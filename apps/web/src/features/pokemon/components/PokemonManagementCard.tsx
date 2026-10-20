@@ -22,16 +22,16 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
           onClick(p);
         }
       }}
-      className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-border focus-visible:ring-offset-black ${inParty ? 'border-border shadow-glow' : 'border-border'} bg-background shadow-lg hover:border-border`}
+      className={`relative rounded-2xl overflow-hidden border transition-all duration-200 ease-out cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background ${inParty ? 'border-primary/40 shadow-sm' : 'border-border shadow-xs'} bg-surface hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] group`}
       onClick={() => onClick(p)}
     >
       {inParty && !p.isEscrowed && (
-        <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10 shadow-sm">
+        <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 shadow-xs">
           In Party
         </div>
       )}
       {p.isEscrowed && (
-        <div className="absolute top-3 right-3 bg-surface-raised text-foreground text-xs font-black px-2 py-1 rounded-md uppercase tracking-wider z-10">
+        <div className="absolute top-3 right-3 bg-surface-raised border border-border text-foreground text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider z-10 shadow-xs">
           In Trade
         </div>
       )}
@@ -39,11 +39,11 @@ export const PokemonManagementCard = React.memo(({ pokemon: p, inParty, onClick 
       <div className="p-4 md:p-5 flex flex-col gap-4">
         {/* Top Section: Image and Core Info */}
         <div className="flex items-start gap-4 md:gap-5">
-          <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 flex items-center justify-center bg-surface rounded-xl border border-border shadow-inner relative">
+          <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 flex items-center justify-center bg-surface-raised rounded-2xl border border-border shadow-xs relative">
             <img
               src={p.species?.spriteUrl || (p as unknown as { spriteUrl?: string }).spriteUrl || getSpriteUrl(p.speciesId)}
               alt={(p as unknown as { name?: string }).name || p.speciesName}
-              className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md pixelated hover:scale-110 transition-transform"
+              className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-sm pixelated group-hover:scale-105 transition-transform duration-200"
             />
           </div>
           

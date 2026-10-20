@@ -496,7 +496,7 @@ export function Pokemart() {
               return (
                 <div
                   key={item.key || item.id}
-                  className="bg-surface rounded-2xl border border-border p-4 shadow-xs space-y-3"
+                  className="bg-surface rounded-2xl border border-border p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 space-y-3"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
@@ -592,7 +592,7 @@ export function Pokemart() {
               return (
                 <div
                   key={m.id}
-                  className="bg-surface rounded-2xl border border-border p-4 shadow-xs space-y-3"
+                  className="bg-surface rounded-2xl border border-border p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 space-y-3"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1 min-w-0">

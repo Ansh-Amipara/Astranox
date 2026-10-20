@@ -110,7 +110,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => { promptDetails(activeMenuPkm); setActiveMenuPkm(null); }}
-                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
+                className="w-full text-left px-4 py-2.5 bg-surface-raised hover:bg-surface-raised/80 rounded-xl font-bold transition-all active:scale-[0.98] text-foreground border border-border/60 text-xs sm:text-sm touch-manipulation select-none"
               >
                 View Details
               </button>
@@ -122,7 +122,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   navigate(`/pokemon/${activeMenuPkm.id}/moves`, { state: { pokemon: activeMenuPkm } });
                   setActiveMenuPkm(null);
                 }}
-                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
+                className="w-full text-left px-4 py-2.5 bg-surface-raised hover:bg-surface-raised/80 rounded-xl font-bold transition-all active:scale-[0.98] text-foreground border border-border/60 text-xs sm:text-sm touch-manipulation select-none"
               >
                 Change Moves
               </button>
@@ -138,7 +138,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                         setActiveMenuPkm(null);
                       }}
                       disabled={devolveMutation.isPending}
-                      className="w-full text-left px-4 py-3 rounded-xl font-bold transition-colors bg-surface-raised hover:bg-surface-raised text-foreground"
+                      className="w-full text-left px-4 py-2.5 rounded-xl font-bold transition-all active:scale-[0.98] bg-surface-raised hover:bg-surface-raised/80 text-foreground border border-border/60 text-xs sm:text-sm touch-manipulation select-none"
                     >
                       {devolveMutation.isPending ? 'Reverting...' : 'Revert Form (Devolve)'}
                     </button>
@@ -153,7 +153,11 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                       setActiveMenuPkm(null);
                     }}
                     disabled={!canEvolve}
-                    className={`w-full text-left px-4 py-3 rounded-xl font-bold transition-colors ${canEvolve ? 'bg-surface-raised hover:bg-surface-raised text-foreground' : 'bg-surface-raised/50 text-muted cursor-not-allowed'}`}
+                    className={`w-full text-left px-4 py-2.5 rounded-xl font-bold transition-all active:scale-[0.98] text-xs sm:text-sm touch-manipulation select-none ${
+                      canEvolve
+                        ? 'bg-surface-raised hover:bg-surface-raised/80 text-foreground border border-border/60'
+                        : 'bg-surface-raised/40 text-muted border border-border/30 cursor-not-allowed'
+                    }`}
                   >
                     {canEvolve ? 'Evolution' : 'Fully Evolved'}
                   </button>
@@ -166,7 +170,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                     promptBoostPotential(activeMenuPkm);
                     setActiveMenuPkm(null);
                   }}
-                  className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
+                  className="w-full text-left px-4 py-2.5 bg-surface-raised hover:bg-surface-raised/80 rounded-xl font-bold transition-all active:scale-[0.98] text-foreground border border-border/60 text-xs sm:text-sm touch-manipulation select-none"
                 >
                   Boost Potential
                 </button>
@@ -177,7 +181,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                   promptEnhanceIvs(activeMenuPkm);
                   setActiveMenuPkm(null);
                 }}
-                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground"
+                className="w-full text-left px-4 py-2.5 bg-surface-raised hover:bg-surface-raised/80 rounded-xl font-bold transition-all active:scale-[0.98] text-foreground border border-border/60 text-xs sm:text-sm touch-manipulation select-none"
               >
                 Enhance IVs
               </button>
@@ -186,7 +190,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
                 onClick={() => promptSmelt(activeMenuPkm.id)}
                 disabled={isSmelting || activeMenuPkm.isParty}
                 title={activeMenuPkm.isParty ? "Cannot smelt a Pokémon that is currently in your party" : undefined}
-                className="w-full text-left px-4 py-3 bg-surface-raised hover:bg-surface-raised rounded-xl font-bold transition-colors text-foreground disabled:opacity-50 disabled:cursor-not-allowed text-center"
+                className="w-full text-left px-4 py-2.5 bg-surface-raised hover:bg-surface-raised/80 rounded-xl font-bold transition-all active:scale-[0.98] text-foreground border border-border/60 disabled:opacity-50 disabled:cursor-not-allowed text-center text-xs sm:text-sm touch-manipulation select-none"
               >
                 {isSmelting ? 'Smelting...' : 'Smelt Pokemon'}
               </button>
@@ -194,7 +198,7 @@ export const PokemonActionModals = forwardRef<PokemonModalsRef, PokemonActionMod
 
             <button
               onClick={() => setActiveMenuPkm(null)}
-              className="mt-4 pt-4 border-t border-border text-sm font-bold text-subtle hover:text-subtle w-full"
+              className="mt-3 pt-3 border-t border-border text-xs font-bold text-muted hover:text-foreground w-full transition-colors min-h-[44px] flex items-center justify-center touch-manipulation select-none"
             >
               Cancel
             </button>

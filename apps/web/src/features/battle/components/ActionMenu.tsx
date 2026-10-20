@@ -99,24 +99,24 @@ export const ActionMenu = memo(function ActionMenu({
             onClick={onOpenBag}
             disabled={battleType !== 'WILD'}
             title={battleType === 'WILD' ? "Bag" : "Cannot use bag here"}
-            className="flex-1 sm:flex-none sm:w-20 py-1.5 sm:py-2 bg-surface-raised hover:bg-surface-raised text-primary-foreground rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 border border-border disabled:bg-surface-raised"
+            className="flex-1 sm:flex-none sm:w-20 py-2 bg-surface hover:bg-surface-raised text-foreground rounded-xl shadow-xs transition-all flex items-center justify-center hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 disabled:hover:translate-y-0 border border-border"
           >
-            <GiBackpack size={24} className="sm:w-[28px] sm:h-[28px]" />
+            <GiBackpack size={22} className="sm:w-[26px] sm:h-[26px]" />
           </button>
           <button
             onClick={onOpenParty}
             title="Pokémon"
-            className="flex-1 sm:flex-none sm:w-20 py-1.5 sm:py-2 bg-surface-raised hover:bg-surface-raised text-primary-foreground rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 border border-border"
+            className="flex-1 sm:flex-none sm:w-20 py-2 bg-surface hover:bg-surface-raised text-foreground rounded-xl shadow-xs transition-all flex items-center justify-center hover:-translate-y-0.5 active:scale-95 border border-border"
           >
-            <TbPokeball size={24} className="sm:w-[28px] sm:h-[28px]" />
+            <TbPokeball size={22} className="sm:w-[26px] sm:h-[26px]" />
           </button>
           <button
             onClick={onRun}
             disabled={isPending || battleType === 'NPC'}
             title={battleType === 'NPC' ? "Cannot run from this battle" : "Run"}
-            className="flex-1 sm:flex-none sm:w-20 py-1.5 sm:py-2 bg-surface-raised hover:bg-surface-raised text-primary-foreground rounded-lg shadow-sm transition-all flex items-center justify-center hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 border border-border disabled:bg-surface-raised"
+            className="flex-1 sm:flex-none sm:w-20 py-2 bg-surface hover:bg-surface-raised text-foreground rounded-xl shadow-xs transition-all flex items-center justify-center hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 disabled:hover:translate-y-0 border border-border"
           >
-            <FaRunning size={24} className="sm:w-[28px] sm:h-[28px]" />
+            <FaRunning size={22} className="sm:w-[26px] sm:h-[26px]" />
           </button>
         </div>
       </div>

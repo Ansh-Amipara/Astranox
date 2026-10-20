@@ -188,90 +188,95 @@ export function TeamPage() {
   };
 
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
-      <div className="w-full mx-auto space-y-4 md:space-y-6">
-        <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">My Team</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Active Team</h1>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">Manage your frontline battle party and move configurations</p>
           </div>
-          <span className="bg-surface border border-border px-4 py-2 rounded-lg font-bold text-muted shadow-sm">
+          <span className="bg-surface border border-border px-3.5 py-1.5 rounded-full font-black text-xs sm:text-sm text-foreground shadow-xs">
             {party.length} / 6 Pokémon
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {Array.from({ length: 6 }).map((_, i) => {
             const pkm = party.find((p: OwnedPokemonDto) => p.position === i);
 
             return (
               <div
                 key={i}
-                className={`relative rounded-2xl overflow-hidden border transition-colors cursor-pointer ${pkm ? 'border-border bg-surface/80 shadow-lg hover:border-border' : 'border-border bg-surface-raised shadow-sm '}`}
+                className={`group relative rounded-2xl overflow-hidden border transition-all duration-200 cursor-pointer ${
+                  pkm
+                    ? 'border-border bg-surface shadow-xs hover:shadow-md hover:-translate-y-0.5'
+                    : 'border-2 border-dashed border-border/80 bg-surface/30 hover:bg-surface-raised/40 shadow-none'
+                }`}
                 onClick={() => {
                   if (pkm) setActiveMenuPkm(pkm);
                 }}
               >
                 {pkm ? (
-                  <div className="p-4 md:p-5 flex flex-col gap-4">
+                  <div className="p-4 sm:p-5 flex flex-col gap-4">
                     {/* Top Section: Image and Core Info */}
-                    <div className="flex items-start gap-4 md:gap-5">
-                      <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 flex items-center justify-center bg-surface-raised/50 rounded-xl border border-border shadow-inner relative">
+                    <div className="flex items-start gap-4">
+                      <div className="w-20 h-20 sm:w-22 sm:h-22 shrink-0 flex items-center justify-center bg-surface-raised rounded-2xl border border-border/70 shadow-xs relative group-hover:scale-105 transition-transform duration-200">
                         <img
                           src={getSpriteUrl(pkm.speciesId)}
                           alt={pkm.species?.name}
-                          className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md pixelated hover:scale-110 transition-transform"
+                          className="w-16 h-16 sm:w-18 sm:h-18 object-contain pixelated"
                         />
                       </div>
-                      
+
                       <div className="flex-1 min-w-0 flex flex-col">
                         {/* Header: Name and Bound Status */}
-                        <div className="flex items-start justify-between gap-2 mb-1.5">
-                          <h3 className="text-lg md:text-xl font-extrabold text-foreground capitalize truncate flex items-center gap-1.5">
+                        <div className="flex items-start justify-between gap-1.5 mb-1">
+                          <h3 className="text-base sm:text-lg font-black text-foreground capitalize truncate flex items-center gap-1.5">
                             <span className="truncate">{pkm.nickname || pkm.species?.name}</span>
                             {pkm.isBound && (
-                              <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-raised text-subtle text-muted uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
-                                <span aria-hidden="true">🔒</span> Bound
+                              <span className="inline-flex items-center shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-raised text-muted uppercase tracking-wider" title="This Pokémon is bound to your account and cannot be traded or sold">
+                                🔒
                               </span>
                             )}
                           </h3>
                         </div>
 
                         {/* Type */}
-                        <div className="flex gap-1 mb-2.5">
+                        <div className="flex gap-1 mb-2">
                           {pkm.species?.type1 && (
-                            <img src={getTypeSpriteUrl(pkm.species.type1.name, false)} alt={pkm.species.type1.name} title={pkm.species.type1.name} className="h-5 w-auto object-contain drop-shadow-sm" />
+                            <img src={getTypeSpriteUrl(pkm.species.type1.name, false)} alt={pkm.species.type1.name} title={pkm.species.type1.name} className="h-4.5 w-auto object-contain" />
                           )}
                           {pkm.species?.type2 && (
-                            <img src={getTypeSpriteUrl(pkm.species.type2.name, false)} alt={pkm.species.type2.name} title={pkm.species.type2.name} className="h-5 w-auto object-contain drop-shadow-sm" />
+                            <img src={getTypeSpriteUrl(pkm.species.type2.name, false)} alt={pkm.species.type2.name} title={pkm.species.type2.name} className="h-4.5 w-auto object-contain" />
                           )}
                         </div>
 
                         {/* Potential and CP */}
-                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
                           {pkm.potential && (
-                            <span className={`${getPotentialBadgeClasses(pkm.potential)} px-2 py-0.5 text-xs`}>
+                            <span className={`${getPotentialBadgeClasses(pkm.potential)} px-2 py-0.5 text-[11px]`}>
                               {formatPotential(pkm.potential)}
                             </span>
                           )}
-                          <span className="text-xs px-2 py-0.5 rounded font-black border border-border/50 bg-surface-raised text-foreground uppercase tracking-wider">
+                          <span className="text-[11px] px-2 py-0.5 rounded-full font-black border border-border bg-surface-raised text-foreground uppercase tracking-wider">
                             CP {pkm.cp?.toLocaleString() || 0}
                           </span>
                         </div>
 
                         {/* Level and XP */}
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center bg-surface-raised text-foreground px-2 py-0.5 rounded border border-border/50">
-                            <span className="text-[10px] font-bold uppercase mr-1 opacity-70">Lv.</span>
-                            <span className="text-sm font-black">{pkm.level}</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex items-center bg-surface-raised text-foreground px-2 py-0.5 rounded-md border border-border">
+                            <span className="text-[9px] font-bold uppercase mr-1 text-muted">Lv.</span>
+                            <span className="text-xs font-black">{pkm.level}</span>
                           </div>
                           {pkm.potential && pkm.level >= getMaxLevelForPotential(pkm.potential as string) ? (
-                            <div className="flex items-center bg-surface-raised text-foreground px-2 py-0.5 rounded border border-border/50">
-                              <span className="text-[10px] font-bold uppercase tracking-widest">Capped</span>
+                            <div className="flex items-center bg-surface-raised text-foreground px-2 py-0.5 rounded-md border border-border">
+                              <span className="text-[9px] font-black uppercase tracking-wider text-muted">Capped</span>
                             </div>
                           ) : (
-                            <div className="flex items-center bg-surface-raised/80 text-muted px-2 py-0.5 rounded border border-border">
-                              <span className="text-[10px] font-bold uppercase mr-1 opacity-70">XP</span>
-                              <span className="text-xs font-bold">{(pkm.currentXp || 0).toLocaleString()}</span>
+                            <div className="flex items-center bg-surface-raised text-muted px-2 py-0.5 rounded-md border border-border">
+                              <span className="text-[9px] font-bold uppercase mr-1 text-muted/70">XP</span>
+                              <span className="text-[11px] font-bold">{(pkm.currentXp || 0).toLocaleString()}</span>
                             </div>
                           )}
                         </div>
@@ -279,19 +284,19 @@ export function TeamPage() {
                     </div>
 
                     {/* Moves Section */}
-                    <div className="w-full pt-3 border-t border-border grid grid-cols-2 gap-2">
+                    <div className="w-full pt-3 border-t border-border grid grid-cols-2 gap-1.5">
                       {[0, 1, 2, 3].map(i => {
                         const move = pkm.equippedMoves?.find((m: { slot: number; move: MoveDto }) => m.slot === i)?.move;
                         return (
-                          <div key={i} className="bg-surface-raised/50 px-2 py-1.5 rounded border border-border flex items-center gap-2 overflow-hidden h-8">
+                          <div key={i} className="bg-surface-raised px-2.5 py-1.5 rounded-xl border border-border/80 flex items-center gap-2 overflow-hidden h-8">
                             {move ? (
                               <>
-                                <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} className="h-4 w-auto object-contain drop-shadow-sm shrink-0" />
-                                <span className="font-bold text-subtle capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
+                                <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} className="h-3.5 w-auto object-contain shrink-0" />
+                                <span className="font-bold text-foreground capitalize text-xs truncate w-full">{move.name.replace('-', ' ')}</span>
                               </>
                             ) : (
                               <>
-                                <div className="w-3.5 h-3.5 rounded-full border-2 border-border opacity-50 shrink-0 mx-0.5"></div>
+                                <div className="w-3 h-3 rounded-full border border-border opacity-40 shrink-0 mx-0.5"></div>
                                 <span className="text-muted italic text-[10px] uppercase tracking-wider">- Empty -</span>
                               </>
                             )}
@@ -301,8 +306,9 @@ export function TeamPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 h-35 flex items-center justify-center">
-                    <span className="text-muted font-bold uppercase tracking-widest text-sm">Empty Slot</span>
+                  <div className="p-8 h-40 flex flex-col items-center justify-center gap-1">
+                    <span className="text-2xl text-muted/40 font-light">+</span>
+                    <span className="text-muted font-bold uppercase tracking-wider text-xs">Empty Party Slot</span>
                   </div>
                 )}
               </div>

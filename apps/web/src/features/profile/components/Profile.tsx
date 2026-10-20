@@ -70,19 +70,31 @@ export function Profile() {
   }
 
   return (
-    <div className="w-full h-full min-h-[calc(100dvh-4rem)] p-4 md:p-8 flex flex-col bg-surface-raised">
-      <div className="bg-primary rounded-xl shadow-md overflow-hidden border border-border flex-grow flex flex-col">
-        <div className="p-4 md:p-8 flex-grow">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Player Profile</h1>
+    <div className="w-full min-h-[calc(100dvh-64px)] p-4 sm:p-6 md:p-10 flex flex-col bg-background">
+      <div className="w-full max-w-4xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="border-b border-border pb-5 text-left">
+          <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">Trainer Profile</h1>
+          <p className="text-sm text-muted font-medium mt-1">Manage your trainer identity and view career progression</p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 h-full">
-            <div className="bg-surface-raised p-4 sm:p-6 rounded-lg border border-border h-full">
-              <h2 className="text-lg sm:text-xl font-semibold text-subtle mb-4 border-b pb-2">Character</h2>
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <span className="text-subtle font-medium text-sm sm:text-base">Username:</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Character Card */}
+          <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[11px] font-black uppercase tracking-wider text-muted px-2.5 py-0.5 rounded-full bg-surface-raised border border-border">
+                  Identity
+                </span>
+              </div>
+              <h2 className="text-lg font-black text-foreground mb-4">Character Details</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-muted block mb-1.5">Trainer Name</label>
                   {isEditing ? (
-                    <div className="flex flex-col gap-2 w-full">
+                    <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <input
                           type="text"
@@ -91,13 +103,13 @@ export function Profile() {
                             setNewUsername(e.target.value);
                             setUsernameError(null);
                           }}
-                          className="px-3 py-2 border border-border rounded-md text-base sm:text-sm outline-none focus:border-border focus:ring-1 focus:ring-border bg-surface text-foreground min-h-[44px] flex-1"
+                          className="px-3.5 py-2.5 border border-border rounded-xl text-sm outline-none focus:border-border focus:ring-1 focus:ring-border bg-surface text-foreground min-h-[44px] flex-1 shadow-xs"
                           autoFocus
                         />
                         <button
                           onClick={() => updateProfileMutation.mutate(newUsername)}
                           disabled={updateProfileMutation.isPending || !newUsername || newUsername === user.username}
-                          className="min-h-[44px] px-3 py-2 text-sm bg-surface-raised text-foreground rounded-md hover:bg-surface-raised disabled:opacity-50 font-medium transition-colors border border-border flex items-center justify-center"
+                          className="min-h-[44px] px-4 py-2 text-xs font-bold bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-40 transition-all shadow-xs flex items-center justify-center active:scale-[0.98] touch-manipulation select-none"
                         >
                           {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                         </button>
@@ -108,82 +120,112 @@ export function Profile() {
                             setUsernameError(null);
                           }}
                           disabled={updateProfileMutation.isPending}
-                          className="min-h-[44px] px-3 py-2 text-sm bg-surface-raised text-subtle rounded-md hover:bg-surface-raised font-medium transition-colors border border-border flex items-center justify-center"
+                          className="min-h-[44px] px-4 py-2 text-xs font-bold bg-surface-raised text-muted hover:text-foreground rounded-xl transition-all border border-border flex items-center justify-center active:scale-[0.98] touch-manipulation select-none"
                         >
                           Cancel
                         </button>
                       </div>
                       {usernameError && (
-                        <span className="text-xs font-semibold text-foreground tracking-tight">
+                        <span className="text-xs font-semibold text-danger">
                           • {usernameError}
                         </span>
                       )}
                     </div>
                   ) : (
-                    <div className="flex items-center space-x-3">
-                      <span className="text-foreground font-bold text-base sm:text-lg">{user.username}</span>
+                    <div className="flex items-center justify-between p-3.5 bg-surface-raised rounded-xl border border-border">
+                      <span className="text-foreground font-black text-base">{user.username}</span>
                       <button
                         onClick={() => {
                           setNewUsername(user.username);
                           setIsEditing(true);
                         }}
-                        className="text-xs text-subtle hover:text-foreground transition-colors font-medium border border-border hover:border-border bg-primary px-3 py-1.5 min-h-[36px] rounded flex items-center justify-center"
+                        className="text-xs text-muted hover:text-foreground transition-colors font-bold border border-border bg-surface px-3 py-1.5 min-h-[36px] rounded-lg shadow-xs flex items-center justify-center touch-manipulation select-none"
                       >
                         Edit
                       </button>
                     </div>
                   )}
                 </div>
+
+                <div>
+                  <label className="text-xs font-bold text-muted block mb-1.5">Account Role</label>
+                  <div className="p-3.5 bg-surface-raised rounded-xl border border-border flex items-center justify-between">
+                    <span className="text-sm font-semibold text-muted">Permission Level</span>
+                    <span className="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-surface text-foreground border border-border">
+                      {user.role || 'USER'}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-surface-raised p-6 rounded-lg border border-border h-full">
-              <h2 className="text-xl font-semibold text-subtle mb-4 border-b pb-2">Progression</h2>
+            <p className="text-xs text-subtle mt-6 pt-4 border-t border-border">
+              Astranox Trainer Account
+            </p>
+          </div>
+
+          {/* Progression Card */}
+          <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-border shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[11px] font-black uppercase tracking-wider text-muted px-2.5 py-0.5 rounded-full bg-surface-raised border border-border">
+                  Career
+                </span>
+              </div>
+              <h2 className="text-lg font-black text-foreground mb-4">Progression Stats</h2>
+
               {isLoading ? (
-                <div className="space-y-4">
-                  <Skeleton height={48} className="rounded-lg" />
-                  <Skeleton height={48} className="rounded-lg" />
-                  <div className="flex gap-4">
-                    <Skeleton height={72} className="flex-1 rounded-lg" />
-                    <Skeleton height={72} className="flex-1 rounded-lg" />
+                <div className="space-y-3">
+                  <Skeleton height={48} className="rounded-xl" />
+                  <Skeleton height={48} className="rounded-xl" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Skeleton height={68} className="rounded-xl" />
+                    <Skeleton height={68} className="rounded-xl" />
                   </div>
-                  <Skeleton height={48} className="rounded-lg" />
                 </div>
               ) : trainerSave ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-primary rounded-lg border border-border">
-                    <span className="text-subtle font-medium">Player CP</span>
-                    <span className="text-foreground font-black text-lg">{playerCp.toLocaleString()}</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3.5 bg-surface-raised rounded-xl border border-border">
+                    <span className="text-sm font-bold text-muted">Combat Power (CP)</span>
+                    <span className="text-foreground font-black text-base font-mono">{playerCp.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-primary rounded-lg border border-border">
-                    <span className="text-subtle font-medium">Rank</span>
-                    <span className="text-foreground font-bold text-lg">{formatRank(trainerSave.rank)}</span>
+                  
+                  <div className="flex justify-between items-center p-3.5 bg-surface-raised rounded-xl border border-border">
+                    <span className="text-sm font-bold text-muted">Trainer Rank</span>
+                    <span className="text-foreground font-black text-base">{formatRank(trainerSave.rank)}</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 p-3 bg-surface rounded-lg border border-border flex flex-col">
-                      <span className="text-muted font-medium text-xs uppercase tracking-widest">Astral Coins</span>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3.5 bg-surface-raised rounded-xl border border-border flex flex-col justify-between">
+                      <span className="text-muted font-bold text-[10px] uppercase tracking-wider">Astral Coins</span>
                       <div className="flex items-center gap-2 mt-2">
-                        <img src="/astral.webp" alt="Astral" className="w-6 h-6 object-contain" />
-                        <span className="text-foreground font-black text-xl">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
+                        <img src="/astral.webp" alt="Astral" className="w-5 h-5 object-contain" />
+                        <span className="text-foreground font-black text-base font-mono">{trainerSave.astralCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
-                    <div className="flex-1 p-3 bg-surface rounded-lg border border-border flex flex-col">
-                      <span className="text-muted font-medium text-xs uppercase tracking-widest">Infinity Coins</span>
+                    
+                    <div className="p-3.5 bg-surface-raised rounded-xl border border-border flex flex-col justify-between">
+                      <span className="text-muted font-bold text-[10px] uppercase tracking-wider">Infinity Coins</span>
                       <div className="flex items-center gap-2 mt-2">
-                        <img src="/infinity.webp" alt="Infinity" className="w-6 h-6 object-contain" />
-                        <span className="text-foreground font-black text-xl">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
+                        <img src="/infinity.webp" alt="Infinity" className="w-5 h-5 object-contain" />
+                        <span className="text-foreground font-black text-base font-mono">{trainerSave.infinityCoins?.toLocaleString() || 0}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-primary rounded-lg border border-border">
-                    <span className="text-subtle font-medium">Badges</span>
-                    <span className="text-foreground font-bold text-lg">{trainerSave.badges?.length || 0}</span>
+
+                  <div className="flex justify-between items-center p-3.5 bg-surface-raised rounded-xl border border-border">
+                    <span className="text-sm font-bold text-muted">Gym Badges</span>
+                    <span className="text-foreground font-black text-base font-mono">{trainerSave.badges?.length || 0}</span>
                   </div>
                 </div>
               ) : (
-                <div className="text-subtle">Failed to load progression data.</div>
+                <div className="text-sm text-subtle font-medium p-4 text-center">Failed to load progression data.</div>
               )}
             </div>
+
+            <p className="text-xs text-subtle mt-6 pt-4 border-t border-border">
+              Stats update automatically in real-time
+            </p>
           </div>
         </div>
       </div>

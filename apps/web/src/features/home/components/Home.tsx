@@ -30,108 +30,135 @@ export function Home() {
   const teamCp = party.reduce((sum: number, p: any) => sum + (p.cp || 0), 0);
 
   return (
-    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] flex flex-col justify-start">
-      <div className="w-full mx-auto space-y-4 md:space-y-6 max-w-none">
+    <div className="flex-1 bg-background text-foreground p-4 sm:p-6 md:p-8 min-h-[calc(100dvh-64px)] flex flex-col justify-start">
+      <div className="w-full mx-auto space-y-6 max-w-7xl">
 
-        {/* Header Section */}
+        {/* Currency & Stat Pills */}
         <div className="w-full">
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-            <div className="bg-background border border-border rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-border transition-all overflow-hidden">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-surface border border-border flex items-center justify-center p-1">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <div className="bg-surface border border-border rounded-2xl p-3.5 shadow-xs flex items-center gap-3 hover:-translate-y-0.5 hover:shadow-md transition-all overflow-hidden">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-surface-raised border border-border flex items-center justify-center p-1.5">
                 <img src="/astral.webp" alt="Astral Coins" className="w-full h-full object-contain" />
               </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider truncate">Astral Coins</p>
-                <p className="text-base sm:text-lg font-black text-foreground truncate">{save.astralCoins?.toLocaleString() || 0}</p>
+                <p className="text-[10px] font-bold text-muted uppercase tracking-wider truncate">Astral Coins</p>
+                <p className="text-base font-black text-foreground font-mono truncate">{save.astralCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-background border border-border rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-border transition-all overflow-hidden">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-surface border border-border flex items-center justify-center p-1">
+            <div className="bg-surface border border-border rounded-2xl p-3.5 shadow-xs flex items-center gap-3 hover:-translate-y-0.5 hover:shadow-md transition-all overflow-hidden">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-surface-raised border border-border flex items-center justify-center p-1.5">
                 <img src="/infinity.webp" alt="Infinity Coins" className="w-full h-full object-contain" />
               </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider truncate">Infinity Coins</p>
-                <p className="text-base sm:text-lg font-black text-foreground truncate">{save.infinityCoins?.toLocaleString() || 0}</p>
+                <p className="text-[10px] font-bold text-muted uppercase tracking-wider truncate">Infinity Coins</p>
+                <p className="text-base font-black text-foreground font-mono truncate">{save.infinityCoins?.toLocaleString() || 0}</p>
               </div>
             </div>
 
-            <div className="bg-background border border-border rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-border transition-all overflow-hidden">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-surface border border-border flex items-center justify-center p-1.5">
+            <div className="bg-surface border border-border rounded-2xl p-3.5 shadow-xs flex items-center gap-3 hover:-translate-y-0.5 hover:shadow-md transition-all overflow-hidden">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-surface-raised border border-border flex items-center justify-center p-1.5">
                 <img src="/xp.webp" alt="Stored XP" className="w-full h-full object-contain" />
               </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider truncate">Stored XP</p>
-                <p className="text-base sm:text-lg font-black text-foreground truncate">{save.storedXp?.toLocaleString() || 0} XP</p>
+                <p className="text-[10px] font-bold text-muted uppercase tracking-wider truncate">Stored XP</p>
+                <p className="text-base font-black text-foreground font-mono truncate">{save.storedXp?.toLocaleString() || 0} XP</p>
               </div>
             </div>
 
-            <div className="bg-background border border-border rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-border transition-all overflow-hidden">
+            <div className="bg-surface border border-border rounded-2xl p-3.5 shadow-xs flex items-center gap-3 hover:-translate-y-0.5 hover:shadow-md transition-all overflow-hidden">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-surface-raised border border-border flex items-center justify-center text-xs font-black text-muted">
+                ★
+              </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider truncate">Trainer Rank</p>
-                <p className="text-base sm:text-lg font-black text-foreground uppercase truncate">{save.rank?.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '') || 'F'}</p>
+                <p className="text-[10px] font-bold text-muted uppercase tracking-wider truncate">Trainer Rank</p>
+                <p className="text-base font-black text-foreground uppercase truncate">{save.rank?.replace('_MINUS', '-').replace('_PLUS', '+').replace('_', '') || 'F'}</p>
               </div>
             </div>
 
-            <div className="bg-background border border-border rounded-2xl p-3 sm:px-4 sm:py-3 shadow-xl flex items-center gap-2 sm:gap-3 hover:-translate-y-0.5 hover:border-border transition-all overflow-hidden col-span-2 md:col-span-1">
+            <div className="bg-surface border border-border rounded-2xl p-3.5 shadow-xs flex items-center gap-3 hover:-translate-y-0.5 hover:shadow-md transition-all overflow-hidden col-span-2 md:col-span-1">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-surface-raised border border-border flex items-center justify-center text-xs font-black text-muted">
+                CP
+              </div>
               <div className="truncate">
-                <p className="text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider truncate">Player CP</p>
-                <p className="text-base sm:text-lg font-black text-foreground truncate">{teamCp.toLocaleString()}</p>
+                <p className="text-[10px] font-bold text-muted uppercase tracking-wider truncate">Team CP</p>
+                <p className="text-base font-black text-foreground font-mono truncate">{teamCp.toLocaleString()}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Active Party (Full Width) */}
-        <div className="bg-background border border-border rounded-3xl p-5 shadow-xl relative overflow-hidden group">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6 relative z-10">
-            <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
-              Active Party
-            </h2>
-            <div className="flex gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
-              <button onClick={() => navigate('/pokemon')} className="text-muted font-bold hover:text-foreground hover:underline text-sm flex items-center gap-1 transition-colors">
-                PC Box &rarr;
+        {/* Active Party Section */}
+        <div className="bg-surface border border-border rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-muted px-2 py-0.5 rounded-full bg-surface-raised border border-border inline-block mb-1">
+                Battle Formation
+              </span>
+              <h2 className="text-lg sm:text-xl font-black text-foreground">
+                Active Party
+              </h2>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <button
+                onClick={() => navigate('/pokemon')}
+                className="px-3 py-1.5 min-h-[36px] bg-surface-raised hover:bg-surface-raised/80 border border-border rounded-lg text-xs font-bold text-muted hover:text-foreground transition-all active:scale-[0.98] touch-manipulation select-none"
+              >
+                Pokémon Box
               </button>
-              <button onClick={() => navigate('/team')} className="text-foreground font-bold hover:underline text-sm flex items-center gap-1 transition-colors">
+              <button
+                onClick={() => navigate('/team')}
+                className="px-3.5 py-1.5 min-h-[36px] bg-primary hover:opacity-90 text-primary-foreground rounded-lg text-xs font-black transition-all shadow-xs active:scale-[0.98] touch-manipulation select-none"
+              >
                 Manage Team &rarr;
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 relative z-10 hide-scrollbar">
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {Array.from({ length: 6 }).map((_, i) => {
               const pkm = party.find((p: any) => p.position === i);
               return (
                 <div
                   key={i}
-                  className={`relative rounded-2xl p-4 border flex flex-col items-center text-center transition-all ${pkm ? 'border-border bg-surface/60 hover:border-border hover:shadow-lg' : 'border-dashed border-border bg-transparent opacity-40' }`}
+                  className={`relative rounded-xl p-3 border flex flex-col items-center text-center transition-all ${
+                    pkm
+                      ? 'border-border bg-surface-raised/60 hover:bg-surface-raised hover:shadow-xs hover:-translate-y-0.5'
+                      : 'border-dashed border-border/80 bg-surface-raised/20'
+                  }`}
                 >
                   {pkm ? (
                     <>
-                      <img
-                        src={getSpriteUrl(pkm.speciesId, pkm.species?.spriteUrl)}
-                        alt={pkm.species?.name}
-                        className="w-16 h-16 object-contain pixelated mb-2 drop-shadow-md hover:scale-110 transition-transform"
-                      />
-                      <h3 className="font-bold text-sm text-foreground capitalize truncate w-full">
+                      <div className="w-16 h-16 my-1 flex items-center justify-center">
+                        <img
+                          src={getSpriteUrl(pkm.speciesId, pkm.species?.spriteUrl)}
+                          alt={pkm.species?.name}
+                          className="w-full h-full object-contain pixelated drop-shadow-sm hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <h3 className="font-bold text-xs text-foreground capitalize truncate w-full mt-1">
                         {pkm.nickname || pkm.species?.name}
                       </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-bold text-muted bg-surface-raised border border-border px-1.5 py-0.5 rounded">
-                          Lv {pkm.level}
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-[10px] font-bold text-muted bg-surface border border-border px-1.5 py-0.5 rounded">
+                          Lv. {pkm.level}
                         </span>
                         {pkm.potential && (
-                          <span className="text-[10px] uppercase font-black text-foreground bg-surface-raised border border-border px-1.5 py-0.5 rounded">
+                          <span className="text-[9px] uppercase font-black text-foreground bg-surface border border-border px-1.5 py-0.5 rounded">
                             {pkm.potential.split('_')[0]}
                           </span>
                         )}
                       </div>
-                      <div className="mt-2 text-xs font-black text-foreground bg-surface px-2 py-1 rounded w-full border border-border truncate">
+                      <div className="mt-2 text-[10px] font-black text-muted font-mono bg-surface px-2 py-0.5 rounded-md w-full border border-border truncate">
                         CP {pkm.cp?.toLocaleString() || 0}
                       </div>
                     </>
                   ) : (
-                    <div className="w-16 h-16 border-2 border-border rounded-full flex items-center justify-center text-subtle font-black mb-2">
-                      ?
+                    <div className="h-28 flex flex-col items-center justify-center text-subtle font-black text-xs">
+                      <span className="w-8 h-8 rounded-full border border-dashed border-border flex items-center justify-center text-subtle mb-1">
+                        +
+                      </span>
+                      Slot {i + 1}
                     </div>
                   )}
                 </div>
@@ -140,110 +167,70 @@ export function Home() {
           </div>
         </div>
 
-        {/* Bottom Layout (Actions + Inventory) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        {/* Quick Navigation + Inventory Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* Actions (Left 2 Columns) */}
-          <div className="lg:col-span-2 grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            <button onClick={() => navigate('/explore')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Explore</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiMap className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/arena')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Battle Arena</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiTarget className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/tower')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Infinity Tower</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiLayers className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/rift')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Void Rifts</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiAperture className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/shop')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Poké Mart</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiShoppingCart className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/pokedex')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Pokédex</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiBookOpen className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/info')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Game Info</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiInfo className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
-
-            <button onClick={() => navigate('/marketplace')} className="bg-background border border-border rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0 group transition-all hover:-translate-y-1 hover:border-border hover:shadow-2xl text-center sm:text-left">
-              <div className="w-full">
-                <h3 className="text-sm sm:text-xl font-bold text-foreground truncate">Marketplace</h3>
-              </div>
-              <div className="bg-surface border border-border p-2 sm:p-3 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform">
-                <FiShoppingBag className="text-xl sm:text-2xl text-foreground" />
-              </div>
-            </button>
+          {/* Quick Action Tiles */}
+          <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { title: 'Explore', path: '/explore', icon: FiMap },
+              { title: 'Battle Arena', path: '/arena', icon: FiTarget },
+              { title: 'Infinity Tower', path: '/tower', icon: FiLayers },
+              { title: 'Void Rifts', path: '/rift', icon: FiAperture },
+              { title: 'Poké Mart', path: '/shop', icon: FiShoppingCart },
+              { title: 'Pokédex', path: '/pokedex', icon: FiBookOpen },
+              { title: 'Marketplace', path: '/marketplace', icon: FiShoppingBag },
+              { title: 'Game Info', path: '/info', icon: FiInfo },
+            ].map((action) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.path}
+                  onClick={() => navigate(action.path)}
+                  className="bg-surface border border-border rounded-2xl p-4 shadow-xs flex flex-col items-start justify-between min-h-[96px] group transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] text-left touch-manipulation select-none"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-surface-raised border border-border flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Icon className="w-4 h-4 text-foreground" />
+                  </div>
+                  <h3 className="text-sm font-black text-foreground truncate w-full mt-3">{action.title}</h3>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Inventory Stats (Right Column) */}
+          {/* Inventory Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-background border border-border rounded-3xl p-5 shadow-xl flex flex-col justify-between h-full">
+            <div className="bg-surface border border-border rounded-2xl p-5 shadow-xs flex flex-col justify-between h-full space-y-4">
               <div>
-                <h2 className="text-xl font-black text-foreground mb-3 flex items-center gap-2">
-                  <FiBox className="text-foreground" /> Inventory Stats
+                <span className="text-[10px] font-black uppercase tracking-wider text-muted px-2 py-0.5 rounded-full bg-surface-raised border border-border inline-block mb-1">
+                  Storage
+                </span>
+                <h2 className="text-base font-black text-foreground flex items-center gap-2">
+                  <FiBox className="text-muted w-4 h-4" /> Trainer Bag
                 </h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-surface/80 border border-border/80 rounded-xl">
-                    <span className="font-bold text-muted text-sm">Total Items</span>
-                    <span className="font-black text-foreground">
+                
+                <div className="grid grid-cols-2 gap-2.5 mt-3">
+                  <div className="p-3 bg-surface-raised border border-border rounded-xl">
+                    <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">Total Items</span>
+                    <span className="text-lg font-black text-foreground font-mono mt-0.5 block">
                       {save.inventory?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-surface/80 border border-border/80 rounded-xl">
-                    <span className="font-bold text-muted text-sm">Unique Items</span>
-                    <span className="font-black text-foreground">
+                  <div className="p-3 bg-surface-raised border border-border rounded-xl">
+                    <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">Unique Types</span>
+                    <span className="text-lg font-black text-foreground font-mono mt-0.5 block">
                       {save.inventory?.length || 0}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4">
-                <button onClick={() => navigate('/inventory')} className="w-full py-2.5 bg-surface hover:bg-surface-raised border border-border text-foreground font-bold rounded-xl transition-colors text-sm flex justify-center items-center gap-2">
-                  <FiBox /> Open Inventory
+              <div>
+                <button
+                  onClick={() => navigate('/inventory')}
+                  className="w-full py-2.5 px-4 bg-surface-raised hover:bg-surface-raised/80 border border-border text-foreground font-bold rounded-xl transition-all active:scale-[0.98] text-xs flex justify-center items-center gap-2 min-h-[44px] touch-manipulation select-none"
+                >
+                  <FiBox className="w-4 h-4 text-muted" /> Open Bag
                 </button>
               </div>
             </div>

@@ -27,9 +27,9 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border pb-safe lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-lg border-t border-border pb-safe lg:hidden shadow-lg"
     >
-      <div className="grid grid-cols-5 h-14 items-center">
+      <div className="grid grid-cols-5 h-14 items-center px-1">
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
           const isActive = location.pathname.startsWith(to);
           return (
@@ -45,13 +45,13 @@ export function BottomNav() {
             >
               <div
                 className={cn(
-                  'flex items-center justify-center w-8 h-7 rounded-xl transition-colors',
-                  isActive && 'bg-surface-raised'
+                  'flex items-center justify-center w-9 h-7 rounded-full transition-all duration-200',
+                  isActive ? 'bg-surface-raised border border-border shadow-xs' : 'bg-transparent'
                 )}
               >
-                <Icon className={cn('w-4 h-4', isActive ? 'text-foreground' : 'text-muted')} />
+                <Icon className={cn('w-4 h-4 transition-transform duration-200', isActive ? 'text-foreground scale-110' : 'text-muted')} />
               </div>
-              <span className="truncate max-w-[56px] mt-0.5">{label}</span>
+              <span className="truncate max-w-[56px] mt-0.5 tracking-tight">{label}</span>
             </Link>
           );
         })}

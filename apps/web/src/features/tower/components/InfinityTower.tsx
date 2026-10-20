@@ -117,72 +117,68 @@ export const InfinityTowerPage: React.FC = () => {
             </div>
             {!isConquered && data?.floorCp && (
               <div className="mt-3">
-                <span className="text-sm font-bold text-subtle bg-primary/50 px-3 py-1 rounded-full border border-border">
-                  Floor CP: {data.floorCp.toLocaleString()}
+                <span className="text-xs font-bold text-muted bg-surface-raised px-3 py-1 rounded-full border border-border">
+                  Floor CP: <strong className="text-foreground">{data.floorCp.toLocaleString()}</strong>
                 </span>
               </div>
             )}
           </div>
 
           {isConquered ? (
-            <div className="w-full flex-1 bg-surface border border-border/50 rounded-3xl p-8 sm:p-12 shadow-sm flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 bg-surface-raised rounded-full flex items-center justify-center mb-4 border border-border">
-                <Mountain className="w-10 h-10 text-foreground" />
+            <div className="w-full flex-1 bg-surface border border-border rounded-2xl p-8 sm:p-12 shadow-xs flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 bg-surface-raised rounded-2xl flex items-center justify-center mb-4 border border-border">
+                <Mountain className="w-8 h-8 text-foreground" />
               </div>
-              <h3 className="text-2xl font-black text-foreground mb-2">
+              <h3 className="text-2xl font-black text-foreground mb-1">
                 Infinity Tower Conquered!
               </h3>
-              <p className="text-muted max-w-md">
+              <p className="text-xs sm:text-sm text-muted max-w-md">
                 You have scaled the highest peak of the Infinity Tower and cleared all 1000 floors.
               </p>
             </div>
           ) : activeEncounter ? (
-            <div className="w-full flex-1 bg-surface border border-border rounded-3xl p-4 sm:p-8 shadow-sm relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
-              {/* Decorative background element */}
-              <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-surface to-transparent pointer-events-none"></div>
-
-              <div className="relative flex flex-col items-center w-full max-w-screen-2xl mx-auto">
-                <div className="flex flex-wrap justify-center gap-8 sm:gap-12 mb-8 w-full">
+            <div className="w-full flex-1 bg-surface border border-border rounded-2xl p-5 sm:p-8 shadow-xs relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
+              <div className="relative flex flex-col items-center w-full max-w-2xl mx-auto space-y-6">
+                <div className="flex flex-wrap justify-center gap-6 sm:gap-8 w-full">
                   {(activeEncounter.enemyTeam as OwnedPokemonDto[]).map((pokemon: OwnedPokemonDto, index: number) => (
                     <div key={index} className="group flex flex-col items-center">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-surface-raised rounded-2xl flex items-center justify-center mb-3 border border-border shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-border relative overflow-hidden">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-surface-raised rounded-2xl flex items-center justify-center mb-2.5 border border-border shadow-xs transition-all duration-200 group-hover:scale-105 group-hover:shadow-md relative overflow-hidden">
                         <img
                           src={`https://res.cloudinary.com/d0baluu2/image/upload/astranox/pokemon/${pokemon.species?.id}.png`}
                           alt={pokemon.species?.name}
-                          className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-110"
+                          className="w-14 h-14 sm:w-16 sm:h-16 object-contain pixelated"
                         />
                       </div>
-                      <span className="text-sm font-black text-foreground capitalize text-center leading-tight max-w-[100px] sm:max-w-[120px] break-words">
+                      <span className="text-xs sm:text-sm font-black text-foreground capitalize text-center leading-tight max-w-[100px] sm:max-w-[120px] break-words">
                         {pokemon.species?.name}
                       </span>
-                      <span className="text-xs font-bold text-subtle">Lv. {pokemon.level}</span>
+                      <span className="text-[10px] font-bold text-muted">Lv. {pokemon.level}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 bg-surface border border-border rounded-2xl p-4 mb-8 max-w-3xl mx-auto shadow-inner">
-                  
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 bg-surface-raised border border-border rounded-xl p-3.5 max-w-xl mx-auto">
                   {/* Coins */}
-                  <div className="flex items-center gap-4 justify-center">
-                    <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center shadow-sm border border-border shrink-0">
-                      <img src="/infinity.webp" alt="Infinity Coins" className="w-7 h-7 object-contain drop-shadow-sm" />
+                  <div className="flex items-center gap-3 justify-center">
+                    <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center shadow-xs border border-border shrink-0">
+                      <img src="/infinity.webp" alt="Infinity Coins" className="w-6 h-6 object-contain" />
                     </div>
                     <div className="flex flex-col text-left">
-                      <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-0.5">Coins</span>
-                      <span className="text-xl font-black text-foreground leading-none">
+                      <span className="text-[10px] font-black text-muted uppercase tracking-wider">Coins</span>
+                      <span className="text-base sm:text-lg font-black text-foreground leading-none">
                         +{(activeEncounter.reward as { infinityCoins?: number })?.infinityCoins || 0}
                       </span>
                     </div>
                   </div>
 
                   {/* XP */}
-                  <div className="flex items-center gap-4 justify-center sm:border-l border-border py-4 sm:py-0">
-                    <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center shadow-sm border border-border shrink-0">
-                      <img src="/xp.webp" alt="Stored XP" className="w-7 h-7 object-contain drop-shadow-sm" />
+                  <div className="flex items-center gap-3 justify-center sm:border-l border-border py-2 sm:py-0">
+                    <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center shadow-xs border border-border shrink-0">
+                      <img src="/xp.webp" alt="Stored XP" className="w-6 h-6 object-contain" />
                     </div>
                     <div className="flex flex-col text-left">
-                      <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-0.5">Stored XP</span>
-                      <span className="text-xl font-black text-foreground leading-none">
+                      <span className="text-[10px] font-black text-muted uppercase tracking-wider">Stored XP</span>
+                      <span className="text-base sm:text-lg font-black text-foreground leading-none">
                         +{(activeEncounter.reward as { storedXp?: number })?.storedXp || 0}
                       </span>
                     </div>
@@ -193,27 +189,27 @@ export const InfinityTowerPage: React.FC = () => {
                   <button
                     onClick={handleSkipFloors}
                     disabled={skipFloors.isPending}
-                    className="w-full sm:w-auto bg-surface-raised hover:bg-surface-raised text-foreground font-black py-5 px-16 rounded-2xl transition-all shadow-xl shadow-glow disabled:opacity-50 disabled:shadow-none active:scale-[0.98] flex items-center justify-center gap-3 text-xl"
+                    className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3.5 px-10 rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation select-none"
                   >
-                    {skipFloors.isPending ? <Loader2 className="w-7 h-7 animate-spin" /> : <FastForward className="w-7 h-7" />}
+                    {skipFloors.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <FastForward className="w-5 h-5" />}
                     {skipFloors.isPending ? 'Skipping...' : 'Skip Floors'}
                   </button>
                 ) : (
                   <button
                     onClick={handleStartBattle}
                     disabled={startBattle.isPending}
-                    className="w-full sm:w-auto bg-surface-raised hover:bg-surface-raised text-foreground font-black py-5 px-16 rounded-2xl transition-all shadow-xl shadow-glow disabled:opacity-50 disabled:shadow-none active:scale-[0.98] flex items-center justify-center gap-3 text-xl"
+                    className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3.5 px-10 rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation select-none"
                   >
-                    {startBattle.isPending ? <Loader2 className="w-7 h-7 animate-spin" /> : <Swords className="w-7 h-7" />}
+                    {startBattle.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
                     {startBattle.isPending ? 'Preparing...' : 'Start Battle'}
                   </button>
                 )}
               </div>
             </div>
           ) : (
-            <div className="w-full bg-surface border border-border rounded-3xl p-8 flex flex-col items-center shadow-sm">
-              <Loader2 className="w-12 h-12 text-foreground animate-spin mb-4" />
-              <p className="text-subtle font-medium">Generating Enemy...</p>
+            <div className="w-full bg-surface border border-border rounded-2xl p-8 flex flex-col items-center shadow-xs">
+              <Loader2 className="w-10 h-10 text-foreground animate-spin mb-3" />
+              <p className="text-muted text-sm font-medium">Generating Enemy...</p>
             </div>
           )}
         </div>

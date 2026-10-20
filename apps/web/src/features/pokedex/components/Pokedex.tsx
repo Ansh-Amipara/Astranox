@@ -132,47 +132,55 @@ export const PokedexPage: React.FC = () => {
   return (
     <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full mx-auto space-y-4 md:space-y-6">
-        {/* Row 1: Pokedex and Total */}
-        <div className="flex flex-row items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold text-foreground flex items-center whitespace-nowrap">
-            National Pokédex
-          </h1>
-          <div className="bg-surface border border-border px-4 py-2 rounded-lg font-bold text-foreground shadow-sm flex items-center justify-center gap-2 h-10 whitespace-nowrap">
-            Total: <span className="text-foreground font-black">{totalItems}</span>
+        
+        {/* Header & Total Species Badge */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                National Pokédex
+              </h1>
+              {totalItems > 0 && (
+                <span className="bg-surface-raised border border-border px-2.5 py-0.5 rounded-full text-xs font-bold text-muted shadow-xs">
+                  {totalItems.toLocaleString()} species
+                </span>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              Explore base stats, types, and competitive ranks across all generations.
+            </p>
           </div>
         </div>
 
-        {/* Row 2: Search and Filters */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 border-b border-border pb-4 gap-4">
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Dropdown
-              value={selectedType}
-              onChange={setSelectedType}
-              options={typeOptions}
-              placeholder="All Types"
-              className="w-full"
-              dropdownClassName="w-full sm:w-64 max-h-80"
-              optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
-            />
+        {/* Filters */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Dropdown
+            value={selectedType}
+            onChange={setSelectedType}
+            options={typeOptions}
+            placeholder="All Types"
+            className="w-full"
+            dropdownClassName="w-full sm:w-64 max-h-80"
+            optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
+          />
 
-            <Dropdown
-              value={selectedRank}
-              onChange={setSelectedRank}
-              options={[
-                { value: 'all', label: 'All Ranks' },
-                { value: 'EX', label: 'Rank EX' },
-                { value: 'SSS', label: 'Rank SSS' },
-                { value: 'SS', label: 'Rank SS' },
-                { value: 'S', label: 'Rank S' },
-                { value: 'A', label: 'Rank A' },
-                { value: 'B', label: 'Rank B' },
-                { value: 'C', label: 'Rank C' },
-              ]}
-              placeholder="All Ranks"
-              className="w-full"
-              dropdownClassName="w-full max-h-80"
-            />
-          </div>
+          <Dropdown
+            value={selectedRank}
+            onChange={setSelectedRank}
+            options={[
+              { value: 'all', label: 'All Ranks' },
+              { value: 'EX', label: 'Rank EX' },
+              { value: 'SSS', label: 'Rank SSS' },
+              { value: 'SS', label: 'Rank SS' },
+              { value: 'S', label: 'Rank S' },
+              { value: 'A', label: 'Rank A' },
+              { value: 'B', label: 'Rank B' },
+              { value: 'C', label: 'Rank C' },
+            ]}
+            placeholder="All Ranks"
+            className="w-full"
+            dropdownClassName="w-full max-h-80"
+          />
         </div>
 
         {allSpecies.length === 0 ? (
@@ -187,23 +195,23 @@ export const PokedexPage: React.FC = () => {
                   setSelectedRank('all');
                   setSearchQuery('');
                 }}
-                className="px-4 py-2 text-xs font-semibold rounded-lg bg-surface-raised hover:bg-surface border border-border text-foreground transition-colors"
+                className="min-h-[44px] px-4 py-2 text-xs font-bold rounded-xl bg-surface-raised hover:bg-surface border border-border text-foreground shadow-xs transition-all active:scale-[0.98] touch-manipulation"
               >
                 Reset Filters
               </button>
             }
           />
         ) : (
-          <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-xs">
             <div className="w-full lg:overflow-x-auto custom-scrollbar">
               <div className="w-full lg:min-w-[900px]">
-                <div className="hidden lg:grid bg-surface border-b border-border z-10 sticky top-0 grid-cols-[80px_1fr_100px_240px_340px_120px]">
-                  <div className="px-6 py-4 text-xs font-black text-muted uppercase tracking-widest">#</div>
-                  <div className="px-6 py-4 text-xs font-black text-muted uppercase tracking-widest">Pokémon</div>
-                  <div className="px-6 py-4 text-xs font-black text-muted uppercase tracking-widest">Rank</div>
-                  <div className="px-6 py-4 text-xs font-black text-muted uppercase tracking-widest">Type</div>
-                  <div className="px-6 py-4 text-xs font-black text-muted uppercase tracking-widest">Base Stats</div>
-                  <div className="px-6 py-4 text-xs font-black text-muted uppercase tracking-widest">Total</div>
+                <div className="hidden lg:grid bg-surface-raised/70 border-b border-border z-10 sticky top-0 grid-cols-[80px_1fr_100px_240px_340px_120px]">
+                  <div className="px-6 py-3.5 text-xs font-black text-muted uppercase tracking-wider">#</div>
+                  <div className="px-6 py-3.5 text-xs font-black text-muted uppercase tracking-wider">Pokémon</div>
+                  <div className="px-6 py-3.5 text-xs font-black text-muted uppercase tracking-wider">Rank</div>
+                  <div className="px-6 py-3.5 text-xs font-black text-muted uppercase tracking-wider">Type</div>
+                  <div className="px-6 py-3.5 text-xs font-black text-muted uppercase tracking-wider">Base Stats</div>
+                  <div className="px-6 py-3.5 text-xs font-black text-muted uppercase tracking-wider">Total</div>
                 </div>
 
                 <div ref={listRef} style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>

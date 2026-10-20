@@ -92,109 +92,129 @@ export const RiftPage: React.FC = () => {
   if (!state.currentRunStartedAt) {
     return (
       <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 flex flex-col items-start w-full">
-        <h1 className="text-2xl sm:text-4xl font-black text-foreground mb-4 sm:mb-6 flex gap-3">
-          Void Rifts
-        </h1>
-        <div className="w-full bg-surface border border-border rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col">
-          {step === 'MAJOR_RANK' ? (
-            <div className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 w-full">
-              <h2 className="text-xs sm:text-sm font-black text-muted uppercase tracking-widest mb-4 text-left">Select Major Rank</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full pb-2">
-                {MAJOR_RANKS.map((r) => {
-                  const requiredIndex = RANKS.indexOf(`${r}_MINUS`);
-                  const locked = requiredIndex > playerRankWeight;
-                  return (
-                    <button
-                      key={r}
-                      disabled={locked}
-                      onClick={() => { 
-                        setSelectedMajorRank(r); 
-                        setSelectedSubRank(r); // default to standard
-                        setStep('DETAILS'); 
-                      }}
-                      className={`p-3 sm:p-4 min-h-[48px] rounded-xl text-base sm:text-lg font-black border transition-all flex items-center justify-center ${locked ? 'bg-surface-raised border-border text-muted opacity-50 cursor-not-allowed' : 'bg-surface border-border text-muted hover:border-border hover:shadow-md hover:-translate-y-0.5' }`}
-                    >
-                      {r} Rank
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col animate-in fade-in slide-in-from-right-8 duration-300 relative w-full">
-              <button
-                onClick={() => setStep('MAJOR_RANK')}
-                className="absolute -top-2 -left-2 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-subtle transition-colors"
-                title="Back to Ranks"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
+        <div className="w-full max-w-5xl mx-auto space-y-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              Void Rifts
+            </h1>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">Enter high-stakes void anomalies for rare rewards and ranked encounters</p>
+          </div>
 
-              <div className="text-center mb-6">
-                <h2 className="text-xs sm:text-sm font-black text-muted uppercase tracking-widest mb-1">Configuration</h2>
-                <span className="inline-block px-4 py-1 bg-surface-raised text-foreground font-black rounded-lg border border-border/50 text-sm">
-                  {selectedMajorRank} Rank
-                </span>
+          <div className="w-full bg-surface border border-border rounded-2xl p-5 sm:p-8 shadow-xs flex flex-col">
+            {step === 'MAJOR_RANK' ? (
+              <div className="flex flex-col animate-in fade-in duration-200 w-full space-y-4">
+                <h2 className="text-xs sm:text-sm font-black text-muted uppercase tracking-wider text-left">
+                  Select Challenge Rank
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full">
+                  {MAJOR_RANKS.map((r) => {
+                    const requiredIndex = RANKS.indexOf(`${r}_MINUS`);
+                    const locked = requiredIndex > playerRankWeight;
+                    return (
+                      <button
+                        key={r}
+                        disabled={locked}
+                        onClick={() => { 
+                          setSelectedMajorRank(r); 
+                          setSelectedSubRank(r);
+                          setStep('DETAILS'); 
+                        }}
+                        className={`p-3.5 sm:p-4 min-h-[48px] rounded-xl text-sm sm:text-base font-black border transition-all duration-200 flex items-center justify-center touch-manipulation select-none active:scale-[0.98] ${
+                          locked
+                            ? 'bg-surface-raised border-border text-muted opacity-40 cursor-not-allowed'
+                            : 'bg-surface border-border text-foreground hover:bg-surface-raised hover:shadow-xs hover:-translate-y-0.5'
+                        }`}
+                      >
+                        {r} Rank
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+            ) : (
+              <div className="flex flex-col animate-in fade-in duration-200 relative w-full space-y-6">
+                <button
+                  onClick={() => setStep('MAJOR_RANK')}
+                  className="self-start -ml-2 p-2 min-h-[44px] flex items-center gap-1.5 text-xs font-bold text-muted hover:text-foreground transition-colors touch-manipulation select-none"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back to Ranks
+                </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 w-full max-w-4xl mx-auto">
-                {!['F', 'E', 'D', 'C', 'B', 'A', 'EX'].includes(selectedMajorRank) && (
-                  <div className="flex flex-col">
-                    <h3 className="text-xs sm:text-sm font-bold text-subtle uppercase tracking-wider mb-3">Sub-Rank</h3>
-                    <div className="flex gap-2">
-                      {[
-                        { id: `${selectedMajorRank}_MINUS`, label: '-' },
-                        { id: selectedMajorRank, label: 'Standard' },
-                        { id: `${selectedMajorRank}_PLUS`, label: '+' }
-                      ].map(sub => {
-                        const locked = RANKS.indexOf(sub.id) > playerRankWeight;
-                        const isSelected = selectedSubRank === sub.id;
+                <div className="text-center">
+                  <span className="inline-block px-3 py-1 bg-surface-raised text-foreground font-black rounded-full border border-border text-xs uppercase tracking-wider">
+                    {selectedMajorRank} Rank Selected
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mx-auto">
+                  {!['F', 'E', 'D', 'C', 'B', 'A', 'EX'].includes(selectedMajorRank) && (
+                    <div className="flex flex-col space-y-2">
+                      <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Sub-Rank</h3>
+                      <div className="flex gap-2">
+                        {[
+                          { id: `${selectedMajorRank}_MINUS`, label: '-' },
+                          { id: selectedMajorRank, label: 'Standard' },
+                          { id: `${selectedMajorRank}_PLUS`, label: '+' }
+                        ].map(sub => {
+                          const locked = RANKS.indexOf(sub.id) > playerRankWeight;
+                          const isSelected = selectedSubRank === sub.id;
+                          return (
+                            <button
+                              key={sub.id}
+                              disabled={locked}
+                              onClick={() => setSelectedSubRank(sub.id)}
+                              className={`flex-1 p-3 min-h-[44px] rounded-xl border font-black text-xs sm:text-sm transition-all touch-manipulation select-none active:scale-[0.98] ${
+                                locked
+                                  ? 'opacity-40 cursor-not-allowed bg-surface-raised text-muted border-border'
+                                  : isSelected
+                                  ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                                  : 'bg-surface text-muted border-border hover:bg-surface-raised'
+                              }`}
+                            >
+                              {sub.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col space-y-2">
+                    <h3 className="text-xs font-bold text-muted uppercase tracking-wider">Difficulty</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {DIFFICULTIES.map(d => {
+                        const isSelected = selectedDifficulty === d;
                         return (
                           <button
-                            key={sub.id}
-                            disabled={locked}
-                            onClick={() => setSelectedSubRank(sub.id)}
-                            className={`flex-1 p-3 min-h-[44px] rounded-lg border font-bold transition-colors ${ locked ? 'opacity-50 cursor-not-allowed bg-surface-raised text-muted border-border' : isSelected ? 'bg-surface-raised text-foreground border-border' : 'bg-surface text-muted border-border hover:border-border' }`}
+                            key={d}
+                            onClick={() => setSelectedDifficulty(d)}
+                            className={`p-3 min-h-[44px] rounded-xl border font-black text-xs transition-all touch-manipulation select-none active:scale-[0.98] ${
+                              isSelected
+                                ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                                : 'bg-surface text-muted border-border hover:bg-surface-raised'
+                            }`}
                           >
-                            {sub.label}
+                            {d}
                           </button>
                         );
                       })}
                     </div>
                   </div>
-                )}
+                </div>
 
-                <div className="flex flex-col">
-                  <h3 className="text-xs sm:text-sm font-bold text-subtle uppercase tracking-wider mb-3">Difficulty</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {DIFFICULTIES.map(d => {
-                      const isSelected = selectedDifficulty === d;
-                      return (
-                        <button
-                          key={d}
-                          onClick={() => setSelectedDifficulty(d)}
-                          className={`p-3 min-h-[44px] rounded-lg border font-bold text-xs sm:text-sm transition-colors ${ isSelected ? 'bg-surface-raised text-foreground border-border' : 'bg-surface text-muted border-border hover:border-border' }`}
-                        >
-                          {d}
-                        </button>
-                      );
-                    })}
-                  </div>
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={handleStart}
+                    disabled={startRun.isPending}
+                    className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3 px-10 min-h-[44px] rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 touch-manipulation select-none"
+                  >
+                    {startRun.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
+                    Enter Rift!
+                  </button>
                 </div>
               </div>
-
-              <div className="mt-6 sm:mt-8 flex justify-center">
-                <button
-                  onClick={handleStart}
-                  disabled={startRun.isPending}
-                  className="w-full sm:w-auto bg-surface-raised hover:bg-surface-raised text-foreground font-black py-4 px-8 sm:px-12 min-h-[44px] rounded-xl transition-all shadow-lg shadow-glow active:scale-95 flex items-center justify-center gap-3 text-lg disabled:opacity-50"
-                >
-                  {startRun.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Swords className="w-6 h-6" />}
-                  FIGHT!
-                </button>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     );
@@ -203,36 +223,42 @@ export const RiftPage: React.FC = () => {
   // Active Run View
   return (
     <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 flex flex-col items-start w-full">
-      <div className="w-full bg-surface border border-border/30 rounded-3xl p-4 sm:p-8 shadow-2xl shadow-glow relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-3 sm:p-4">
-          <button onClick={handleAbandon} className="text-muted hover:text-foreground transition-colors p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-surface-raised rounded-full">
+      <div className="w-full max-w-3xl mx-auto bg-surface border border-border rounded-2xl p-6 sm:p-10 shadow-xs relative overflow-hidden text-center space-y-6">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+          <button
+            onClick={handleAbandon}
+            title="Abandon Run"
+            className="text-muted hover:text-danger transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-surface-raised rounded-full border border-border touch-manipulation select-none"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="text-center mb-6 sm:mb-10 mt-6 sm:mt-0">
-          <h2 className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest mb-2">Active Rift</h2>
-          <h1 className="text-2xl sm:text-4xl font-black text-foreground mb-2">
+        <div className="space-y-2 mt-2">
+          <span className="text-xs font-black text-muted uppercase tracking-wider px-3 py-1 bg-surface-raised border border-border rounded-full">
+            Active Rift Anomaly
+          </span>
+          <h1 className="text-2xl sm:text-4xl font-black text-foreground">
             {formatRankName(state.rank)} Tier
           </h1>
           <div className="flex items-center justify-center gap-2">
-            <span className="px-3 py-1 bg-surface-raised text-foreground text-xs font-bold rounded-full border border-border/50">
+            <span className="px-3 py-0.5 bg-surface-raised text-foreground text-xs font-bold rounded-full border border-border">
               {state.difficulty}
             </span>
-            <span className="px-3 py-1 bg-surface-raised text-muted text-xs font-bold rounded-full">
+            <span className="px-3 py-0.5 bg-surface-raised text-muted text-xs font-bold rounded-full border border-border">
               Floor {state.currentFloor}
             </span>
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center pt-2">
           <button
             onClick={handleGenerate}
             disabled={generateEncounter.isPending}
-            className="w-full sm:w-auto bg-surface-raised hover:bg-surface-raised text-foreground font-black py-4 sm:py-5 px-6 sm:px-16 min-h-[44px] rounded-2xl transition-all shadow-xl shadow-glow active:scale-95 flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-xl"
+            className="w-full sm:w-auto bg-primary text-primary-foreground font-black py-3.5 px-10 min-h-[44px] rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation select-none"
           >
-            {generateEncounter.isPending ? <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 animate-spin" /> : <Swords className="w-6 h-6 sm:w-7 sm:h-7" />}
-            {generateEncounter.isPending ? 'Generating...' : `Proceed to Floor ${state.currentFloor}`}
+            {generateEncounter.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Swords className="w-5 h-5" />}
+            {generateEncounter.isPending ? 'Generating Encounter...' : `Proceed to Floor ${state.currentFloor}`}
           </button>
         </div>
       </div>

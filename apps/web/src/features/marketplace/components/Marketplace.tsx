@@ -201,14 +201,33 @@ export function MarketplacePage() {
       }
 
       return (
-        <div className="space-y-4 mt-6">
+        <div className="space-y-3 sm:space-y-4 mt-6">
           {offers.map((offer: TradeOfferDto & { listing: TradeListingDto }) => (
-            <div key={offer.id} className="bg-surface p-4 rounded-xl shadow-sm border border-border flex justify-between items-center cursor-pointer hover:border-border transition-colors" onClick={() => navigate(`/marketplace/${offer.listingId}`)}>
-              <div>
-                <p className="font-bold text-foreground">Offer on {offer.listing.pokemon.species.name}</p>
-                <p className="text-sm text-subtle">Status: <span className="font-bold uppercase">{offer.status}</span></p>
-                <p className="text-sm text-subtle">You offered {offer.offeredPokemon.length} Pokémon</p>
+            <div
+              key={offer.id}
+              className="group bg-surface p-4 sm:p-5 rounded-2xl border border-border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 cursor-pointer"
+              onClick={() => navigate(`/marketplace/${offer.listingId}`)}
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-black text-foreground capitalize text-base">
+                    Offer on {offer.listing.pokemon.species.name}
+                  </p>
+                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                    offer.status === 'ACCEPTED'
+                      ? 'bg-success/10 text-success border-success/20'
+                      : offer.status === 'REJECTED'
+                      ? 'bg-danger/10 text-danger border-danger/20'
+                      : 'bg-surface-raised text-muted border-border'
+                  }`}>
+                    {offer.status}
+                  </span>
+                </div>
+                <p className="text-xs text-muted">
+                  Offered <strong className="text-foreground">{offer.offeredPokemon.length}</strong> Pokémon in exchange
+                </p>
               </div>
+
               {offer.status === 'PENDING' && (
                 <button
                   onClick={(e) => {
@@ -216,7 +235,7 @@ export function MarketplacePage() {
                     cancelOfferMutation.mutate(offer.id);
                   }}
                   disabled={cancelOfferMutation.isPending}
-                  className="px-4 py-2 min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center shrink-0"
+                  className="px-4 py-2 min-h-[44px] bg-surface-raised hover:bg-surface-raised/80 active:scale-[0.98] text-foreground text-xs font-bold rounded-xl border border-border transition-all disabled:opacity-50 flex items-center justify-center shrink-0 touch-manipulation select-none"
                 >
                   Cancel Offer
                 </button>
@@ -230,30 +249,38 @@ export function MarketplacePage() {
 
   return (
     <div className="flex-1 bg-background p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)]">
-      <div className="w-full mx-auto">
-        <div className="flex flex-row justify-between items-center mb-6 sm:mb-8 gap-2 md:gap-4">
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-black text-foreground flex items-center gap-2 truncate">
+      <div className="w-full max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-row justify-between items-center gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight flex items-center gap-2 truncate">
               Trade Exchange
             </h1>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              Browse global listings and offer peer-to-peer trades
+            </p>
           </div>
 
           <button
             onClick={() => navigate('/marketplace/create')}
-            className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 min-h-[44px] bg-surface-raised hover:bg-surface-raised text-foreground font-bold rounded-lg transition-colors shrink-0 text-sm md:text-base"
+            className="flex items-center gap-1.5 md:gap-2 px-3.5 md:px-4 py-2 min-h-[44px] bg-primary text-primary-foreground font-bold rounded-xl transition-all shadow-xs hover:opacity-90 active:scale-[0.98] shrink-0 text-xs sm:text-sm touch-manipulation select-none"
           >
-            <Plus className="w-4 h-4 md:w-5 md:h-5" /> 
+            <Plus className="w-4 h-4 md:w-4.5 md:h-4.5" />
             <span className="hidden sm:inline">Create Listing</span>
             <span className="inline sm:hidden">Create</span>
           </button>
         </div>
 
-        <div className="flex space-x-1 bg-surface-raised p-1 rounded-xl w-full mb-6">
+        {/* Pill segmented tabs */}
+        <div className="flex space-x-1 bg-surface-raised/80 p-1 rounded-2xl border border-border/80 shadow-xs w-full max-w-md">
           {(['browse', 'my-listings', 'my-offers'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-2 md:px-6 py-2.5 min-h-[44px] rounded-lg text-xs sm:text-sm font-bold capitalize transition-all flex items-center justify-center ${activeTab === tab ? 'bg-surface text-foreground shadow-sm' : 'text-subtle hover:text-subtle ' }`}
+              className={`flex-1 px-3 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-bold capitalize transition-all flex items-center justify-center touch-manipulation select-none ${
+                activeTab === tab
+                  ? 'bg-surface text-foreground shadow-xs font-black'
+                  : 'text-muted hover:text-foreground'
+              }`}
             >
               {tab.replace('-', ' ')}
             </button>

@@ -26,28 +26,32 @@ export const LOCATIONS = [
 
 export function ExplorePage() {
   return (
-    <div className="flex-1 bg-background text-foreground p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
-      <div className="w-full mx-auto space-y-4 md:space-y-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-black text-foreground mb-2">
-            Explore
+    <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-4rem)] transition-colors duration-200 flex flex-col justify-start">
+      <div className="w-full max-w-7xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+            Explore Regions
           </h1>
-          <p className="text-subtle">Select a region to encounter wild Pokémon.</p>
+          <p className="text-xs sm:text-sm text-muted mt-0.5">Select an elemental zone to encounter and battle wild Pokémon.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {LOCATIONS.map(loc => {
             const typeName = loc.replace('_REGION', '').toLowerCase();
             return (
-              <Link key={loc} to={`/explore/${loc}`} className="bg-surface rounded-2xl shadow-sm border border-border p-5 flex flex-col items-center hover:border-ink-blue/50 hover:shadow-ink-blue/10 transition-all group touch-manipulation">
-                <div className="w-full h-24 mb-4 rounded-xl overflow-hidden bg-surface-raised flex items-center justify-center">
-                  <img src={getTypeSpriteUrl(typeName, true)} alt={loc} className="w-16 h-16 object-contain group-hover:scale-110 transition-transform duration-300" />
+              <Link
+                key={loc}
+                to={`/explore/${loc}`}
+                className="group bg-surface rounded-2xl shadow-xs border border-border p-4 sm:p-5 flex flex-col items-center hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 select-none touch-manipulation"
+              >
+                <div className="w-full h-24 mb-4 rounded-xl bg-surface-raised flex items-center justify-center border border-border/50 group-hover:scale-105 transition-transform duration-200">
+                  <img src={getTypeSpriteUrl(typeName, true)} alt={loc} className="h-8 w-auto object-contain drop-shadow-xs" />
                 </div>
-                <h3 className="text-xl font-black text-foreground text-center mb-4 capitalize group-hover:text-ink-blue transition-colors">
+                <h3 className="text-base sm:text-lg font-black text-foreground text-center mb-3 capitalize">
                   {typeName} Region
                 </h3>
 
-                <div className="w-full min-h-[44px] py-3 bg-surface text-foreground font-black rounded-xl group-hover:bg-ink-blue group-hover:text-foreground transition-colors flex items-center justify-center gap-2">
+                <div className="w-full min-h-[44px] py-2.5 bg-surface-raised group-hover:bg-primary text-foreground group-hover:text-primary-foreground font-black text-xs uppercase tracking-wider rounded-xl transition-all border border-border/80 flex items-center justify-center gap-2">
                   Enter Region
                 </div>
               </Link>

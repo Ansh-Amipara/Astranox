@@ -54,41 +54,44 @@ export function TradeListingCard({ listing, onClick }: TradeListingCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`relative bg-surface rounded-2xl p-5 border shadow-sm transition-all cursor-pointer group ${ isExpired || listing.status !== 'OPEN' ? 'border-border opacity-75' : 'border-border hover:border-border hover:shadow-glow' }`}
+      className={`group relative bg-surface rounded-2xl p-5 border shadow-xs transition-all duration-200 ease-out cursor-pointer ${ isExpired || listing.status !== 'OPEN' ? 'border-border opacity-70' : 'border-border hover:border-border hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]' }`}
     >
       {/* Header tags */}
-      <div className="flex justify-between items-start mb-4">
-        <span className="text-xs font-black px-2 py-1 bg-surface-raised rounded-md text-subtle uppercase tracking-wider">
+      <div className="flex justify-between items-start mb-3">
+        <span className="text-[11px] font-black px-2.5 py-0.5 bg-surface-raised border border-border rounded-full text-foreground uppercase tracking-wider shadow-xs">
           Lv. {pokemon.level}
         </span>
-        <span className={`text-xs font-bold px-2 py-1 rounded-md ${ listing.status === 'OPEN' ? 'bg-surface-raised text-foreground text-muted' : 'bg-surface-raised text-subtle text-muted' }`}>
+        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-border shadow-xs ${ listing.status === 'OPEN' ? 'bg-surface-raised text-foreground' : 'bg-surface-raised text-muted' }`}>
           {listing.status}
         </span>
       </div>
 
       {/* Pokemon Sprite & Name */}
       <div className="flex flex-col items-center mb-4 relative">
-        <img
-          src={getSpriteUrl(pokemon.species.id)}
-          alt={pokemon.species.name}
-          className="w-24 h-24 object-contain group-hover:scale-110 transition-transform pixelated"
-        />
-        <h3 className="text-xl font-black text-foreground mt-2 capitalize flex items-center gap-1">
+        <div className="w-24 h-24 rounded-2xl bg-surface-raised border border-border/80 flex items-center justify-center p-2 mb-2 shadow-xs group-hover:scale-105 transition-transform duration-200">
+          <img
+            src={getSpriteUrl(pokemon.species.id)}
+            alt={pokemon.species.name}
+            className="w-20 h-20 object-contain drop-shadow-sm pixelated"
+            loading="lazy"
+          />
+        </div>
+        <h3 className="text-lg font-black text-foreground capitalize flex items-center gap-1.5 tracking-tight group-hover:text-primary transition-colors">
           {pokemon.species.name}
           {pokemon.potential === 'LEGENDARY' && <Sparkles className="w-4 h-4 text-foreground" />}
         </h3>
-        <p className="text-xs font-semibold text-muted uppercase tracking-wider mt-1">
+        <p className="text-[11px] font-bold text-muted uppercase tracking-wider mt-0.5 bg-surface-raised border border-border px-2 py-0.2 rounded-full">
           {pokemon.potential?.replace(/_/g, ' ')}
         </p>
       </div>
 
       {/* Seller info and Time */}
-      <div className="pt-4 border-t border-border">
-        <div className="flex justify-between items-center text-sm">
+      <div className="pt-3.5 border-t border-border">
+        <div className="flex justify-between items-center text-xs">
           <div className="text-muted">
-            By <span className="font-bold text-muted">{listing.seller?.user?.username || 'You'}</span>
+            By <span className="font-bold text-foreground">{listing.seller?.user?.username || 'You'}</span>
           </div>
-          <div className="text-muted text-xs font-medium">
+          <div className="text-muted font-semibold">
             {listing.status === 'OPEN' ? (
               isExpired ? 'Expired' : `${timeAgo(new Date(listing.expiresAt))} left`
             ) : (
@@ -100,7 +103,7 @@ export function TradeListingCard({ listing, onClick }: TradeListingCardProps) {
       
       {/* Offers Badge */}
       {listing._count && listing._count.offers > 0 && listing.status === 'OPEN' && (
-        <div className="absolute -top-3 -right-3 bg-surface-raised text-foreground text-xs font-bold px-2 py-1 rounded-full shadow-md animate-pulse">
+        <div className="absolute -top-2.5 -right-2.5 bg-primary text-primary-foreground border border-primary/20 text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
           {listing._count.offers} Offer{listing._count.offers > 1 ? 's' : ''}
         </div>
       )}

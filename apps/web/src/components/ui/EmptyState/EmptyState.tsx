@@ -20,17 +20,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <div
       className={clsx(
-        'flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-border/80 bg-surface/50 w-full max-w-lg mx-auto',
+        'flex flex-col items-center justify-center p-8 sm:p-12 text-center rounded-3xl border border-dashed border-border bg-surface shadow-xs w-full max-w-lg mx-auto',
         className
       )}
       {...props}
     >
-      <div className="w-14 h-14 rounded-full bg-surface-raised border border-border flex items-center justify-center mb-4 text-muted">
-        {icon || <Inbox className="w-7 h-7" />}
+      <div className="w-16 h-16 rounded-2xl bg-surface-raised border border-border flex items-center justify-center mb-4 text-muted shadow-xs">
+        {icon || <Inbox className="w-8 h-8" />}
       </div>
-      <h3 className="text-base font-bold text-foreground mb-1">{title}</h3>
+      <h3 className="text-lg font-black text-foreground mb-1.5 tracking-tight">{title}</h3>
       {description && <p className="text-sm text-muted max-w-sm mb-6 leading-relaxed">{description}</p>}
-      {action && <div className="mt-2">{action}</div>}
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 };

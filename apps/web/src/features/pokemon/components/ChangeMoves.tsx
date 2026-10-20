@@ -162,7 +162,11 @@ export function ChangeMovesPage() {
                       newMoves[idx] = ''; // clear slot to indicate editing
                       setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: idx });
                     }}
-                    className={`text-sm font-bold px-4 py-2.5 min-h-[44px] w-full rounded-lg transition-colors touch-manipulation flex items-center justify-center ${ changeMovePkm.editingSlot === idx ? 'bg-surface-raised text-foreground' : 'bg-surface-raised hover:bg-surface-raised text-subtle' }`}
+                    className={`text-xs font-black uppercase tracking-wider px-4 py-2 min-h-[40px] w-full rounded-xl transition-all active:scale-[0.98] touch-manipulation flex items-center justify-center ${
+                      changeMovePkm.editingSlot === idx
+                        ? 'bg-primary text-primary-foreground shadow-xs'
+                        : 'bg-surface-raised hover:bg-surface-raised/80 text-foreground border border-border'
+                    }`}
                   >
                     {changeMovePkm.editingSlot === idx ? 'Editing' : 'Swap'}
                   </button>
@@ -175,9 +179,9 @@ export function ChangeMovesPage() {
         {/* Move Selection */}
         {changeMovePkm.editingSlot !== undefined && (
         <div className="flex flex-col gap-4 pb-6">
-          <div className="flex flex-col gap-3 sticky top-0 bg-background pb-4 z-10 border-b border-border">
-            <h3 className="font-bold text-muted flex items-center gap-2 text-sm sm:text-base">
-              {changeMovePkm.editingSlot !== undefined ? 'Select a move...' : 'Select "Swap" on a slot first'}
+          <div className="flex flex-col gap-3 sticky top-0 bg-background/95 backdrop-blur-xs pb-4 z-10 border-b border-border">
+            <h3 className="font-black text-foreground flex items-center gap-2 text-sm sm:text-base">
+              {changeMovePkm.editingSlot !== undefined ? 'Select a move to learn...' : 'Select "Swap" on a slot first'}
             </h3>
             <div className="flex flex-col sm:flex-row items-stretch gap-3 w-full">
               <input
@@ -186,7 +190,7 @@ export function ChangeMovesPage() {
                 value={moveSearch}
                 onChange={(e) => setMoveSearch(e.target.value)}
                 disabled={changeMovePkm.editingSlot === undefined}
-                className="flex-1 min-h-[44px] sm:min-h-[52px] w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-base sm:text-sm text-foreground font-bold focus:outline-none focus:border-border transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                className="flex-1 min-h-[44px] sm:min-h-[48px] w-full bg-surface border border-border rounded-xl px-4 py-2.5 text-base sm:text-sm text-foreground font-bold shadow-xs focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               />
               <div className="w-full sm:w-[25%] min-w-0">
                 <Dropdown
@@ -197,12 +201,12 @@ export function ChangeMovesPage() {
                     ...(Array.from(new Set<string>(allMoves?.map((m: MoveDto) => m.type) || [])).filter((t: string) => t !== 'shadow' && t !== 'unknown').sort()).map(t => ({
                       value: t.toLowerCase(),
                       label: t,
-                      icon: <img src={getTypeSpriteUrl(t, true)} alt={t} className="h-5 w-auto object-contain drop-shadow-sm" />
+                      icon: <img src={getTypeSpriteUrl(t, true)} alt={t} className="h-4 w-auto object-contain drop-shadow-xs" />
                     }))
                   ]}
                   placeholder="All Types"
                   activeColor="blue"
-                  className="!w-full h-full min-h-[44px] sm:min-h-[52px] rounded-xl border-2 border-border shadow-none focus:border-border focus:ring-0"
+                  className="!w-full h-full min-h-[44px] sm:min-h-[48px] rounded-xl border border-border shadow-xs focus:border-border focus:ring-0"
                   dropdownClassName="!w-full max-h-80 min-w-[var(--radix-select-trigger-width)]"
                   optionsContainerClassName="grid grid-cols-2 gap-1 p-2"
                   disabled={changeMovePkm.editingSlot === undefined}
@@ -219,14 +223,14 @@ export function ChangeMovesPage() {
                   ]}
                   placeholder="Sort by Name"
                   activeColor="blue"
-                  className="!w-full h-full min-h-[44px] sm:min-h-[52px] rounded-xl border-2 border-border shadow-none focus:border-border focus:ring-0"
+                  className="!w-full h-full min-h-[44px] sm:min-h-[48px] rounded-xl border border-border shadow-xs focus:border-border focus:ring-0"
                   dropdownClassName="!w-full max-h-80 min-w-[var(--radix-select-trigger-width)]"
                   disabled={changeMovePkm.editingSlot === undefined}
                 />
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-2 pb-6">
             {changeMovePkm.editingSlot !== undefined && allMoves
               ?.filter((move: MoveDto) => allowedMoveIds.has(move.id))
@@ -255,23 +259,23 @@ export function ChangeMovesPage() {
                     setChangeMovePkm({ ...changeMovePkm, currentMoves: newMoves, editingSlot: undefined });
                     setMoveSearch('');
                   }}
-                  className="flex items-center justify-between p-3 sm:p-4 rounded-xl border-2 border-border hover:border-border bg-surface/50 text-left transition-colors group min-h-[44px] touch-manipulation gap-2"
+                  className="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-border hover:border-border hover:bg-surface-raised/70 bg-surface text-left shadow-xs hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group min-h-[44px] touch-manipulation gap-2"
                 >
-                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-5 w-auto object-contain drop-shadow-sm shrink-0" />
-                    <span className="font-bold capitalize text-foreground truncate text-sm sm:text-lg group-hover:text-foreground transition-colors">
+                  <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+                    <img src={getTypeSpriteUrl(move.type, true)} alt={move.type} title={move.type} className="h-4.5 w-auto object-contain shrink-0" />
+                    <span className="font-black capitalize text-foreground truncate text-xs sm:text-sm">
                       {move.name.replace('-', ' ')}
                     </span>
                   </div>
-                  <div className="flex items-center justify-end gap-2.5 sm:gap-6 text-xs sm:text-sm font-semibold text-muted shrink-0">
-                    <span className="flex items-center gap-1">PWR: <span className="text-muted w-5 sm:w-6 text-right">{move.power || '-'}</span></span>
-                    <span className="capitalize w-12 sm:w-16 text-right">{move.damageClass}</span>
+                  <div className="flex items-center justify-end gap-3 sm:gap-6 text-xs font-semibold text-muted shrink-0">
+                    <span className="flex items-center gap-1 font-mono">PWR: <strong className="text-foreground">{move.power || '—'}</strong></span>
+                    <span className="capitalize w-14 sm:w-16 text-right font-medium">{move.damageClass}</span>
                   </div>
                 </button>
               ))}
-              
+
             {changeMovePkm.editingSlot !== undefined && allMoves?.filter((move: MoveDto) => allowedMoveIds.has(move.id)).length === 0 && (
-              <div className="text-center p-8 text-muted font-medium bg-surface-raised/50 rounded-xl">
+              <div className="text-center p-8 text-muted font-medium bg-surface-raised rounded-2xl border border-border text-sm">
                 No moves match your search or filters.
               </div>
             )}
@@ -280,10 +284,10 @@ export function ChangeMovesPage() {
         )}
       </div>
 
-      <div className="mt-auto flex items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-6 pb-2 pb-safe border-t border-border bg-background sticky bottom-0 z-10">
+      <div className="mt-auto flex items-center justify-end gap-2.5 sm:gap-3 pt-4 pb-2 pb-safe border-t border-border bg-background sticky bottom-0 z-10">
         <button
           onClick={() => navigate(-1)}
-          className="px-4 sm:px-6 py-2.5 sm:py-3 font-bold text-subtle hover:bg-surface-raised rounded-xl transition-colors min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center touch-manipulation text-sm sm:text-base"
+          className="px-5 py-2.5 font-bold text-muted hover:text-foreground hover:bg-surface-raised rounded-xl transition-all min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center touch-manipulation text-xs sm:text-sm select-none"
         >
           Cancel
         </button>
@@ -296,7 +300,7 @@ export function ChangeMovesPage() {
             changeMovesMutation.mutate({ pokemonId: changeMovePkm.id, moves: moveIds });
           }}
           disabled={changeMovesMutation.isPending || changeMovePkm.editingSlot !== undefined}
-          className="px-5 sm:px-8 py-2.5 sm:py-3 font-bold text-foreground bg-surface-raised hover:bg-surface-raised rounded-xl transition-colors disabled:opacity-50 shadow-lg shadow-glow min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center touch-manipulation text-sm sm:text-base"
+          className="px-7 py-2.5 font-black text-primary-foreground bg-primary rounded-xl transition-all disabled:opacity-50 active:scale-[0.98] shadow-xs hover:opacity-90 min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center touch-manipulation text-xs sm:text-sm select-none"
         >
           {changeMovesMutation.isPending ? 'Saving...' : 'Save Moves'}
         </button>

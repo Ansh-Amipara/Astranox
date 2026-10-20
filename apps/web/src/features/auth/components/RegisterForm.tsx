@@ -51,22 +51,29 @@ export function Register() {
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] items-start sm:pt-24 justify-center overflow-hidden bg-background text-foreground">
-      {/* Monochrome Glass Card */}
-      <div className="relative z-10 w-full max-w-md min-h-[100dvh] sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-border bg-background p-5 sm:p-8 pt-safe pb-safe shadow-2xl">
+    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-background text-foreground p-4">
+      {/* Tactile Card */}
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-xs">
         <div className="mb-8 text-center flex flex-col items-center">
-          <img src="/logo.webp" alt="Astranox" className="w-16 h-16 object-contain mb-3 drop-shadow-md" />
-          <h1 className="text-4xl font-black tracking-tight text-foreground">Join Astranox</h1>
-          <p className="text-xs uppercase font-bold tracking-widest text-muted mt-2">Register a new trainer account</p>
+          <div className="w-14 h-14 rounded-2xl bg-surface-raised border border-border p-2.5 flex items-center justify-center mb-4 shadow-xs">
+            <img src="/logo.webp" alt="Astranox" className="w-full h-full object-contain drop-shadow-xs" />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">Join Astranox</h1>
+          <span className="text-[10px] uppercase font-black tracking-widest text-muted px-2.5 py-0.5 rounded-full bg-surface-raised border border-border mt-2">
+            New Trainer Registration
+          </span>
         </div>
 
         {success ? (
-          <div className="rounded-xl bg-surface p-6 text-center border border-border space-y-2">
-            <h3 className="text-lg font-bold text-foreground">Registration Successful!</h3>
-            <p className="text-sm text-muted">Redirecting to login...</p>
+          <div className="rounded-2xl bg-surface-raised p-6 text-center border border-border space-y-2">
+            <span className="inline-block text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-success/10 text-success border border-success/20 mb-2">
+              Registration Complete
+            </span>
+            <h3 className="text-lg font-black text-foreground">Welcome to Astranox!</h3>
+            <p className="text-xs text-muted">Redirecting you to the trainer portal...</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Field label="Username" error={errors.username?.message} required>
               <Input
                 {...register('username')}
@@ -94,7 +101,7 @@ export function Register() {
             </Field>
 
             {errors.root?.message && (
-              <div className="rounded-xl bg-surface p-3 text-sm text-foreground border border-border">
+              <div className="rounded-xl bg-danger/10 border border-danger/20 p-3 text-xs font-semibold text-danger">
                 {errors.root.message}
               </div>
             )}
@@ -102,7 +109,7 @@ export function Register() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full"
+              className="w-full mt-2"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
@@ -116,7 +123,7 @@ export function Register() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-sm text-muted">
+        <p className="mt-6 text-center text-xs text-muted">
           Already a trainer?{' '}
           <Link to="/login" className="text-foreground font-bold hover:underline transition-colors">
             Log In

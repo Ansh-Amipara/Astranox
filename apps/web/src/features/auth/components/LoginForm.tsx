@@ -51,20 +51,24 @@ export function Login() {
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] items-start sm:pt-24 justify-center overflow-hidden bg-background text-foreground">
-      {/* Monochrome Glass Card */}
-      <div className="relative z-10 w-full max-w-md min-h-[100dvh] sm:min-h-0 rounded-none sm:rounded-2xl border-0 sm:border border-border bg-background p-5 sm:p-8 pt-safe pb-safe shadow-2xl">
+    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-background text-foreground p-4">
+      {/* Tactile Card */}
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-xs">
         <div className="mb-8 text-center flex flex-col items-center">
-          <img src="/logo.webp" alt="Astranox" className="w-16 h-16 object-contain mb-3 drop-shadow-md" />
-          <h1 className="text-4xl font-black tracking-tight text-foreground">Astranox</h1>
-          <p className="text-xs uppercase font-bold tracking-widest text-muted mt-2">Trainer Portal</p>
+          <div className="w-14 h-14 rounded-2xl bg-surface-raised border border-border p-2.5 flex items-center justify-center mb-4 shadow-xs">
+            <img src="/logo.webp" alt="Astranox" className="w-full h-full object-contain drop-shadow-xs" />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">Astranox</h1>
+          <span className="text-[10px] uppercase font-black tracking-widest text-muted px-2.5 py-0.5 rounded-full bg-surface-raised border border-border mt-2">
+            Trainer Portal
+          </span>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Field label="Username" error={errors.username?.message} required>
             <Input
               {...register('username')}
-              placeholder="username"
+              placeholder="Enter your username"
               autoComplete="username"
             />
           </Field>
@@ -79,7 +83,7 @@ export function Login() {
           </Field>
 
           {errors.root?.message && (
-            <div className="rounded-xl bg-surface p-3 text-sm text-foreground border border-border">
+            <div className="rounded-xl bg-danger/10 border border-danger/20 p-3 text-xs font-semibold text-danger">
               {errors.root.message}
             </div>
           )}
@@ -87,7 +91,7 @@ export function Login() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full"
+            className="w-full mt-2"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -100,7 +104,7 @@ export function Login() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted">
+        <p className="mt-6 text-center text-xs text-muted">
           New trainer?{' '}
           <Link to="/register" className="text-foreground font-bold hover:underline transition-colors">
             Create an account

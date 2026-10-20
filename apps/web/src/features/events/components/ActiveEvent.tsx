@@ -41,10 +41,10 @@ export function ActiveEvent() {
 
   if (!eventData || !eventData.event) {
     return (
-      <div className="flex-1 p-4 md:p-8 bg-surface-raised min-h-[calc(100dvh-64px)] flex flex-col items-center justify-center">
-        <div className="text-center bg-primary p-6 sm:p-8 shadow max-w-md w-full rounded">
+      <div className="flex-1 p-4 md:p-8 bg-background min-h-[calc(100dvh-64px)] flex flex-col items-center justify-center">
+        <div className="text-center bg-surface p-6 sm:p-8 shadow-xs border border-border max-w-md w-full rounded-2xl">
           <h2 className="text-xl sm:text-2xl font-black text-foreground mb-2">No Active Events</h2>
-          <p className="text-subtle text-sm sm:text-base">There are currently no active challenge events.</p>
+          <p className="text-muted text-sm sm:text-base">There are currently no active challenge events.</p>
         </div>
       </div>
     );
@@ -78,100 +78,111 @@ export function ActiveEvent() {
   const rewardSpecies = event.rewardSpecies;
 
   return (
-    <div className="flex-1 bg-surface min-h-[calc(100dvh-64px)] w-full flex flex-col p-4 sm:p-6 md:p-12">
-      <div className="w-full max-w-[1600px] mx-auto space-y-6 sm:space-y-8">
+    <div className="flex-1 bg-background min-h-[calc(100dvh-64px)] w-full flex flex-col p-4 sm:p-6 md:p-10">
+      <div className="w-full max-w-5xl mx-auto space-y-6">
         
         {/* Header */}
-        <div className="text-left border-b border-border pb-4 sm:pb-6">
-          <Link to="/events" className="inline-flex items-center gap-2 text-primary-foreground hover:text-subtle font-bold mb-3 sm:mb-4 transition-colors min-h-[44px]">
-            <FiArrowLeft className="w-5 h-5" /> Back to Events
+        <div className="text-left border-b border-border pb-5">
+          <Link to="/events" className="inline-flex items-center gap-2 text-muted hover:text-foreground font-semibold text-sm mb-3 transition-colors min-h-[44px]">
+            <FiArrowLeft className="w-4 h-4" /> Back to Events
           </Link>
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground mb-2">{event.name}</h1>
-          <p className="text-sm sm:text-lg text-muted font-medium">Ends in {timeRemaining}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">{event.name}</h1>
+              <p className="text-sm text-muted font-medium mt-1">Ends in {timeRemaining}</p>
+            </div>
+            <span className="self-start sm:self-auto text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-success/10 text-success border border-success/20">
+              Active Challenge
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Left Column: Task & Progress */}
-          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
-            {/* Task Box */}
-            <div className="bg-surface-raised/50 border border-border rounded-2xl p-5 sm:p-8 text-left h-full">
-              <h2 className="text-xl sm:text-2xl font-bold text-muted mb-4 flex items-center gap-3">
-                <FiInfo className="text-foreground w-5 h-5 sm:w-6 sm:h-6" /> Task Objective
-              </h2>
-              <ul className="list-disc pl-5 sm:pl-6 text-muted space-y-2 font-medium text-base sm:text-lg">
-                <li>{event.description}</li>
-                {config.pokemonType && (
-                  <li>Must be a <span className="font-bold">{config.pokemonType} Type</span> Pokemon</li>
-                )}
-              </ul>
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-surface border border-border rounded-2xl p-6 sm:p-8 text-left shadow-xs flex flex-col justify-between">
+              <div>
+                <h2 className="text-lg sm:text-xl font-black text-foreground mb-4 flex items-center gap-2.5">
+                  <FiInfo className="text-muted w-5 h-5" /> Task Objective
+                </h2>
+                <ul className="list-disc pl-5 text-muted space-y-2 font-medium text-sm sm:text-base">
+                  <li>{event.description}</li>
+                  {config.pokemonType && (
+                    <li>Must be a <span className="font-bold text-foreground">{config.pokemonType} Type</span> Pokémon</li>
+                  )}
+                </ul>
+              </div>
               
-              <div className="mt-8 sm:mt-12">
-                 <div className="flex justify-between text-base sm:text-lg font-bold text-muted mb-3 px-1">
-                   <span>Your Progress</span>
-                   <span>{currentProgress} / {requiredCount}</span>
+              <div className="mt-8 pt-6 border-t border-border">
+                 <div className="flex justify-between text-sm font-bold text-foreground mb-2.5 px-0.5">
+                   <span className="text-muted">Your Progress</span>
+                   <span className="font-mono">{currentProgress} / {requiredCount} ({percent}%)</span>
                  </div>
-                 <div className="w-full h-5 sm:h-6 bg-surface-raised rounded-full overflow-hidden shadow-inner">
+                 <div className="w-full h-4 bg-surface-raised rounded-full overflow-hidden border border-border/50">
                    <div
-                     className={`h-full transition-all duration-1000 ease-out ${isComplete ? 'bg-surface-raised' : 'bg-surface-raised'}`}
+                     className={`h-full transition-all duration-700 ease-out rounded-full ${isComplete ? 'bg-success' : 'bg-primary'}`}
                      style={{ width: `${percent}%` }}
                    />
                  </div>
+                 <p className="text-xs text-subtle font-medium mt-4">
+                   Note: Tasks must be completed before the event ends. Progress is saved, but unclaimed rewards expire.
+                 </p>
               </div>
-              
-              <p className="text-xs sm:text-sm text-muted font-medium mt-6">
-                Note: Tasks must be completed before the event ends. Progress is saved, but rewards are forfeited if time runs out.
-              </p>
             </div>
           </div>
 
           {/* Right Column: Reward */}
           <div className="lg:col-span-1">
-            <div className="bg-surface-raised border border-border rounded-2xl p-5 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden h-full">
-              <div className="text-xs sm:text-sm font-black uppercase tracking-widest text-foreground mb-6 sm:mb-8 opacity-80">Event Reward</div>
+            <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col items-center justify-between text-center shadow-xs h-full">
+              <div className="w-full">
+                <span className="inline-block text-[11px] font-black uppercase tracking-wider text-muted px-2.5 py-0.5 rounded-full bg-surface-raised border border-border mb-4">
+                  Event Reward
+                </span>
+                
+                {rewardSpecies ? (
+                  <div className="flex flex-col items-center w-full">
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 my-2 drop-shadow-md hover:scale-105 transition-transform flex items-center justify-center">
+                      <img
+                        src={rewardSpecies.spriteUrl || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${rewardSpecies.id}.png`}
+                        alt={rewardSpecies.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="text-xl sm:text-2xl font-black text-foreground capitalize mb-3">
+                      {event.rewardConfig?.form ? `${event.rewardConfig.form} ${rewardSpecies.name}` : rewardSpecies.name}
+                    </div>
+                    
+                    <div className="flex flex-wrap justify-center gap-2 text-xs font-bold mb-4 w-full">
+                      <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">Lv. {event.rewardConfig?.level || 5}</span>
+                      <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">{event.rewardConfig?.potential || 'DIAMOND'}</span>
+                      <span className="px-2.5 py-1 bg-surface-raised rounded-lg text-muted border border-border">{event.rewardConfig?.ivs || 'Max'} IVs</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 mb-6">
+                      {rewardSpecies.type1 && <img src={getTypeSpriteUrl(rewardSpecies.type1.name, false)} alt={rewardSpecies.type1.name} title={rewardSpecies.type1.name} className="h-6 w-auto object-contain" loading="lazy" />}
+                      {rewardSpecies.type2 && <img src={getTypeSpriteUrl(rewardSpecies.type2.name, false)} alt={rewardSpecies.type2.name} title={rewardSpecies.type2.name} className="h-6 w-auto object-contain" loading="lazy" />}
+                    </div>
+                  </div>
+                ) : (
+                   <div className="w-28 h-28 bg-surface-raised rounded-full flex items-center justify-center font-bold text-muted my-6 text-4xl border border-border">?</div>
+                )}
+              </div>
               
-              {rewardSpecies ? (
-                <div className="flex flex-col items-center w-full">
-                  <div className="w-32 h-32 sm:w-48 sm:h-48 mb-4 sm:mb-6 drop-shadow-xl hover:scale-110 transition-transform">
-                    <img
-                      src={rewardSpecies.spriteUrl || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${rewardSpecies.id}.png`}
-                      alt={rewardSpecies.name}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="text-xl sm:text-3xl font-black text-foreground capitalize mb-4 sm:mb-6 text-center">
-                    {event.rewardConfig?.form ? `${event.rewardConfig.form} ${rewardSpecies.name}` : rewardSpecies.name}
-                  </div>
-                  
-                  <div className="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold mb-4 sm:mb-6 w-full">
-                    <span className="px-3 py-1.5 sm:py-2 bg-surface rounded-lg shadow-sm text-muted border border-border">Lv. {event.rewardConfig?.level || 5}</span>
-                    <span className="px-3 py-1.5 sm:py-2 bg-surface rounded-lg shadow-sm text-muted border border-border">{event.rewardConfig?.potential || 'DIAMOND'}</span>
-                    <span className="px-3 py-1.5 sm:py-2 bg-surface rounded-lg shadow-sm text-muted border border-border">{event.rewardConfig?.ivs || 'Max'} IVs</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8">
-                    {rewardSpecies.type1 && <img src={getTypeSpriteUrl(rewardSpecies.type1.name, false)} alt={rewardSpecies.type1.name} title={rewardSpecies.type1.name} className="h-6 sm:h-8 w-auto object-contain drop-shadow-sm" loading="lazy" />}
-                    {rewardSpecies.type2 && <img src={getTypeSpriteUrl(rewardSpecies.type2.name, false)} alt={rewardSpecies.type2.name} title={rewardSpecies.type2.name} className="h-6 sm:h-8 w-auto object-contain drop-shadow-sm" loading="lazy" />}
-                  </div>
-                </div>
-              ) : (
-                 <div className="w-32 h-32 sm:w-48 sm:h-48 bg-surface-raised rounded-full flex items-center justify-center font-bold text-muted mb-6 sm:mb-8 text-4xl sm:text-6xl">?</div>
-              )}
-              
-              <div className="w-full mt-auto">
+              <div className="w-full pt-4 border-t border-border mt-auto">
                 {isClaimed ? (
-                  <button disabled className="w-full bg-surface-raised text-muted font-bold py-4 sm:py-5 min-h-[44px] rounded-xl cursor-not-allowed text-base sm:text-lg flex items-center justify-center">
+                  <button disabled className="w-full bg-surface-raised text-muted font-bold py-3 min-h-[44px] rounded-xl cursor-not-allowed text-sm flex items-center justify-center border border-border">
                     Reward Claimed
                   </button>
                 ) : isComplete ? (
                   <button
                     onClick={() => claimMutation.mutate(event.id)}
                     disabled={claimMutation.isPending}
-                    className="w-full bg-surface-raised hover:bg-surface-raised text-foreground font-black py-4 sm:py-5 min-h-[44px] rounded-xl shadow-lg hover:shadow-glow transition-all active:scale-95 text-lg sm:text-xl flex items-center justify-center"
+                    className="w-full bg-primary hover:opacity-90 text-primary-foreground font-black py-3 min-h-[44px] rounded-xl shadow-xs transition-all active:scale-[0.98] text-sm flex items-center justify-center touch-manipulation select-none"
                   >
                     {claimMutation.isPending ? 'Claiming...' : 'Claim Reward!'}
                   </button>
                 ) : (
-                  <button disabled className="w-full bg-surface-raised/50 text-muted font-bold py-4 sm:py-5 min-h-[44px] rounded-xl border border-border cursor-not-allowed text-base sm:text-lg flex items-center justify-center">
+                  <button disabled className="w-full bg-surface-raised/70 text-subtle font-bold py-3 min-h-[44px] rounded-xl border border-border cursor-not-allowed text-sm flex items-center justify-center">
                     Task Incomplete
                   </button>
                 )}

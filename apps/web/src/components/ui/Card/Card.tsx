@@ -3,19 +3,19 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
 export const cardVariants = cva(
-  'rounded-2xl border transition-all duration-300',
+  'rounded-2xl border transition-all duration-200 ease-out',
   {
     variants: {
       variant: {
         default: 'bg-surface border-border text-foreground shadow-xs',
         glass:
-          'bg-surface/90 backdrop-blur-xl border-border shadow-xs text-foreground',
+          'bg-surface/85 backdrop-blur-md border-border shadow-xs text-foreground',
         glow:
-          'bg-surface border-border shadow-glow-card hover:shadow-glow-card-hover hover:border-border text-foreground',
+          'bg-surface border-border shadow-glow-card hover:shadow-glow-card-hover text-foreground',
       },
       padding: {
         none: '',
-        sm: 'p-3',
+        sm: 'p-3.5',
         md: 'p-6',
         lg: 'p-8',
       },
@@ -61,7 +61,7 @@ export function CardRoot({
       className={cn(
         cardVariants({ variant, padding }),
         isInteractive &&
-          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         className
       )}
       {...props}
