@@ -1,12 +1,7 @@
 import { memo } from 'react';
-import { PokemonSprite } from '@/features/pokemon/components/PokemonSprite';
-import { HealthBar } from './HealthBar';
-import { StatusIcons } from './StatusIcons';
-import { WeatherEffects } from './WeatherEffects';
-import { getTypeSpriteUrl } from '@/lib/axios';
-import { ActivePokemonDto, OwnedPokemonDto } from '@astranox/types';;
-import { formatPotential } from '@/features/pokemon/pokemonUtils';
-import { getMaxLevelForPotential } from '@/features/pokemon/pokemonUtils';
+import { BattleStage } from './BattleStage';
+import { ActivePokemonDto, OwnedPokemonDto } from '@astranox/types';
+
 interface Props {
   wild: ActivePokemonDto & { name?: string; isCorrupted?: boolean; statusAilment?: string };
   player: ActivePokemonDto & { name?: string; nickname?: string; statusAilment?: string };
@@ -14,148 +9,18 @@ interface Props {
   playerPartyData: (OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string })[];
 }
 
-export const BattleArena = memo(function BattleArena({ wild, player, opponentPartyData, playerPartyData }: Props) {
+export const BattleArena = memo(function BattleArena({
+  wild,
+  player,
+  opponentPartyData,
+  playerPartyData,
+}: Props) {
   return (
-    <div
-      className="relative z-10 w-full h-full flex-1 p-2 sm:p-4 bg-surface overflow-hidden shadow-glow transition-colors"
-    >
-      <WeatherEffects weather={null} />
-
-      {/* Wild Info Card (Top Left) */}
-      <div className="absolute top-2 left-2 sm:top-6 sm:left-6 bg-surface-raised/90 backdrop-blur-md border border-border rounded-2xl p-2 sm:p-4 shadow-2xl w-[calc(100%-1rem)] max-w-[280px] sm:w-80 md:w-96 z-20 text-foreground">
-        <div className="flex justify-between items-start mb-1 sm:mb-2 gap-2">
-          <div className="flex flex-col gap-0.5 sm:gap-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <h2 className="text-sm sm:text-2xl font-bold capitalize tracking-wide drop-shadow-sm line-clamp-1 sm:line-clamp-2 break-words">{wild.name || wild.speciesName}</h2>
-              {wild.isCorrupted && (
-                <span className="px-1.5 py-0.5 bg-surface-raised text-muted border border-border/50 rounded-sm text-[10px] font-black uppercase tracking-widest">
-                  Corrupted
-                </span>
-              )}
-            </div>
-            {wild.types && (
-              <div className="flex gap-1 mt-0.5">
-                {wild.types.map((t: string) => (
-                  <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-4 sm:h-5 object-contain drop-shadow" />
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col items-end shrink-0">
-            <div className="flex items-center gap-1">
-              <span className="text-xs sm:text-sm font-bold text-muted drop-shadow-sm">Lv {wild.level}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mb-1 sm:mb-1.5 mt-1.5 sm:mt-2">
-          {/* Opponent Party Dots */}
-          {opponentPartyData && opponentPartyData.length > 0 ? (
-            <div className="flex gap-1 sm:gap-1.5 shrink-0">
-              {opponentPartyData.map((p: OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string }, idx: number) => (
-                <div
-                  key={p.id || idx}
-                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-border ${p.currentHp > 0 ? 'bg-health-high shadow-sm' : 'bg-health-low opacity-50'}`}
-                  title={`${p.name || p.species?.name || 'Pokemon'} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
-                ></div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex gap-1 sm:gap-1.5 shrink-0">
-              <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-border ${wild.currentHp > 0 ? 'bg-health-high shadow-sm' : 'bg-health-low opacity-50'}`}></div>
-            </div>
-          )}
-
-          <div className="text-xs text-muted font-bold shrink-0">
-            {wild.currentHp} / {wild.maxHp}
-          </div>
-        </div>
-
-        <div className="w-full">
-          <HealthBar currentHp={wild.currentHp} maxHp={wild.maxHp} hideText={true} />
-        </div>
-        <StatusIcons statusAilment={wild.statusAilment} />
-      </div>
-
-      {/* Wild Sprite (Top Right) */}
-      <div className="absolute top-16 right-4 sm:top-12 sm:right-16 z-10 pointer-events-none">
-        <PokemonSprite
-          speciesId={wild.speciesId}
-          speciesName={wild.name || wild.speciesName}
-          isPlayer={false}
-          className=""
-        />
-      </div>
-
-      {/* Player Sprite (Bottom Left) */}
-      <div className="absolute bottom-28 left-4 sm:bottom-12 sm:left-24 z-10 pointer-events-none">
-        <PokemonSprite
-          speciesId={player.speciesId}
-          speciesName={player.name || player.speciesName}
-          isPlayer={true}
-          className=""
-        />
-      </div>
-
-      {/* Player Info Card (Bottom Right) */}
-      <div className="absolute bottom-2 right-2 sm:bottom-6 sm:right-6 bg-surface-raised/90 backdrop-blur-md border border-border rounded-2xl p-2 sm:p-4 shadow-2xl w-[calc(100%-1rem)] max-w-[280px] sm:w-80 md:w-96 z-20 text-foreground">
-        <div className="flex justify-between items-start mb-1 sm:mb-2 gap-2">
-          <div className="flex flex-col gap-0.5 sm:gap-1 min-w-0">
-            <h3 className="text-sm sm:text-xl font-bold capitalize tracking-wide drop-shadow-sm line-clamp-1 sm:line-clamp-2 break-words">
-              {player.name || player.nickname || player.speciesName}
-            </h3>
-            {player.types && (
-              <div className="flex gap-1 mt-0.5">
-                {player.types.map((t: string) => (
-                  <img key={t} src={getTypeSpriteUrl(t)} alt={t} title={t} className="h-4 sm:h-5 object-contain drop-shadow" />
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col items-end shrink-0">
-            {player.potential && (
-              <span className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 bg-surface-raised text-muted border border-border rounded font-bold uppercase tracking-wider mb-0.5">
-                {formatPotential(player.potential)}
-              </span>
-            )}
-            <div className="flex items-center gap-1">
-              <span className="text-xs sm:text-sm font-bold text-muted drop-shadow-sm">Lv {player.level}</span>
-              {player.potential && player.level >= getMaxLevelForPotential(player.potential as string) && (
-                <span className="text-[9px] sm:text-[10px] font-bold text-foreground bg-surface/50 border border-border/50 px-1 rounded uppercase">Capped</span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mb-1 sm:mb-1.5 mt-1.5 sm:mt-2">
-          {/* Player Party Dots */}
-          {playerPartyData && playerPartyData.length > 0 ? (
-            <div className="flex gap-1 sm:gap-1.5 shrink-0">
-              {playerPartyData.map((p: OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string }, idx: number) => (
-                <div
-                  key={p.id || idx}
-                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-border ${p.currentHp > 0 ? 'bg-health-high shadow-sm' : 'bg-health-low opacity-50'}`}
-                  title={`${p.name || p.species?.name} (${p.currentHp > 0 ? 'Healthy' : 'Fainted'})`}
-                ></div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex gap-1 sm:gap-1.5 shrink-0">
-              <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-border ${player.currentHp > 0 ? 'bg-health-high shadow-sm' : 'bg-health-low opacity-50'}`}></div>
-            </div>
-          )}
-
-          <div className="text-xs text-muted font-bold shrink-0">
-            {player.currentHp} / {player.maxHp}
-          </div>
-        </div>
-
-        <div className="w-full">
-          <HealthBar currentHp={player.currentHp} maxHp={player.maxHp} hideText={true} />
-        </div>
-        <StatusIcons statusAilment={player.statusAilment} />
-      </div>
-    </div>
+    <BattleStage
+      wild={wild}
+      player={player}
+      opponentPartyData={opponentPartyData}
+      playerPartyData={playerPartyData}
+    />
   );
 });
-

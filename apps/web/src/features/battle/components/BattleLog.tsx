@@ -1,28 +1,100 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef } from 'react';
+import { ScrollText, X } from 'lucide-react';
 
 interface Props {
   lastTurnEvents: string[];
   status: string;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
+  className?: string;
 }
 
-export const BattleLog = memo(function BattleLog({ lastTurnEvents, status }: Props) {
+export const BattleLog = memo(function BattleLog({
+  lastTurnEvents,
+  status,
+  isMobileOpen: _isMobileOpen = false,
+  onCloseMobile,
+  className = '',
+}: Props) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom whenever new turn events arrive
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [lastTurnEvents]);
+
+  const hasEvents = lastTurnEvents && lastTurnEvents.length > 0;
+  const promptMessage =
+    status === 'WAITING_SWITCH'
+      ? 'Choose your next Pokémon!'
+      : status === 'WAITING_MOVE_LEARN'
+      ? 'Choose a move to forget...'
+      : 'What will you do?';
+
   return (
-    <div className="w-full h-16 sm:h-24 lg:w-1/5 lg:h-full bg-surface-raised/50 backdrop-blur-md border-t lg:border-t-0 lg:border-l border-border/50 p-2 sm:p-3 lg:p-6 font-mono shadow-xl transition-colors duration-200 flex flex-col z-20 shrink-0 overflow-hidden">
-      <h3 className="hidden lg:block text-xl font-black text-foreground mb-4 uppercase tracking-widest border-b border-border/50 pb-2 shrink-0 drop-shadow-sm">Battle Log</h3>
-      <div className="flex-1 flex flex-col overflow-y-auto min-h-0 no-scrollbar">
-        <div className="flex flex-col space-y-1 lg:space-y-2 pb-2 lg:pb-8">
-          {lastTurnEvents.length > 0 ? (
-            lastTurnEvents.map((msg: string, i: number) => (
-              <p key={i} className="text-sm lg:text-lg text-foreground mb-1 lg:mb-2 leading-relaxed capitalize">
-                {msg}
-              </p>
-            ))
-          ) : (
-            <p className="text-sm lg:text-lg text-foreground animate-pulse">
-              {status === 'WAITING_SWITCH' || status === 'WAITING_MOVE_LEARN' ? 'Waiting for your action...' : 'What will you do?'}
-            </p>
+    <div
+      className={`bg-surface border-border flex flex-col font-sans transition-colors duration-200 select-none ${className}`}
+      role="log"
+      aria-label="Battle events log"
+      aria-live="polite"
+    >
+      {/* Log Header */}
+      <div className="px-3 py-2 sm:px-4 sm:py-3 border-b border-border flex items-center justify-between shrink-0 bg-surface-raised/40">
+        <div className="flex items-center gap-2">
+          <ScrollText className="w-4 h-4 text-muted" aria-hidden="true" />
+          <h2 className="text-xs sm:text-sm font-extrabold text-foreground uppercase tracking-wider">
+            Battle Log
+          </h2>
+          {hasEvents && (
+            <span className="text-[10px] font-bold px-1.5 py-0.2 bg-surface-raised text-muted border border-border rounded-full">
+              {lastTurnEvents.length}
+            </span>
           )}
         </div>
+
+        {/* Mobile close button if displayed as a bottom sheet/drawer */}
+        {onCloseMobile && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            aria-label="Close battle log"
+            className="md:hidden w-8 h-8 flex items-center justify-center text-muted hover:text-foreground rounded-lg"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Message List */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 no-scrollbar"
+      >
+        {hasEvents ? (
+          lastTurnEvents.map((msg, i) => {
+            const isLatest = i === lastTurnEvents.length - 1;
+            return (
+              <div
+                key={`log-${i}`}
+                className={`text-xs sm:text-sm leading-relaxed transition-all ${
+                  isLatest
+                    ? 'text-foreground font-bold bg-surface-raised/70 border-l-2 border-primary pl-2.5 py-1.5 rounded-r-xl'
+                    : 'text-muted font-medium pl-2.5 py-0.5'
+                }`}
+              >
+                {msg}
+              </div>
+            );
+          })
+        ) : (
+          <div className="h-full flex items-center justify-center p-4">
+            <p className="text-xs sm:text-sm text-muted font-bold animate-pulse text-center">
+              {promptMessage}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

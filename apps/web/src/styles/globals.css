@@ -32,6 +32,26 @@
   --color-danger: #dc2626;
   --color-danger-foreground: #ffffff;
 
+  /* Pokemon Elemental Type Tokens (Semantic Type Accents) */
+  --color-type-normal: #919aa2;
+  --color-type-fire: #ff9d55;
+  --color-type-water: #5090d6;
+  --color-type-grass: #63bc5a;
+  --color-type-electric: #f4d23c;
+  --color-type-ice: #73cec0;
+  --color-type-fighting: #ce416b;
+  --color-type-poison: #b567ce;
+  --color-type-ground: #d97845;
+  --color-type-flying: #89aae3;
+  --color-type-psychic: #fa7179;
+  --color-type-bug: #91c12f;
+  --color-type-rock: #c5b78c;
+  --color-type-ghost: #5269ad;
+  --color-type-dragon: #0b6dc3;
+  --color-type-steel: #5a8ea2;
+  --color-type-dark: #5a5465;
+  --color-type-fairy: #ec8fe6;
+
   --font-sans: "Outfit", sans-serif;
 
   /* Radius Tokens */
@@ -108,6 +128,44 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Battle Screen Visual Feedback Animations */
+@keyframes battle-damage-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+@keyframes battle-damage-flash {
+  0%, 100% { opacity: 1; filter: none; }
+  50% { opacity: 0.35; filter: brightness(1.6); }
+}
+
+@keyframes battle-heal-pulse {
+  0%, 100% { transform: scale(1); filter: none; }
+  50% { transform: scale(1.05); filter: brightness(1.2); }
+}
+
+@keyframes battle-faint {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(24px); opacity: 0; }
+}
+
+.animate-damage-shake {
+  animation: battle-damage-shake 0.4s ease-in-out;
+}
+
+.animate-damage-flash {
+  animation: battle-damage-flash 0.4s ease-in-out;
+}
+
+.animate-heal-pulse {
+  animation: battle-heal-pulse 0.5s ease-in-out;
+}
+
+.animate-faint {
+  animation: battle-faint 0.75s forwards ease-in;
 }
 
 /* Reduced Motion Override for Accessibility */

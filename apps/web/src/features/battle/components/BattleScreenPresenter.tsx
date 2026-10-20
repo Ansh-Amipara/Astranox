@@ -1,10 +1,12 @@
-import { getSpriteUrl } from '@/shared/api/api';
-import { getTypeSpriteUrl } from '@/lib/axios';
-import { BattleArena } from '@/features/battle/components/BattleArena';
+import { useState } from 'react';
+import { BattleStage } from '@/features/battle/components/BattleStage';
 import { BattleControls } from '@/features/battle/components/BattleControls';
 import { BattleLog } from '@/features/battle/components/BattleLog';
+import { SwitchSheet } from '@/features/battle/components/SwitchSheet';
+import { BagSheet } from '@/features/battle/components/BagSheet';
 import { BattleResultModal } from '@/features/battle/components/BattleResultModal';
-import { TrainerSaveDto, ActivePokemonDto, OwnedPokemonDto, TurnEventDto } from '@astranox/types';;
+import { DialogRoot, DialogContent } from '@/components/ui/Dialog';
+import { TrainerSaveDto, ActivePokemonDto, OwnedPokemonDto, TurnEventDto } from '@astranox/types';
 
 export interface BattleScreenPresenterProps {
   menu: 'main' | 'fight' | 'bag' | 'party';
@@ -36,27 +38,52 @@ export interface BattleScreenPresenterProps {
 
 export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
   const {
-    menu, setMenu, toastMsg, showToast, trainerSave, wild, opponentPartyData, player, playerPartyData,
-    status, rawEvents, lastTurnEvents, isFinished, isWaitingSwitch, isPending, battleType, returnUrl, arenaTrainerId,
-    onMoveSelect, onSkipMove, onRun, onOpenBag, onOpenParty, onSwitch, onUseItem
+    menu,
+    setMenu,
+    toastMsg,
+    showToast,
+    trainerSave,
+    wild,
+    opponentPartyData,
+    player,
+    playerPartyData,
+    status,
+    rawEvents,
+    lastTurnEvents,
+    isFinished,
+    isWaitingSwitch,
+    isPending,
+    battleType,
+    returnUrl,
+    arenaTrainerId,
+    onMoveSelect,
+    onSkipMove,
+    onRun,
+    onOpenBag,
+    onOpenParty,
+    onSwitch,
+    onUseItem,
   } = props;
 
-  return (
-    <div className="relative h-[calc(100dvh-64px)] bg-background text-foreground transition-colors duration-200 flex flex-col overflow-hidden">
-      
-      {/* Top Row: Arena and Battle Log */}
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-        
-        {/* Left Column: Arena */}
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 relative">
-          {/* Toast */}
-          {toastMsg && (
-            <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-surface/95 text-foreground px-6 py-3 rounded-xl border border-border z-[100] shadow-xl">
-              {toastMsg}
-            </div>
-          )}
+  const [isMobileLogOpen, setIsMobileLogOpen] = useState(false);
 
-          <BattleArena 
+  return (
+    <div className="relative h-[calc(100dvh-64px)] lg:h-[calc(100dvh-72px)] w-full max-w-full bg-background text-foreground transition-colors duration-200 flex flex-col md:flex-row overflow-hidden">
+      {/* Toast Overlay */}
+      {toastMsg && (
+        <div
+          role="alert"
+          className="absolute top-4 left-1/2 -translate-x-1/2 bg-surface text-foreground px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border border-border z-[100] shadow-xl text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          {toastMsg}
+        </div>
+      )}
+
+      {/* Main Arena & Controls Column */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 relative h-full overflow-hidden">
+        {/* Battle Stage (Upper area, scaled) */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <BattleStage
             wild={wild}
             player={player}
             opponentPartyData={opponentPartyData}
@@ -64,142 +91,75 @@ export function BattleScreenPresenter(props: BattleScreenPresenterProps) {
           />
         </div>
 
-        <BattleLog 
+        {/* Battle Controls (Bottom Action Area) */}
+        <div className="w-full shrink-0">
+          <BattleControls
+            player={player}
+            status={status}
+            rawEvents={rawEvents}
+            isPending={isPending}
+            isFinished={isFinished}
+            isWaitingSwitch={isWaitingSwitch}
+            battleType={battleType}
+            lastTurnEvents={lastTurnEvents}
+            onMoveSelect={onMoveSelect}
+            onSkipMove={onSkipMove}
+            onRun={onRun}
+            onOpenBag={onOpenBag}
+            onOpenParty={onOpenParty}
+            onOpenMobileLog={() => setIsMobileLogOpen(true)}
+          />
+        </div>
+      </div>
+
+      {/* Desktop Battle Log (Side Panel on md and wider) */}
+      <aside
+        className="hidden md:flex w-72 lg:w-80 xl:w-96 shrink-0 h-full border-l border-border bg-surface z-10"
+        aria-label="Battle log sidebar"
+      >
+        <BattleLog
           lastTurnEvents={lastTurnEvents}
           status={status}
+          className="w-full h-full"
         />
-      </div>
+      </aside>
 
-      {/* Bottom Row: Action Menu (Full Width) */}
-      <div className="w-full shrink-0">
-        <BattleControls 
-          player={player}
-          status={status}
-          rawEvents={rawEvents}
-          isPending={isPending}
-          isFinished={isFinished}
-          isWaitingSwitch={isWaitingSwitch}
-          battleType={battleType}
-          onMoveSelect={onMoveSelect}
-          onSkipMove={onSkipMove}
-          onRun={onRun}
-          onOpenBag={onOpenBag}
-          onOpenParty={onOpenParty}
-        />
-      </div>
+      {/* Mobile Collapsible Battle Log Bottom Sheet (on < md) */}
+      <DialogRoot open={isMobileLogOpen} onOpenChange={setIsMobileLogOpen}>
+        <DialogContent className="md:hidden max-h-[75dvh] p-0 overflow-hidden border-border bg-surface">
+          <BattleLog
+            lastTurnEvents={lastTurnEvents}
+            status={status}
+            isMobileOpen={isMobileLogOpen}
+            onCloseMobile={() => setIsMobileLogOpen(false)}
+            className="w-full h-full max-h-[70dvh]"
+          />
+        </DialogContent>
+      </DialogRoot>
 
-      {/* Modal Overlays for Bag & Party (Bottom sheet on mobile, centered modal on desktop) */}
-      {(menu === 'bag' || menu === 'party') && (
-        <div 
-          className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-background/80 backdrop-blur-sm p-0 md:p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isWaitingSwitch) {
-              setMenu('main');
-            }
-          }}
-        >
-          <div className="bg-background text-foreground w-full md:max-w-5xl rounded-t-3xl md:rounded-2xl shadow-2xl overflow-hidden border border-border flex flex-col max-h-[85dvh] pb-safe animate-in fade-in slide-in-from-bottom duration-200">
-            <div className="md:hidden mx-auto my-2.5 h-1.5 w-12 rounded-full bg-border shrink-0" aria-hidden="true" />
-            <div className="px-4 py-3 sm:p-4 border-b border-border flex justify-between items-center bg-surface shrink-0">
-              <h2 className="text-lg sm:text-xl font-bold text-foreground uppercase tracking-wider">{menu === 'bag' ? 'Bag' : 'Pokémon Party'}</h2>
-              {!isWaitingSwitch && (
-                <button
-                  onClick={() => setMenu('main')}
-                  aria-label="Close"
-                  className="w-11 h-11 flex items-center justify-center text-muted hover:text-foreground active:bg-surface rounded-xl transition-colors text-2xl leading-none touch-manipulation -mr-2"
-                >
-                  &times;
-                </button>
-              )}
-            </div>
-            <div className="p-4 sm:p-6 overflow-y-auto">
-              {menu === 'bag' && (
-                trainerSave?.inventory?.filter((inv) => inv.itemId.endsWith('ball') && inv.quantity > 0).length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    {trainerSave.inventory
-                      .filter((inv) => inv.itemId.endsWith('ball') && inv.quantity > 0)
-                      .map((inv) => (
-                        <button
-                          key={inv.itemId}
-                          onClick={() => { onUseItem(inv.itemId); setMenu('main'); }}
-                          disabled={isPending}
-                          className="bg-surface hover:bg-surface-raised active:bg-surface-raised text-foreground flex items-center gap-3 p-3 min-h-[48px] rounded-xl border border-border shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-50 touch-manipulation"
-                        >
-                          {inv.item?.spriteUrl && <img src={inv.item.spriteUrl} alt={inv.item.name} className="w-10 h-10 object-contain drop-shadow" />}
-                          <div className="flex flex-col items-start">
-                            <span className="font-bold text-foreground capitalize">{inv.item?.name?.replace('-', ' ') || inv.itemId.replace('-', ' ')}</span>
-                            <span className="text-sm font-bold text-muted">x{inv.quantity}</span>
-                          </div>
-                        </button>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="p-8 flex items-center justify-center text-lg sm:text-xl text-muted font-bold">
-                    You have no Pokéballs.
-                  </div>
-                )
-              )}
+      {/* Switch Party Picker Sheet */}
+      <SwitchSheet
+        isOpen={menu === 'party' || isWaitingSwitch}
+        onClose={() => setMenu('main')}
+        playerPartyData={playerPartyData}
+        activePokemonId={player.id}
+        isWaitingSwitch={isWaitingSwitch}
+        isPending={isPending}
+        onSwitch={onSwitch}
+        showToast={showToast}
+      />
 
-              {menu === 'party' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                  {playerPartyData.map((p: OwnedPokemonDto & { currentHp: number; maxHp: number; name?: string }) => {
-                    const isActive = p.id === player.id;
-                    const isFainted = p.currentHp <= 0;
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => {
-                          if (isActive) {
-                            showToast(`${p.name || p.speciesName} is already in battle!`);
-                            return;
-                          }
-                          if (isFainted) {
-                            showToast(`${p.name || p.speciesName} has no energy left to battle!`);
-                            return;
-                          }
-                          onSwitch(p.id);
-                          setMenu('main');
-                        }}
-                        disabled={isPending || isActive || isFainted}
-                        className={`flex flex-col items-start p-3 sm:p-4 rounded-xl border shadow-sm transition-all text-left touch-manipulation min-h-[56px] ${isActive ? 'bg-surface-raised border-border text-foreground' : isFainted ? 'bg-surface border-border opacity-40 text-subtle' : 'bg-surface hover:bg-surface-raised active:bg-surface-raised border-border hover:border-border text-foreground hover:-translate-y-0.5'}`}
-                      >
-                        <div className="flex flex-row gap-3 w-full items-center mb-2.5 sm:mb-3">
-                          <img 
-                            src={getSpriteUrl(p.species?.id || p.speciesId)} 
-                            alt={p.name || p.speciesName} 
-                            className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow"
-                            style={{ imageRendering: 'pixelated' }}
-                          />
-                          <div className="flex flex-col flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="font-bold text-foreground capitalize text-base sm:text-lg truncate">{p.name || p.speciesName}</span>
-                              <span className="text-xs sm:text-sm font-black text-muted shrink-0">Lv {p.level}</span>
-                            </div>
-                            <div className="flex gap-1 mt-0.5 sm:mt-1">
-                              {p.types?.map((type: string) => (
-                                <img key={type} src={getTypeSpriteUrl(type, true)} alt={type} className="h-4 sm:h-5 object-contain drop-shadow-sm" />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-full bg-background rounded-full h-2.5 sm:h-3 overflow-hidden relative border border-border">
-                          <div 
-                            className={`h-full transition-all duration-300 ${p.currentHp / p.maxHp > 0.5 ? 'bg-health-high' : p.currentHp / p.maxHp > 0.2 ? 'bg-health-mid' : 'bg-health-low'}`} 
-                            style={{ width: `${Math.max(0, (p.currentHp / p.maxHp) * 100)}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-xs sm:text-sm font-bold mt-1.5 sm:mt-2 text-muted">{p.currentHp} / {p.maxHp} HP</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Bag Items Sheet */}
+      <BagSheet
+        isOpen={menu === 'bag'}
+        onClose={() => setMenu('main')}
+        trainerSave={trainerSave}
+        isPending={isPending}
+        onUseItem={onUseItem}
+      />
 
-      <BattleResultModal 
+      {/* Battle Result Modal */}
+      <BattleResultModal
         isFinished={isFinished}
         status={status}
         battleType={battleType}
