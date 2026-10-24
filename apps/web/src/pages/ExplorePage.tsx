@@ -1,7 +1,7 @@
-import { ExplorePage as Explore } from '@/features/explore/ExplorePage';
+import { Navigate } from 'react-router-dom';
 
 export function ExplorePage() {
-  return <Explore />;
+  return <Navigate to="/realm" replace />;
 }
 
 export default ExplorePage;

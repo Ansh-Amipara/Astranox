@@ -35,8 +35,8 @@ import {
   ListingDetailsPage,
   InfinityTowerPage,
   RiftPage,
-  ExplorePage,
-  ExploreDetailPage,
+  RealmPage,
+  RealmDetailPage,
   EventLandingPage,
   ActiveEventPage,
   EventHistoryPage,
@@ -283,8 +283,10 @@ export function AppRoutes() {
           <Route path="marketplace/:id" element={<ListingDetailsPage />} />
           <Route path="tower" element={<InfinityTowerPage />} />
           <Route path="rift" element={<RiftPage />} />
-          <Route path="explore" element={<ExplorePage />} />
-          <Route path="explore/:id" element={<ExploreDetailPage />} />
+          <Route path="realm" element={<RealmPage />} />
+          <Route path="realm/:realmId" element={<RealmDetailPage />} />
+          <Route path="explore" element={<Navigate to="/realm" replace />} />
+          <Route path="explore/:id" element={<Navigate to="/realm" replace />} />
           <Route path="events">
             <Route index element={<EventLandingPage />} />
             <Route path="active" element={<ActiveEventPage />} />

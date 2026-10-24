@@ -4,7 +4,7 @@ export * from './pokemon';
 export * from './marketplace';
 export * from './pokedex';
 export * from './inventory';
-export * from './explore';
+export * from './realm';
 export * from './events';
 export * from './admin';
 export * from './tower';

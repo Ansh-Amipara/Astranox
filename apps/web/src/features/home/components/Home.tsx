@@ -173,7 +173,7 @@ export function Home() {
           {/* Quick Action Tiles */}
           <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { title: 'Explore', path: '/explore', icon: FiMap },
+              { title: 'Realms', path: '/realm', icon: FiMap },
               { title: 'Battle Arena', path: '/arena', icon: FiTarget },
               { title: 'Infinity Tower', path: '/tower', icon: FiLayers },
               { title: 'Void Rifts', path: '/rift', icon: FiAperture },

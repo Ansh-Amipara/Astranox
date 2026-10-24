@@ -14,7 +14,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       '@astranox/types': path.resolve(__dirname, '../../packages/types/index.ts'),
       '@astranox/constants': path.resolve(__dirname, '../../packages/constants/index.ts'),
-      '@astranox/game-map': path.resolve(__dirname, '../../packages/game-map/src/index.ts'),
       '@astranox/battle-engine': path.resolve(__dirname, '../../packages/battle-engine/src/index.ts'),
     },
   },

@@ -32,7 +32,7 @@ export function Header() {
     { to: '/arena', label: 'Arena' },
     { to: '/tower', label: 'Tower' },
     { to: '/rift', label: 'Rift' },
-    { to: '/explore', label: 'Realm' },
+    { to: '/realm', label: 'Realm' },
     { to: '/events', label: 'Events' },
     { to: '/rank', label: 'Rank' },
     { to: '/marketplace', label: 'Market' },

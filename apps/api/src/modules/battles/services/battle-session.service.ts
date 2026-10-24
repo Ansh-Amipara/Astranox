@@ -186,7 +186,7 @@ export class BattleSessionService {
     if (trainerSave.party.length === 0) {
       throw new ValidationError('You have no Pokemon to battle with!');
     }
-    const lead = trainerSave.party[0]; 
+    const lead = trainerSave.party.find((p: any) => p.currentHp === undefined || p.currentHp > 0) || trainerSave.party[0]; 
     const playerInstance = mapOwnedPokemonToInstance(lead as any);
     const playerActive = toActivePokemon(playerInstance);
 
@@ -199,7 +199,7 @@ export class BattleSessionService {
       opponentPokemonData: wildActive,
       playerPokemonData: playerActive,
       playerPartyData,
-      battleType: battleType || 'NPC' // Default to NPC for standard custom encounters
+      battleType: battleType || 'WILD'
     });
 
     return {

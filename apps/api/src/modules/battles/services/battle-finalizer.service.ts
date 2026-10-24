@@ -64,6 +64,7 @@ export class BattleFinalizerService {
 
       let result: FinalizeResult = { outcome };
       const expConfig = await this.balanceService.get('exploration', state.balanceVersion);
+      const actualMapId = (state as any).mapId || (trainerSave as any).currentMapId || 'region-1';
 
       await prisma.$transaction(async (tx) => {
         if (outcome === 'WON') {
@@ -111,7 +112,7 @@ export class BattleFinalizerService {
             data: {
               userId,
               trainerId: trainerSave.id,
-              mapId: 'route-1',
+              mapId: actualMapId,
               speciesId: state.wildPokemon.speciesId,
               level: state.wildPokemon.level,
               outcome: 'WON',
@@ -204,7 +205,7 @@ export class BattleFinalizerService {
             data: {
               userId,
               trainerId: trainerSave.id,
-              mapId: 'route-1',
+              mapId: actualMapId,
               speciesId: state.wildPokemon.speciesId,
               level: state.wildPokemon.level,
               outcome: 'CAPTURED',
@@ -236,10 +237,6 @@ export class BattleFinalizerService {
             where: { id: trainerSave.id },
             data: {
               astralCoins: newCoins,
-              currentMapId: spawnMapId,
-              posX: spawnX,
-              posY: spawnY,
-              facing: expConfig.DEFAULT_SPAWN_FACING,
             },
           });
 
@@ -264,7 +261,7 @@ export class BattleFinalizerService {
             data: {
               userId,
               trainerId: trainerSave.id,
-              mapId: 'route-1',
+              mapId: actualMapId,
               speciesId: state.wildPokemon.speciesId,
               level: state.wildPokemon.level,
               outcome: 'DEFEATED',
@@ -284,7 +281,7 @@ export class BattleFinalizerService {
             data: {
               userId,
               trainerId: trainerSave.id,
-              mapId: 'route-1',
+              mapId: actualMapId,
               speciesId: state.wildPokemon.speciesId,
               level: state.wildPokemon.level,
               outcome: 'FLED',
@@ -299,20 +296,6 @@ export class BattleFinalizerService {
 
       // Clean up active battle pointer
       await this.cache.del(`active_battle:${userId}`);
-
-      // Set encounter immunity steps in exploration session
-      const exploreKey = `explore:${userId}`;
-      const exploreSession = await this.cache.get<any>(exploreKey);
-      if (exploreSession) {
-        exploreSession.immunityStepsRemaining = expConfig.POST_BATTLE_IMMUNITY_STEPS;
-        if (result.respawnPosition) {
-          exploreSession.mapId = result.respawnPosition.mapId;
-          exploreSession.x = result.respawnPosition.x;
-          exploreSession.y = result.respawnPosition.y;
-          exploreSession.facing = expConfig.DEFAULT_SPAWN_FACING;
-        }
-        await this.cache.set(exploreKey, exploreSession, 86400);
-      }
 
       return result;
     });

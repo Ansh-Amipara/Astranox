@@ -41,22 +41,15 @@ export const BattlePokemonSprite = memo(function BattlePokemonSprite({
 
   return (
     <div className={`relative flex flex-col items-center justify-end select-none ${className}`}>
-      {/* Ground platform pedestal with semantic base and platform artwork */}
+      {/* Ground platform / shadow built from semantic tokens */}
       <div
-        className={`absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none transition-all flex items-center justify-center ${
+        className={`absolute bottom-0 left-1/2 -translate-x-1/2 rounded-[50%] bg-surface-raised border border-border shadow-xs pointer-events-none transition-all ${
           isPlayer
-            ? 'w-28 sm:w-44 md:w-56 h-7 sm:h-10'
-            : 'w-24 sm:w-36 md:w-48 h-6 sm:h-9'
+            ? 'w-28 sm:w-44 md:w-56 h-6 sm:h-8'
+            : 'w-24 sm:w-36 md:w-48 h-5 sm:h-7'
         }`}
         aria-hidden="true"
-      >
-        <div className="absolute inset-0 rounded-[50%] bg-surface-raised border border-border shadow-xs opacity-70" />
-        <img
-          src="/banners/battle-platform.webp"
-          alt="Battle Stage Platform Pedestal"
-          className="relative w-full h-full object-contain filter drop-shadow-sm opacity-90"
-        />
-      </div>
+      />
 
       {/* Pokemon Sprite */}
       <img

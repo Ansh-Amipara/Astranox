@@ -5,9 +5,8 @@ import { initSocket } from './socket';
 import { logger } from './config/logger';
 import { startMarketplaceWorker } from './modules/marketplace/marketplace.worker';
 import { app } from './app';
-import { container } from 'tsyringe';
 import { BattlesGateway } from './modules/battles/battles.gateway';
-import { ExploreGateway } from './modules/explore/explore.gateway';
+import { container } from 'tsyringe';
 
 const port = env.API_PORT;
 
@@ -21,9 +20,6 @@ httpServer.on('listening', () => {
   
   const battlesGateway = container.resolve(BattlesGateway);
   battlesGateway.initialize();
-
-  const exploreGateway = container.resolve(ExploreGateway);
-  exploreGateway.initialize();
 
   startMarketplaceWorker();
 });

@@ -16,7 +16,6 @@ import { prisma } from '../../core/db/prisma';
 
 
 import { CacheService } from '../../core/services/cache.service';
-import { ALL_MAPS } from '@astranox/game-map';
 import { EXPLORATION_CONSTANTS, CATCH_CONSTANTS } from '@astranox/constants';
 
 @injectable()
@@ -25,7 +24,6 @@ export class AdminService {
 
   getExplorationOverview() {
     return {
-      maps: ALL_MAPS,
       constants: {
         EXPLORATION_CONSTANTS,
         CATCH_CONSTANTS,

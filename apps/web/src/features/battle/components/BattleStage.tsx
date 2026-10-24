@@ -51,18 +51,6 @@ export const BattleStage = memo(function BattleStage({
     <div
       className={`relative w-full flex-1 flex flex-col justify-between p-2 sm:p-4 md:p-6 bg-surface overflow-hidden transition-colors select-none ${className}`}
     >
-      {/* Stadium Environment Backdrop */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-        <img
-          src="/banners/battle-backdrop.webp"
-          alt="Battle Stadium Environment Backdrop"
-          loading="lazy"
-          className="w-full h-full object-cover object-center opacity-30 sm:opacity-40 filter blur-[0.5px]"
-        />
-        {/* Contrast Overlay using semantic tokens */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-surface/40 to-background/85" />
-      </div>
-
       <WeatherEffects weather={null} />
 
       {/* Opponent Zone (Top): Info card on the left, Sprite on the right */}

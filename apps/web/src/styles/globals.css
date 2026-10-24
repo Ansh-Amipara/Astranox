@@ -52,6 +52,29 @@
   --color-type-dark: #5a5465;
   --color-type-fairy: #ec8fe6;
 
+  /* Terrain Semantic Tokens */
+  --color-terrain-path: #f4f4f5;
+  --color-terrain-grass: #f0fdf4;
+  --color-terrain-tall-grass: #dcfce7;
+  --color-terrain-tree: #14532d;
+  --color-terrain-rock: #71717a;
+  --color-terrain-water: #e0f2fe;
+  --color-terrain-sand: #fef3c7;
+  --color-terrain-snow: #f8fafc;
+  --color-terrain-ice: #bae6fd;
+  --color-terrain-cave: #27272a;
+  --color-terrain-building: #18181b;
+  --color-terrain-warp: #09090b;
+
+  /* Overworld Biome Accent Tokens */
+  --color-biome-grassland: #22c55e;
+  --color-biome-forest: #15803d;
+  --color-biome-water: #0ea5e9;
+  --color-biome-snow: #38bdf8;
+  --color-biome-desert: #f59e0b;
+  --color-biome-cave: #64748b;
+  --color-biome-volcano: #ef4444;
+
   --font-sans: "Outfit", sans-serif;
 
   /* Radius Tokens */

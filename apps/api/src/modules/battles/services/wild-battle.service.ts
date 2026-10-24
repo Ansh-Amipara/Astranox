@@ -1,12 +1,11 @@
 import { injectable } from 'tsyringe';
-import { BattleEngineState, PlayerAction, resolveTurn } from '@astranox/battle-engine';
+import { BattleEngineState, BattlePokemon, PlayerAction, resolveTurn } from '@astranox/battle-engine';
 import { CacheService } from '../../../core/services/cache.service';
 import { BalanceService } from '../../balance/balance.service';
 import { RedisLockService } from '../../../core/services/redis-lock.service';
 import { prisma } from '../../../core/db/prisma';
 import { NotFoundError, ValidationError } from '../../../core/errors/AppError';
 import { BattleFinalizerService } from './battle-finalizer.service';
-import { EncounterService } from '../../explore/services/encounter.service';
 
 @injectable()
 export class WildBattleService {
@@ -14,8 +13,7 @@ export class WildBattleService {
     private cache: CacheService,
     private balanceService: BalanceService,
     private lockService: RedisLockService,
-    private finalizer: BattleFinalizerService,
-    private encounterService: EncounterService
+    private finalizer: BattleFinalizerService
   ) {}
 
   private getBattleKey(battleId: string): string {
@@ -113,10 +111,35 @@ export class WildBattleService {
 
       return {
         events: turnResult.events,
-        state: this.encounterService.toPublicBattleState(turnResult.state),
+        state: this.toPublicBattleState(turnResult.state),
         outcome: turnResult.state.outcome,
         finalResult,
       };
     });
+  }
+
+  private toPublicPokemon(p: BattlePokemon, includeMoves: boolean = false) {
+    return {
+      id: p.id,
+      speciesId: p.speciesId,
+      speciesName: p.speciesName,
+      level: p.level,
+      types: p.types,
+      maxHp: p.maxHp,
+      currentHp: p.currentHp,
+      status: p.status,
+      moves: includeMoves ? p.moves : undefined,
+    };
+  }
+
+  public toPublicBattleState(s: BattleEngineState) {
+    return {
+      battleId: s.battleId,
+      turnNumber: s.turnNumber,
+      playerActive: this.toPublicPokemon(s.playerActive, true),
+      playerParty: s.playerParty.map((p) => this.toPublicPokemon(p, p.id === s.playerActive.id)),
+      wildPokemon: this.toPublicPokemon(s.wildPokemon, false),
+      outcome: s.outcome,
+    };
   }
 }

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { BATTLE_CONSTANTS, battleBalanceSchema } from './battle';
 import { CATCH_CONSTANTS, catchBalanceSchema } from './catch';
-import { EXPLORATION_CONSTANTS, explorationBalanceSchema } from './exploration';
+import { REALM_CONSTANTS, realmBalanceSchema, EXPLORATION_CONSTANTS, explorationBalanceSchema } from './realm';
 import { PROGRESSION_CONSTANTS, POTENTIAL_MAX_LEVELS, progressionBalanceSchema } from './progression';
 import { ECONOMY_CONSTANTS, economyBalanceSchema } from './economy';
 import { LIMIT_CONSTANTS, limitsBalanceSchema } from './limits';
@@ -12,7 +12,7 @@ import { RIFT_BALANCE_DEFAULTS, riftBalanceSchema } from './rift';
 
 export * from './battle';
 export * from './catch';
-export * from './exploration';
+export * from './realm';
 export * from './progression';
 export * from './economy';
 export * from './limits';

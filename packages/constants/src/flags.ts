@@ -19,9 +19,9 @@ export const FEATURE_FLAGS: FeatureFlagDefinition[] = [
     defaultValue: true,
   },
   {
-    key: 'exploration',
-    name: '2D Tile Grid Exploration',
-    description: 'Enables overworld grid movement, map exploration, and wild encounters.',
+    key: 'realms',
+    name: 'Wilderness Realms',
+    description: 'Enables wild Pokémon encounters and exploration across elemental Realms.',
     defaultValue: true,
   },
   {

@@ -6,7 +6,7 @@ export * from './src/battle';
 export * from './src/trade';
 export * from './src/shop';
 export * from './src/tower';
-export * from './src/explore';
+export * from './src/realm';
 export * from './src/events';
 export * from './src/admin';
 export * from './src/arena';

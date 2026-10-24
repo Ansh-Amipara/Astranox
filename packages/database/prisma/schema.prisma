@@ -117,15 +117,6 @@ model TrainerSave {
   riftState          RiftDungeonState?
   eventProgress      PlayerEventProgress[]
 
-  // Overworld Exploration 2D Grid
-  currentMapId        String   @default("pallet-town")
-  posX                Int      @default(5)
-  posY                Int      @default(5)
-  facing              String   @default("DOWN")
-  lastHealMapId       String   @default("pallet-town")
-  lastHealX           Int      @default(5)
-  lastHealY           Int      @default(5)
-  stepsSinceEncounter Int      @default(0)
 
   encounterHistory    EncounterHistory[]
 }
@@ -844,6 +835,30 @@ model DungeonFloorRule {
 
   @@unique([dungeonType, floorNumber, difficulty])
   @@index([dungeonType, isArchived, enabled])
+}
+
+// ----------------------------------------------------------------------
+// WILDERNESS REALMS
+// ----------------------------------------------------------------------
+
+model Realm {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  realmId       String   @unique
+  name          String
+  description   String
+  themeKey      String
+  types         String[]
+  spawnLevelMin Int      @default(5)
+  spawnLevelMax Int      @default(35)
+  spawns        Json     // Array of RealmSpawnEntry: { speciesId, speciesName, types, rank, weight, minLevel, maxLevel, isApex }
+  enabled       Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  dataVersion   Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([realmId, enabled])
+  @@index([sortOrder])
 }
 
 

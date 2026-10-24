@@ -9,7 +9,7 @@ interface BottomNavItem {
 }
 
 const NAV_ITEMS: BottomNavItem[] = [
-  { to: '/explore', label: 'Explore', icon: Compass },
+  { to: '/realm', label: 'Realm', icon: Compass },
   { to: '/pokedex', label: 'Pokédex', icon: BookOpen },
   { to: '/inventory', label: 'Bag', icon: Backpack },
   { to: '/shop', label: 'Shop', icon: ShoppingBag },

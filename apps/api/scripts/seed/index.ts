@@ -4,8 +4,8 @@ function main() {
   console.log('Running Astranox-data seed...');
   execSync('npx tsx scripts/seed/astranox-data/index.ts', { stdio: 'inherit' });
   
-  // console.log('Running World seed...');
-  // execSync('npx tsx scripts/seed/world-seed.ts', { stdio: 'inherit' });
+  console.log('Running Realms seed...');
+  execSync('npx tsx scripts/seed/seed-realms.ts', { stdio: 'inherit' });
 
 
 

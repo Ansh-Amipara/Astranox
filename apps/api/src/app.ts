@@ -24,7 +24,7 @@ import { inventoryRoutes } from './modules/inventory/inventory.routes';
 import pokedexRoutes from './modules/pokedex/pokedex.routes';
 import towerRoutes from './modules/tower/tower.routes';
 import { riftRoutes } from './modules/rift/rift.routes';
-import exploreRoutes from './modules/explore/explore.routes';
+import { realmsRoutes } from './modules/realms/realms.routes';
 import { errorHandler } from './core/middleware/error-handler';
 import { ForbiddenError } from './core/errors/AppError';
 import { requestIdMiddleware } from './core/middleware/request-id';
@@ -121,7 +121,8 @@ app.use('/pokedex', pokedexRoutes);
 app.use('/tower', towerRoutes);
 app.use('/rift', riftRoutes);
 app.use('/marketplace', marketplaceRoutes);
-app.use('/explore', exploreRoutes);
+app.use('/realms', realmsRoutes);
+app.use('/explore', (_req, res) => res.redirect(301, '/realms'));
 app.use('/events', eventsRoutes);
 app.use('/flags', flagsRoutes);
 

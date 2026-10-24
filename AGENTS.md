@@ -152,7 +152,7 @@ Feature-based modules. Shared/cross-cutting code only in `common/`. Don't import
 | Move-inflicted status/stat effects | Not built | Needs `Move` schema patch (structured `ailment`, `ailment_chance`, `stat_changes`) |
 | Catching wild Pokémon | Built | Canonical Gen V+ 4-shake threshold algorithm via `@astranox/battle-engine` |
 | XP/leveling from battle | Not built | |
-| Zone/encounter tables | Built | 2D tile grid maps with warp transitions and weighted encounter tables via `@astranox/game-map` |
+| Zone/encounter tables | Built | 7 elemental Wilderness Realms covering all 18 types and 100% of species in Astranox-data |
 | Team switching mid-battle | Not built | Battle currently ends if the lead faints |
 | Abilities/items/weather effects | Not built | |
 
@@ -162,7 +162,7 @@ Feature-based modules. Shared/cross-cutting code only in `common/`. Don't import
 
 - **Starters are the classic Grass/Fire/Water trio from Generations 1-9** (Bulbasaur to Quaxly). One-time choice, enforced server-side (`TrainerSave.starterChosenAt`). Generated at level 5 with standard random IVs and a level-appropriate moveset from the real learnset data.
 - **Mega Evolution & Gigantamax unlock via Battle**: Mega Stones and Dynamax items (e.g. Wishing Pieces, Max Mushrooms) are completely removed from the game. To unlock Mega Evolution or Gigantamax for a Pokémon, the player must defeat that specific Mega or G-Max species in battle (which adds the species ID to `TrainerSave.unlockedForms`). Once unlocked, the player can freely evolve and devolve their Pokémon on the Pokemon page.
-- **Wild encounter generation is a placeholder**: random species + random level (3–15) + random valid IVs/moveset, not a real zone/location-based encounter table. To be replaced.
+- **Wilderness Realms**: Wild encounters occur across 7 elemental Wilderness Realms (Volcano, Ocean, Storm Peaks, Forest, Shadow Hollow, Mind Temple, Iron Dojo) covering all 18 types and all species. 2D grid/tile movement is removed; exploration is realm-based.
 - **Wild AI is a placeholder**: picks a random valid move. Not real battle AI.
 - **No PP**: The concept of Power Points (PP) is completely removed. Moves can be used infinitely. As a result, Struggle is also removed.
 

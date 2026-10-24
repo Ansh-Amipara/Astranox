@@ -81,13 +81,13 @@ describe('BalanceService', () => {
         version: 1,
         status: 'archived',
         values: {
-          MOVE_COOLDOWN_MS: 300, // Default is 180
+          WIN_CURRENCY_MULTIPLIER: 20, // Default is 10
         },
       } as any);
 
       const snapshot = await balanceService.get('exploration', 1);
-      expect(snapshot.MOVE_COOLDOWN_MS).toBe(300);
-      expect(snapshot.ENCOUNTER_CHANCE_GRASS).toBe(EXPLORATION_CONSTANTS.ENCOUNTER_CHANCE_GRASS);
+      expect(snapshot.WIN_CURRENCY_MULTIPLIER).toBe(20);
+      expect(snapshot.SEARCH_COOLDOWN_MS).toBe(EXPLORATION_CONSTANTS.SEARCH_COOLDOWN_MS);
     });
   });
 

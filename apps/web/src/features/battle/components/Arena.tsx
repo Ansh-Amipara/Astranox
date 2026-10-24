@@ -58,40 +58,31 @@ export function ArenaPage() {
     <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
 
-        {/* Hero Banner Section */}
-        <div className="relative w-full h-44 sm:h-56 md:h-64 rounded-3xl overflow-hidden border border-border shadow-sm bg-surface">
-          <img
-            src="/banners/arena-hero.webp"
-            alt="Trainer Battle Arena Stadium"
-            loading="lazy"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Contrast Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-8 text-white">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/25">
-                    Sanctioned League
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-white/70">
-                    Division Ranks F–S
-                  </span>
-                </div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-                  Trainer Arena
-                </h1>
-                <p className="text-xs sm:text-sm text-white/80 max-w-lg line-clamp-1 sm:line-clamp-none">
-                  Test your frontline Pokémon team against certified trainers across competitive divisions.
-                </p>
-              </div>
-
-              {/* Roster Badge */}
+        {/* Header Section */}
+        <div className="w-full bg-surface border border-border rounded-3xl p-6 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <div className="bg-black/40 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
-                  <Users className="w-4 h-4 text-white/80" />
-                  <span className="text-xs sm:text-sm font-black text-white">{trainers.length} Certified Trainers</span>
-                </div>
+                <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-surface-raised text-muted border border-border">
+                  Sanctioned League
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold text-muted">
+                  Division Ranks F–S
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                Trainer Arena
+              </h1>
+              <p className="text-xs sm:text-sm text-muted max-w-lg">
+                Test your frontline Pokémon team against certified trainers across competitive divisions.
+              </p>
+            </div>
+
+            {/* Roster Badge */}
+            <div className="flex items-center gap-2">
+              <div className="bg-surface-raised border border-border px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+                <Users className="w-4 h-4 text-muted" />
+                <span className="text-xs sm:text-sm font-black text-foreground">{trainers.length} Certified Trainers</span>
               </div>
             </div>
           </div>

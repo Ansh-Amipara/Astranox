@@ -16,32 +16,23 @@ export function EventLanding() {
     <div className="flex-1 p-3 sm:p-4 md:p-6 bg-background min-h-[calc(100dvh-64px)] flex flex-col items-center justify-start">
       <div className="w-full max-w-4xl space-y-4 md:space-y-6">
 
-        {/* Hero Banner Section */}
-        <div className="relative w-full h-44 sm:h-56 md:h-64 rounded-3xl overflow-hidden border border-border shadow-sm bg-surface">
-          <img
-            src="/banners/events-hero.webp"
-            alt="Astranox Special Events & Operations Hub"
-            loading="lazy"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Contrast Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-8 text-white">
-            <div className="space-y-1.5 text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/25">
-                  Operations Hub
-                </span>
-                <span className="text-[10px] sm:text-xs font-bold text-white/70">
-                  Global Missions
-                </span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-                Special Operations
-              </h1>
-              <p className="text-xs sm:text-sm text-white/80 max-w-lg line-clamp-1 sm:line-clamp-none">
-                Participate in time-limited global missions, raids, and seasonal challenges to earn exclusive rewards.
-              </p>
+        {/* Header Section */}
+        <div className="w-full bg-surface border border-border rounded-3xl p-6 sm:p-8 shadow-xs">
+          <div className="space-y-2 text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-surface-raised text-muted border border-border">
+                Operations Hub
+              </span>
+              <span className="text-[10px] sm:text-xs font-bold text-muted">
+                Global Missions
+              </span>
             </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight">
+              Special Operations
+            </h1>
+            <p className="text-xs sm:text-sm text-muted max-w-lg">
+              Participate in time-limited global missions, raids, and seasonal challenges to earn exclusive rewards.
+            </p>
           </div>
         </div>
 

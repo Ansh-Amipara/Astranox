@@ -32,15 +32,8 @@ describe('Admin Exploration Overview Hook', () => {
     app.get('/admin/exploration', mockStaffAuth, controller.getExplorationOverview);
   });
 
-  it('service returns registered maps and exploration/catch constants', () => {
+  it('service returns exploration and catch constants', () => {
     const overview = service.getExplorationOverview();
-
-    expect(overview.maps).toBeDefined();
-    expect(overview.maps['pallet-town']).toBeDefined();
-    expect(overview.maps['pallet-town'].id).toBe('pallet-town');
-    expect(overview.maps['route-1']).toBeDefined();
-    expect(overview.maps['route-1'].id).toBe('route-1');
-    expect(overview.maps['route-1'].encounterTables).toBeDefined();
 
     expect(overview.constants).toBeDefined();
     expect(overview.constants.EXPLORATION_CONSTANTS).toEqual(EXPLORATION_CONSTANTS);
@@ -52,9 +45,7 @@ describe('Admin Exploration Overview Hook', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.maps['pallet-town']).toBeDefined();
-    expect(res.body.data.maps['route-1']).toBeDefined();
-    expect(res.body.data.constants.EXPLORATION_CONSTANTS.MOVE_COOLDOWN_MS).toBe(180);
+    expect(res.body.data.constants.EXPLORATION_CONSTANTS.WIN_CURRENCY_MULTIPLIER).toBe(10);
     expect(res.body.data.constants.CATCH_CONSTANTS.REQUIRED_SHAKES).toBe(4);
   });
 });

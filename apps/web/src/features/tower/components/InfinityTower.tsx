@@ -77,44 +77,35 @@ export const InfinityTowerPage: React.FC = () => {
     <div className="flex-1 bg-background text-foreground p-3 sm:p-4 md:p-6 min-h-[calc(100dvh-64px)] transition-colors duration-200 flex flex-col justify-start">
       <div className="w-full max-w-6xl mx-auto space-y-4 md:space-y-6">
 
-        {/* Hero Banner Section */}
-        <div className="relative w-full h-44 sm:h-56 md:h-64 rounded-3xl overflow-hidden border border-border shadow-sm bg-surface">
-          <img
-            src="/banners/tower-hero.webp"
-            alt="Infinity Tower Ascension Pinnacle"
-            loading="lazy"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Contrast Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-8 text-white">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/25">
-                    Ascension Protocol
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-white/70">
-                    1000 Floors
-                  </span>
-                </div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-                  Infinity Tower
-                </h1>
-                <p className="text-xs sm:text-sm text-white/80 max-w-lg line-clamp-1 sm:line-clamp-none">
-                  Ascend floor by floor against scaling rosters to earn stored XP and Infinity Coins.
-                </p>
+        {/* Header Section */}
+        <div className="w-full bg-surface border border-border rounded-3xl p-6 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-surface-raised text-muted border border-border">
+                  Ascension Protocol
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold text-muted">
+                  1000 Floors
+                </span>
               </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                Infinity Tower
+              </h1>
+              <p className="text-xs sm:text-sm text-muted max-w-lg">
+                Ascend floor by floor against scaling rosters to earn stored XP and Infinity Coins.
+              </p>
+            </div>
 
-              {/* Player Stats Chips */}
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <div className="bg-black/40 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl flex flex-col">
-                  <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Your CP</span>
-                  <span className="text-xs sm:text-sm font-black text-white">{data?.playerCp?.toLocaleString() || 0}</span>
-                </div>
-                <div className="bg-black/40 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl flex flex-col">
-                  <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Highest Floor</span>
-                  <span className="text-xs sm:text-sm font-black text-white">{Math.min(1000, state.highestFloor)} / 1000</span>
-                </div>
+            {/* Player Stats Chips */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="bg-surface-raised border border-border px-3.5 py-1.5 rounded-xl flex flex-col">
+                <span className="text-[10px] font-bold text-muted uppercase tracking-wider">Your CP</span>
+                <span className="text-xs sm:text-sm font-black text-foreground">{data?.playerCp?.toLocaleString() || 0}</span>
+              </div>
+              <div className="bg-surface-raised border border-border px-3.5 py-1.5 rounded-xl flex flex-col">
+                <span className="text-[10px] font-bold text-muted uppercase tracking-wider">Highest Floor</span>
+                <span className="text-xs sm:text-sm font-black text-foreground">{Math.min(1000, state.highestFloor)} / 1000</span>
               </div>
             </div>
           </div>
